@@ -14,6 +14,7 @@
  * @returns {Void}
  */
 function clientPageInit(type){
+   var a = '';
    
 }
 
