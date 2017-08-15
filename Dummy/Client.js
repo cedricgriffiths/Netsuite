@@ -16,6 +16,7 @@
 function clientPageInit(type){
    var a = '';
    var b = '';
+   var c = '';
 }
 
 /**
