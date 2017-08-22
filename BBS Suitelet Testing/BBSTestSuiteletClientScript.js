@@ -50,25 +50,11 @@ function button2Click() {
 		nlapiSetLineItemValue('custpage_sublist2', 'custpage_col23', int, val);
 	}
 	*/
-	var uniqueId = nlapiGetFieldValue('custpage_field1');
+	var sessionId = nlapiGetFieldValue('custpage_sessionid');
 	
-	
-	var filters = new Array();
-	var columns = new Array();
-	filters[0] = new nlobjSearchFilter('custrecord_bbs_params_id', null, 'is', uniqueId);
-	columns[0] = new nlobjSearchColumn('custrecord_bbs_params_data');
-	
-	var paramsSearch = nlapiSearchRecord('customrecord_bbs_internal_params', null, filters, columns);
-	
-	if (paramsSearch != null || paramsSearch.length == 1)
-		{
-			var id = paramsSearch[0].getId();
-			var paramsRecord = nlapiLoadRecord('customrecord_bbs_internal_params', id);
-			var field4 = nlapiGetFieldValue('custpage_field4');
-			
-			paramsRecord.setFieldValue('custrecord_bbs_params_data', field4);
-			nlapiSubmitRecord(paramsRecord, false, true);
-		}
+	var field4 = nlapiGetFieldValue('custpage_field4');
+
+	libSetSessionData(sessionId, field4);
 
 	nlapiRefreshLineItems('custpage_sublist2');
 	

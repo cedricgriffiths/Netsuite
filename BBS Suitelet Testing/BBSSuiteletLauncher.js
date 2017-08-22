@@ -13,7 +13,7 @@
  */
 function suiteletLauncher(request, response)
 {
-	var uniqueId = Number(Date.now()).toFixed(0).toString();
+	var sessionId = libCreateSession();
 	
-	response.sendRedirect('SUITELET', 'customscript_bbs_test_suitelet', 'customdeploy_bbs_test_suitelet', null, {uniqueid: uniqueId});
+	response.sendRedirect('SUITELET', 'customscript_bbs_test_suitelet', 'customdeploy_bbs_test_suitelet', null, {sessionid: sessionId});
 }

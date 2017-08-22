@@ -17,30 +17,10 @@ function suitelet(request, response){
 
 	var paramStartDate = request.getParameter('startdate');
 	var paramEndDate = request.getParameter('enddate');
-	//var uniqueId = request.getParameter('uniqueid'); //Number(Date.now()).toFixed(0).toString();
-	//var sessionData = '';
+	var sessionId = request.getParameter('sessionid'); 
+	var sessionData = '';
 	
 	if (request.getMethod() == 'GET') {
-		
-		var filters = new Array();
-		var columns = new Array();
-		filters[0] = new nlobjSearchFilter('custrecord_bbs_params_id', null, 'is', uniqueId);
-		columns[0] = new nlobjSearchColumn('custrecord_bbs_params_data');
-		
-		var paramsSearch = nlapiSearchRecord('customrecord_bbs_internal_params', null, filters, columns);
-		
-		
-		if (paramsSearch == null || paramsSearch.length == 0)
-			{
-				var paramsRecord = nlapiCreateRecord('customrecord_bbs_internal_params');
-				paramsRecord.setFieldValue('custrecord_bbs_params_id', uniqueId);
-				nlapiSubmitRecord(paramsRecord, false, true);
-			}
-		else
-			{
-				sessionData = paramsSearch[0].getValue('custrecord_bbs_params_data');
-			}
-
 		
 		// Create a form
 		//
@@ -55,6 +35,15 @@ function suitelet(request, response){
 		//
 		form.addSubmitButton('Submit');
 
+		//Session data
+		//
+		sessionData = libGetSessionData(sessionId);
+		
+		var sessionField = form.addField('custpage_sessionid', 'text', 'Session Id');
+		sessionField.setDefaultValue(sessionId);
+		sessionField.setDisplayType('hidden');
+		
+		
 		// Create the uplift field
 		//
 		var field1 = form.addField('custpage_field1', 'text', 'Field 1');
@@ -120,9 +109,11 @@ function suitelet(request, response){
 		//
 		response.writePage(form);
 	}
-	else {
+	else 
+	{
 
-		//dumpResponse(request,response);
+		var sessionId = request.getParameter('custpage_sessionid')
+		libClearSessionData(sessionId);
 
 	}
 
