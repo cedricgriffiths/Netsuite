@@ -13,7 +13,9 @@
  */
 function suiteletLauncher(request, response)
 {
+	var suiteletId = request.getParameter('suiteletid');
+	
 	var sessionId = libCreateSession();
 	
-	response.sendRedirect('SUITELET', 'customscript_bbs_test_suitelet', 'customdeploy_bbs_test_suitelet', null, {sessionid: sessionId});
+	response.sendRedirect('SUITELET', 'customscript_' + suiteletId, 'customdeploy_' + suiteletId, null, {sessionid: sessionId});
 }
