@@ -17,6 +17,6 @@ function libCheckAssembly()
 	
 	// Open a new window
 	//
-	window.open(url, '_blank', 'Check Assembly Build', 'menubar=no, titlebar=no, toolbar=no, scrollbars=no, resizable=yes');
+	window.open(url, '_blank', 'Assembly Build Requirements', 'menubar=no, titlebar=no, toolbar=no, scrollbars=no, resizable=yes');
 
 }

@@ -36,7 +36,7 @@ function suitelet(request, response)
 		
 		// Create a form
 		//
-		var form = nlapiCreateForm('Assembly Build Checking');
+		var form = nlapiCreateForm('Assembly Build Requirements');
 		form.setTitle('Assembly Build Checking');
 
 		//var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Assembly Item');
@@ -89,8 +89,8 @@ function suitelet(request, response)
 				{
 					//Get the item id
 					//
-				var itemId = salesOrderRecord.getLineItemValue('item', 'item', int);
-				var itemQty = Number(salesOrderRecord.getLineItemValue('item', 'quantity', int));
+					var itemId = salesOrderRecord.getLineItemValue('item', 'item', int);
+					var itemQty = Number(salesOrderRecord.getLineItemValue('item', 'quantity', int));
 				
 					//Get the item text
 					//
