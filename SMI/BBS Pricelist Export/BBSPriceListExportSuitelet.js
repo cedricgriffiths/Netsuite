@@ -70,21 +70,21 @@ function suitelet(request, response)
 				var itemPrice = customerRecord.getLineItemValue('itempricing', 'price', int);
 				var itemLevel = customerRecord.getLineItemValue('itempricing', 'level', int);
 				
-				//See if we are using a custom price
-				//
-				if (itemLevel == -1)
+				if (!priceListArray[itemId])
 					{
-						if (!priceListArray[itemId])
+						//See if we are using a custom price
+						//
+						if (itemLevel == -1)
 							{
 								priceListArray[itemId] = [itemId,itemText,itemPrice,0,0,0,0,0,0,0,0,0,0,0] //itemId, ItemText, ItemPrice*6,BreakQty*6 
+		
 							}
-					}
-				else
-					{
-						//If not then we need to go & get the item & then look at the price level that is relevant
-						//
-						priceListArray[itemId] = getItemPricingData(itemId, customerCurrencyId, itemLevel);
-					
+						else
+							{
+								//If not then we need to go & get the item & then look at the price level that is relevant
+								//
+								priceListArray[itemId] = getItemPricingData(itemId, customerCurrencyId, itemLevel);
+							}
 					}
 			}
 			
@@ -109,6 +109,9 @@ function suitelet(request, response)
 					
 				var searchResultSet = getItems(filterArray);
 					
+				//Process the returned item data 
+				//
+				processItemResults(searchResultSet, priceListArray, customerCurrencyId, levelId);
 				
 			}
 			
@@ -124,28 +127,10 @@ function suitelet(request, response)
 			
 			var searchResultSet = getItems(filterArray);
 			
-			//Now loop through the items found
+			//Process the returned item data 
 			//
-			for (var int = 0; int < searchResultSet.length; int++) 
-			{
-				//Get the item id & type
-				//
-				var itemId = searchResultSet[int].getId();
-				var itemType = searchResultSet[int].getValue('type');
-				var itemDisplayName = searchResultSet[int].getValue('salesdescription');
-				
-				//Now see if we already have the iutem in the output array
-				//
-				if (!priceListArray[itemId])
-				{
-					//Call the routine to get the item price details
-					//
-					var priceData = getItemPricingData(itemId, customerCurrencyId, customerPriceLevel);
-					
-					priceListArray[itemId] = priceData;
-
-				}
-			}
+			//processItemResults(searchResultSet, priceListArray, customerCurrencyId, customerPriceLevel);
+			
 		}
 	
 	//Build the output file
@@ -169,48 +154,48 @@ function suitelet(request, response)
 }
 
 
-function getItemRecordType(itemType)
+function getItemRecordType(girtItemType)
 {
-	var itemRecordType = '';
+	var girtItemRecordType = '';
 	
-	switch(itemType)
+	switch(girtItemType)
 	{
 		case 'InvtPart':
-			itemRecordType = 'inventoryitem';
+			girtItemRecordType = 'inventoryitem';
 			break;
 		
 		case 'NonInvtPart':
-			itemRecordType = 'noninventoryitem';
+			girtItemRecordType = 'noninventoryitem';
 			break;
 		
 		case 'Assembly':
-			itemRecordType = 'assemblyitem';
+			girtItemRecordType = 'assemblyitem';
 			break;
 			
 		case 'NonInvtPart':
-			itemRecordType = 'noninventoryitem';
+			girtItemRecordType = 'noninventoryitem';
 			break;
 	}
 
-	return itemRecordType;
+	return girtItemRecordType;
 }
 
-function getItemPricingData(itemId, customerCurrencyId, customerPriceLevel)
+function getItemPricingData(gipdItemId, gipdItemType, gipdItemDisplayName, gipdCurrencyId, gipdPriceLevel)
 {
 	var priceArray = null;
 	
 	//Load the item record
 	//
-	var itemRecord = nlapiLoadRecord(getItemRecordType(itemType), itemId);
+	var itemRecord = nlapiLoadRecord(getItemRecordType(gipdItemType), gipdItemId);
 	
 	//Get the quantity breaks based on the currency code of the customer
 	//
-	var itemQtyBreak1 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity1');
-	var itemQtyBreak2 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity2');
-	var itemQtyBreak3 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity3');
-	var itemQtyBreak4 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity4');
-	var itemQtyBreak5 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity5');
-	var itemQtyBreak6 = itemRecord.getFieldValue('price' + customerCurrencyId.toString() + 'quantity6');
+	var itemQtyBreak1 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity1');
+	var itemQtyBreak2 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity2');
+	var itemQtyBreak3 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity3');
+	var itemQtyBreak4 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity4');
+	var itemQtyBreak5 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity5');
+	var itemQtyBreak6 = itemRecord.getFieldValue('price' + gipdCurrencyId.toString() + 'quantity6');
 	
 	itemQtyBreak1 = (itemQtyBreak1 == null ? 0 : itemQtyBreak1);
 	itemQtyBreak2 = (itemQtyBreak2 == null ? 0 : itemQtyBreak2);
@@ -221,31 +206,32 @@ function getItemPricingData(itemId, customerCurrencyId, customerPriceLevel)
 	
 	//Read the price sublist based on the customer's currency code
 	//
-	var priceSublist = 'price' + customerCurrencyId.toString();
+	var priceSublist = 'price' + gipdCurrencyId.toString();
 	
 	var priceLineCount = itemRecord.getLineItemCount(priceSublist);
+	var quantityLevels = itemRecord.getMatrixCount(priceSublist, 'price');
+	
+	priceArray = [gipdItemId,gipdItemDisplayName];
 	
 	for (var int2 = 1; int2 <= priceLineCount; int2++) 
 	{
 		var pricePriceLevel = itemRecord.getLineItemValue(priceSublist, 'pricelevel', int2);
 		
-		if (pricePriceLevel == customerPriceLevel)
+		if (pricePriceLevel == gipdPriceLevel)
 			{
-				var pricePrice1 = nlapiGetLineItemValue(priceSublist, 'price[1]', int2);
-				var pricePrice2 = nlapiGetLineItemValue(priceSublist, 'price[2]', int2);
-				var pricePrice3 = nlapiGetLineItemValue(priceSublist, 'price[3]', int2);
-				var pricePrice4 = nlapiGetLineItemValue(priceSublist, 'price[4]', int2);
-				var pricePrice5 = nlapiGetLineItemValue(priceSublist, 'price[5]', int2);
-				var pricePrice6 = nlapiGetLineItemValue(priceSublist, 'price[6]', int2);
-				
-				pricePrice1 = (pricePrice1 == null ? 0 : pricePrice1);
-				pricePrice2 = (pricePrice2 == null ? 0 : pricePrice2);
-				pricePrice3 = (pricePrice3 == null ? 0 : pricePrice3);
-				pricePrice4 = (pricePrice4 == null ? 0 : pricePrice4);
-				pricePrice5 = (pricePrice5 == null ? 0 : pricePrice5);
-				pricePrice6 = (pricePrice6 == null ? 0 : pricePrice6);
-				
-				priceArray = [itemId,itemDisplayName,pricePrice1,pricePrice2,pricePrice3,pricePrice4,pricePrice5,pricePrice6,itemQtyBreak1,itemQtyBreak2,itemQtyBreak3,itemQtyBreak4,itemQtyBreak5,itemQtyBreak6] //itemId, ItemText, ItemPrice*6,BreakQty*6 
+				for ( j=1; j<=quantityLevels; j++)
+					{
+						var matrixPrice = itemRecord.getLineItemMatrixValue(priceSublist, 'price', int2, j);
+						matrixPrice = (matrixPrice == '' ? 0 : matrixPrice);
+						priceArray.push(matrixPrice);
+					}
+
+				priceArray.push(itemQtyBreak1);
+				priceArray.push(itemQtyBreak2);
+				priceArray.push(itemQtyBreak3);
+				priceArray.push(itemQtyBreak4);
+				priceArray.push(itemQtyBreak5);
+				priceArray.push(itemQtyBreak6);
 
 				break;
 			}
@@ -253,9 +239,9 @@ function getItemPricingData(itemId, customerCurrencyId, customerPriceLevel)
 	return priceArray
 }
 
-function getItems(filterArray)
+function getItems(giFilterArray)
 {
-	var itemSearch = nlapiCreateSearch("item", filterArray, 
+	var itemSearch = nlapiCreateSearch("item", giFilterArray, 
 			[
 			new nlobjSearchColumn("itemid",null,null), 
 			new nlobjSearchColumn("displayname",null,null), 
@@ -288,3 +274,28 @@ function getItems(filterArray)
 	
 	return searchResultSet;
 }
+
+function processItemResults(pirSearchResultSet, priceListArray, pirCurrencyId, pirPriceLevel)
+{
+	for (var int = 0; int < pirSearchResultSet.length; int++) 
+	{
+		//Get the item id & type
+		//
+		var pirItemId = pirSearchResultSet[int].getId();
+		var pirItemType = pirSearchResultSet[int].getValue('type');
+		var pirItemDisplayName = pirSearchResultSet[int].getValue('salesdescription');
+		
+		//Now see if we already have the item in the output array
+		//
+		if (!priceListArray[pirItemId])
+		{
+			//Call the routine to get the item price details
+			//
+			var pirPriceData = getItemPricingData(pirItemId, pirItemType, pirItemDisplayName, pirCurrencyId, pirPriceLevel);
+			
+			priceListArray[pirItemId] = pirPriceData;
+
+		}
+	}
+}
+
