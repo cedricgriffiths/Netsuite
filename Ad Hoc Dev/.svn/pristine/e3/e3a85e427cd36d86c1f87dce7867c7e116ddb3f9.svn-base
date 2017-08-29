@@ -1,0 +1,80 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       17 Nov 2015     cedric
+ *
+ */
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your
+ * script deployment.
+ * 
+ * @appliedtorecord recordType
+ * 
+ * @param {String}
+ *            type Sublist internal id
+ * @returns {Boolean} True to save line item, false to abort save
+ */
+function clientValidateLine(type)
+{
+	// Get the product id from the current line
+	var productId = nlapiGetCurrentLineItemValue(type, 'item');
+
+	if (productId != null)
+	{
+		var productRecord = null;
+
+		// Read the product based on its id
+		try
+		{
+			productRecord = nlapiLoadRecord('noninventoryitem', productId);
+		}
+		catch (err)
+		{
+			try
+			{
+				productRecord = nlapiLoadRecord('inventoryitem', productId);
+			}
+			catch (err)
+			{
+				try
+				{
+					productRecord = nlapiLoadRecord('assemblyitem', productId);
+				}
+				catch (err)
+				{
+					try
+					{
+						productRecord = nlapiLoadRecord('kititem', productId);
+					}
+					catch (err)
+					{
+						try
+						{
+							productRecord = nlapiLoadRecord('itemgroup', productId);
+						}
+						catch (err)
+						{
+
+						}
+					}
+				}
+			}
+		}
+
+		if (productRecord != null)
+		{
+			// Get the dgn flag from the product record
+			var dgn = productRecord.getFieldValue('custitem_bbs_dgn_required');
+
+			if (dgn == 'T')
+			{
+				nlapiSetFieldValue('custbody_bbs_dgn_message', 'This order requires a Dangerous Goods Note', false, true);
+			}
+		}
+
+	}
+
+	return true;
+}

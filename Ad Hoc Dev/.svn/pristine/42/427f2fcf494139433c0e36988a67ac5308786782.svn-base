@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+
+    <style type="text/css">table {    
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+</style>
+</head>
+	<body>
+	    <table style="width: 100%; margin-top: 10px;">
+		    <tr>
+				<td colspan="3" style="padding: 6px 0px 2px; color: rgb(51, 51, 51); font-size: 8pt; font-weight: bold;">${contract.name@label}</td>
+				<td colspan="3" style="padding: 6px 0px 2px; color: rgb(51, 51, 51); font-size: 8pt; font-weight: bold;">${contract.custrecord_bbs_con_reference@label}</td>
+				<td colspan="3" style="padding: 6px 0px 2px; color: rgb(51, 51, 51); font-size: 8pt; font-weight: bold;">${contract.custrecord_bbs_con_total_sales_value@label}</td>
+			</tr>
+			<tr>
+				<td colspan="3" style="padding: 0px;">${contract.name}</td>
+				<td colspan="3" style="padding: 0px;">${contract.custrecord_bbs_con_reference}</td>
+				<td align="left" colspan="3" style="padding: 0px;">${contract.custrecord_bbs_con_total_sales_value}</td>
+			</tr>
+		</table>
+		
+		<table style="width: 100%; margin-top: 10px;">
+			<tr>
+				<th>${contract.custrecord_bbs_con_start_date@label}</th>
+				<th>${contract.custrecord_bbs_con_end_date@label}</th>
+				<th>${contract.custrecord_bbs_con_start_month@label}</th>
+				<th>${contract.custrecord_bbs_con_end_month@label}</th>
+			</tr>
+			<tr>
+				<td style="padding-top: 2px;">${contract.custrecord_bbs_con_start_date}</td>
+				<td style="padding-top: 2px;">${contract.custrecord_bbs_con_end_date}</td>
+				<td style="padding-top: 2px;">${contract.custrecord_bbs_con_start_month}</td>
+				<td style="padding-top: 2px;">${contract.custrecord_bbs_con_end_month}</td>
+			</tr>
+		</table>
+		
+
+			<table style="width: 100%; margin-top: 10px;"><!-- start items -->
+				<#list contractitems as item>
+					<#if item_index==0>
+						<thead>
+							<tr>
+							<th align="left" colspan="3" style="padding: 10px 6px;">${item.custrecord_bbs_con_detail_description@label}</th>
+							<!--<th colspan="12" style="padding: 10px 6px;">${item.item@label}</th>-->
+							<th align="right" colspan="4" style="padding: 10px 6px;">${item.custrecord_bbs_con_detail_annual_value@label}</th>
+							<th align="right" colspan="4" style="padding: 10px 6px;">${item.custrecord_bbs_con_detail_prorata_value@label}</th>
+							</tr>
+						</thead>
+					</#if>
+					
+					<tr>
+						<td align="left" colspan="3" line-height="150%">${item.custrecord_bbs_con_detail_description}</td>
+						<!--<td colspan="12"><span style="color: rgb(51, 51, 51); line-height: 150%; font-weight: bold;">${item.custrecord_bbs_con_detail_description}</span><br />${item.description}</td>-->
+						<td align="right" colspan="4">${item.custrecord_bbs_con_detail_annual_value}</td>
+						<td align="right" colspan="4">${item.custrecord_bbs_con_detail_prorata_value}</td>
+					</tr>
+				</#list><!-- end items -->
+			</table>
+
+		
+	</body>
+</pdf>
