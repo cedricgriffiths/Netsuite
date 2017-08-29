@@ -1,0 +1,73 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       03 Mar 2017     cedricgriffiths
+ *
+ */
+
+
+function manPackProcessing() {
+	
+	//This function gets called from the 'Man Pack' button on the item sublist
+	//Call the manpack processing suitelet from here
+	//
+	var customer = nlapiGetFieldValue('entity');
+	var depot = nlapiGetFieldValue('shipaddresslist');
+	var depotName = nlapiGetFieldText('shipaddresslist');
+	
+	if (customer)
+		{
+			// Get the relative url of the suitelet 
+			//
+			var url = nlapiResolveURL('SUITELET', 'customscript_bbs_filtered_item_suitelet', 'customdeploy_bbs_filtered_item_suitelet');
+		
+			url = url + '&stage=1';
+			url = url + '&customerid=' + customer;
+			url = url + '&depotid=' + depot;
+			url = url + '&depotname=' + depotName;
+			
+			// Open the contract print in a new window
+			//
+			window.open(url, '_blank', 'Man Pack Processing', 'toolbar=no, scrollbars=no, resizable=yes');
+		}
+	else
+		{
+			alert('Cannot Select Items Without a Customer Selected');
+		}
+}
+
+//This function is called by the suitelet to handle the chose items & add them to the sales order
+//
+function manpackCallback(dataString) 
+{			
+			//Convert the JSON string back into an array
+			//
+			var data = JSON.parse(dataString);
+			
+			//Process the array data
+			//
+			for (var int = 0; int < data.length; int++) 
+			{
+				var line = data[int];
+				var item = line[0];
+				var qty = line[1];
+				var id = line[2];
+				var employeeId = line[3];
+				
+				nlapiSelectNewLineItem('item');
+				nlapiSetCurrentLineItemValue('item', 'item', id, true, true);
+				nlapiSetCurrentLineItemValue('item', 'quantity', qty, true, true);
+				
+				var amount = nlapiGetCurrentLineItemValue('item', 'amount');
+				
+				//Allow for the amount field being empty & set it to zero manually
+				//
+				if (!amount)
+					{
+						nlapiSetCurrentLineItemValue('item', 'amount', '0', true, true);
+					}
+				
+				nlapiCommitLineItem('item');
+			}
+}

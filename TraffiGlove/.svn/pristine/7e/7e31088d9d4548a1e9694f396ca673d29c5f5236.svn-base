@@ -1,0 +1,95 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       05 Mar 2017     cedricgriffiths
+ *
+ */
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ * 
+ * @param {String} type Sublist internal id
+ * @param {String} name Field internal id
+ * @param {Number} linenum Optional line item number, starts from 1
+ * @returns {Void}
+ */
+function clientFieldChanged(type, name, linenum)
+{
+	if (name == 'custpage_contact_select')
+		{
+			var empId = nlapiGetFieldValue('custpage_contact_select');
+			var empText = nlapiGetFieldText('custpage_contact_select');
+		
+			var empGrade = '';
+			var empGradeId = '';
+			
+			if (empId != 0)
+				{
+					empGrade = nlapiLookupField('contact', empId, 'custentity_bbs_contact_grade', true);
+					empGradeId = nlapiLookupField('contact', empId, 'custentity_bbs_contact_grade', false);
+				}
+			
+			nlapiSetFieldValue('custpage_grade_select', empGrade, false, true);
+			nlapiSetFieldValue('custpage_employee_name', empText, false, true);
+			nlapiSetFieldValue('custpage_employee_id', empId, false, true);
+			nlapiSetFieldValue('custpage_grade_name', empGrade, false, true);
+			nlapiSetFieldValue('custpage_grade_id', empGradeId, false, true);
+
+		}
+	
+	if (type == 'custpage_sublist_items') 
+		{
+			//See if the item quantity has changed
+			//
+			if (name == 'custpage_sublist_qty')
+				{
+					var qty = nlapiGetLineItemValue(type, 'custpage_sublist_qty', linenum);
+					
+					if (qty)
+						{
+							//If the quantity is non-blank then set the tick on the line
+							//
+							nlapiSetLineItemValue(type, 'custpage_sublist_tick', linenum, 'T');
+						}
+					else
+						{
+							//If the quantity is blank then un-set the tick on the line
+							//
+							nlapiSetLineItemValue(type, 'custpage_sublist_tick', linenum, 'F');
+						}
+				}
+			
+			if (name == 'custpage_sublist_tick')
+			{
+				var ticked = nlapiGetLineItemValue(type, 'custpage_sublist_tick', linenum);
+				
+				if (ticked == 'F')
+					{
+						//If the tick box on the line as been un-checked, then set the quantity to null
+						//
+						nlapiSetLineItemValue(type, 'custpage_sublist_qty', linenum, null);
+					}
+			}
+		}
+}
+
+function updateItemQuantity() 
+{
+	//Update all the item lines with a global quantity
+	//
+	var quantity = nlapiGetFieldValue('custpage_update_qty');
+	var lines = nlapiGetLineItemCount('custpage_sublist_items');
+	
+	for (var int = 1; int <= lines; int++) 
+	{	
+		var ticked = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+		
+		if(ticked == 'T')
+			{
+				nlapiSetLineItemValue('custpage_sublist_items', 'custpage_sublist_qty', int, quantity);
+				nlapiSetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int, 'T');
+			}
+	}
+}

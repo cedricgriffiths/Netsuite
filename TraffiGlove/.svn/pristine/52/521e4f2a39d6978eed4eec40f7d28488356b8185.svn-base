@@ -1,0 +1,454 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       03 Mar 2017     cedricgriffiths
+ *
+ */
+
+/**
+ * @param {nlobjRequest} request Request object
+ * @param {nlobjResponse} response Response object
+ * @returns {Void} Any output is written via response object
+ */
+function filteredItemSearchSuitelet(request, response){
+
+	if (request.getMethod() == 'GET') 
+	{
+		//Get request - so return a form for the user to process
+		//
+		
+		//Get parameters
+		//
+		var customerId = request.getParameter('customerid');
+		var parentId = request.getParameter('parentid');
+		var contactId = request.getParameter('contactid');
+		var depotId = request.getParameter('depotid');
+		var depotName = request.getParameter('depotname');
+		var employeeName = request.getParameter('employeename');
+		var employeeId = request.getParameter('employeeid');
+		var gradeName = request.getParameter('gradename');
+		var gradeId = request.getParameter('gradeid');
+		var stage = Number(request.getParameter('stage'));
+		var deptId = request.getParameter('deptid');
+		var deptName = request.getParameter('deptname');
+		
+		// Create a form
+		//
+		var form = nlapiCreateForm('Filtered Item Selection Processing');
+		form.setScript('customscript_bbs_fis_suitelet_client');
+		
+		//Store the current stage in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var stageField = form.addField('custpage_stage', 'integer', 'stage');
+		stageField.setDisplayType('hidden');
+		stageField.setDefaultValue(stage);
+		
+		var customerRecord = nlapiLoadRecord('customer', customerId);
+		var custParent = customerRecord.getFieldText('parent');
+		var custParentId = customerRecord.getFieldValue('parent');
+		
+		form.setTitle('Filtered Item Selection');
+		
+		//Add a field group for mandatory filters
+		//
+		var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Mandatory Filters');
+		fieldGroup1.setSingleColumn(true);
+		
+		//Display the customer name as based on the customer id passed in to the suitelet
+		//
+		var customerField = form.addField('custpage_customer_select', 'text', 'Customer', null,'custpage_grp1');
+		customerField.setDisplayType('disabled');
+		customerField.setDisplaySize(60);
+		var customerName = nlapiLookupField('customer', customerId, 'companyname');
+		customerField.setDefaultValue(customerName);
+
+		//Display the customer's parent name 
+		//
+		var parentField = form.addField('custpage_parent_select', 'text', 'Parent', null,'custpage_grp1');
+		parentField.setDisplayType('disabled');
+		//parentField.setLayoutType('outsidebelow', 'startrow');
+		parentField.setDisplaySize(60);
+		parentField.setDefaultValue(custParent);
+		
+		//Add a field group for optional filters
+		//
+		var fieldGroup2 = form.addFieldGroup('custpage_grp2', 'Optional Filters');
+		fieldGroup2.setSingleColumn(true);
+		
+		var depotField = form.addField('custpage_depot_select', 'text', 'Depot', null,'custpage_grp2');
+		depotField.setDisplayType('disabled');
+		depotField.setDisplaySize(60);
+		depotField.setDefaultValue(depotName);
+
+		
+		//Hold the customer id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var customerIdField = form.addField('custpage_companyid', 'text', 'Company Id', null,'custpage_grp1');
+		customerIdField.setDisplayType('hidden');
+		customerIdField.setDefaultValue(customerId);
+		
+		//Hold the parent id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var parentIdField = form.addField('custpage_parentid', 'text', 'Parent Id', null,'custpage_grp1');
+		parentIdField.setDisplayType('hidden');
+		parentIdField.setDefaultValue(custParentId);
+
+		//Hold the depot id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var depotField = form.addField('custpage_depotid', 'text', 'Depot Id', null,'custpage_grp1');
+		depotField.setDisplayType('hidden');
+		depotField.setDefaultValue(depotId);
+
+		//Hold the depot text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var depotTextField = form.addField('custpage_depot_name', 'text', 'Depot Name', null,'custpage_grp1');
+		depotTextField.setDisplayType('hidden');
+		depotTextField.setDefaultValue(depotName);
+
+		//Hold the department id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var deptField = form.addField('custpage_deptid', 'text', 'Department Id', null,'custpage_grp1');
+		deptField.setDisplayType('hidden');
+		deptField.setDefaultValue(deptId);
+
+		//Hold the department text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var deptTextField = form.addField('custpage_dept_name', 'text', 'Department Name', null,'custpage_grp1');
+		deptTextField.setDisplayType('hidden');
+		deptTextField.setDefaultValue(deptName);
+
+		//Hold the employee name text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var employeeTextField = form.addField('custpage_employee_name', 'text', 'Employee Name', null,'custpage_grp1');
+		employeeTextField.setDisplayType('hidden');
+		employeeTextField.setDefaultValue(employeeName);
+
+		//Hold the employee id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var employeeIdField = form.addField('custpage_employee_id', 'text', 'Employee Id', null,'custpage_grp1');
+		employeeIdField.setDisplayType('hidden');
+		employeeIdField.setDefaultValue(employeeId);
+
+		//Hold the grade text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var gradeTextField = form.addField('custpage_grade_name', 'text', 'Grade Name', null,'custpage_grp1');
+		gradeTextField.setDisplayType('hidden');
+		gradeTextField.setDefaultValue(gradeName);
+
+		//Hold the grade id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var gradeIdField = form.addField('custpage_grade_id', 'text', 'Grade Id', null,'custpage_grp1');
+		gradeIdField.setDisplayType('hidden');
+		gradeIdField.setDefaultValue(gradeId);
+
+
+		//Work out what the form layout should look like based on the stage number
+		//
+		switch(stage)
+		{
+		case 1:	
+				//Add a select field to pick the department from
+				//
+				var deptField = form.addField('custpage_dept_select', 'select', 'Department', null, 'custpage_grp2');
+				
+				//And add the departments to the select list 
+				//
+				var departments = null;
+				
+				var deptFilters = new Array();
+				deptFilters[0] = new nlobjSearchFilter( 'custrecord_bbs_department_customer', null, 'anyof', customerId);
+				
+				var deptColumns = new Array();
+				deptColumns[0] = new nlobjSearchColumn( 'name' );
+				
+				departments = nlapiSearchRecord('customrecord_bbs_customer_department', null, deptFilters, deptColumns);
+				
+				deptField.addSelectOption(0, '');
+			
+				if(departments)
+				{
+					for (var int = 0; int < departments.length; int++) 
+					{
+						var deptName = departments[int].getValue('name');
+						var deptId = departments[int].getId();
+						
+						deptField.addSelectOption(deptId, deptName);
+					}
+				}
+				
+			
+				//Add a select field to pick the employee from
+				//
+				var contactField = form.addField('custpage_contact_select', 'select', 'Employee', null, 'custpage_grp2');
+				
+				//And add the employees to the select list 
+				//
+				var contacts = null;
+				
+				if(depotId != null && depotId != '')
+					{
+						var contactFilters = new Array();
+						contactFilters[0] = new nlobjSearchFilter( 'custentity1', null, 'anyof', depotId);
+						
+						var contactColumns = new Array();
+						contactColumns[0] = new nlobjSearchColumn( 'entityid' );
+						
+						contacts = nlapiSearchRecord('contact', null, contactFilters, contactColumns);
+					}
+				
+				contactField.addSelectOption(0, '');
+				
+				if(contacts)
+					{
+						for (var int = 0; int < contacts.length; int++) 
+						{
+							var contactName = contacts[int].getValue('entityid');
+							var contactId = contacts[int].getId();
+							
+							contactField.addSelectOption(contactId, contactName);
+						}
+					}
+				
+				var gradeField = form.addField('custpage_grade_select', 'text', 'Employee Grade', null,'custpage_grp2');
+				gradeField.setDisplayType('disabled');
+				gradeField.setDisplaySize(60);
+				
+				//Add a submit button to the form
+				//
+				form.addSubmitButton('Select Items');
+
+				break;
+		
+		case 2:	
+				//Filter the items to display based on the criteria chosen in stage 1
+				//
+				var deptField = form.addField('custpage_department_select', 'text', 'Department', null, 'custpage_grp2');
+				deptField.setDisplayType('disabled');
+				deptField.setDefaultValue(deptName);
+		
+				var contactField = form.addField('custpage_contact_select', 'text', 'Employee', null, 'custpage_grp2');
+				contactField.setDisplayType('disabled');
+				contactField.setDefaultValue(employeeName);
+			
+				var gradeField = form.addField('custpage_grade_select', 'text', 'Employee Grade', null, 'custpage_grp2');
+				gradeField.setDisplayType('disabled');
+				gradeField.setDefaultValue(gradeName);
+			
+				var tab = form.addTab('custpage_tab_items', 'Items To Select');
+				tab.setLabel('Items To Select');
+				
+				var tab2 = form.addTab('custpage_tab_items2', '');
+				
+				form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+				
+				form.addField('custpage_update_qty', 'integer', 'Quantity', null, 'custpage_tab_items');
+				
+				var subList = form.addSubList('custpage_sublist_items', 'list', 'Items To Select', 'custpage_tab_items');
+				
+				subList.addButton('custpage_update_all', 'Update All Quantities', 'updateItemQuantity()');
+				
+				subList.setLabel('Items To Select');
+				
+				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
+				var listItem = subList.addField('custpage_sublist_item', 'text', 'Item', null);
+				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
+				var listDescription = subList.addField('custpage_sublist_desc', 'text', 'Description', null);
+				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Belongs To', null);
+				var listId = subList.addField('custpage_sublist_id', 'integer', 'Id', null);
+				
+				listQty.setDisplayType('entry');
+				listId.setDisplayType('hidden');
+				
+				var filterArray = [];
+				
+				if(gradeId != null && gradeId != '')
+					{
+						//Get available items from the item table based on the chosen grade
+						//
+						filterArray =	[
+						              	 ["isinactive","is","F"], 
+						              	 "AND", 
+						              	 ["type","anyof","InvtPart","Assembly"], 
+						              	 "AND", 
+						              	 ["custrecord_bbs_grade_item.custrecord_bbs_grade_item_grade","anyof",gradeId]
+						              	];
+					}
+				else
+					{
+						//Get items from the item table
+						//
+						if(parentId != null && parentId != '')
+							{
+								filterArray = [
+								               ["isinactive","is","F"], 
+								               "AND", 
+								               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
+									           "AND", 
+								               [["custitem_bbs_item_customer","anyof",customerId],"OR",[["custitem_bbs_item_customer","anyof",parentId],"AND",["custitem_bbs_item_finish_type","anyof","1"]]]
+								               ];
+							}
+						else
+							{
+								filterArray = [
+								               ["isinactive","is","F"], 
+								               "AND", 
+								               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
+								               "AND", 
+								               ["custitem_bbs_item_customer","anyof",customerId]
+								               ];
+							}
+					}
+				
+				var itemSearch = nlapiCreateSearch("item", filterArray, 
+						[
+						new nlobjSearchColumn("itemid",null,null).setSort(false), 
+						new nlobjSearchColumn("displayname",null,null), 
+						new nlobjSearchColumn("salesdescription",null,null), 
+						new nlobjSearchColumn("type",null,null), 
+						new nlobjSearchColumn("baseprice",null,null), 
+						new nlobjSearchColumn("custitem_bbs_item_customer",null,null), 
+						new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
+						new nlobjSearchColumn("incomeaccount",null,null)
+						]
+						);
+						
+				var searchResult = itemSearch.runSearch();
+		
+				//Get the initial set of results
+				//
+				var start = 0;
+				var end = 1000;
+				var searchResultSet = searchResult.getResults(start, end);
+				var resultlen = searchResultSet.length;
+		
+				//If there is more than 1000 results, page through them
+				//
+				while (resultlen == 1000) 
+					{
+							start += 1000;
+							end += 1000;
+		
+							var moreSearchResultSet = searchResult.getResults(start, end);
+							resultlen = moreSearchResultSet.length;
+		
+							searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					}
+					
+				
+				//Copy the results to the sublist
+				//
+				var line = 1;
+				
+				for (var int = 0; int < searchResultSet.length; int++) 
+				{
+					var account = searchResultSet[int].getValue('incomeaccount');
+					
+					if (account != null && account != '')
+						{
+							subList.setLineItemValue('custpage_sublist_item', line, searchResultSet[int].getValue('itemid'));
+							subList.setLineItemValue('custpage_sublist_desc', line, searchResultSet[int].getValue('salesdescription'));
+							subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
+							subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer'));
+							
+							line++;
+						}
+				}
+				
+				//Add a mark/unmark button
+				//
+				subList.addMarkAllButtons();
+		
+				form.addSubmitButton('Finish');
+				
+				break;
+			}
+		
+		//Write the response
+		//
+		response.writePage(form);
+	}
+	else
+	{
+		//Post request - so process the returned form
+		//
+		
+		//Get the stage of the manpack processing we are at
+		//
+		var stage = Number(request.getParameter('custpage_stage'));
+		
+		switch(stage)
+		{
+			case 1:
+				//Selected contact/employee
+				//
+				var contactId = request.getParameter('custpage_contact_select');
+				var customerId = request.getParameter('custpage_companyid');
+				var parentId = request.getParameter('custpage_parentid');
+				var depotId = request.getParameter('custpage_depotid');
+				var depotName = request.getParameter('custpage_depot_name');
+				var gradeName = request.getParameter('custpage_grade_name');
+				var gradeId = request.getParameter('custpage_grade_id');
+				var employeeName = request.getParameter('custpage_employee_name');
+				var employeeId = request.getParameter('custpage_employee_id');
+				var deptId = request.getParameter('custpage_deptid');
+				var deptName = request.getParameter('custpage_dept_name');
+				
+				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
+				//
+				var params = new Array();
+				params['customerid'] = customerId;
+				params['parentid'] = parentId;
+				params['contactid'] = contactId;
+				params['depotid'] = depotId;
+				params['depotname'] = depotName;
+				params['deptid'] = deptId;
+				params['deptname'] = deptName;
+				params['employeename'] = employeeName;
+				params['employeeid'] = employeeId;
+				params['gradename'] = gradeName;
+				params['gradeid'] = gradeId;
+				params['stage'] = '2';
+				
+				response.sendRedirect('SUITELET','customscript_bbs_filtered_item_suitelet', 'customdeploy_bbs_filtered_item_suitelet', null, params);
+				
+				break;
+				
+			case 2:
+				//Selected items to add to sales order
+				//
+				var data = new Array();
+				
+				var lineCount = request.getLineItemCount('custpage_sublist_items');
+				var employeeId = request.getParameter('custpage_employee_id');
+				
+				//Find all the ticked items & their quantities
+				//
+				for (var int = 1; int <= lineCount; int++) 
+				{
+					var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+					
+					if (ticked == 'T')
+						{
+							var item = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_item', int).replace('"', '');
+							var qty = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_qty', int);
+							var id = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
+							
+							if (qty > 0)
+								{
+									var line = [item,qty,id,employeeId];
+									data.push(line);
+								}
+						}
+				}
+				
+				//Convert the array of items to a JSON string & return it back to the sales order form callback routine
+				//
+				var dataString = JSON.stringify(data);
+				var xml = "<html><body><script>window.opener.manpackCallback('" + dataString + "'); window.close();</script></body></html>";
+				response.write(xml);
+				
+				break;
+		}
+	}
+}

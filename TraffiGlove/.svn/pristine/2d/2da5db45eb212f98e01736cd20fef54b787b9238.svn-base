@@ -1,0 +1,68 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       05 Mar 2017     cedricgriffiths
+ *
+ */
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ * 
+ * @param {String} type Sublist internal id
+ * @param {String} name Field internal id
+ * @param {Number} linenum Optional line item number, starts from 1
+ * @returns {Void}
+ */
+function clientFieldChanged(type, name, linenum)
+{
+	if (type == 'custpage_sublist_items') 
+		{
+			//See if the item quantity has changed
+			//
+			if (name == 'custpage_sublist_qty')
+				{
+					var qty = nlapiGetLineItemValue(type, 'custpage_sublist_qty', linenum);
+					
+					if (qty)
+						{
+							//If the quantity is non-blank then set the tick on the line
+							//
+							nlapiSetLineItemValue(type, 'custpage_sublist_tick', linenum, 'T');
+						}
+					else
+						{
+							//If the quantity is blank then un-set the tick on the line
+							//
+							nlapiSetLineItemValue(type, 'custpage_sublist_tick', linenum, 'F');
+						}
+				}
+			
+			if (name == 'custpage_sublist_tick')
+			{
+				var ticked = nlapiGetLineItemValue(type, 'custpage_sublist_tick', linenum);
+				
+				if (ticked == 'F')
+					{
+						//If the tick box on the line as been un-checked, then set the quantity to null
+						//
+						nlapiSetLineItemValue(type, 'custpage_sublist_qty', linenum, null);
+					}
+			}
+		}
+}
+
+function updateItemQuantity() 
+{
+	//Update all the item lines with a global quantity
+	//
+	var quantity = nlapiGetFieldValue('custpage_update_qty');
+	var lines = nlapiGetLineItemCount('custpage_sublist_items');
+	
+	for (var int = 1; int <= lines; int++) 
+	{
+		nlapiSetLineItemValue('custpage_sublist_items', 'custpage_sublist_qty', int, quantity);
+		nlapiSetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int, 'T');
+	}
+}
