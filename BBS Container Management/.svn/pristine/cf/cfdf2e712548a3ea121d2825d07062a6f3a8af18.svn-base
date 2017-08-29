@@ -1,0 +1,48 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       17 Feb 2017     cedricgriffiths
+ *
+ */
+
+
+/**
+ * @param {nlobjRequest} request Request object
+ * @param {nlobjResponse} response Response object
+ * @returns {Void} Any output is written via response object
+ */
+
+function allocateLandedCostsSuitelet(request, response){
+
+	if (request.getMethod() == 'GET') 
+	{
+		
+				// Create a form
+				//
+				var form = nlapiCreateForm('Allocate Landed Costs');
+				
+				// Set the client side script to be used with this form
+				//
+				form.setScript('customscript_bbs_allocate_costs_client');
+				
+				//Add some fields 
+				//
+				var field1 = form.addField('custpage_field1', 'text', 'Field 1');
+				var field2 = form.addField('custpage_field2', 'text', 'Field 2');
+				var field3 = form.addField('custpage_field3', 'text', 'Field 3');
+				
+				
+				// Add a submit button
+				//
+				form.addSubmitButton('Submit');
+
+				//Write the response
+				//
+				response.writePage(form);
+	}
+	else
+	{
+		
+	}
+}

@@ -1,0 +1,20 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       16 Feb 2017     cedricgriffiths
+ *
+ */
+function clientFieldChanged(type, name, linenum)
+{
+	// Check to see if we are in the context of the contract drop down box
+	if (name == 'custpage_f0')
+	{
+		
+	}
+}
+
+
+
+
+

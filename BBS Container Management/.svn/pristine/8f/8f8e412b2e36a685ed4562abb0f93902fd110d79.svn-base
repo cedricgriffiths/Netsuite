@@ -1,0 +1,176 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       17 Feb 2017     cedricgriffiths
+ *
+ */
+
+
+/**
+ * @param {nlobjRequest} request Request object
+ * @param {nlobjResponse} response Response object
+ * @returns {Void} Any output is written via response object
+ */
+
+function allocatePOSuitelet(request, response){
+
+	if (request.getMethod() == 'GET') {
+		
+		//Get the consignment id from the parameter list
+		//
+		var paramConsId = request.getParameter('consignmentid');
+		var paramSupplier = request.getParameter('supplierid');
+		
+		
+		//Only carry on if we do have a consignment id
+		//
+		if (paramConsId)
+			{
+				//Read the consignment to get the description
+				//
+				var consRecord = nlapiLoadRecord('customrecord_bbs_consignment', paramConsId);
+				var consName = consRecord.getFieldValue('name');
+			
+				// Create a form
+				//
+				var form = nlapiCreateForm('Assign Purchase Orders to Consignment ' + consName);
+				
+				// Set the client side script to be used with this form
+				//
+				form.setScript('customscript_bbs_allocate_po_client');
+				
+				var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Filter Criteria');
+				
+				//Add some fields that will control the PO search
+				//
+				var field1 = form.addField('custpage_field1', 'select', 'Supplier', 'vendor','custpage_grp1');
+				//var field2 = form.addField('custpage_field2', 'text', 'Field 2',null, 'custpage_grp1');
+				//var field3 = form.addField('custpage_field3', 'text', 'Field 3', null, 'custpage_grp1');
+				
+				
+				if (paramSupplier)
+					{
+					field1.setDefaultValue(paramSupplier);
+					nlapiSetFieldValue('custpage_field1', paramSupplier, true, true);
+					}
+			
+				
+				//Save the consignment id in a field on the form, but hide it
+				//
+				var fieldConsignment = form.addField('custpage_consignment', 'text', 'Consignment');
+				fieldConsignment.setDefaultValue(paramConsId.toString());
+				
+				fieldConsignment.setDisplayType('hidden');
+				
+				//Add a tab and a sublist
+				//
+				var tab1 = form.addTab('custpage_tab1', 'Purchase Orders');
+				var list1 = form.addSubList('custpage_sublist1', 'list', 'Purchase Orders Available For Allocation', 'custpage_tab1');
+				
+				list1.setLabel('Purchase Orders Available For Allocation');
+		
+				var listSelect =list1.addField('custpage_col1', 'checkbox', 'Select', null);
+				
+				var listHyper = list1.addField('custpage_col9', 'url', 'View', null);
+				listHyper.setLinkText('View');
+				
+				var listSupplier = list1.addField('custpage_col13', 'text', 'Supplier', null);
+				var listPoNumber = list1.addField('custpage_col2', 'text', 'Purchase Order', null);
+				var listDocNum = list1.addField('custpage_col3', 'text', 'Line No', null);
+				var listDate = list1.addField('custpage_col4', 'date', 'Dated', null);
+				var listRate = list1.addField('custpage_col5', 'currency', 'Rate', null);
+				var listQty = list1.addField('custpage_col6', 'float', 'Quantity', null);
+				var listReceived = list1.addField('custpage_col11', 'float', 'Received', null);
+				var listContainer = list1.addField('custpage_col12', 'float', 'On Container', null);
+				var listRemain = list1.addField('custpage_col14', 'float', 'Outstanding', null);
+				var listAmount = list1.addField('custpage_col7', 'currency', 'Amount', null);
+				var listItem = list1.addField('custpage_col8', 'text', 'Item', null);
+				var listPOId = list1.addField('custpage_col10', 'text', 'Id', null);
+				
+				listPOId.setDisplayType('hidden');
+				listDocNum.setDisplaySize(5);
+				listRate.setDisplaySize(10);
+				listReceived.setDisplaySize(10);
+				listQty.setDisplaySize(10);
+				listRemain.setDisplaySize(10);
+				listAmount.setDisplaySize(10);
+				
+				//form.addButton('custpage_refresh', 'Refresh Search', 'ButtonRefresh()');
+				
+				list1.addButton('custpage_refresh', 'Refresh List', 'ButtonRefresh()');
+				
+				//Add a mark/unmark button
+				//
+				list1.addMarkAllButtons();
+		
+				//Populate the po list based on the search criteria
+				//
+				libFindPurchaseOrders(list1, paramSupplier);
+				
+				// Add a submit button
+				//
+				form.addSubmitButton('Allocate To Consignment');
+
+				//Write the response
+				//
+				response.writePage(form);
+			}
+
+		}
+	else
+		{
+		//Now process the selected po records
+		//
+		
+		//Get the consignment id
+		//
+		var paramConsId = request.getParameter('custpage_consignment');
+		
+		//Count the number of lines in the sublist
+		//
+		var lineCount = request.getLineItemCount('custpage_sublist1');
+	
+		for (var int = 1; int <= lineCount; int++) 
+		{
+			//Get the po details from the sublist
+			//
+			var poId = request.getLineItemValue('custpage_sublist1', 'custpage_col10', int);
+			var poLine = Number(request.getLineItemValue('custpage_sublist1', 'custpage_col3', int));
+			var poChecked = request.getLineItemValue('custpage_sublist1', 'custpage_col1', int);
+			
+			//Process only the checked lines
+			//
+			if (poChecked == 'T')
+			{
+				//Load up the po record
+				//
+				var poRecord = nlapiLoadRecord('purchaseorder', poId);
+				
+				if (poRecord)
+				{
+					//Put the consignment id on the po line
+					//
+					poRecord.setLineItemValue('item', 'custcol_bbs_consignment_id', poLine, paramConsId);
+					
+					nlapiSubmitRecord(poRecord, false, true);
+					
+					//Create a consignment detail record to allocate the po to
+					//
+					var consDetail = nlapiCreateRecord('customrecord_bbs_consignment_detail');
+					
+					consDetail.setFieldValue('custrecord_bbs_consignment_header_id', paramConsId);
+					consDetail.setFieldValue('custrecord_bbs_con_det_po_id', poId);
+					consDetail.setFieldValue('custrecord_bbs_con_det_po_line', poLine);
+					
+					nlapiSubmitRecord(consDetail, false, true);
+				}
+			}
+		}
+		
+		//Redirect back to the calling consignment record
+		//
+		nlapiSetRedirectURL('RECORD', 'customrecord_bbs_consignment', paramConsId, true, null);
+		
+		}
+}

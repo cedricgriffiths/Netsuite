@@ -1,0 +1,44 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       16 Feb 2017     cedricgriffiths
+ *
+ */
+function clientFieldChanged(type, name, linenum)
+{
+	// Check to see if we are in the context of the contract drop down box
+	if (name == 'custpage_field1')
+	{
+		
+		
+	}
+}
+
+function ButtonRefresh() 
+{
+
+	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_cons_alloc_po', 'customdeploy_bbs_cons_alloc_po');
+	
+	// Add the consignment id to the url
+	//
+	var consId = nlapiGetFieldValue('custpage_consignment');
+	
+	url += '&consignmentid=' + consId;
+
+	//Add the supplier id to the url
+	//
+	var supplierId = nlapiGetFieldValue('custpage_field1');
+	
+	url += '&supplierid=' + supplierId;
+	
+	// Open the suitelet in a new window
+	//
+	window.open(url, '_self','Allocate PO');
+	
+}
+
+
+
+
+

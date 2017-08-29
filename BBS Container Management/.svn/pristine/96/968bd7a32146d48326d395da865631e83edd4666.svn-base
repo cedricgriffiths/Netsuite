@@ -1,0 +1,136 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       20 Feb 2017     cedricgriffiths
+ *
+ */
+function libFindPurchaseOrders(list1, supplier) {
+	
+	//Run a search to find purchase orders
+	//
+	var filters = new Array();
+	filters[0] = new nlobjSearchFilter('mainline', null, 'is', 'F');
+	filters[1] = new nlobjSearchFilter('type', null, 'anyof', 'PurchOrd');
+	//filters[2] = new nlobjSearchFilter('account', null, 'anyof', '10');
+	//filters[3] = new nlobjSearchFilter('custcol_bbs_consignment_id', null, 'anyof', '@NONE@');
+		
+	//Search for Partial Receipt or Pending Receipt
+	//
+	var statusArray = new Array();
+    statusArray[0] = 'PurchOrd:E';
+    statusArray[1] = 'PurchOrd:B';
+    
+    filters[2] = new nlobjSearchFilter('status', null, 'anyof', statusArray);
+	
+    //Filter on quantity on container
+    //
+    var qtyFilter = new nlobjSearchFilter('formulanumeric', null, 'greaterthan', '0');
+    qtyFilter.setFormula('NVL({quantity},0) - (NVL({quantityshiprecv},0) + NVL({custcol_bbs_consignment_allocated},0))');
+    filters[3] = qtyFilter;
+    
+    //If we are searching by supplier then add this to the filters
+    //
+	if (supplier)
+		{
+		filters[filters.length] = new nlobjSearchFilter('entity', null, 'anyof', supplier);
+		}
+	
+	var columns = new Array();
+	columns[0] = new nlobjSearchColumn('tranid');
+	columns[1] = new nlobjSearchColumn('line');
+	columns[2] = new nlobjSearchColumn('trandate');
+	columns[3] = new nlobjSearchColumn('rate');
+	columns[4] = new nlobjSearchColumn('quantity');
+	columns[5] = new nlobjSearchColumn('amount');
+	columns[6] = new nlobjSearchColumn('item');
+	columns[7] = new nlobjSearchColumn('quantityshiprecv');
+	columns[8] = new nlobjSearchColumn('custcol_bbs_consignment_allocated');
+	columns[9] = new nlobjSearchColumn('entityid','vendor');
+	
+	var colRemaining = new nlobjSearchColumn('formulanumeric');
+	colRemaining.setFormula('NVL({quantity},0) - (NVL({quantityshiprecv},0) + NVL({custcol_bbs_consignment_allocated},0))');
+	
+	columns[10] = colRemaining;
+	
+	var results = nlapiSearchRecord('transaction', null, filters, columns);
+	
+	if (results)
+		{
+			//Copy the results to the sublist
+			//
+			for (var int = 0; int < results.length; int++) 
+			{
+				var line = int + 1;
+				var poId = results[int].getId();
+				
+				var supplier = results[int].getValue('entityid','vendor');
+				var tranid = 'Purchase Order ' + results[int].getValue('tranid');
+				var lineNo = results[int].getValue('line');
+				var tranDate = results[int].getValue('trandate');
+				var rate = results[int].getValue('rate');
+				var qty = results[int].getValue('quantity');
+				var amount = results[int].getValue('amount');
+				var item = results[int].getText('item');
+				var recv = results[int].getValue('quantityshiprecv');
+				var onCont = results[int].getValue('custcol_bbs_consignment_allocated');
+				var rem = results[int].getValue('formulanumeric');
+				
+				var poURL = nlapiResolveURL('RECORD', 'purchaseorder', poId, 'VIEW');
+				
+				list1.setLineItemValue('custpage_col2', line, tranid); 
+				list1.setLineItemValue('custpage_col3', line, lineNo); 
+				list1.setLineItemValue('custpage_col4', line, tranDate); 
+				list1.setLineItemValue('custpage_col5', line, rate); 
+				list1.setLineItemValue('custpage_col6', line, qty); 
+				list1.setLineItemValue('custpage_col7', line, amount); 
+				list1.setLineItemValue('custpage_col8', line, item); 
+				list1.setLineItemValue('custpage_col9', line, poURL);
+				list1.setLineItemValue('custpage_col10', line, poId);
+				list1.setLineItemValue('custpage_col11', line, recv);
+				list1.setLineItemValue('custpage_col12', line, onCont);
+				list1.setLineItemValue('custpage_col13', line, supplier);
+				list1.setLineItemValue('custpage_col14', line, rem);
+			}
+		}
+}
+
+function libFindConsToDespatch(list1) 
+{
+	
+	//Run a search to find consignments
+	//
+	var filters = new Array();
+	filters[0] = new nlobjSearchFilter('custrecord_bbs_consignment_status', null, 'anyof', '1');
+	
+	var columns = new Array();
+	columns[0] = new nlobjSearchColumn('name');
+	columns[1] = new nlobjSearchColumn('altname');
+	columns[2] = new nlobjSearchColumn('custrecord_bbs_consignment_edd');
+	
+	var results = nlapiSearchRecord('customrecord_bbs_consignment', null, filters, columns);
+	
+	if (results)
+		{
+			//Copy the results to the sublist
+			//
+			for (var int = 0; int < results.length; int++) 
+			{
+				var line = int + 1;
+				var Id = results[int].getId();
+				
+				var name = results[int].getValue('name');
+				var altname = results[int].getValue('altname');
+				var expDespDate = results[int].getValue('custrecord_bbs_consignment_edd');
+				
+				var consURL = nlapiResolveURL('RECORD', 'customrecord_bbs_consignment', Id, 'VIEW');
+				
+				list1.setLineItemValue('custpage_col2', line, consURL); 
+				list1.setLineItemValue('custpage_col3', line, name); 
+				list1.setLineItemValue('custpage_col4', line, altname); 
+				list1.setLineItemValue('custpage_col5', line, expDespDate); 
+				list1.setLineItemValue('custpage_col7', line, Id); 
+		
+			}
+		}
+}
