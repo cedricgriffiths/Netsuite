@@ -19,12 +19,12 @@ function checkAssemblyBeforeLoad(type, form, request)
 {
 	if (type == 'edit')
 	{
-		form.addButton('custpage_but_chk_assm', 'Check Assembly', 'libCheckAssembly()');
+		form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'libCheckAssembly()');
 	}
 	
 	if (type == 'view')
 		{
 			form.setScript('customscript_bbs_chk_assm_global');
-			form.addButton('custpage_but_chk_assm', 'Check Assembly', 'gblCheckAssembly()');
+			form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
 		}
 }
