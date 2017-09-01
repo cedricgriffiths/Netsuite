@@ -25,12 +25,14 @@ function productionBatchSuitelet(request, response){
 		var customerId = request.getParameter('customerid');
 		var stage = Number(request.getParameter('stage'));
 		var ffi = request.getParameter('ffi');
-		var mode = request.getParameter('mode');
+		var mode = request.getParameter('mode'); //U = update existing production batch, C = create a production batch
+		var soLink = request.getParameter('solink'); // T/F - choose to select w/o that are/are not linked to sales orders
+		
 		
 		// Create a form
 		//
 		var form = nlapiCreateForm('Assign Works Orders To Production Batch');
-		//form.setScript('customscript_bbs_awo_suitelet_client');
+		form.setScript('customscript_bbs_pb_suitelet_client');
 		
 		//Store the current stage in a field in the form so that it can be retrieved in the POST section of the code
 		//
@@ -50,6 +52,15 @@ function productionBatchSuitelet(request, response){
 		modeField.setDisplayType('hidden');
 		modeField.setDefaultValue(mode);
 		
+		//Store the solink in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var solinklField = form.addField('custpage_solink', 'text', 'SO Link');
+		solinklField.setDisplayType('hidden');
+		solinklField.setDefaultValue(soLink);
+		
+		
+		var prodBatchTitle = '';
+		
 		switch (mode)
 		{
 		//Update an existing production batch with selected works orders
@@ -59,14 +70,11 @@ function productionBatchSuitelet(request, response){
 			if (productionBatchId != null && productionBatchId != '')
 			{
 				var prodBatchRecord = nlapiLoadRecord('customrecord_bbs_assembly_batch', productionBatchId);
-				var prodBatchTitle = '';
 				
 				if(prodBatchRecord)
 					{
-					prodBatchTitle = prodBatchRecord.getFieldValue('custrecord_bbs_bat_description');
+						prodBatchTitle = 'Assign Works Orders To Production Batch ' + prodBatchRecord.getFieldValue('custrecord_bbs_bat_description');
 					}
-				
-				form.setTitle('Assign Works Orders To Production Batch ' + prodBatchTitle);
 			}
 			
 			break;
@@ -75,10 +83,23 @@ function productionBatchSuitelet(request, response){
 		//
 		case 'C':
 			
-			form.setTitle('Create Production Batches For Works Orders');
+			prodBatchTitle = 'Create Production Batches For Works Orders';
 			
 			break;
 		}
+		
+		switch(soLink)
+		{
+		case 'T':
+			prodBatchTitle = prodBatchTitle + ' (WO Linked To SO)'
+			break;
+			
+		default:
+			prodBatchTitle = prodBatchTitle + ' (WO Not Linked To SO)'
+			break;
+		}
+		
+		form.setTitle(prodBatchTitle);
 		
 		//Add a field group for optional filters
 		//
@@ -93,7 +114,7 @@ function productionBatchSuitelet(request, response){
 				//
 				var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
 				var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'select', 'Assembly Belongs To', 'customer','custpage_grp2');
-				var fullFinishField = form.addField('custpage_ffi_select', 'text', 'Full Finish Item', null,'custpage_grp2');
+				var fullFinishField = form.addField('custpage_ffi_select', 'text', 'Full Finish item', null,'custpage_grp2');
 				
 				//Add a submit button to the form
 				//
@@ -147,16 +168,18 @@ function productionBatchSuitelet(request, response){
 				
 				
 				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
-				var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Order No', null);
+				var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
+				var listSoNo = subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
 				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
 				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
 				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
-				var listStatus = subList.addField('custpage_sublist_status', 'text', 'Status', null);
+				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
 				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
 				listId.setDisplayType('hidden');
 				var listFFI = subList.addField('custpage_sublist_ffi', 'text', 'FFI', null);
+				var listFinishType = subList.addField('custpage_sublist_finish_type', 'text', 'Finish Type', null);
 				
 				var filterArray = [
 				                   ["mainline","is","T"], 
@@ -178,6 +201,15 @@ function productionBatchSuitelet(request, response){
 					filterArray.push("AND",["item.custitem_bbs_item_customer","anyof",belongsToId]);
 				}
 				
+				if(soLink == 'T')
+				{
+					filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+				}
+				else
+				{
+					filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
+				}	
+				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
 						[
 						   new nlobjSearchColumn("tranid",null,null), 
@@ -186,7 +218,8 @@ function productionBatchSuitelet(request, response){
 						   new nlobjSearchColumn("custitem_bbs_item_customer","item",null), 
 						   new nlobjSearchColumn("quantity",null,null), 
 						   new nlobjSearchColumn("datecreated",null,null), 
-						   new nlobjSearchColumn("statusref",null,null)
+						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
+						   new nlobjSearchColumn("createdfrom",null,null)
 						]
 						);
 						
@@ -216,6 +249,8 @@ function productionBatchSuitelet(request, response){
 				//Copy the results to the sublist
 				//
 				var line = Number(0);
+				var memberItemRecords = {};
+				var fullFinishItems = {};
 				
 				for (var int = 0; int < searchResultSet.length; int++) 
 				{
@@ -232,22 +267,84 @@ function productionBatchSuitelet(request, response){
 										];
 					
 					if (ffi != '')
-						{
-							ffiFilterArray.push("AND",["item.itemid","startswith",ffi]);
-						}
+					{
+						ffiFilterArray.push("AND",["item.itemid","startswith",ffi]);
+					}
 					
 					var workorderSearch = nlapiSearchRecord("workorder",null,ffiFilterArray,
 							[
 							   new nlobjSearchColumn("itemid","item",null),
-							   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null)
+							   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
+							   new nlobjSearchColumn("item", null ,null),
 							]
 							);
 					
 					var ffiText = '';
+					var finishTypeText = '';
+					var finishTypeId = '';
 					
 					if (workorderSearch != null && workorderSearch.length > 0)
-					{
+					{	
+						//Get the full finish item code
+						//
 						var ffiText = workorderSearch[0].getValue("itemid","item");
+						
+						//Get the id of the item, which in itself should be an assembly
+						//
+						var ffiId = workorderSearch[0].getValue("item");
+						
+						//Now load the assembly record or the full finish item
+						//
+						var ffiRecord = null;
+						
+						if(fullFinishItems[ffiId])
+							{
+								ffiRecord = fullFinishItems[ffiId];
+							}
+						else
+							{
+								if(nlapiGetContext().getRemainingUsage() > 10)
+									{
+										ffiRecord = nlapiLoadRecord('assemblyitem', ffiId);
+										fullFinishItems[ffiId] = ffiRecord; 
+									}
+							}
+						
+						if(ffiRecord)
+							{
+								var ffiComponents = ffiRecord.getLineItemCount('member');
+								
+								if(ffiComponents > 0)
+								{
+									var memberItemId = ffiRecord.getLineItemValue('member', 'item', 1);
+									var memberItemType = ffiRecord.getLineItemValue('member', 'sitemtype', 1);
+									
+									var memberItemRecord = null;
+									
+									if (memberItemId)
+										{
+											if(memberItemRecords[memberItemId])
+												{
+													memberItemRecord = memberItemRecords[memberItemId];
+												}
+											else
+												{
+													if(nlapiGetContext().getRemainingUsage() > 10)
+													{
+														memberItemRecord = nlapiLoadRecord(getItemRecType(memberItemType), memberItemId);
+														memberItemRecords[memberItemId] = memberItemRecord;
+													}
+												}
+											
+											
+											if(memberItemRecord)
+												{
+													finishTypeText = memberItemRecord.getFieldText('custitem_bbs_item_process_type');
+													finishTypeId = memberItemRecord.getFieldValue('custitem_bbs_item_process_type');
+												}
+										}
+								}								
+							}
 					}
 					
 					if ((ffi != '' && ffiText != '') || ffi == '')
@@ -255,18 +352,21 @@ function productionBatchSuitelet(request, response){
 							line++;
 		
 							subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
+							subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
 							subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
 							subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
 							subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
 							subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
 							subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
-							subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('statusref'));
+							subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
 							subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
 							subList.setLineItemValue('custpage_sublist_ffi', line, ffiText);
+							subList.setLineItemValue('custpage_sublist_finish_type', line, finishTypeText);
 						}
 				}
 		
 				form.addSubmitButton('Assign Selected Works Orders');
+				form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
 				
 				break;
 			}
@@ -293,6 +393,7 @@ function productionBatchSuitelet(request, response){
 				var productionBatchId = request.getParameter('custpage_production_batch');
 				var ffi = request.getParameter('custpage_ffi_select');
 				var mode = request.getParameter('custpage_mode');
+				var solink = request.getParameter('custpage_solink');
 
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -303,6 +404,7 @@ function productionBatchSuitelet(request, response){
 				params['stage'] = '2';
 				params['ffi'] = ffi;
 				params['mode'] = mode;
+				params['solink'] = solink;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				
@@ -391,4 +493,26 @@ function productionBatchSuitelet(request, response){
 				break;
 		}
 	}
+}
+
+function getItemRecType(ItemType)
+{
+	var itemType = '';
+	
+	switch(ItemType)
+	{
+		case 'InvtPart':
+			itemType = 'inventoryitem';
+			break;
+			
+		case 'Assembly':
+			itemType = 'assemblyitem';
+			break;
+			
+		case 'NonInvtPart':
+			itemType = 'noninventoryitem';
+			break;
+	}
+
+	return itemType;
 }
