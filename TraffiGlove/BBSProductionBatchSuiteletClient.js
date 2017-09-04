@@ -17,5 +17,13 @@
  */
 function clientFieldChanged(type, name, linenum)
 {
-
+	if (name == 'custpage_so_commit_select')
+		{
+			nlapiSetFieldValue('custpage_so_com_text', nlapiGetFieldText(name), false, true)
+		}
+	
+	if (name == 'custpage_so_select')
+	{
+		nlapiSetFieldValue('custpage_so_text', nlapiGetFieldText(name), false, true)
+	}
 }

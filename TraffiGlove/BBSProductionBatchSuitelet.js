@@ -27,7 +27,10 @@ function productionBatchSuitelet(request, response){
 		var ffi = request.getParameter('ffi');
 		var mode = request.getParameter('mode'); //U = update existing production batch, C = create a production batch
 		var soLink = request.getParameter('solink'); // T/F - choose to select w/o that are/are not linked to sales orders
-		
+		var soCommitStatus = request.getParameter('socommitstatus'); 
+		var soCommitStatusText = request.getParameter('socommitstatustext'); 
+		var soId = request.getParameter('soid'); 
+		var soText = request.getParameter('sotext'); 
 		
 		// Create a form
 		//
@@ -57,6 +60,18 @@ function productionBatchSuitelet(request, response){
 		var solinklField = form.addField('custpage_solink', 'text', 'SO Link');
 		solinklField.setDisplayType('hidden');
 		solinklField.setDefaultValue(soLink);
+		
+		//Store the so commit status in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var soComStatField = form.addField('custpage_so_com_text', 'text', 'SO Commit Text');
+		soComStatField.setDisplayType('hidden');
+		soComStatField.setDefaultValue(soCommitStatusText);
+		
+		//Store the so text in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var soTextField = form.addField('custpage_so_text', 'text', 'SO Text');
+		soTextField.setDisplayType('hidden');
+		soTextField.setDefaultValue(soText);
 		
 		
 		var prodBatchTitle = '';
@@ -116,6 +131,80 @@ function productionBatchSuitelet(request, response){
 				var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'select', 'Assembly Belongs To', 'customer','custpage_grp2');
 				var fullFinishField = form.addField('custpage_ffi_select', 'text', 'Full Finish item', null,'custpage_grp2');
 				
+				//If we are looking at w/o that are linked to s/o then add specific filters
+				//
+				if(soLink == 'T')
+					{
+						var soCommitStatusField = form.addField('custpage_so_commit_select', 'select', 'Sales Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+					
+						var soSelectionField = form.addField('custpage_so_select', 'select', 'Sales Orders', null,'custpage_grp2');
+						
+						//Now search the available w/o for s/o numbers
+						//
+						var filterArray = [
+						                   ["mainline","is","T"], 
+						                   "AND", 
+						                   ["type","anyof","WorkOrd"], 
+						                   "AND", 
+						                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
+						                   "AND", 
+						                   ["status","anyof","WorkOrd:A","WorkOrd:B"],
+						                   "AND",
+						                   ["createdfrom","noneof","@NONE@"]
+						                ];
+						
+						var woSearch = nlapiCreateSearch("transaction", filterArray, 
+								[
+								   new nlobjSearchColumn("createdfrom",null,null)
+								]
+								);
+								
+						var searchResult = woSearch.runSearch();
+				
+						//Get the initial set of results
+						//
+						var start = 0;
+						var end = 1000;
+						var searchResultSet = searchResult.getResults(start, end);
+						var resultlen = searchResultSet.length;
+				
+						//If there is more than 1000 results, page through them
+						//
+						while (resultlen == 1000) 
+							{
+									start += 1000;
+									end += 1000;
+				
+									var moreSearchResultSet = searchResult.getResults(start, end);
+									resultlen = moreSearchResultSet.length;
+				
+									searchResultSet = searchResultSet.concat(moreSearchResultSet);
+							}
+						
+						var soArray = {};
+						
+						//Build up a list of sales order to pick from
+						//
+						for (var int = 0; int < searchResultSet.length; int++) 
+						{
+							var soId = searchResultSet[int].getValue('createdfrom');
+							var soText = searchResultSet[int].getText('createdfrom');
+							
+							if(!soArray[soId])
+								{
+									soArray[soId] = soText;
+								}
+						}
+						
+						soSelectionField.addSelectOption( '', '', true);
+						
+						for ( var soKey in soArray) 
+						{
+							soSelectionField.addSelectOption(soKey, soArray[soKey], false);
+						}
+						
+					}
+				
 				//Add a submit button to the form
 				//
 				form.addSubmitButton('Select Works Orders');
@@ -151,6 +240,17 @@ function productionBatchSuitelet(request, response){
 					fullFinishField.setDefaultValue(ffi);
 				}
 				
+				if(soLink == 'T')
+				{
+					var soCommitStatusField = form.addField('custpage_so_commit_select', 'text', 'Sales Order Commitment Status', null, 'custpage_grp2');
+					soCommitStatusField.setDisplayType('disabled');
+					soCommitStatusField.setDefaultValue(soCommitStatusText);
+					
+					var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
+					soTextField.setDisplayType('disabled');
+					soTextField.setDefaultValue(soText);
+				}
+				
 				var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
 				tab.setLabel('Works Orders To Select');
 				
@@ -170,6 +270,7 @@ function productionBatchSuitelet(request, response){
 				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
 				var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
 				var listSoNo = subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
+				var listSoCommitStatus = subList.addField('custpage_sublist_so_status', 'text', 'Sales Order Status', null);
 				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
@@ -203,12 +304,31 @@ function productionBatchSuitelet(request, response){
 				
 				if(soLink == 'T')
 				{
-					filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+					if(soId != '')
+					{
+						filterArray.push("AND",["createdfrom","anyof",soId]);
+					}
+					else
+						{
+							filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+						}
 				}
 				else
 				{
 					filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
 				}	
+				
+				if(ffi != '')
+				{
+					filterArray.push("AND",["custbody_bbs_wo_ffi.itemid","startswith",ffi]);
+				}
+				
+				if(soCommitStatus != '')
+				{
+					filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
+				}
+				
+				
 				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
 						[
@@ -219,7 +339,11 @@ function productionBatchSuitelet(request, response){
 						   new nlobjSearchColumn("quantity",null,null), 
 						   new nlobjSearchColumn("datecreated",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
-						   new nlobjSearchColumn("createdfrom",null,null)
+						   new nlobjSearchColumn("createdfrom",null,null),
+						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
+						   new nlobjSearchColumn("custbody_bbs_wo_finish",null,null), 
+						   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
+						   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null)
 						]
 						);
 						
@@ -254,6 +378,7 @@ function productionBatchSuitelet(request, response){
 				
 				for (var int = 0; int < searchResultSet.length; int++) 
 				{
+					/*
 					//Find a Full Finish Item on the W/O
 					//
 					var ffiFilterArray = [
@@ -282,6 +407,7 @@ function productionBatchSuitelet(request, response){
 					var ffiText = '';
 					var finishTypeText = '';
 					var finishTypeId = '';
+					
 					
 					if (workorderSearch != null && workorderSearch.length > 0)
 					{	
@@ -346,9 +472,9 @@ function productionBatchSuitelet(request, response){
 								}								
 							}
 					}
-					
-					if ((ffi != '' && ffiText != '') || ffi == '')
-						{
+					*/
+					//if ((ffi != '' && ffiText != '') || ffi == '')
+					//	{
 							line++;
 		
 							subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
@@ -360,13 +486,28 @@ function productionBatchSuitelet(request, response){
 							subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
 							subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
 							subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
-							subList.setLineItemValue('custpage_sublist_ffi', line, ffiText);
-							subList.setLineItemValue('custpage_sublist_finish_type', line, finishTypeText);
-						}
+							//subList.setLineItemValue('custpage_sublist_ffi', line, ffiText);
+							//subList.setLineItemValue('custpage_sublist_finish_type', line, finishTypeText);
+							subList.setLineItemValue('custpage_sublist_ffi', line, searchResultSet[int].getText('custbody_bbs_wo_ffi'));
+							subList.setLineItemValue('custpage_sublist_finish_type', line, searchResultSet[int].getText('custbody_bbs_wo_finish'));
+							subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
+					//	}
 				}
 		
-				form.addSubmitButton('Assign Selected Works Orders');
-				form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
+				switch(mode)
+				{
+				case 'C':
+					form.addSubmitButton('Create Production Batches');
+					
+					break;
+					
+				case 'U':
+					form.addSubmitButton('Assign Selected Works Orders');
+				
+					break;
+				}
+				
+				//form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
 				
 				break;
 			}
@@ -394,7 +535,11 @@ function productionBatchSuitelet(request, response){
 				var ffi = request.getParameter('custpage_ffi_select');
 				var mode = request.getParameter('custpage_mode');
 				var solink = request.getParameter('custpage_solink');
-
+				var socommitstatus = request.getParameter('custpage_so_commit_select');
+				var socommitstatustext = request.getParameter('custpage_so_com_text');
+				var soid = request.getParameter('custpage_so_select');
+				var sotext = request.getParameter('custpage_so_text');
+				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
 				var params = new Array();
@@ -405,6 +550,10 @@ function productionBatchSuitelet(request, response){
 				params['ffi'] = ffi;
 				params['mode'] = mode;
 				params['solink'] = solink;
+				params['socommitstatus'] = socommitstatus;
+				params['socommitstatustext'] = socommitstatustext;
+				params['soid'] = soid;
+				params['sotext'] = sotext;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				
