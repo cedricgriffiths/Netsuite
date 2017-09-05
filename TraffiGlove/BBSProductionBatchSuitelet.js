@@ -11,8 +11,198 @@
  * @param {nlobjResponse} response Response object
  * @returns {Void} Any output is written via response object
  */
-function productionBatchSuitelet(request, response){
+function productionBatchSuitelet(request, response)
+{
+	//=============================================================================================
+	//Prototypes
+	//=============================================================================================
+	//
+	
+	//Date & time formatting prototype 
+	//
+	(function() {
 
+		Date.shortMonths = [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ];
+		Date.longMonths = [ 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ];
+		Date.shortDays = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
+		Date.longDays = [ 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ];
+
+		// defining patterns
+		var replaceChars = {
+		// Day
+		d : function() {
+			return (this.getDate() < 10 ? '0' : '') + this.getDate();
+		},
+		D : function() {
+			return Date.shortDays[this.getDay()];
+		},
+		j : function() {
+			return this.getDate();
+		},
+		l : function() {
+			return Date.longDays[this.getDay()];
+		},
+		N : function() {
+			return (this.getDay() == 0 ? 7 : this.getDay());
+		},
+		S : function() {
+			return (this.getDate() % 10 == 1 && this.getDate() != 11 ? 'st' : (this.getDate() % 10 == 2 && this.getDate() != 12 ? 'nd' : (this.getDate() % 10 == 3 && this.getDate() != 13 ? 'rd' : 'th')));
+		},
+		w : function() {
+			return this.getDay();
+		},
+		z : function() {
+			var d = new Date(this.getFullYear(), 0, 1);
+			return Math.ceil((this - d) / 86400000);
+		}, // Fixed now
+		// Week
+		W : function() {
+			var target = new Date(this.valueOf());
+			var dayNr = (this.getDay() + 6) % 7;
+			target.setDate(target.getDate() - dayNr + 3);
+			var firstThursday = target.valueOf();
+			target.setMonth(0, 1);
+			if (target.getDay() !== 4) {
+				target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+			}
+			var retVal = 1 + Math.ceil((firstThursday - target) / 604800000);
+
+			return (retVal < 10 ? '0' + retVal : retVal);
+		},
+		// Month
+		F : function() {
+			return Date.longMonths[this.getMonth()];
+		},
+		m : function() {
+			return (this.getMonth() < 9 ? '0' : '') + (this.getMonth() + 1);
+		},
+		M : function() {
+			return Date.shortMonths[this.getMonth()];
+		},
+		n : function() {
+			return this.getMonth() + 1;
+		},
+		t : function() {
+			var year = this.getFullYear(), nextMonth = this.getMonth() + 1;
+			if (nextMonth === 12) {
+				year = year++;
+				nextMonth = 0;
+			}
+			return new Date(year, nextMonth, 0).getDate();
+		},
+		// Year
+		L : function() {
+			var year = this.getFullYear();
+			return (year % 400 == 0 || (year % 100 != 0 && year % 4 == 0));
+		}, // Fixed now
+		o : function() {
+			var d = new Date(this.valueOf());
+			d.setDate(d.getDate() - ((this.getDay() + 6) % 7) + 3);
+			return d.getFullYear();
+		}, //Fixed now
+		Y : function() {
+			return this.getFullYear();
+		},
+		y : function() {
+			return ('' + this.getFullYear()).substr(2);
+		},
+		// Time
+		a : function() {
+			return this.getHours() < 12 ? 'am' : 'pm';
+		},
+		A : function() {
+			return this.getHours() < 12 ? 'AM' : 'PM';
+		},
+		B : function() {
+			return Math.floor((((this.getUTCHours() + 1) % 24) + this.getUTCMinutes() / 60 + this.getUTCSeconds() / 3600) * 1000 / 24);
+		}, // Fixed now
+		g : function() {
+			return this.getHours() % 12 || 12;
+		},
+		G : function() {
+			return this.getHours();
+		},
+		h : function() {
+			return ((this.getHours() % 12 || 12) < 10 ? '0' : '') + (this.getHours() % 12 || 12);
+		},
+		H : function() {
+			return (this.getHours() < 10 ? '0' : '') + this.getHours();
+		},
+		i : function() {
+			return (this.getMinutes() < 10 ? '0' : '') + this.getMinutes();
+		},
+		s : function() {
+			return (this.getSeconds() < 10 ? '0' : '') + this.getSeconds();
+		},
+		u : function() {
+			var m = this.getMilliseconds();
+			return (m < 10 ? '00' : (m < 100 ? '0' : '')) + m;
+		},
+		// Timezone
+		e : function() {
+			return /\((.*)\)/.exec(new Date().toString())[1];
+		},
+		I : function() {
+			var DST = null;
+			for (var i = 0; i < 12; ++i) {
+				var d = new Date(this.getFullYear(), i, 1);
+				var offset = d.getTimezoneOffset();
+
+				if (DST === null)
+					DST = offset;
+				else
+					if (offset < DST) {
+						DST = offset;
+						break;
+					}
+					else
+						if (offset > DST)
+							break;
+			}
+			return (this.getTimezoneOffset() == DST) | 0;
+		},
+		O : function() {
+			return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + Math.floor(Math.abs(this.getTimezoneOffset() / 60)) + (Math.abs(this.getTimezoneOffset() % 60) == 0 ? '00' : ((Math.abs(this.getTimezoneOffset() % 60) < 10 ? '0' : '')) + (Math
+					.abs(this.getTimezoneOffset() % 60)));
+		},
+		P : function() {
+			return (-this.getTimezoneOffset() < 0 ? '-' : '+') + (Math.abs(this.getTimezoneOffset() / 60) < 10 ? '0' : '') + Math.floor(Math.abs(this.getTimezoneOffset() / 60)) + ':' + (Math.abs(this.getTimezoneOffset() % 60) == 0 ? '00' : ((Math.abs(this.getTimezoneOffset() % 60) < 10 ? '0' : '')) + (Math
+					.abs(this.getTimezoneOffset() % 60)));
+		}, // Fixed now
+		T : function() {
+			return this.toTimeString().replace(/^.+ \(?([^\)]+)\)?$/, '$1');
+		},
+		Z : function() {
+			return -this.getTimezoneOffset() * 60;
+		},
+		// Full Date/Time
+		c : function() {
+			return this.format("Y-m-d\\TH:i:sP");
+		}, // Fixed now
+		r : function() {
+			return this.toString();
+		},
+		U : function() {
+			return this.getTime() / 1000;
+		}
+		};
+
+		// Simulates PHP's date function
+		Date.prototype.format = function(format) {
+			var date = this;
+			return format.replace(/(\\?)(.)/g, function(_, esc, chr) {
+				return (esc === '' && replaceChars[chr]) ? replaceChars[chr].call(date) : chr;
+			});
+		};
+
+	}).call(this);
+	
+	
+	//=============================================================================================
+	//Start of main code
+	//=============================================================================================
+	//
+	
 	if (request.getMethod() == 'GET') 
 	{
 		//Get request - so return a form for the user to process
@@ -31,6 +221,7 @@ function productionBatchSuitelet(request, response){
 		var soCommitStatusText = request.getParameter('socommitstatustext'); 
 		var soId = request.getParameter('soid'); 
 		var soText = request.getParameter('sotext'); 
+		var batches = request.getParameter('batches'); 
 		
 		// Create a form
 		//
@@ -113,6 +304,11 @@ function productionBatchSuitelet(request, response){
 			prodBatchTitle = prodBatchTitle + ' (WO Not Linked To SO)'
 			break;
 		}
+		
+		if(batches != null && batches != '')
+			{
+			prodBatchTitle = 'Production Batches Created';
+			}
 		
 		form.setTitle(prodBatchTitle);
 		
@@ -281,6 +477,10 @@ function productionBatchSuitelet(request, response){
 				listId.setDisplayType('hidden');
 				var listFFI = subList.addField('custpage_sublist_ffi', 'text', 'FFI', null);
 				var listFinishType = subList.addField('custpage_sublist_finish_type', 'text', 'Finish Type', null);
+				var listSoTranId = subList.addField('custpage_sublist_so_tranid', 'text', 'Sales Order TranId', null);
+				listSoTranId.setDisplayType('hidden');
+				var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
+				listCustEntityId.setDisplayType('hidden');
 				
 				var filterArray = [
 				                   ["mainline","is","T"], 
@@ -328,8 +528,6 @@ function productionBatchSuitelet(request, response){
 					filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
 				}
 				
-				
-				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
 						[
 						   new nlobjSearchColumn("tranid",null,null), 
@@ -343,7 +541,9 @@ function productionBatchSuitelet(request, response){
 						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_wo_finish",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
-						   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null)
+						   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null), 
+						   new nlobjSearchColumn("tranid","createdFrom",null), 
+						   new nlobjSearchColumn("externalid","customer",null)
 						]
 						);
 						
@@ -369,7 +569,6 @@ function productionBatchSuitelet(request, response){
 							searchResultSet = searchResultSet.concat(moreSearchResultSet);
 					}
 					
-				
 				//Copy the results to the sublist
 				//
 				var line = Number(0);
@@ -378,120 +577,22 @@ function productionBatchSuitelet(request, response){
 				
 				for (var int = 0; int < searchResultSet.length; int++) 
 				{
-					/*
-					//Find a Full Finish Item on the W/O
-					//
-					var ffiFilterArray = [
-										   ["mainline","is","F"], 
-										   "AND", 
-										   ["type","anyof","WorkOrd"], 
-										   "AND", 
-										   ["item.custitem_bbs_item_process_type","anyof","3"], 
-										   "AND", 
-										   ["internalid","anyof",searchResultSet[int].getId()]
-										];
-					
-					if (ffi != '')
-					{
-						ffiFilterArray.push("AND",["item.itemid","startswith",ffi]);
-					}
-					
-					var workorderSearch = nlapiSearchRecord("workorder",null,ffiFilterArray,
-							[
-							   new nlobjSearchColumn("itemid","item",null),
-							   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
-							   new nlobjSearchColumn("item", null ,null),
-							]
-							);
-					
-					var ffiText = '';
-					var finishTypeText = '';
-					var finishTypeId = '';
-					
-					
-					if (workorderSearch != null && workorderSearch.length > 0)
-					{	
-						//Get the full finish item code
-						//
-						var ffiText = workorderSearch[0].getValue("itemid","item");
-						
-						//Get the id of the item, which in itself should be an assembly
-						//
-						var ffiId = workorderSearch[0].getValue("item");
-						
-						//Now load the assembly record or the full finish item
-						//
-						var ffiRecord = null;
-						
-						if(fullFinishItems[ffiId])
-							{
-								ffiRecord = fullFinishItems[ffiId];
-							}
-						else
-							{
-								if(nlapiGetContext().getRemainingUsage() > 10)
-									{
-										ffiRecord = nlapiLoadRecord('assemblyitem', ffiId);
-										fullFinishItems[ffiId] = ffiRecord; 
-									}
-							}
-						
-						if(ffiRecord)
-							{
-								var ffiComponents = ffiRecord.getLineItemCount('member');
-								
-								if(ffiComponents > 0)
-								{
-									var memberItemId = ffiRecord.getLineItemValue('member', 'item', 1);
-									var memberItemType = ffiRecord.getLineItemValue('member', 'sitemtype', 1);
-									
-									var memberItemRecord = null;
-									
-									if (memberItemId)
-										{
-											if(memberItemRecords[memberItemId])
-												{
-													memberItemRecord = memberItemRecords[memberItemId];
-												}
-											else
-												{
-													if(nlapiGetContext().getRemainingUsage() > 10)
-													{
-														memberItemRecord = nlapiLoadRecord(getItemRecType(memberItemType), memberItemId);
-														memberItemRecords[memberItemId] = memberItemRecord;
-													}
-												}
-											
-											
-											if(memberItemRecord)
-												{
-													finishTypeText = memberItemRecord.getFieldText('custitem_bbs_item_process_type');
-													finishTypeId = memberItemRecord.getFieldValue('custitem_bbs_item_process_type');
-												}
-										}
-								}								
-							}
-					}
-					*/
-					//if ((ffi != '' && ffiText != '') || ffi == '')
-					//	{
-							line++;
+					line++;
 		
-							subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
-							subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
-							subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
-							subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
-							subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
-							subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
-							subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
-							subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
-							subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
-							//subList.setLineItemValue('custpage_sublist_ffi', line, ffiText);
-							//subList.setLineItemValue('custpage_sublist_finish_type', line, finishTypeText);
-							subList.setLineItemValue('custpage_sublist_ffi', line, searchResultSet[int].getText('custbody_bbs_wo_ffi'));
-							subList.setLineItemValue('custpage_sublist_finish_type', line, searchResultSet[int].getText('custbody_bbs_wo_finish'));
-							subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
-					//	}
+					subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
+					subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
+					subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
+					subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
+					subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
+					subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
+					subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
+					subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
+					subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
+					subList.setLineItemValue('custpage_sublist_ffi', line, searchResultSet[int].getText('custbody_bbs_wo_ffi'));
+					subList.setLineItemValue('custpage_sublist_finish_type', line, searchResultSet[int].getText('custbody_bbs_wo_finish'));
+					subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
+					subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
+					subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
 				}
 		
 				switch(mode)
@@ -509,6 +610,57 @@ function productionBatchSuitelet(request, response){
 				
 				//form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
 				
+				break;
+				
+			case 3:
+			
+				var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
+				tab.setLabel('Production Batches Created');
+				
+				var tab2 = form.addTab('custpage_tab_items2', '');
+				
+				form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+				
+				var subList = form.addSubList('custpage_sublist_items', 'list', 'Production Batches Created', 'custpage_tab_items');
+				
+				subList.setLabel('Production Batches Created');
+				
+				var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
+				listView.setLinkText('View');
+				var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
+				var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Production Batch', null);
+				var listEntered = subList.addField('custpage_sublist_entered', 'date', 'Date Entered', null);
+				var listDue = subList.addField('custpage_sublist_due', 'date', 'Due Date', null);
+				
+				if(batches != '')
+					{
+						var lineNo = Number(0);
+						
+						var batchesArray = JSON.parse(batches);
+						
+						var filters = new Array();
+						filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+						
+						var columns = new Array();
+						columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
+						columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
+						columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+						
+						var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
+						
+						for (var int2 = 0; int2 < batchResults.length; int2++) 
+						{
+							lineNo++;
+							
+							subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
+							subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
+							subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
+							subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
+							subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
+						}
+					}
+				
+			
 				break;
 			}
 		
@@ -564,68 +716,105 @@ function productionBatchSuitelet(request, response){
 				var lineCount = request.getLineItemCount('custpage_sublist_items');
 				var productionBatchId = request.getParameter('custpage_production_batch');
 				var mode = request.getParameter('custpage_mode');
+				var soLink = request.getParameter('custpage_solink'); // T/F - choose to select w/o that are/are not linked to sales orders
 				
+				//See if we are updating an existing batch or creating new ones
+				//
 				switch(mode)
 				{
-				case 'U':
-					
-					//Find all the ticked items & their quantities
+					//Update existing batch
 					//
-					for (var int = 1; int <= lineCount; int++) 
-					{
-						var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+					case 'U':
 						
-						if (ticked == 'T')
-							{
-								var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
-								
-								var woRecord = nlapiLoadRecord('workorder', woId);
-								woRecord.setFieldValue('custbody_bbs_wo_batch', productionBatchId);
-								nlapiSubmitRecord(woRecord, false, true);
-							}
-					}
-					
-					response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', productionBatchId, true, null);
-					
-					break;
-					
-				case 'C':
-					var woArray = {};
-					
-					for (var int = 1; int <= lineCount; int++) 
-					{
-						var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+						//Find all the ticked items & their quantities
+						//
+						for (var int = 1; int <= lineCount; int++) 
+						{
+							var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+							
+							if (ticked == 'T')
+								{
+									var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
+									
+									var woRecord = nlapiLoadRecord('workorder', woId);
+									woRecord.setFieldValue('custbody_bbs_wo_batch', productionBatchId);
+									nlapiSubmitRecord(woRecord, false, true);
+								}
+						}
 						
-						if (ticked == 'T')
-							{
-							var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
-							var belongsTo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_belongs', int);
-							var ffi = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_ffi', int);
+						//Return to the production batch record
+						//
+						response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', productionBatchId, true, null);
+						
+						break;
+				
+					//Create new batches
+					//
+					case 'C':
+						
+						var woArray = {};
+						var now = new Date();
+						var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
+						var batchesCreated = [];
+						
+						//Loop round the sublist to find rows that are ticked
+						//
+						for (var int = 1; int <= lineCount; int++) 
+						{
+							var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
 							
-							var key = belongsTo + ' - ' + ffi;
-							
-							if(!woArray[key])
+							if (ticked == 'T')
 								{
-									woArray[key] = [woId];
+									var woId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
+									var belongsTo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_belongs', int);
+									var finish = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_finish_type', int);
+									var soTranId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_so_tranid', int);
+									var custEntityId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_cust_entityid', int);
+									var custEntity = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_customer', int);
+									
+									//Build the batch key (which is used as the batch description)
+									//
+									var key = '';
+									
+									if (soLink == 'T')
+										{
+										 	key = custEntity + ':' + soTranId + ':' + finish;
+										}
+									else
+										{
+											key = belongsTo + ':' + finish + ':' + nowFormatted;
+										}
+									
+									if(!woArray[key])
+										{
+											woArray[key] = [woId];
+										}
+									else
+										{
+											woArray[key].push(woId);
+										}
 								}
-							else
-								{
-									woArray[key].push(woId);
-								}
-							}
-					}
+						}
 					
 					var prodBatchId = '';
 					
+					//Loop round the batch keys to create the batches
+					//
 					for (var woKey in woArray) 
 					{
+						//Create the batch record
+						//
 						var prodBatchRecord = nlapiCreateRecord('customrecord_bbs_assembly_batch');
 						prodBatchRecord.setFieldValue('custrecord_bbs_bat_description',woKey);
 						
+						//Save the batch record & get the id
+						//
 						prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);
+						batchesCreated.push(prodBatchId);
 						
+						//Loop round the w/o id's associated with this batch
+						//
 						woIds = woArray[woKey];
-						
 						for (var int2 = 0; int2 < woIds.length; int2++) 
 						{
 							var woRecord = nlapiLoadRecord('workorder', woIds[int2]);
@@ -634,7 +823,15 @@ function productionBatchSuitelet(request, response){
 						}
 					}
 					
-					response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', prodBatchId, true, null);
+					var batchesCreatedText = JSON.stringify(batchesCreated);
+					var params = new Array();
+					
+					params['stage'] = '3';
+					params['batches'] = batchesCreatedText;
+					
+					response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
+					
+					//response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', prodBatchId, true, null);
 					
 					break;
 				}
