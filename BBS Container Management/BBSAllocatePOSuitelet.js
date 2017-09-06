@@ -23,6 +23,7 @@ function allocatePOSuitelet(request, response){
 		var paramSupplier = request.getParameter('supplierid');
 		var paramStage = Number(request.getParameter('stage'));
 		var paramPoNo = Number(request.getParameter('pono'));
+		var paramItem = request.getParameter('item');
 		
 		switch(paramStage)
 			{
@@ -105,7 +106,7 @@ function allocatePOSuitelet(request, response){
 							//
 							var field1 = form.addField('custpage_field1', 'select', 'Supplier', null,'custpage_grp1');
 							var field2 = form.addField('custpage_field2', 'select', 'Purchase Order No', null, 'custpage_grp1');
-							//var field3 = form.addField('custpage_field3', 'text', 'Field 3', null, 'custpage_grp1');
+							var field3 = form.addField('custpage_field3', 'text', 'Item (Contains Text)', null, 'custpage_grp1');
 							
 							if (paramSupplier)
 								{
@@ -118,6 +119,12 @@ function allocatePOSuitelet(request, response){
 									field2.setDefaultValue(paramPoNo);
 									nlapiSetFieldValue('custpage_field2', paramPoNo, true, true);
 								}
+							
+							if (paramItem)
+							{	
+								field3.setDefaultValue(paramItem);
+								nlapiSetFieldValue('custpage_field3', paramItem, true, true);
+							}
 							
 							//Save the consignment id in a field on the form, but hide it
 							//
@@ -166,7 +173,7 @@ function allocatePOSuitelet(request, response){
 					
 							//Populate the po list based on the search criteria
 							//
-							var results = libFindPurchaseOrders(paramSupplier, paramPoNo);
+							var results = libFindPurchaseOrders(paramSupplier, paramPoNo, paramItem);
 							
 							var suppliers = {};
 							var pos = {};

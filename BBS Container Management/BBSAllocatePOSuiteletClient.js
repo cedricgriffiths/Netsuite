@@ -123,6 +123,12 @@ function ButtonRefresh()
 	
 	url += '&pono=' + (poNo == '0' ? '' : poNo);
 	
+	//Add the item to the url
+	//
+	var item= nlapiGetFieldValue('custpage_field3');
+	
+	url += '&item=' + (item == '' ? '' : item);
+	
 	// Open the suitelet in a new window
 	//
 	window.open(url, '_self','Allocate PO');

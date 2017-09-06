@@ -5,16 +5,14 @@
  * 1.00       20 Feb 2017     cedricgriffiths
  *
  */
-function libFindPurchaseOrders(supplier, poNo) {
+function libFindPurchaseOrders(supplier, poNo, item) {
 	
 	//Run a search to find purchase orders
 	//
 	var filters = new Array();
 	filters[0] = new nlobjSearchFilter('mainline', null, 'is', 'F');
 	filters[1] = new nlobjSearchFilter('type', null, 'anyof', 'PurchOrd');
-	//filters[2] = new nlobjSearchFilter('account', null, 'anyof', '10');
-	//filters[3] = new nlobjSearchFilter('custcol_bbs_consignment_id', null, 'anyof', '@NONE@');
-		
+
 	//Search for Partial Receipt or Pending Receipt
 	//
 	var statusArray = new Array();
@@ -43,6 +41,11 @@ function libFindPurchaseOrders(supplier, poNo) {
 			filters[filters.length] = new nlobjSearchFilter('internalid', null, 'anyof', poNo);
 		}
 	
+	if (item)
+		{
+			filters[filters.length] = new nlobjSearchFilter('itemid', 'item', 'contains', item);
+		}
+
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('tranid');
 	columns[1] = new nlobjSearchColumn('line');
