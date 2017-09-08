@@ -53,7 +53,7 @@ function filteredItemSearchSuitelet(request, response){
 		
 		//Add a field group for customer/parent
 		//
-		var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Customer/Parent');
+		var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Customer / Parent');
 		fieldGroup1.setSingleColumn(false);
 		
 		//Display the customer name as based on the customer id passed in to the suitelet
@@ -72,9 +72,14 @@ function filteredItemSearchSuitelet(request, response){
 		parentField.setDisplaySize(60);
 		parentField.setDefaultValue(custParent);
 		
+		//Add a field group for style
+		//
+		var fieldGroup3 = form.addFieldGroup('custpage_grp3', 'Subitem Of / Style');
+		fieldGroup3.setSingleColumn(false);
+		
 		//Add a field group for depot/department/employee/grade
 		//
-		var fieldGroup2 = form.addFieldGroup('custpage_grp2', 'Depot/Department/Employee/Grade');
+		var fieldGroup2 = form.addFieldGroup('custpage_grp2', 'Depot / Department / Employee / Grade');
 		fieldGroup2.setSingleColumn(false);
 		
 		var depotField = form.addField('custpage_depot_select', 'text', 'Depot', null,'custpage_grp2');
@@ -82,10 +87,6 @@ function filteredItemSearchSuitelet(request, response){
 		depotField.setDisplaySize(60);
 		depotField.setDefaultValue(depotName);
 
-		//Add a field group for style
-		//
-		var fieldGroup3 = form.addFieldGroup('custpage_grp3', 'Subitem Of/Style');
-		fieldGroup3.setSingleColumn(false);
 		
 		//Hold the customer id in a hidden field so that we can retrieve it later in the POST section
 		//
@@ -226,6 +227,12 @@ function filteredItemSearchSuitelet(request, response){
 				var styleField = form.addField('custpage_style_select', 'text', 'Style', null,'custpage_grp3');
 				styleField.setDisplaySize(60);
 				
+				var warningField = form.addField('custpage_warning', 'inlinehtml', 'Warning', null,'custpage_grp3');
+				warningField.setLayoutType('outsidebelow');
+				
+				warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Warning: Ommitting style when not searching by employee may cause the search to timeout</p>');
+				
+				
 				//Add a submit button to the form
 				//
 				form.addSubmitButton('Select Items');
@@ -283,9 +290,12 @@ function filteredItemSearchSuitelet(request, response){
 				var filterArray = [];
 				var hasWebCat = false;
 				var usingWebCat = false;
+				var userMessage = '';
 				
 				//See if the customer has a web catalogue
 				//
+				
+				/*
 				var webProductSearch = nlapiSearchRecord("customrecord_bbs_customer_web_product",null,
 						[
 						   ["custrecord_bbs_web_product_customer","anyof",customerId]
@@ -301,14 +311,16 @@ function filteredItemSearchSuitelet(request, response){
 						hasWebCat = true;
 					}
 					
+				*/
 				
 				//Are we searching for a Man Pack - this take prescidence
 				//
 				if(gradeId != null && gradeId != '')
 				{
 					var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
-					webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Employee Grade To Display Available Data');
-				
+					//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Employee Grade To Display Available Data');
+					userMessage = '<p style="font-size:16px; color:DarkRed;">Using Employee Grade To Display Available Data';
+					
 					//Get available items from the item table based on the chosen grade
 					//
 					filterArray =	[
@@ -335,13 +347,14 @@ function filteredItemSearchSuitelet(request, response){
 				}
 				else
 				{	
-					//Does the customer hav a web catalogue, if so we must use this
+					//Does the customer have a web catalogue, if so we must use this
 					//
 					if (hasWebCat)
 					{
 						var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
-						webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Web Catalogue To Display Available Data');
-					
+						//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Web Catalogue To Display Available Data');
+						userMessage = '<p style="font-size:16px; color:DarkRed;">Using Web Catalogue To Display Available Data';
+						
 						usingWebCat = true;
 						
 						itemSearch = nlapiCreateSearch("customrecord_bbs_customer_web_product",
@@ -369,29 +382,36 @@ function filteredItemSearchSuitelet(request, response){
 						if(parentId != null && parentId != '')
 						{
 							var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
-							webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Customer & Parent To Display Available Data');
-						
+							//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Customer & Parent To Display Available Data');
+							userMessage = '<p style="font-size:16px; color:DarkRed;">Using Customer & Parent To Display Available Data';
+							
 							filterArray = [
 							               ["isinactive","is","F"], 
-							               "AND", 
+							               "AND",
 							               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
 								           "AND", 
-							               [["custitem_bbs_item_customer","anyof",customerId],"OR",[["custitem_bbs_item_customer","anyof",parentId],"AND",["custitem_bbs_item_finish_type","anyof","1"]]]
+							               [[["custitem_bbs_item_customer","anyof","@NONE@"],"OR",["custitem_bbs_item_customer","anyof",customerId]],"OR",[["custitem_bbs_item_customer","anyof",parentId],"AND",["custitem_bbs_item_finish_type","anyof","1"]]]
 							               ];
 						}
 						else
 						{
 							var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
-							webCatMsg.setDefaultValue('<p style="font-size:18px">*** Using Customer To Display Available Data');
-						
+							//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Customer To Display Available Data');
+							userMessage = '<p style="font-size:16px; color:DarkRed;">Using Customer To Display Available Data';
+							
 							filterArray = [
 						               ["isinactive","is","F"], 
-						               "AND", 
+						               "AND",
 						               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
 						               "AND", 
-						               ["custitem_bbs_item_customer","anyof",customerId]
+						               [["custitem_bbs_item_customer","anyof","@NONE@"],"OR",["custitem_bbs_item_customer","anyof",customerId]]
 						               ];
 						}
+						
+						if(styleName != '')
+							{
+							filterArray.push("AND",["parent.name","contains",styleName]);
+							}
 						
 						itemSearch = nlapiCreateSearch("item", filterArray, 
 								[
@@ -410,7 +430,7 @@ function filteredItemSearchSuitelet(request, response){
 				}
 				
 				var searchResult = itemSearch.runSearch();
-		
+				
 				//Get the initial set of results
 				//
 				var start = 0;
@@ -457,21 +477,24 @@ function filteredItemSearchSuitelet(request, response){
 					else
 						{
 							var account = searchResultSet[int].getValue('incomeaccount');
-							var style = searchResultSet[int].getText("parent");
+							//var style = searchResultSet[int].getText("parent");
 							
-							if ((account != null && account != '') && (styleName == '' || (styleName != '' && style.indexOf(styleName) != -1)))
+							//if ((account != null && account != '') && (styleName == '' || (styleName != '' && style.indexOf(styleName) != -1)))
+							if (account != null && account != '')
 								{
 									subList.setLineItemValue('custpage_sublist_item', line, searchResultSet[int].getValue('itemid'));
 									subList.setLineItemValue('custpage_sublist_desc', line, searchResultSet[int].getValue('salesdescription'));
 									subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
 									subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer'));
-									subList.setLineItemValue('custpage_sublist_parent', line, style);
+									//subList.setLineItemValue('custpage_sublist_parent', line, style);
+									subList.setLineItemValue('custpage_sublist_parent', line, searchResultSet[int].getText("parent"));
 									
 									line++;
 								}
 						}
 				}
 				
+				webCatMsg.setDefaultValue(userMessage + ' (' + (line - 1).toString() + ')');
 				
 				//Add a mark/unmark button
 				//
