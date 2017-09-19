@@ -614,6 +614,10 @@ function productionBatchSuitelet(request, response)
 				
 			case 3:
 			
+				var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
+				batchesField.setDisplayType('hidden');
+				batchesField.setDefaultValue(batches);
+				
 				var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
 				tab.setLabel('Production Batches Created');
 				
@@ -660,7 +664,10 @@ function productionBatchSuitelet(request, response)
 						}
 					}
 				
-			
+				//Add a submit button to the form
+				//
+				form.addSubmitButton('Generate Production Batch Documentation');
+				
 				break;
 			}
 		
@@ -835,6 +842,173 @@ function productionBatchSuitelet(request, response)
 					
 					break;
 				}
+				
+				break;
+			
+			case 3:
+				//Need to generate the prduction batch documentation
+				//
+				
+				//Get the batches data
+				//
+				var batches = request.getParameter('custpage_batches');
+				var batchesArray = JSON.parse(batches);
+				
+				var filters = new Array();
+				filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+				
+				var columns = new Array();
+				columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
+				columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
+				columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+				
+				var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
+				
+				//Start the xml off with the basic header info & the start of a pdfset
+				//
+				var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
+				xml += "<pdfset>";
+				
+				//Loop through the batch data
+				for (var int2 = 0; int2 < batchResults.length; int2++) 
+				{
+					var batchId = batchResults[int2].getId();
+					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
+
+					//Header & style sheet
+					//
+					xml += "<pdf>"
+					xml += "<head>";
+			        xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
+			        xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+			        xml += "b {font-weight: bold;color: #333333;}";
+			        xml += "table.header td {padding: 0px;font-size: 10pt;}";
+			        xml += "table.footer td {padding: 0;font-size: 6pt;}";
+			        xml += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
+			        xml += "table.body td {padding-top: 0px;}";
+			        xml += "table.total {page-break-inside: avoid;}";
+			        xml += "table.message{border: 1px solid #dddddd;}";
+			        xml += "tr.totalrow {line-height: 200%;}";
+			        xml += "tr.messagerow{font-size: 6pt;}";
+			        xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
+			        xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
+			        xml += "td.address {padding-top: 0;font-size: 10pt;}";
+			        xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
+			        xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td.message{font-size: 8pt;}";
+			        xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
+			        xml += "span.title {font-size: 28pt;}";
+			        xml += "span.number {font-size: 16pt;}";
+			        xml += "span.itemname {font-weight: bold;line-height: 150%;}";
+			        xml += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
+			        xml += "</style>";
+
+			        //Macros
+			        //
+					xml += "<macrolist><macro id=\"myfooter\"><table style=\"width: 100%; \"><tr><td align=\"left\" style=\"font-size:60%;\" colspan=\"5\">&nbsp;</td><td>&nbsp;</td><td align=\"right\">Page <pagenumber size=\"1\"/> of <totalpages size=\"1\"/></td></tr></table></macro></macrolist>\n";
+					xml += "</head><body footer=\"myfooter\" font-size=\"9\">\n";
+					xml += "<table style=\"width: 100%\">";
+					
+					//Header data
+					//
+					xml += "<tr>";
+					xml += "<td colspan=\"16\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Putaway</b></td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Decsription</b></td>";
+					xml += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
+					xml += "<td colspan=\"12\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "</tr>";
+					
+					xml += "</table>\n";
+					xml += "<p></p>";
+					
+					//Item data
+					//
+					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
+					xml += "<thead >";
+					xml += "<tr >";
+					xml += "<th colspan=\"2\">Works Order</th>";
+					xml += "<th align=\"left\" colspan=\"12\">Finished Item</th>";
+					xml += "<th align=\"left\" colspan=\"2\">Finished Qty</th>";
+					xml += "<th align=\"left\" colspan=\"2\">Putaway Bin</th>";
+
+					xml += "</tr>";
+					xml += "</thead>";
+
+					//Find the works orders associated with this batch
+					//
+					var filterArray = [
+					                   ["mainline","is","T"], 
+					                   "AND", 
+					                   ["type","anyof","WorkOrd"], 
+					                   "AND", 
+					                   ["custbody_bbs_wo_batch","anyof",batchId]
+					                   
+					                ];
+					
+					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
+							[
+							   new nlobjSearchColumn("tranid",null,null), 
+							   new nlobjSearchColumn("entity",null,null), 
+							   new nlobjSearchColumn("item",null,null), 
+							   new nlobjSearchColumn("quantity",null,null),
+							   new nlobjSearchColumn("binnumber","item",null)
+							]
+							);
+
+					//Loop through the works orders on the batch
+					//
+					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
+					{
+						xml += "  <tr>";
+						xml += "    <td colspan=\"2\">" + searchResultSet[int3].getValue('tranid') + "</td>";
+						xml += "    <td align=\"left\" colspan=\"12\">" + searchResultSet[int3].getText('item') + "</td>";
+						xml += "    <td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
+						xml += "    <td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('binnumber','item') + "</td>";
+						xml += "    </tr>";
+						
+					}
+					
+					//Finish the item table
+					//
+					xml += "</table>";
+					
+					//Finish the body
+					//
+					xml += "</body>";
+					
+					//Finish the pdf
+					//
+					xml += "</pdf>";
+				}
+				
+				//Finish the pdfset
+				//
+				xml += "</pdfset>";
+				
+				// Convert to pdf using the BFO library
+				var file = nlapiXMLToPDF(xml);
+
+				// Send back the output in the response message
+				response.setContentType('PDF', 'Production Batch Documents', 'inline');
+				response.write(file.getValue());
 				
 				break;
 		}
