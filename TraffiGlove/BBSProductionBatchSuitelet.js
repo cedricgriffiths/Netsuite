@@ -989,10 +989,10 @@ function productionBatchSuitelet(request, response)
 					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 					{
 						xml += "<tr>";
-						xml += "<td colspan=\"2\">" + searchResultSet[int3].getValue('tranid') + "</td>";
-						xml += "<td align=\"left\" colspan=\"12\">" + searchResultSet[int3].getText('item') + "</td>";
+						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+						xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(searchResultSet[int3].getText('item')) + "</td>";
 						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('binnumber','item') + "</td>";
+						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
 						xml += "</tr>";
 						
 					}
@@ -1132,7 +1132,7 @@ function productionBatchSuitelet(request, response)
 						var woId = searchResultSet[int3].getId();
 						
 						xml += "<tr>";
-						xml += "<td colspan=\"2\">" + searchResultSet[int3].getValue('tranid') + "</td>";
+						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
 						xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
 						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
 						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
@@ -1174,9 +1174,9 @@ function productionBatchSuitelet(request, response)
 											
 											xml += "<tr>";
 											xml += "<td colspan=\"2\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"12\">" + componentText + "</td>";
+											xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "</td>";
 											xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
-											xml += "<td align=\"left\" colspan=\"2\">" + componentBin + "</td>";
+											xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
 											xml += "</tr>";
 										}
 								}
@@ -1202,8 +1202,6 @@ function productionBatchSuitelet(request, response)
 					//
 					xml += "</pdf>";
 				}
-				
-				
 				
 				//
 				//Finish the pdfset
