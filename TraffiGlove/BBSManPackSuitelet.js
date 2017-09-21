@@ -415,7 +415,7 @@ function filteredItemSearchSuitelet(request, response){
 						
 						itemSearch = nlapiCreateSearch("item", filterArray, 
 								[
-								new nlobjSearchColumn("itemid",null,null).setSort(false), 
+								new nlobjSearchColumn("itemid",null,null), 
 								new nlobjSearchColumn("displayname",null,null), 
 								new nlobjSearchColumn("salesdescription",null,null), 
 								new nlobjSearchColumn("type",null,null), 
