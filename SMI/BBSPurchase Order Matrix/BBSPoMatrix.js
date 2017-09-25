@@ -244,100 +244,99 @@ function matrixOutputSuitelet(request, response)
 		
 		for ( var colourId in sizeColourMatrix) 
 		{
-		
 			if(colourId != TOTAL)
 				{
-			//Get the current row
-			//
-			var row = sizeColourMatrix[colourId];
-			
-			//Produce the headings
-			//
-			if(!headingDone)
-			{
-				headingDone = true;
-				
-				xml += "<table class=\"itemtable\" style=\"width: 100%; border: 1px solid lightgrey; border-collapse: collapse;\">";
-				xml += "<thead >";
-				xml += "<tr >";
-				xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour</th>";
-				
-				for ( var sizeId in row) 
-				{
-					//Get the size descriptions & print them out
+					//Get the current row
 					//
-					var sizeDescription = '';
+					var row = sizeColourMatrix[colourId];
 					
-					switch(Number(sizeId))
+					//Produce the headings
+					//
+					if(!headingDone)
 					{
-						case Number(TOTAL):
-							sizeDescription = 'Total';
-							break;
+						headingDone = true;
+						
+						xml += "<table class=\"itemtable\" style=\"width: 100%; border: 1px solid lightgrey; border-collapse: collapse;\">";
+						xml += "<thead >";
+						xml += "<tr >";
+						xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour</th>";
+						
+						for ( var sizeId in row) 
+						{
+							//Get the size descriptions & print them out
+							//
+							var sizeDescription = '';
 							
-						case Number(UNITCOST):
-							sizeDescription = 'Unit Price';
-							break;
+							switch(Number(sizeId))
+							{
+								case Number(TOTAL):
+									sizeDescription = 'Total';
+									break;
+									
+								case Number(UNITCOST):
+									sizeDescription = 'Unit Price';
+									break;
+									
+								case Number(TOTALCOST):
+									sizeDescription = 'Total Price';
+									break;
+									
+								default:
+										sizeDescription = sizeLookupArray[sizeId];
+									break;
+							}
 							
-						case Number(TOTALCOST):
-							sizeDescription = 'Total Price';
-							break;
-							
-						default:
-								sizeDescription = sizeLookupArray[sizeId];
-							break;
+							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + sizeDescription + "</th>";
+						}
+						
+						xml += "</tr>";
+						xml += "</thead>";
+					}
+				
+					
+					//Get the colour description so we can print it out
+					//
+					var colourDescription = '';
+					
+					xml += "<tr >";
+					
+					if (colourId == TOTAL)
+					{
+						xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\"><b>Total</b></td>";
+					}
+					else
+					{
+						colourDescription = colourLookupArray[colourId];
+						xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) + "</td>";
 					}
 					
-					xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + sizeDescription + "</th>";
-				}
-				
-				xml += "</tr>";
-				xml += "</thead>";
-			}
-		
-			
-			//Get the colour description so we can print it out
-			//
-			var colourDescription = '';
-			
-			xml += "<tr >";
-			
-			if (colourId == TOTAL)
-			{
-				xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\"><b>Total</b></td>";
-			}
-			else
-			{
-				colourDescription = colourLookupArray[colourId];
-				xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) + "</td>";
-			}
-			
-			
-			for ( var sizeId in row) 
-			{
-				var cell = row[sizeId];
-				
-				cell = (cell == '0' ? '' : Number(cell).toFixed(2));
-				
-				//Output the values in each cell
-				//
-				if (colourId == TOTAL)
-				{
-					xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"left\" colspan=\"1\"><b>" + cell + "</b></td>";
-				}
-				else
-				{
-					if(sizeId == TOTAL || sizeId == TOTALCOST || sizeId == UNITCOST)
+					
+					for ( var sizeId in row) 
+					{
+						var cell = row[sizeId];
+						
+						cell = (cell == '0' ? '' : Number(cell).toFixed(2));
+						
+						//Output the values in each cell
+						//
+						if (colourId == TOTAL)
 						{
-							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\"><b>" + cell + "</b></td>";
+							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"left\" colspan=\"1\"><b>" + cell + "</b></td>";
 						}
-					else
+						else
 						{
-							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\">" + cell + "</td>";
+							if(sizeId == TOTAL || sizeId == TOTALCOST || sizeId == UNITCOST)
+								{
+									xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\"><b>" + cell + "</b></td>";
+								}
+							else
+								{
+									xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\">" + cell + "</td>";
+								}
 						}
-				}
-			}
-			
-			xml += "</tr>";
+					}
+					
+					xml += "</tr>";
 			}
 		}
 		
