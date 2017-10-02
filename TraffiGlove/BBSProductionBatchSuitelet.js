@@ -835,6 +835,7 @@ function productionBatchSuitelet(request, response)
 					
 					params['stage'] = '3';
 					params['batches'] = batchesCreatedText;
+					params['solink'] = soLink;
 					
 					response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 					
@@ -853,6 +854,8 @@ function productionBatchSuitelet(request, response)
 				//
 				var batches = request.getParameter('custpage_batches');
 				var batchesArray = JSON.parse(batches);
+				var solink = request.getParameter('custpage_solink');
+				var stockOrSales = (solink == 'T' ? 'Sales Order' : 'Stock');
 				
 				var filters = new Array();
 				filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
@@ -869,99 +872,15 @@ function productionBatchSuitelet(request, response)
 				var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
 				xml += "<pdfset>";
 				
-				//
-				//Produce the batch putaway documents
-				//
-				
 				//Loop through the batch data
 				//
 				for (var int2 = 0; int2 < batchResults.length; int2++) 
 				{
+					//
+					//Produce the batch pick documents
+					//
 					var batchId = batchResults[int2].getId();
 					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
-
-					//Header & style sheet
-					//
-					xml += "<pdf>"
-					xml += "<head>";
-			        xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
-			        xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-			        xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
-			        xml += "b {font-weight: bold;color: #333333;}";
-			        xml += "table.header td {padding: 0px;font-size: 10pt;}";
-			        xml += "table.footer td {padding: 0;font-size: 6pt;}";
-			        xml += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
-			        xml += "table.body td {padding-top: 0px;}";
-			        xml += "table.total {page-break-inside: avoid;}";
-			        xml += "table.message{border: 1px solid #dddddd;}";
-			        xml += "tr.totalrow {line-height: 200%;}";
-			        xml += "tr.messagerow{font-size: 6pt;}";
-			        xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
-			        xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-			        xml += "td.address {padding-top: 0;font-size: 10pt;}";
-			        xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-			        xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
-			        xml += "td.message{font-size: 8pt;}";
-			        xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-			        xml += "span.title {font-size: 28pt;}";
-			        xml += "span.number {font-size: 16pt;}";
-			        xml += "span.itemname {font-weight: bold;line-height: 150%;}";
-			        xml += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
-			        xml += "</style>";
-
-			        //Macros
-			        //
-					xml += "<macrolist>";
-					xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
-					xml += "</macrolist>";
-					xml += "</head>";
-					
-					//Body
-					//
-					xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-
-					//Header data
-					//
-					xml += "<table style=\"width: 100%\">";
-					xml += "<tr>";
-					xml += "<td colspan=\"16\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Putaway</b></td>";
-					xml += "</tr>";
-					
-					xml += "<tr>";
-					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xml += "</tr>";
-					
-					xml += "<tr>";
-					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Decsription</b></td>";
-					xml += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
-					xml += "</tr>";
-					
-					xml += "<tr>";
-					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xml += "</tr>";
-					
-					xml += "<tr>";
-					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
-					xml += "<td colspan=\"12\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xml += "</tr>";
-					
-					xml += "</table>\n";
-					xml += "<p></p>";
-					
-					//Item data
-					//
-					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xml += "<thead >";
-					xml += "<tr >";
-					xml += "<th colspan=\"2\">Works Order</th>";
-					xml += "<th align=\"left\" colspan=\"12\">Finished Item</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Finished Qty</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Putaway Bin</th>";
-
-					xml += "</tr>";
-					xml += "</thead>";
 
 					//Find the works orders associated with this batch
 					//
@@ -980,47 +899,45 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("entity",null,null), 
 							   new nlobjSearchColumn("item",null,null), 
 							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("binnumber","item",null)
+							   new nlobjSearchColumn("binnumber","item",null),
+							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
 							]
 							);
 
-					//Loop through the works orders on the batch
+					//Work out the customer sub group
 					//
-					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
-					{
-						xml += "<tr>";
-						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(searchResultSet[int3].getText('item')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
-						xml += "</tr>";
-						
-					}
+					var subGroup = '';
 					
-					//Finish the item table
-					//
-					xml += "</table>";
+					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+					if(solink == 'T')
+						{
+							if(searchResultSet.length > 0)
+								{
+									var thisEntity = searchResultSet[0].getValue("entity");
+									if(thisEntity !=  null && thisEntity != '')
+										{
+											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
+											subGroup = (subGroup == null ? '' : subGroup);
+										}
+									
+								}
+						}
+					else
+						{	
+							//If not linked to sales orders, we will need to use the assembly item belongs to instead
+							//
+							if(searchResultSet.length > 0)
+								{
+									var thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
+									if(thisEntity !=  null && thisEntity != '')
+										{
+											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
+											subGroup = (subGroup == null ? '' : subGroup);
+										}
+								}
+						}
 					
-					//Finish the body
-					//
-					xml += "</body>";
 					
-					//Finish the pdf
-					//
-					xml += "</pdf>";
-				}
-				
-				//
-				//Produce the batch pick documents
-				//
-				
-				//Loop through the batch data
-				//
-				for (var int2 = 0; int2 < batchResults.length; int2++) 
-				{
-					var batchId = batchResults[int2].getId();
-					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
-
 					//Header & style sheet
 					//
 					xml += "<pdf>"
@@ -1065,7 +982,9 @@ function productionBatchSuitelet(request, response)
 					//
 					xml += "<table style=\"width: 100%\">";
 					xml += "<tr>";
-					xml += "<td colspan=\"16\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Picking List</b></td>";
+					xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
+					xml += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Picking List</b></td>";
+					xml += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">" + nlapiEscapeXML(subGroup) + "</td>";
 					xml += "</tr>";
 					
 					xml += "<tr>";
@@ -1085,7 +1004,8 @@ function productionBatchSuitelet(request, response)
 					
 					xml += "<tr>";
 					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
-					xml += "<td colspan=\"12\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xml += "</tr>";
 					
 					xml += "</table>\n";
@@ -1104,27 +1024,7 @@ function productionBatchSuitelet(request, response)
 					xml += "</tr>";
 					xml += "</thead>";
 
-					//Find the works orders associated with this batch
-					//
-					var filterArray = [
-					                   ["mainline","is","T"], 
-					                   "AND", 
-					                   ["type","anyof","WorkOrd"], 
-					                   "AND", 
-					                   ["custbody_bbs_wo_batch","anyof",batchId]
-					                   
-					                ];
 					
-					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
-							[
-							   new nlobjSearchColumn("tranid",null,null), 
-							   new nlobjSearchColumn("entity",null,null), 
-							   new nlobjSearchColumn("item",null,null), 
-							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("binnumber","item",null)
-							]
-							);
-
 					//Loop through the works orders on the batch
 					//
 					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
@@ -1133,10 +1033,12 @@ function productionBatchSuitelet(request, response)
 						
 						xml += "<tr>";
 						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "</tr>";
+						//xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
+						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+						//xml += "</tr>";
+						
+						var firstLine = true;
 						
 						//Read the works order so we can get the components
 						//
@@ -1159,8 +1061,9 @@ function productionBatchSuitelet(request, response)
 											//Find the default bin 
 											//
 											var componentRecord = nlapiLoadRecord('inventoryitem', componentId);
+											var componentDescription = componentRecord.getFieldValue('salesdescription');
 											var binCount = componentRecord.getLineItemCount('binnumber');
-											var componentBin = '<No Preferred Bin>';
+											var componentBin = '';
 											
 											for (var int5 = 1; int5 <= binCount; int5++) 
 											{
@@ -1172,11 +1075,31 @@ function productionBatchSuitelet(request, response)
 													}
 											}
 											
+											if(firstLine)
+												{
+													firstLine = false;
+												
+													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "</td>";
+													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
+													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
+													xml += "</tr>";
+												}
+											else
+												{
+													xml += "<tr>";
+													xml += "<td colspan=\"2\">&nbsp;</td>";
+													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "</td>";
+													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
+													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
+													xml += "</tr>";
+												}
+											
+											
 											xml += "<tr>";
 											xml += "<td colspan=\"2\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "</td>";
-											xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
-											xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
+											xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
+											xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+											xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
 											xml += "</tr>";
 										}
 								}
@@ -1201,8 +1124,191 @@ function productionBatchSuitelet(request, response)
 					//Finish the pdf
 					//
 					xml += "</pdf>";
+	
+					
+					//
+					//Produce the batch putaway documents
+					//
+					var batchId = batchResults[int2].getId();
+					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
+
+					//Find the works orders associated with this batch
+					//
+					var filterArray = [
+					                   ["mainline","is","T"], 
+					                   "AND", 
+					                   ["type","anyof","WorkOrd"], 
+					                   "AND", 
+					                   ["custbody_bbs_wo_batch","anyof",batchId]
+					                   
+					                ];
+					
+					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
+							[
+							   new nlobjSearchColumn("tranid",null,null), 
+							   new nlobjSearchColumn("entity",null,null), 
+							   new nlobjSearchColumn("item",null,null), 
+							   new nlobjSearchColumn("quantity",null,null),
+							   new nlobjSearchColumn("binnumber","item",null),
+							   new nlobjSearchColumn("salesdescription","item",null),
+							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
+							]
+							);
+
+					//Work out the customer sub group
+					//
+					var subGroup = '';
+					
+					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+					if(solink == 'T')
+						{
+							if(searchResultSet.length > 0)
+								{
+									var thisEntity = searchResultSet[0].getValue("entity");
+									if(thisEntity !=  null && thisEntity != '')
+										{
+											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
+											subGroup = (subGroup == null ? '' : subGroup);
+										}
+									
+								}
+						}
+					else
+						{	
+							//If not linked to sales orders, we will need to use the assembly item belongs to instead
+							//
+							if(searchResultSet.length > 0)
+								{
+									var thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
+									if(thisEntity !=  null && thisEntity != '')
+										{
+											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
+											subGroup = (subGroup == null ? '' : subGroup);
+										}
+								}
+						}
+					
+					
+					//Header & style sheet
+					//
+					xml += "<pdf>"
+					xml += "<head>";
+			        xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
+			        xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+			        xml += "b {font-weight: bold;color: #333333;}";
+			        xml += "table.header td {padding: 0px;font-size: 10pt;}";
+			        xml += "table.footer td {padding: 0;font-size: 6pt;}";
+			        xml += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
+			        xml += "table.body td {padding-top: 0px;}";
+			        xml += "table.total {page-break-inside: avoid;}";
+			        xml += "table.message{border: 1px solid #dddddd;}";
+			        xml += "tr.totalrow {line-height: 200%;}";
+			        xml += "tr.messagerow{font-size: 6pt;}";
+			        xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
+			        xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
+			        xml += "td.address {padding-top: 0;font-size: 10pt;}";
+			        xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
+			        xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td.message{font-size: 8pt;}";
+			        xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
+			        xml += "span.title {font-size: 28pt;}";
+			        xml += "span.number {font-size: 16pt;}";
+			        xml += "span.itemname {font-weight: bold;line-height: 150%;}";
+			        xml += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
+			        xml += "</style>";
+
+			        //Macros
+			        //
+					xml += "<macrolist>";
+					xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
+					xml += "</macrolist>";
+					xml += "</head>";
+					
+					//Body
+					//
+					xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+
+					//Header data
+					//
+					xml += "<table style=\"width: 100%\">";
+					xml += "<tr>";
+					xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
+					xml += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Putaway</b></td>";
+					xml += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">" + nlapiEscapeXML(subGroup) + "</td>";
+					xml += "</tr>";
+					
+					
+					xml += "<tr>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Decsription</b></td>";
+					xml += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+					xml += "</tr>";
+					
+					xml += "<tr>";
+					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
+					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
+					xml += "</tr>";
+					
+					xml += "</table>\n";
+					xml += "<p></p>";
+					
+					//Item data
+					//
+					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
+					xml += "<thead >";
+					xml += "<tr >";
+					xml += "<th colspan=\"2\">Works Order</th>";
+					xml += "<th align=\"left\" colspan=\"12\">Finished Item</th>";
+					xml += "<th align=\"left\" colspan=\"2\">Finished Qty</th>";
+					xml += "<th align=\"left\" colspan=\"2\">Putaway Bin</th>";
+
+					xml += "</tr>";
+					xml += "</thead>";
+
+					
+					//Loop through the works orders on the batch
+					//
+					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
+					{
+						xml += "<tr>";
+						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+						xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(searchResultSet[int3].getText('item')) + "<br/>" + nlapiEscapeXML(searchResultSet[int3].getValue('salesdescription','item')) + "</td>";
+						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
+						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
+						xml += "</tr>";
+						
+						xml += "<tr>";
+						xml += "<td colspan=\"2\">&nbsp;</td>";
+						xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
+						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+						xml += "</tr>";
+					}
+					
+					//Finish the item table
+					//
+					xml += "</table>";
+					
+					//Finish the body
+					//
+					xml += "</body>";
+					
+					//Finish the pdf
+					//
+					xml += "</pdf>";
 				}
-				
+
 				//
 				//Finish the pdfset
 				//
