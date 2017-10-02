@@ -81,6 +81,28 @@ function userEventAfterSubmit(type){
 		
 		var caseHelpdesk = newCaseRecord.getFieldValue('helpdesk');
 		
+		//If the case has changed from at riusk to cancelled, then update the customer record accordingly
+		//
+		if (caseHelpdesk == 'T' && oldCaseStatus == 15 && newCaseStatus == 16)
+		{
+			//Get the customer id from the case
+			//
+			var customer = newCaseRecord.getFieldValue('custevent_bbs_helpdesk_customer');
+			
+			//Get the customer record
+			//
+			var custRecord = nlapiLoadRecord('customer', customer);
+			
+			//Set the customer status 
+			//
+			custRecord.setFieldValue('custentity_bbs_customer_at_risk', 'F');
+			custRecord.setFieldValue('custentity_bbs_customer_support_ended', 'T');
+			
+			//Update the customer record
+			//
+			nlapiSubmitRecord(custRecord, false, true);
+		}
+		
 		//If record is 'closed' then update the customer status
 		//
 		if (caseHelpdesk == 'T' && newCaseStatus == 5)
