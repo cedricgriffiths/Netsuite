@@ -6,131 +6,243 @@
  *
  */
 
-for (var count = 0; count < 10; count++) 
+/**
+ * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
+ * @returns {Void}
+ */
+function deleteAllScheduled(type) 
 {
-	var deleteResult = deleteAll('D');
+	for (var int = 0; int < 10; int++) 
+	{
+		var dummy = deleteAll('T',null);
+	}
 }
 
 
-
-function deleteAll(mode)
+//Delete modes are;
+// C = Count or all records only, no delete
+// c = Count transaction records only, no delete
+// A = Delete all records
+// T = Delete transaction records only, keeps suppliers, customers, items etc.
+//
+function deleteAll(mode,subsidiaryId)
 {
-	var recordTypes = ["resourceallocation",
-	                   "calendarevent",
-	                   "phonecall",
-	                   "task",
-	                   "message",
-	                   "note",
-	                   "genericresource",
-	                   "projecttemplate",
-	                   "competitor",
-	                   "contact",
-	                   "customer",
-	                   "lead",
-	                   "othername",
-	                   "partner",
-	                   "job",
-	                   "jobstatus",
-	                   "jobtype",
-	                   "prospect",
-	                   "vendor",
-	                   "projecttask",
-	                   "shipitem",
-	                   "assemblyitem",
-	                   "descriptionitem",
-	                   "discountitem",
-	                   "downloaditem",
-	                   "giftcertificateitem",
-	                   "inventoryitem",
-	                   "itemgroup",
-	                   "kititem",
-	                   "lotnumberedassemblyitem",
-	                   "lotnumberedinventoryitem",
-	                   "markupitem",
-	                   "noninventoryitem",
-	                   "otherchargeitem",
-	                   "paymentitem",
-	                   "serializedassemblyitem",
-	                   "serializedinventoryitem",
-	                   "serviceitem",
-	                   "subscriptionplan",
-	                   "subtotalitem",
-	                   "campaign",
-	                   "campaignresponse",
-	                   "couponcode",
-	                   "promotioncode",
-	                   "landedcost",
-	                   "inventorydetail",
-	                   "addressbookaddress",
-	                   "orderschedule",
-	                   "supportcase",
-	                   "issue",
-	                   "solution",
-	                   "topic",
-	                   "customerpayment",
-	                   "itemfulfillment",
-	                   "itemreceipt",
-	                   "workorderclose",
-	                   "workordercompletion",
-	                   "workorderissue",
-	                   "binworksheet",
-	                   "deposit",
-	                   "manufacturingoperationtask",
-	                   "itemdemandplan",
-	                   "fulfillmentrequest",
-	                   "storepickupfulfillment",
-	                   "depositapplication",
-	                   "revenuecommitment",
-	                   "revenuecommitmentreversal",
-	                   "advintercompanyjournalentry",
-	                   "assemblybuild",
-	                   "assemblyunbuild",
-	                   "bintransfer",
-	                   "blanketpurchaseorder",
-	                   "cashrefund",
-	                   "cashsale",
-	                   "subscriptionchangeorder",
-	                   "charge",
-	                   "check",
-	                   "creditcardcharge",
-	                   "creditcardrefund",
-	                   "creditmemo",
-	                   "customerdeposit",
-	                   "customerrefund",
-	                   "estimate",
-	                   "expensereport",
-	                   "intercompanyjournalentry",
-	                   "intercompanytransferorder",
-	                   "inventoryadjustment",
-	                   "inventorycostrevaluation",
-	                   "inventorycount",
-	                   "inventorytransfer",
-	                   "invoice",
-	                   "itemsupplyplan",
-	                   "journalentry",
-	                   "opportunity",
-	                   "paycheckjournal",
-	                   "purchasecontract",
-	                   "purchaseorder",
-	                   "purchaserequisition",
-	                   "returnauthorization",
-	                   "revenuearrangement",
-	                   "salesorder",
-	                   "statisticaljournalentry",
-	                   "subscription",
-	                   "timebill",
-	                   "usage",
-	                   "vendorbill",
-	                   "vendorcredit",
-	                   "vendorpayment",
-	                   "vendorreturnauthorization",
-	                   "workorder",
-	                   "transferorder"]
-
+	var recordTypes = [];
+	
+	switch(mode)
+	{
+		case 'C':
+		case 'A':
+			recordTypes = ["addressbookaddress",
+			               "advintercompanyjournalentry",
+			               "assemblybuild",
+			               "assemblyitem",
+			               "assemblyunbuild",
+			               "bintransfer",
+			               "binworksheet",
+			               "blanketpurchaseorder",
+			               "calendarevent",
+			               "campaign",
+			               "campaignresponse",
+			               "cashrefund",
+			               "cashsale",
+			               "charge",
+			               "check",
+			               "competitor",
+			               "contact",
+			               "couponcode",
+			               "creditcardcharge",
+			               "creditcardrefund",
+			               "creditmemo",
+			               "customer",
+			               "customerdeposit",
+			               "customerpayment",
+			               "customerrefund",
+			               "deposit",
+			               "depositapplication",
+			               "descriptionitem",
+			               "discountitem",
+			               "downloaditem",
+			               "estimate",
+			               "expensereport",
+			               "fulfillmentrequest",
+			               "genericresource",
+			               "giftcertificateitem",
+			               "intercompanyjournalentry",
+			               "intercompanytransferorder",
+			               "inventoryadjustment",
+			               "inventorycostrevaluation",
+			               "inventorycount",
+			               "inventorydetail",
+			               "inventoryitem",
+			               "inventorytransfer",
+			               "invoice",
+			               "issue",
+			               "itemdemandplan",
+			               "itemfulfillment",
+			               "itemgroup",
+			               "itemreceipt",
+			               "itemsupplyplan",
+			               "job",
+			               "jobstatus",
+			               "jobtype",
+			               "journalentry",
+			               "kititem",
+			               "landedcost",
+			               "lead",
+			               "lotnumberedassemblyitem",
+			               "lotnumberedinventoryitem",
+			               "manufacturingoperationtask",
+			               "markupitem",
+			               "message",
+			               "noninventoryitem",
+			               "note",
+			               "opportunity",
+			               "orderschedule",
+			               "otherchargeitem",
+			               "othername",
+			               "partner",
+			               "paycheckjournal",
+			               "paymentitem",
+			               "phonecall",
+			               "projecttask",
+			               "projecttemplate",
+			               "promotioncode",
+			               "prospect",
+			               "purchasecontract",
+			               "purchaseorder",
+			               "purchaserequisition",
+			               "resourceallocation",
+			               "returnauthorization",
+			               "revenuearrangement",
+			               "revenuecommitment",
+			               "revenuecommitmentreversal",
+			               "salesorder",
+			               "serializedassemblyitem",
+			               "serializedinventoryitem",
+			               "serviceitem",
+			               "shipitem",
+			               "solution",
+			               "statisticaljournalentry",
+			               "storepickupfulfillment",
+			               "subscription",
+			               "subscriptionchangeorder",
+			               "subscriptionplan",
+			               "subtotalitem",
+			               "supportcase",
+			               "task",
+			               "timebill",
+			               "topic",
+			               "transferorder",
+			               "usage",
+			               "vendor",
+			               "vendorbill",
+			               "vendorcredit",
+			               "vendorpayment",
+			               "vendorreturnauthorization",
+			               "workorder",
+			               "workorderclose",
+			               "workordercompletion",
+			               "workorderissue","]
+	
+			break;
+			
+		case 'c':
+		case 'T':
+			recordTypes = ["advintercompanyjournalentry",
+			               "assemblybuild",
+			               "assemblyunbuild",
+			               "bintransfer",
+			               "binworksheet",
+			               "blanketpurchaseorder",
+			               "calendarevent",
+			               "campaign",
+			               "campaignresponse",
+			               "cashrefund",
+			               "cashsale",
+			               "charge",
+			               "check",
+			               "couponcode",
+			               "creditcardcharge",
+			               "creditcardrefund",
+			               "creditmemo",
+			               "customerdeposit",
+			               "customerpayment",
+			               "customerrefund",
+			               "deposit",
+			               "depositapplication",
+			               "estimate",
+			               "expensereport",
+			               "fulfillmentrequest",
+			               "genericresource",
+			               "intercompanyjournalentry",
+			               "intercompanytransferorder",
+			               "inventoryadjustment",
+			               "inventorycostrevaluation",
+			               "inventorycount",
+			               "inventorytransfer",
+			               "invoice",
+			               "issue",
+			               "itemdemandplan",
+			               "itemfulfillment",
+			               "itemreceipt",
+			               "itemsupplyplan",
+			               "job",
+			               "jobstatus",
+			               "jobtype",
+			               "journalentry",
+			               "landedcost",
+			               "manufacturingoperationtask",
+			               "message",
+			               "note",
+			               "opportunity",
+			               "orderschedule",
+			               "paycheckjournal",
+			               "phonecall",
+			               "projecttask",
+			               "projecttemplate",
+			               "promotioncode",
+			               "purchasecontract",
+			               "purchaseorder",
+			               "purchaserequisition",
+			               "resourceallocation",
+			               "returnauthorization",
+			               "revenuearrangement",
+			               "revenuecommitment",
+			               "revenuecommitmentreversal",
+			               "salesorder",
+			               "solution",
+			               "statisticaljournalentry",
+			               "storepickupfulfillment",
+			               "subscription",
+			               "subscriptionchangeorder",
+			               "subscriptionplan",
+			               "supportcase",
+			               "task",
+			               "timebill",
+			               "topic",
+			               "transferorder",
+			               "usage",
+			               "vendorbill",
+			               "vendorcredit",
+			               "vendorpayment",
+			               "vendorreturnauthorization",
+			               "workorder",
+			               "workorderclose",
+			               "workordercompletion",
+			               "workorderissue"]
+			break;
+	}
+	
 	var filters = [];
 	var columns = [];
 	var results = {};
 	
+	if(subsidiaryId != null)
+		{
+		filters = [["subsidiary","anyof",subsidiaryId]]
+		}
+		
 	for (var int = 0; int < recordTypes.length; int++) 
 	{
 		var recordType = recordTypes[int];
@@ -144,6 +256,7 @@ function deleteAll(mode)
 		}
 		catch(err)
 		{
+			var error = err;
 			search = null;
 			searchResult = null;
 		}
@@ -164,6 +277,7 @@ function deleteAll(mode)
 				}
 				catch(err)
 				{
+					var error = err;
 					resultlen = 0;
 				}
 				
@@ -186,7 +300,7 @@ function deleteAll(mode)
 						var recordCount = searchResultSet.length;
 						results[recordType] = recordCount;
 						
-						if(mode == 'D')
+						if(mode.toUpperCase() != 'C')
 							{
 								for (var int2 = 0; int2 < searchResultSet.length; int2++) 
 								{
@@ -195,14 +309,22 @@ function deleteAll(mode)
 									
 									var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 									
-									try
-									{
-										nlapiDeleteRecord(recType, recId);
-									}
-									catch(err)
-									{
-
-									}
+									if(remaining < 20)
+										{
+											nlapiYieldScript();
+										}
+									else
+										{
+											try
+											{
+												nlapiDeleteRecord(recType, recId);
+											}
+											catch(err)
+											{
+												var error = err;
+												var dummy = '';
+											}
+										}
 								}
 							}
 					}
