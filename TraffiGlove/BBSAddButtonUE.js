@@ -29,3 +29,27 @@ function userEventBeforeLoad(type, form, request){
 				}
 		}
 }
+
+function soLineNoUE(type)
+{
+	if(type == 'edit' || type == 'create')
+		{
+			//Get old & new records
+			//
+			var soNewRecord = nlapiGetNewRecord();
+			var newId = soNewRecord.getId();
+			
+			var soRecord = nlapiLoadRecord('salesorder', newId);
+			
+			var lines = soRecord.getLineItemCount('item');
+			
+			for (var int = 1; int <= lines; int++) 
+			{
+				var lineNo = soRecord.getLineItemValue('item', 'line', int);
+				soRecord.setLineItemValue('item', 'custcol_sw_line_no', int, lineNo);
+			}
+			
+			nlapiSubmitRecord(soRecord, false, true);
+		}
+	
+}
