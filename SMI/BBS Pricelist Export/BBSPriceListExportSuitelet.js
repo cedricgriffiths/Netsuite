@@ -18,14 +18,21 @@ function suitelet(request, response)
 	//=============================================================================================
 	//
 
-	//Get the parameters
-	//
-	var customerId = request.getParameter('customerid');
-
-	//Schedule the pricelist script
-	//
-	var params = {custscript_bbs_customerid: customerId};
-
-	nlapiScheduleScript('customscript_bbs_pricelist_schedule', 'customdeploy_bbs_pricelist_schedule', params);
+	if (request.getMethod() == 'GET') 
+	{
+		//Get the parameters
+		//
+		var customerId = request.getParameter('customerid');
+	
+		//Schedule the pricelist script
+		//
+		var params = {custscript_bbs_customerid: customerId};
+	
+		nlapiScheduleScript('customscript_bbs_pricelist_schedule', 'customdeploy_bbs_pricelist_schedule', params);
+		
+		var xml = "<html><body><script>window.close();</script></body></html>";
+		response.write(xml);
+		
+	}
 }
 

@@ -29,6 +29,8 @@ function scheduled(type)
 	var context = nlapiGetContext();
 	var customerId = context.getSetting('SCRIPT', 'custscript_bbs_customerid');
 	
+	nlapiLogExecution('DEBUG', 'Customer Id', customerId);
+	
 	if (customerId != null && customerId != '')
 		{
 			//Read the customer record
@@ -114,10 +116,20 @@ function scheduled(type)
 							
 						//Process the returned item data 
 						//
-						processItemResults(searchResultSet, priceListArray, customerCurrencyId, levelId);
+						var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+						
+						if(remaining < 20)
+							{
+								nlapiYieldScript();
+							}
+						else
+							{
+								processItemResults(searchResultSet, priceListArray, customerCurrencyId, levelId);
+							}
 						
 					}
 					
+					/**
 					//Now look for items that belong to this customer
 					//
 					var filterArray = [
@@ -132,8 +144,17 @@ function scheduled(type)
 					
 					//Process the returned item data 
 					//
-					//processItemResults(searchResultSet, priceListArray, customerCurrencyId, customerPriceLevel);
+					var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 					
+					if(remaining < 20)
+						{
+							nlapiYieldScript();
+						}
+					else
+						{
+							processItemResults(searchResultSet, priceListArray, customerCurrencyId, customerPriceLevel);
+						}
+					**/
 				}
 			
 			//Build the output file

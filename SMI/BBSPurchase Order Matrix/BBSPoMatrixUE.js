@@ -15,21 +15,16 @@
  * @param {nlobjRequest} request Request object
  * @returns {Void}
  */
-function checkAssemblyBeforeLoad(type, form, request)
+function poMatrixBeforeLoad(type, form, request)
 {
 	if (type == 'edit')
 	{
-		var itemSublist = form.getSubList('item');
-		
-		if(itemSublist)
-			{
-				itemSublist.addButton('custpage_but_chk_assm', 'Check Assemblies', 'libCheckAssembly()');
-			}
+		form.addButton('custpage_but_po_matrix', 'Print Po Matrix', 'libPoMatrix()');
 	}
 	
 	if (type == 'view')
 		{
-			form.setScript('customscript_bbs_chk_assm_global');
-			form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
+			form.setScript('customscript_bbs_po_matrix_global');
+			form.addButton('custpage_but_po_matrix', 'Print PO Matrix', 'gblPoMatrix()');
 		}
 }

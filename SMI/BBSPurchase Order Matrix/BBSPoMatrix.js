@@ -9,8 +9,8 @@
 const TOTAL = 999997;
 const UNITCOST = 999998;
 const TOTALCOST = 999999;
-const COLOURID = 54;
-const SIZEID = 55;
+const COLOURID = 163;
+const SIZEID = 164;
 const LOGOINFO = 'https://system.eu1.netsuite.com/core/media/media.nl?id=12&amp;c=3865332_SB1&amp;h=8c7ade4a997e5c95e9aa';
 const VATINFO = 'GB 999 000 999';
 const EMAILINFO = 'sales@brightbridgesolutions';
@@ -37,9 +37,26 @@ function matrixOutputSuitelet(request, response)
 		//
 		var poRecord = nlapiLoadRecord('purchaseorder', poId);
 		var poLines = poRecord.getLineItemCount('item');
-		var poBillAddress = poRecord.getFieldValue('billaddress').replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-		var poSubsidiaryAddress = poRecord.getFieldValue('custbody_subsidiary_address').replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-		var poShipAddress = poRecord.getFieldValue('shipaddress').replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+		var poBillAddress = poRecord.getFieldValue('billaddress');
+		var poSubsidiaryAddress = poRecord.getFieldValue('custbody_subsidiary_address');
+		var poShipAddress = poRecord.getFieldValue('shipaddress');
+		
+		if (poBillAddress)
+			{
+				poBillAddress = poBillAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+			}
+		
+		if (poSubsidiaryAddress)
+			{
+				poSubsidiaryAddress = poSubsidiaryAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+			
+			}
+		
+		if (poShipAddress)
+			{
+				poShipAddress = poShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+			}
+		
 		var poTranId = poRecord.getFieldValue('tranid');
 		var poTranDate = poRecord.getFieldValue('trandate');
 		var poDueDate = poRecord.getFieldValue('duedate');
@@ -87,7 +104,7 @@ function matrixOutputSuitelet(request, response)
 			
 			//Get the colour & size
 			//
-			var itemColour = nlapiLookupField(getItemRecType(itemType), itemId, 'custitem_bbs_item_colour', false);
+			var itemColour = nlapiLookupField(getItemRecType(itemType), itemId, 'custitem_bbs_item_colouritem', false);
 			var itemSize = nlapiLookupField(getItemRecType(itemType), itemId, 'custitem_bbs_item_size1', false);
 			
 			sizeColourMatrix[itemColour][itemSize] = sizeColourMatrix[itemColour][itemSize] + itemQty; //Update the specific colour & size

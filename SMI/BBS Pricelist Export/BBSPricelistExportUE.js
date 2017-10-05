@@ -15,21 +15,16 @@
  * @param {nlobjRequest} request Request object
  * @returns {Void}
  */
-function checkAssemblyBeforeLoad(type, form, request)
+function pricelistExportBeforeLoad(type, form, request)
 {
 	if (type == 'edit')
 	{
-		var itemSublist = form.getSubList('item');
-		
-		if(itemSublist)
-			{
-				itemSublist.addButton('custpage_but_chk_assm', 'Check Assemblies', 'libCheckAssembly()');
-			}
+		form.addButton('custpage_but_price_export', 'Generate Pricelist', 'libPricelistExport()');
 	}
 	
 	if (type == 'view')
 		{
-			form.setScript('customscript_bbs_chk_assm_global');
-			form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
+			form.setScript('customscript_bbs_pricelist_global');
+			form.addButton('custpage_but_price_export', 'Generate Pricelist', 'libPricelistExport()');
 		}
 }
