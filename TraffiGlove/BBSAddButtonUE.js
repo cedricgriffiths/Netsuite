@@ -38,8 +38,9 @@ function soLineNoUE(type)
 			//
 			var soNewRecord = nlapiGetNewRecord();
 			var newId = soNewRecord.getId();
+			var recType = soNewRecord.getRecordType();
 			
-			var soRecord = nlapiLoadRecord('salesorder', newId);
+			var soRecord = nlapiLoadRecord(recType, newId);
 			
 			var lines = soRecord.getLineItemCount('item');
 			
