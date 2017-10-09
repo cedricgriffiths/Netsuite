@@ -12,9 +12,9 @@
  */
 function deleteAllScheduled(type) 
 {
-	for (var int = 0; int < 10; int++) 
+	for (var int = 0; int < 5; int++) 
 	{
-		var dummy = deleteAll('T',null);
+		var dummy = deleteAll('T',4);
 	}
 }
 
@@ -143,7 +143,7 @@ function deleteAll(mode,subsidiaryId)
 			               "workorder",
 			               "workorderclose",
 			               "workordercompletion",
-			               "workorderissue","]
+			               "workorderissue"]
 	
 			break;
 			
