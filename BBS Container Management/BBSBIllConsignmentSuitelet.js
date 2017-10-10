@@ -273,7 +273,7 @@ function billConsignmentSuitelet(request, response){
 					
 					if (poChecked == 'T')
 					{
-						//Create a data elemnt that is the po id + the po line no + the line number from the consignment detail sublist
+						//Create a data element that is the po id + the po line no + the line number from the consignment detail sublist
 						//
 						var poAndLine = poId.toString() + '|' + poLine.toString() + '|' + sublistLineNo.toString();
 						
@@ -362,7 +362,13 @@ function billConsignmentSuitelet(request, response){
 									var poHeadDate = poRecord.getFieldValue('trandate');
 									var poHeadNumber = poRecord.getFieldValue('tranid');
 									var poHeadTotal = poRecord.getFieldValue('total');
+									var poHeadCurrency = poRecord.getFieldValue('currency');
 										
+									
+									//Set the vendor bill currency from the po currency
+									//
+									vendorBillRecord.setFieldValue('currency', poHeadCurrency); 
+									
 									
 									//Save the unique po's for this supplier into an array so we can update the purchaseorders sublist on the vendor bill
 									//
