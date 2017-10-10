@@ -19,7 +19,7 @@ function poMatrixBeforeLoad(type, form, request)
 {
 	if (type == 'edit')
 	{
-		form.addButton('custpage_but_po_matrix', 'Print Po Matrix', 'libPoMatrix()');
+		//form.addButton('custpage_but_po_matrix', 'Print Po Matrix', 'libPoMatrix()');
 	}
 	
 	if (type == 'view')
