@@ -11,10 +11,8 @@ const UNITCOST = 999998;
 const TOTALCOST = 999999;
 const COLOURID = 163;
 const SIZEID = 164;
-const LOGOINFO = 'https://system.eu1.netsuite.com/core/media/media.nl?id=12&amp;c=3865332_SB1&amp;h=8c7ade4a997e5c95e9aa';
-const VATINFO = 'GB 999 000 999';
-const EMAILINFO = 'sales@brightbridgesolutions';
-const TELINFO = '03330 133 5000'
+const EMAILINFO = 'sales@smigroupuk.com';
+const TELINFO = '+44 (0) 1428 658333'
 	
 function matrixOutputSuitelet(request, response)
 {
@@ -151,6 +149,15 @@ function matrixOutputSuitelet(request, response)
 		var sizeLookupArray = getDescriptions(SIZEID);
 		var colourLookupArray = getDescriptions(COLOURID);
 		
+		var companyConfig = nlapiLoadConfiguration("companyinformation");
+		var companyName = companyConfig.getFieldValue("companyname");
+		var companyLogo = companyConfig.getFieldValue("pagelogo");
+		var companyVatNo = companyConfig.getFieldValue("employerid");
+		var companyAddress = companyConfig.getFieldValue("mainaddress_text").replace(/\r\n/g,'<br />');
+		var formLogo = companyConfig.getFieldValue("formlogo");
+		var logoFile = nlapiLoadFile(formLogo);
+		var logoURL = nlapiEscapeXML(logoFile.getURL());
+		
 		//Start the xml off with the basic header info & the start of a pdfset
 		//
 		var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
@@ -191,7 +198,7 @@ function matrixOutputSuitelet(request, response)
 		
 		xml += "<macro id=\"nlheader\">";
 		xml += "<table class=\"header\" style=\"width: 100%;\">";
-		xml += "<tr><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td><td align=\"right\"><img src=\"" + LOGOINFO + "\" style=\"float: right; width:250px; height:75px;\" /></td></tr>";
+		xml += "<tr><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td><td align=\"right\"><img src=\"" + logoURL + "\" style=\"float: right; width:250px; height:75px;\" /></td></tr>";
 		xml += "<tr><td><span style=\"font-size:24px;\">Purchase Order</span></td><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td></tr>";
 		xml += "</table>";
 		xml += "<table class=\"header\" style=\"width: 100%;\">";
@@ -199,7 +206,7 @@ function matrixOutputSuitelet(request, response)
 		xml += "<tr>";
 		xml += "<td colspan=\"2\" rowspan=\"8\" class=\"addressheader\"><span style=\"font-size:10pt\"><b>Supplier Address:</b></span><br /><span class=\"nameandaddress\" style=\"font-size:10pt\">" + poBillAddress + "<br/></span></td>";
 		xml += "<td align=\"right\" style=\"font-size:10pt\"></td>";
-		xml += "<td colspan=\"2\" align=\"left\" rowspan=\"8\"><span class=\"nameandaddress\">" + poSubsidiaryAddress + "</span><br/>VAT No. " + VATINFO + "<br /><br/><b>Email:</b> " + EMAILINFO + "<br /><b>Tel:</b> " + TELINFO + "</td>";
+		xml += "<td colspan=\"2\" align=\"left\" rowspan=\"8\"><span class=\"nameandaddress\">" + companyAddress + "</span><br/>VAT No. " + companyVatNo + "<br /><br/><b>Email:</b> " + EMAILINFO + "<br /><b>Tel:</b> " + TELINFO + "</td>";
 		xml += "</tr>";
 		xml += "<tr><td align=\"right\"></td></tr>";
 		xml += "<tr><td align=\"right\" style=\"font-size:10pt\"></td></tr>";
