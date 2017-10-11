@@ -5,6 +5,27 @@
  * 1.00       20 Feb 2017     cedricgriffiths
  *
  */
+
+function libFindLine(record, sublist, lineNo)
+{
+	var lines = record.getLineItemCount(sublist);
+	var returnLine = 0;
+	
+	for (var int = 1; int <= lines; int++) 
+	{
+		var thisLineNo = Number(record.getLineItemValue(sublist, 'line', int));
+		
+		if(thisLineNo == Number(lineNo))
+			{
+				returnLine = int;
+				break;
+			}
+	}
+	
+	return returnLine;
+}
+
+
 function libFindPurchaseOrders(supplier, poNo, item) {
 	
 	//Run a search to find purchase orders
@@ -47,8 +68,8 @@ function libFindPurchaseOrders(supplier, poNo, item) {
 		}
 
 	var columns = new Array();
-	columns[0] = new nlobjSearchColumn('tranid');
-	columns[1] = new nlobjSearchColumn('line');
+	columns[0] = new nlobjSearchColumn('tranid').setSort(false);
+	columns[1] = new nlobjSearchColumn('line').setSort(false);
 	columns[2] = new nlobjSearchColumn('trandate');
 	columns[3] = new nlobjSearchColumn('rate');
 	columns[4] = new nlobjSearchColumn('quantity');

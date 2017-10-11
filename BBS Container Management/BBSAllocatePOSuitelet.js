@@ -182,15 +182,28 @@ function allocatePOSuitelet(request, response){
 								{
 									//Copy the results to the sublist
 									//
+									var previousPoId = -1;
+									var poRec = null;
+									
 									for (var int = 0; int < results.length; int++) 
 									{
 										var line = int + 1;
 										var poId = results[int].getId();
 										
+										//If the po id has changed then read the po record so we can find the item sublist real line no
+										//
+										if(previousPoId != poId)
+											{
+												poRec = nlapiLoadRecord('purchaseorder', poId);
+												previousPoId = poId;
+											}
+										
+										var lineNo = libFindLine(poRec, 'item', Number(results[int].getValue('line')));
+										
 										var supplier = results[int].getValue('entityid','vendor');
 										var supplierId = results[int].getValue('internalid','vendor');
 										var tranid = results[int].getValue('tranid');
-										var lineNo = results[int].getValue('line');
+										//var lineNo = results[int].getValue('line');
 										var tranDate = results[int].getValue('trandate');
 										var rate = results[int].getValue('rate');
 										var qty = results[int].getValue('quantity');
@@ -345,6 +358,8 @@ function allocatePOSuitelet(request, response){
 				//
 				var lineCount = request.getLineItemCount('custpage_sublist1');
 			
+				var poArray = {};
+				
 				for (var int = 1; int <= lineCount; int++) 
 				{
 					//Get the po details from the sublist
@@ -357,6 +372,86 @@ function allocatePOSuitelet(request, response){
 					var poRate = request.getLineItemValue('custpage_sublist1', 'custpage_col5', int);
 					var poWeight = request.getLineItemValue('custpage_sublist1', 'custpage_col17', int);
 					
+					//
+					//New Code - Start
+					//
+					
+					//Build an array of po id's to process along with all the relevant lines
+					//
+					if (poChecked == 'T')
+					{
+						var poLineData = [poId,poLine,poChecked,poAllocated,poDescription,poRate,poWeight,int];
+						
+						if(!poArray[poId])
+							{
+								poArray[poId] = [];
+							}
+
+						poArray[poId].push(poLineData);
+
+					}
+					
+				}
+					//Loop through each po record
+					//
+					for ( var poKey in poArray) 
+					{
+						var poLinesData = poArray[poKey];
+						
+						//Read the po record
+						//
+						var poRecord = nlapiLoadRecord('purchaseorder', poKey);
+						var poSupplier = poRecord.getFieldValue('entity');
+						
+						//Loop through all the lines on the po that need processing
+						//
+						for (var int = 0; int < poLinesData.length; int++) 
+						{
+							var poLineData = poLinesData[int];
+							
+							//Find the relevant line in the po items sublist
+							//
+							//var poSublistLineNo = libFindLine(poRecord, 'item', Number(poLineData[1]));
+							var poSublistLineNo = Number(poLineData[1]);
+							
+							//Update the amount on consignment on the po line
+							//
+							var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLineNo));
+							var newAlloc = onConsignment + Number(poLineData[3]);
+							
+							poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLineNo, newAlloc);
+							
+							//Now create a new consignment detail record
+							//
+							var poItem = poRecord.getLineItemValue('item', 'item', poSublistLineNo);
+							
+							var consDetail = nlapiCreateRecord('customrecord_bbs_consignment_detail');
+							
+							consDetail.setFieldValue('custrecord_bbs_consignment_header_id', paramConsId);
+							consDetail.setFieldValue('custrecord_bbs_con_det_po_id', poLineData[0]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_po_line', poSublistLineNo); //poLineData[1]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_allocated', poLineData[3]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_item', poItem);
+							consDetail.setFieldValue('custrecord_bbs_con_det_supplier', poSupplier);
+							consDetail.setFieldValue('custrecord_bbs_con_det_item_description', poLineData[4]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_item_rate', poLineData[5]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_item_weight', poLineData[6]);
+							
+							nlapiSubmitRecord(consDetail, false, true);
+						}
+						
+						//Now submit the po record
+						//
+						nlapiSubmitRecord(poRecord, false, true);
+					}
+					
+					
+					
+					//
+					//New Code - End
+					//
+					
+					/*
 					//Process only the checked lines
 					//
 					if (poChecked == 'T')
@@ -397,7 +492,7 @@ function allocatePOSuitelet(request, response){
 							nlapiSubmitRecord(consDetail, false, true);
 						}
 					}
-				}
+				}*/
 				
 				//Redirect back to the calling consignment record
 				//
