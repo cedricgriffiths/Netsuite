@@ -192,13 +192,14 @@ function allocatePOSuitelet(request, response){
 										
 										//If the po id has changed then read the po record so we can find the item sublist real line no
 										//
-										if(previousPoId != poId)
-											{
-												poRec = nlapiLoadRecord('purchaseorder', poId);
-												previousPoId = poId;
-											}
+										//if(previousPoId != poId)
+										//	{
+										//		poRec = nlapiLoadRecord('purchaseorder', poId);
+										//		previousPoId = poId;
+										//	}
 										
-										var lineNo = libFindLine(poRec, 'item', Number(results[int].getValue('line')));
+										//var lineNo = libFindLine(poRec, 'item', Number(results[int].getValue('line')));
+										var lineNo = results[int].getValue('line');
 										
 										var supplier = results[int].getValue('entityid','vendor');
 										var supplierId = results[int].getValue('internalid','vendor');
@@ -411,8 +412,8 @@ function allocatePOSuitelet(request, response){
 							
 							//Find the relevant line in the po items sublist
 							//
-							//var poSublistLineNo = libFindLine(poRecord, 'item', Number(poLineData[1]));
-							var poSublistLineNo = Number(poLineData[1]);
+							var poSublistLineNo = libFindLine(poRecord, 'item', Number(poLineData[1]));
+							//var poSublistLineNo = Number(poLineData[1]);
 							
 							//Update the amount on consignment on the po line
 							//
