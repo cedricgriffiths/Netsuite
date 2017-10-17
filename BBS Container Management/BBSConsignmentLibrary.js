@@ -39,7 +39,8 @@ function libFindPurchaseOrders(supplier, poNo, item) {
 	var statusArray = new Array();
     statusArray[0] = 'PurchOrd:E';
     statusArray[1] = 'PurchOrd:B';
-    
+    statusArray[2] = 'PurchOrd:D';
+     
     filters[2] = new nlobjSearchFilter('status', null, 'anyof', statusArray);
 	
     //Filter on quantity on container

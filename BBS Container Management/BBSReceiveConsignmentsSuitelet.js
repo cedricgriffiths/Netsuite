@@ -312,6 +312,8 @@ function receiveConsignmentSuitelet(request, response){
 					var itemRecieptRecord = nlapiTransformRecord('purchaseorder', purchaseOrderId, 'itemreceipt', {recordmode: 'dynamic'});
 					itemRecieptRecord.setFieldValue('landedcostperline', 'T');
 					
+					var itemReceiptLines = itemRecieptRecord.getLineItemCount('item');
+					
 					//First set all the lines on the receipt to be not received
 					//
 					var receiptLineCount = itemRecieptRecord.getLineItemCount('item');
@@ -321,6 +323,9 @@ function receiveConsignmentSuitelet(request, response){
 						itemRecieptRecord.setLineItemValue('item', 'itemreceive', int3, 'F');
 					}
 
+					//Load up the original po record
+					//
+					poRecord = nlapiLoadRecord('purchaseorder', purchaseOrderId);
 					
 					//Get the po/line data for this po
 					//
@@ -350,9 +355,30 @@ function receiveConsignmentSuitelet(request, response){
 						//
 						if(Number(consignmentReceived) > 0)
 							{
-								itemRecieptRecord.setLineItemValue('item', 'itemreceive', poLine, 'T');
-								itemRecieptRecord.setLineItemValue('item', 'location', poLine, consignmentLocation);
-								itemRecieptRecord.setLineItemValue('item', 'quantity', poLine, consignmentReceived);
+								//Get the actual line number from the item sublist on the po
+								//
+								var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
+								
+								//Now find the corresponding line no in the item receipt record
+								//
+								var itemReceiptLineNo = Number(0);
+								for (var int4 = 1; int4 <= itemReceiptLines; int4++) 
+								{
+									var thisItemReceiptLineNo = itemRecieptRecord.getLineItemValue('item', 'line', int4);
+									if(thisItemReceiptLineNo == actualPoLineNo)
+										{
+											itemReceiptLineNo = int4;
+											break;
+										}
+								}
+								
+								itemRecieptRecord.setLineItemValue('item', 'itemreceive', itemReceiptLineNo, 'T');
+								itemRecieptRecord.setLineItemValue('item', 'location', itemReceiptLineNo, consignmentLocation);
+								itemRecieptRecord.setLineItemValue('item', 'quantity', itemReceiptLineNo, consignmentReceived);
+								
+								//itemRecieptRecord.setLineItemValue('item', 'itemreceive', poLine, 'T');
+								//itemRecieptRecord.setLineItemValue('item', 'location', poLine, consignmentLocation);
+								//itemRecieptRecord.setLineItemValue('item', 'quantity', poLine, consignmentReceived);
 							}
 					}
 					

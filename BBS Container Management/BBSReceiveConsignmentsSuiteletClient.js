@@ -46,6 +46,9 @@ function setOverallLocation()
 	
 	for (var int = 1; int <= lines; int++) 
 	{
-		nlapiSetLineItemValue('custpage_sublist1', 'custpage_col11', int, overallLocation);
+		//nlapiSetLineItemValue('custpage_sublist1', 'custpage_col11', int, overallLocation);
+		nlapiSelectLineItem('custpage_sublist1', int);
+		nlapiSetCurrentLineItemValue('custpage_sublist1', 'custpage_col11', overallLocation, false, true);
+		nlapiCommitLineItem('custpage_sublist1');
 	}
 }
