@@ -29,6 +29,8 @@ function percentageFulfilmentARS(type)
 			
 			var qtyOrdered = Number(0);
 			var qtyCommitted = Number(0);
+			var qtyFulfilled = Number(0);
+			var percent = Number(0);
 			
 			for (var int = 1; int <= soLines; int++) 
 			{
@@ -38,18 +40,37 @@ function percentageFulfilmentARS(type)
 					{
 						qtyOrdered += Number(nlapiGetLineItemValue('item', 'quantity', int));
 						qtyCommitted += Number(nlapiGetLineItemValue('item', 'quantitycommitted', int));
+						qtyFulfilled += Number(nlapiGetLineItemValue('item', 'quantityfulfilled', int));
 					}
 			}
 			
-			var percent = Number(((qtyCommitted / qtyOrdered) * 100.00).toFixed());
+			if((qtyOrdered - qtyFulfilled) > 0)
+				{
+					percent = Number(((qtyCommitted / (qtyOrdered - qtyFulfilled)) * 100.00).toFixed());
+				}
 			
 			var percentListValue = null;
 			
-			percentListValue = (percent >= 0 && percent <= 49 ? 1 : null);
-			percentListValue = (percent >= 50 && percent <= 74 ? 2 : null);
-			percentListValue = (percent >= 75 && percent <= 99 ? 3 : null);
-			percentListValue = (percent == 100 ? 4 : null);
-			
+			if (percent >= 0 && percent <= 49)
+			{
+				percentListValue = 1;
+			}
+		
+			if (percent >= 50 && percent <= 74)
+			{
+				percentListValue = 2;
+			}
+		
+			if (percent >= 75 && percent <= 99)
+			{
+				percentListValue = 3;
+			}
+		
+			if (percent == 100)
+			{
+				percentListValue = 4;
+			}
+		
 			soRecord.setFieldValue('custbody_bbs_fulfilment_percentage', percentListValue);
 			
 			nlapiSubmitRecord(soRecord, false, true);
