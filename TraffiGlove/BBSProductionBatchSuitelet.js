@@ -516,6 +516,7 @@ function productionBatchSuitelet(request, response)
 				else
 				{
 					filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
+					filterArray.push("AND",["quantitycommitted","greaterthan",0]);
 				}	
 				
 				if(ffi != '')
@@ -899,7 +900,7 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("entity",null,null), 
 							   new nlobjSearchColumn("item",null,null), 
 							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("binnumber","item",null),
+							   //new nlobjSearchColumn("binnumber","item",null),
 							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
 							]
 							);
@@ -1046,30 +1047,37 @@ function productionBatchSuitelet(request, response)
 						
 						if (woRecord)
 							{
+								var woLocation = woRecord.getFieldValue('location');
+							
 								var componentsCount = woRecord.getLineItemCount('item');
 								
 								for (var int4 = 1; int4 <= componentsCount; int4++) 
 								{
 									var itemType = woRecord.getLineItemValue('item', 'itemtype', int4);
 									
-									if(itemType == 'InvtPart')
+									if(itemType == 'InvtPart' || itemType == 'NonInvtPart' )
 										{
-											var committedQty = woRecord.getLineItemValue('item', 'quantitycommitted', int4);
+											var committedQty = Number(woRecord.getLineItemValue('item', 'quantitycommitted', int4));
 											var componentText = woRecord.getLineItemText('item', 'item', int4);
 											var componentId = woRecord.getLineItemValue('item', 'item', int4);
 											
 											//Find the default bin 
 											//
-											var componentRecord = nlapiLoadRecord('inventoryitem', componentId);
+											var componentRecord = nlapiLoadRecord(getItemRecType(itemType), componentId);
 											var componentDescription = componentRecord.getFieldValue('salesdescription');
+											var componentSpecInst = componentRecord.getFieldValue('custitem_bbs_item_instructions');
+											
+											componentSpecInst = (componentSpecInst == null ? "" : componentSpecInst);
+											
 											var binCount = componentRecord.getLineItemCount('binnumber');
 											var componentBin = '';
 											
 											for (var int5 = 1; int5 <= binCount; int5++) 
 											{
 												var binPreferred = componentRecord.getLineItemValue('binnumber', 'preferredbin', int5);
+												var binLocation = componentRecord.getLineItemValue('binnumber', 'location', int5);
 												
-												if(binPreferred == 'T')
+												if(binPreferred == 'T' && binLocation == woLocation)
 													{
 														componentBin = componentRecord.getLineItemText('binnumber', 'binnumber', int5);
 													}
@@ -1079,7 +1087,7 @@ function productionBatchSuitelet(request, response)
 												{
 													firstLine = false;
 												
-													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "</td>";
+													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
 													xml += "</tr>";
@@ -1088,7 +1096,7 @@ function productionBatchSuitelet(request, response)
 												{
 													xml += "<tr>";
 													xml += "<td colspan=\"2\">&nbsp;</td>";
-													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "</td>";
+													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) +  "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
 													xml += "</tr>";
@@ -1149,7 +1157,8 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("entity",null,null), 
 							   new nlobjSearchColumn("item",null,null), 
 							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("binnumber","item",null),
+							   new nlobjSearchColumn("location",null,null),
+							   //new nlobjSearchColumn("binnumber","item",null),
 							   new nlobjSearchColumn("salesdescription","item",null),
 							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
 							]
@@ -1281,11 +1290,33 @@ function productionBatchSuitelet(request, response)
 					//
 					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 					{
+						var woLocation = searchResultSet[int3].getValue('location');
+						var assemblyItemId = searchResultSet[int3].getValue('item');
+						
+						//Find the default bin 
+						//
+						var assemblyRecord = nlapiLoadRecord('assemblyitem', assemblyItemId);
+						var binCount = assemblyRecord.getLineItemCount('binnumber');
+						var assemblyBin = '';
+						
+						for (var int5 = 1; int5 <= binCount; int5++) 
+						{
+							var binPreferred = assemblyRecord.getLineItemValue('binnumber', 'preferredbin', int5);
+							var binLocation = assemblyRecord.getLineItemValue('binnumber', 'location', int5);
+							
+							if(binPreferred == 'T' && binLocation == woLocation)
+								{
+									assemblyBin = assemblyRecord.getLineItemText('binnumber', 'binnumber', int5);
+								}
+						}
+					
+						
 						xml += "<tr>";
 						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
 						xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(searchResultSet[int3].getText('item')) + "<br/>" + nlapiEscapeXML(searchResultSet[int3].getValue('salesdescription','item')) + "</td>";
 						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
+						//xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
+						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(assemblyBin) + "</td>";
 						xml += "</tr>";
 						
 						xml += "<tr>";
