@@ -20,8 +20,29 @@
  */
 function channelMappingUE(type)
 {
+	//Find the n/a channel record
+	//
+	var noChannel = null;
+	
+	var filters = new Array();
+	filters[0] = new nlobjSearchFilter( 'name', null, 'is', 'N/A');
+	
+	var columns = new Array();
+	columns[0] = new nlobjSearchColumn( 'name' );
+	
+	var channels = nlapiSearchRecord('customrecord_cseg_bbs_channel', null, filters, columns);
+	
+	if(channels && channels.length == 1)
+		{
+			noChannel = channels[0].getId();
+		}
+	
+	//Find the channel downloaded from channel advisor
+	//
 	var caChannel = nlapiGetFieldValue('custbody_ca_sales_source');
 	
+	//Do we have a channel from ca?
+	//
 	if(caChannel != null && caChannel != '')
 		{
 			var filters = new Array();
@@ -32,6 +53,8 @@ function channelMappingUE(type)
 			
 			var channels = nlapiSearchRecord('customrecord_cseg_bbs_channel', null, filters, columns);
 			
+			//Have we found a match in the channels custom segment?
+			//
 			if(channels && channels.length == 1)
 				{
 						var channelId = channels[0].getId();
@@ -42,6 +65,28 @@ function channelMappingUE(type)
 							{
 								nlapiSetLineItemValue('item', 'custcol_cseg_bbs_channel', int, channelId);
 							}
+				}
+			else
+				{
+					//If not, then use the n/a channel
+					//
+					var itemCount = nlapiGetLineItemCount('item');
+					
+					for (var int = 1; int <= itemCount; int++) 
+						{
+							nlapiSetLineItemValue('item', 'custcol_cseg_bbs_channel', int, noChannel);
+						}
+				}
+		}
+	else
+		{
+			//If not, then use the n/a channel
+			//
+			var itemCount = nlapiGetLineItemCount('item');
+			
+			for (var int = 1; int <= itemCount; int++) 
+				{
+					nlapiSetLineItemValue('item', 'custcol_cseg_bbs_channel', int, noChannel);
 				}
 		}
 }
