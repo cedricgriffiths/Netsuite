@@ -342,8 +342,9 @@ function contractUpliftCallback(paramUplift, paramStartDate, paramEndDate) {
 				newHeader.setFieldValue('custrecord_bbs_con_start_month', newStartDate.getMonth() + 1);
 				newHeader.setFieldValue('custrecord_bbs_con_end_month', newEndDate.getMonth() + 1);
 
-				// Set status to "Pending"
-				newHeader.setFieldValue('custrecord_bbs_con_status', "2", false, true);
+				// Set status to "Cloned"
+				//newHeader.setFieldValue('custrecord_bbs_con_status', "2", false, true);
+				newHeader.setFieldValue('custrecord_bbs_con_status', "5", false, true);
 
 				// Commit the header
 				newHeaderId = nlapiSubmitRecord(newHeader, false, false);
