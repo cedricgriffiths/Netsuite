@@ -120,8 +120,16 @@ function scheduled(type)
 			}
 		else
 			{
-				newRecord.setFieldValue('custbody_bbs_commitment_status', 1 );
-				newCommitmentStatus = '1';
+				if(linesFullyCommitted == 0)
+					{
+						newRecord.setFieldValue('custbody_bbs_commitment_status', 3 );
+						newCommitmentStatus = '3';
+					}
+				else
+					{
+						newRecord.setFieldValue('custbody_bbs_commitment_status', 1 );
+						newCommitmentStatus = '1';
+					}
 			}
 		
 		//Set the full finish item & finish to the works order
@@ -136,10 +144,10 @@ function scheduled(type)
 				newRecord.setFieldValue('custbody_bbs_wo_finish', woFinish);
 			}
 		
-		if(originalCommitmentStatus != newCommitmentStatus)
-				{
+		//if(originalCommitmentStatus != newCommitmentStatus)
+		//		{
 					nlapiSubmitRecord(newRecord, false, true);
-				}
+		//		}
 		
 		
 		//=============================================================================================
@@ -173,6 +181,8 @@ function scheduled(type)
 						var newWorksOrderStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
 						
 						//Work out if we need to check the other works orders or not
+						//if s/o status is 'not fully committed' & the new w/o status is 'fully committed' OR if the s/o status is unset & the new w/o status is 'fully committed'
+						//we need to check the other works orders that may link to the s/o
 						//
 						if((salesOrderCommittmentStatus == 1 && newWorksOrderStatus == 2) || (salesOrderCommittmentStatus == null && newWorksOrderStatus == 2))
 							{
@@ -245,6 +255,10 @@ function scheduled(type)
 									}
 							}
 						else
+							//
+							//if s/o status is 'fully committed' & the new w/o status is 'not fully committed' OR if the s/o status is unset & the new w/o status is 'not fully committed'
+							//then we can set the s/o to be 'not fully committed'
+							//
 							if((salesOrderCommittmentStatus == 2 && newWorksOrderStatus == 1) || (salesOrderCommittmentStatus == null && newWorksOrderStatus == 1))
 								{
 									//We need to set the sales order status to be not fully committed

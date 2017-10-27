@@ -516,7 +516,6 @@ function productionBatchSuitelet(request, response)
 				else
 				{
 					filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
-					filterArray.push("AND",["quantitycommitted","greaterthan",0]);
 				}	
 				
 				if(ffi != '')
