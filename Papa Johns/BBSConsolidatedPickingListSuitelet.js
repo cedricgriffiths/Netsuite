@@ -103,6 +103,7 @@ function consolidatedPickingSuitelet(request, response)
 					[
 					   new nlobjSearchColumn("custbody_pj_routeno",null,"GROUP").setSort(false), 
 					   new nlobjSearchColumn("shipdate",null,"GROUP").setSort(false), 
+					   new nlobjSearchColumn("custcol_storage",null,"GROUP"), 
 					   new nlobjSearchColumn("custitem_pj_binlocation","item","GROUP"), 
 					   new nlobjSearchColumn("item",null,"GROUP"), 
 					   new nlobjSearchColumn("salesdescription","item","GROUP"), 
@@ -223,7 +224,7 @@ function consolidatedPickingSuitelet(request, response)
 					//
 					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xml += "<thead >";
-					xml += "<tr >";
+					xml += "<tr>";
 					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;\" align=\"center\" colspan=\"2\">Storage</th>";
 					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Bin<br/>Loc</th>";
 					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Product<br/>Code</th>";
@@ -246,6 +247,7 @@ function consolidatedPickingSuitelet(request, response)
 					
 					for (var int3 = 0; int3 < salesorderSearch.length; int3++) 
 					{
+						var storage = nlapiEscapeXML(salesorderSearch[int3].getValue("custcol_storage", null,"GROUP"));
 						var binLoc = nlapiEscapeXML(salesorderSearch[int3].getValue("custitem_pj_binlocation","item","GROUP"));
 						var productCode = nlapiEscapeXML(salesorderSearch[int3].getText("item",null,"GROUP"));
 						var productDecsription = nlapiEscapeXML(salesorderSearch[int3].getValue("salesdescription","item","GROUP"));
@@ -263,7 +265,7 @@ function consolidatedPickingSuitelet(request, response)
 						totalWeight += Number(salesorderSearch[int3].getValue("weight","item","SUM"));
 						
 						xml += "<tr style=\"height: 20px;\">";
-						xml += "<td style=\"vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
+						xml += "<td style=\"vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;\" align=\"left\" colspan=\"2\">" + storage + "</td>";
 						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">" + binLoc + "</td>";
 						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">" + productCode +"</td>";
 						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"left\" colspan=\"12\">" + productDecsription + "</td>";
