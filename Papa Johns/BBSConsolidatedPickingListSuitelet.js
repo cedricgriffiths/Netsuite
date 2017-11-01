@@ -110,8 +110,8 @@ function consolidatedPickingSuitelet(request, response)
 					   new nlobjSearchColumn("quantity",null,"SUM"), 
 					   new nlobjSearchColumn("quantitycommitted",null,"SUM"), 
 					   new nlobjSearchColumn("quantityshiprecv",null,"SUM"), 
-					   new nlobjSearchColumn("custitem_pj_grossweight","item","SUM"),
-					   new nlobjSearchColumn("custitem_pj_palletquantity",null,"MIN")
+					   new nlobjSearchColumn("custitem_pj_grossweight","item","MIN"),
+					   new nlobjSearchColumn("custitem_pj_palletquantity","item","MIN")
 					   
 					]
 					);
@@ -150,6 +150,8 @@ function consolidatedPickingSuitelet(request, response)
 			        xml += "hr {width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px;}";
 			        xml += "th.item1 {vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;}";
 			        xml += "th.item2 {vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;}";
+			        xml += "td.item1 {vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;}";
+			        xml += "td.item2 {vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;}";
 			        xml += "</style>";
 
 			        //Macros
@@ -225,15 +227,15 @@ function consolidatedPickingSuitelet(request, response)
 					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xml += "<thead >";
 					xml += "<tr>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;\" align=\"center\" colspan=\"2\">Storage</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Bin<br/>Loc</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Product<br/>Code</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"12\">Product Description</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Ordered<br/>Quantity</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Picked<br/>Quantity</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"8\">Use By / Best Before /<br/>Batch Code</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"4\">Total<br/>Gross Weight</th>";
-					xml += "<th style=\"vertical-align: middle; border-top: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">Pallet<br/>Equiv.</th>";
+					xml += "<th class=\"item1\" align=\"center\" colspan=\"2\">Storage</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"2\">Bin<br/>Loc</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"2\">Product<br/>Code</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"12\">Product Description</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"2\">Ordered<br/>Quantity</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"2\">Picked<br/>Quantity</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"8\">Use By / Best Before /<br/>Batch Code</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"4\">Total<br/>Gross Weight</th>";
+					xml += "<th class=\"item2\" align=\"center\" colspan=\"2\">Pallet<br/>Equiv.</th>";
 
 					xml += "</tr>";
 					xml += "</thead>";
@@ -247,33 +249,33 @@ function consolidatedPickingSuitelet(request, response)
 					
 					for (var int3 = 0; int3 < salesorderSearch.length; int3++) 
 					{
-						var storage = nlapiEscapeXML(salesorderSearch[int3].getValue("custcol_storage", null,"GROUP"));
-						var binLoc = nlapiEscapeXML(salesorderSearch[int3].getValue("custitem_pj_binlocation","item","GROUP"));
-						var productCode = nlapiEscapeXML(salesorderSearch[int3].getText("item",null,"GROUP"));
-						var productDecsription = nlapiEscapeXML(salesorderSearch[int3].getValue("salesdescription","item","GROUP"));
-						
+						var storage = salesorderSearch[int3].getValue("custcol_storage", null,"GROUP");
+						var binLoc = salesorderSearch[int3].getValue("custitem_pj_binlocation","item","GROUP");
+						var productCode = salesorderSearch[int3].getText("item",null,"GROUP");
+						var productDecsription = salesorderSearch[int3].getValue("salesdescription","item","GROUP");
 						var qty = Number(salesorderSearch[int3].getValue("quantity",null,"SUM"))
 						var qtyFulfilled = Number(salesorderSearch[int3].getValue("quantityshiprecv",null,"SUM"))
+						var palletQty = Number(salesorderSearch[int3].getValue("custitem_pj_palletquantity","item","MIN"));
+						var gross = Number(salesorderSearch[int3].getValue("custitem_pj_grossweight","item","MIN"));
 						
-						var quantityOrdered = nlapiEscapeXML((qty - qtyFulfilled).toFixed(2));
+						var quantityOrdered = qty - qtyFulfilled;
+						var palletEquiv = quantityOrdered / palletQty;
+						var grossWeight = quantityOrdered * gross;
 						
-						var palletQty = Number(salesorderSearch[int3].getValue("custitem_pj_palletquantity",null,"MIN"));
-						var palletEquiv = nlapiEscapeXML((quantityOrdered / palletQty).tofixed(3));
-						var grossWeight = nlapiEscapeXML(Number(salesorderSearch[int3].getValue("custitem_pj_grossweight","item","SUM")).toFixed(2));
-						
-						totalQuantity += Number(salesorderSearch[int3].getValue("quantity",null,"SUM"));
-						totalWeight += Number(salesorderSearch[int3].getValue("weight","item","SUM"));
-						
+						totalQuantity += quantityOrdered;
+						totalWeight += grossWeight;
+						totalPallet += palletEquiv;
+							
 						xml += "<tr style=\"height: 20px;\">";
-						xml += "<td style=\"vertical-align: middle; border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; border-collapse: collapse;\" align=\"left\" colspan=\"2\">" + storage + "</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">" + binLoc + "</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">" + productCode +"</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"left\" colspan=\"12\">" + productDecsription + "</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"right\" colspan=\"2\">" + quantityOrdered + "</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"left\" colspan=\"8\">&nbsp;</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"right\" colspan=\"4\">" + grossWeight + "</td>";
-						xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">palletEquiv</td>";
+						xml += "<td class=\"item1\" align=\"left\" colspan=\"2\">" + nlapiEscapeXML(storage) + "</td>";
+						xml += "<td class=\"item2\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(binLoc) + "</td>";
+						xml += "<td class=\"item2\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(productCode) +"</td>";
+						xml += "<td class=\"item2\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(productDecsription) + "</td>";
+						xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"2\">" + nlapiEscapeXML(quantityOrdered.toFixed(2)) + "</td>";
+						xml += "<td class=\"item2\" align=\"left\" colspan=\"2\">&nbsp;</td>";
+						xml += "<td class=\"item2\" align=\"left\" colspan=\"8\">&nbsp;</td>";
+						xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"4\">" + nlapiEscapeXML(grossWeight.toFixed(2)) + "</td>";
+						xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"2\">" + nlapiEscapeXML(palletEquiv.toFixed(3)) + "</td>";
 						xml += "</tr>";
 					}
 					
@@ -281,24 +283,29 @@ function consolidatedPickingSuitelet(request, response)
 					//
 					xml += "</table>";
 
-					/*
+					
 					//Totals & confirmation 
 					//
-					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					
-					xml += "<tr style=\"height: 20px;\">";
+					xml += "<table class=\"total\" style=\"width: 100%;\">";
+					xml += "<tr style=\"height: 30px; margin-top: 10px;\">";
 					xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
 					xml += "<td colspan=\"2\">&nbsp;</td>";
 					xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-					xml += "<td align=\"right\" colspan=\"12\">TOTALS</td>";
-					xml += "<td style=\"vertical-align: middle; border: 1px solid black;\" align=\"right\" colspan=\"2\">" + totalWeight.toFixed(2) + "</td>";
+					xml += "<td style=\"vertical-align: middle;\" align=\"right\" colspan=\"12\"><b>TOTALS</b>&nbsp;&nbsp;</td>";
+					xml += "<td style=\"vertical-align: middle; border: 1px solid black; padding-right: 2px;\" align=\"right\" colspan=\"2\"><b>" + nlapiEscapeXML(totalQuantity.toFixed(2)) + "</b></td>";
 					xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
 					xml += "<td align=\"left\" colspan=\"8\">&nbsp;</td>";
-					//xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"right\" colspan=\"4\">" + grossWeight + "</td>";
-					//xml += "<td style=\"vertical-align: middle; border-right: 1px solid black; border-bottom: 1px solid black;  border-collapse: collapse;\" align=\"center\" colspan=\"2\">&nbsp;</td>";
+					xml += "<td style=\"vertical-align: middle; border: 1px solid black; padding-right: 2px;\" align=\"right\" colspan=\"4\"><b>" + nlapiEscapeXML(totalWeight.toFixed(2)) + "</b></td>";
+					xml += "<td style=\"vertical-align: middle; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black; padding-right: 2px;\" align=\"right\" colspan=\"2\"><b>" + nlapiEscapeXML(totalPallet.toFixed(3)) + "</b></td>";
+					xml += "</tr>";
+					
+					xml += "<tr style=\"height: 30px; margin-top: 10px;\">";
+					xml += "<td style=\"vertical-align: middle;\" align=\"right\" colspan=\"18\"><b>Driver's Confirmation of Products &amp; Quantities (Name &amp; Sign):</b></td>";
+					xml += "<td style=\"vertical-align: middle; border: 1px solid black;\" align=\"left\" colspan=\"12\">&nbsp;</td>";
+					xml += "<td align=\"left\" colspan=\"6\">&nbsp;</td>";
 					xml += "</tr>";
 					xml += "</table>";
-					*/
+					
 					
 					//Finish the body
 					//
