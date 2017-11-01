@@ -144,10 +144,10 @@ function scheduled(type)
 				newRecord.setFieldValue('custbody_bbs_wo_finish', woFinish);
 			}
 		
-		//if(originalCommitmentStatus != newCommitmentStatus)
-		//		{
+		if(originalCommitmentStatus != newCommitmentStatus)
+				{
 					nlapiSubmitRecord(newRecord, false, true);
-		//		}
+				}
 		
 		
 		//=============================================================================================
