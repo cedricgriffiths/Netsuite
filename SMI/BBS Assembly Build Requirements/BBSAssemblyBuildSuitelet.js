@@ -52,17 +52,18 @@ function suitelet(request, response)
 		
 		// Create a form
 		//
-		var form = nlapiCreateForm('Assembly Build Requirements');
+		var form = nlapiCreateForm('Assembly Build Requirements', true);
 		form.setTitle('Assembly Build Checking');
 		
 		var tab = form.addTab('custpage_tab_components', 'Assembly Components');
 		tab.setLabel('Assembly Components');
 		
+		var subList2 = form.addSubList('custpage_sublist_summary', 'list', 'Components Summary', 'custpage_tab_components');
+		subList2.setLabel('Components Summary');
+		
 		var subList1 = form.addSubList('custpage_sublist_comps', 'list', 'Assembly Components', 'custpage_tab_components');
 		subList1.setLabel('Assembly Components');
 		
-		var subList2 = form.addSubList('custpage_sublist_summary', 'list', 'Components Summary', 'custpage_tab_components');
-		subList2.setLabel('Components Summary');
 		
 		var sublist1Level = subList1.addField('custpage_sublist1_level', 'text', 'Level', null);
 		var sublist1ItemUrl = subList1.addField('custpage_sublist1_item_url', 'url', 'View', null);
