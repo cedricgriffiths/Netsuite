@@ -59,7 +59,7 @@ function consolidatedPickingSuitelet(request, response)
 		//
 		var companyInfo = nlapiLoadConfiguration('companyinformation');
 		var companyLogo = companyInfo.getFieldValue("pagelogo");
-		var formLogo = companyConfig.getFieldValue("formlogo");
+		var formLogo = companyInfo.getFieldValue("formlogo");
 		var logoFile = nlapiLoadFile(formLogo);
 		var logoURL = nlapiEscapeXML(logoFile.getURL());
 		
@@ -262,7 +262,7 @@ function consolidatedPickingSuitelet(request, response)
 						var gross = Number(salesorderSearch[int3].getValue("custitem_pj_grossweight","item","MIN"));
 						
 						var quantityOrdered = qty - qtyFulfilled;
-						var palletEquiv = quantityOrdered / palletQty;
+						var palletEquiv = quantityOrdered * palletQty;
 						var grossWeight = quantityOrdered * gross;
 						
 						totalQuantity += quantityOrdered;
