@@ -186,8 +186,13 @@ function suitelet(request, response)
 					
 					if (Number(memberData[2]) > qtyAvailable)
 						{
-							subList2.setLineItemValue('custpage_sublist2_status', linenum, 'X');
+							subList2.setLineItemValue('custpage_sublist2_status', linenum, 'Insufficient Stock');
 						}
+					else
+						{
+							subList2.setLineItemValue('custpage_sublist2_status', linenum, 'Ok');
+						}
+					
 					subList2.setLineItemValue('custpage_sublist2_item', linenum, memberData[1]);
 					subList2.setLineItemValue('custpage_sublist2_item_txt', linenum, nlapiLookupField('item', memberData[0], 'description', false));
 					subList2.setLineItemValue('custpage_sublist2_qty', linenum, memberData[2]);
