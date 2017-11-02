@@ -59,6 +59,9 @@ function consolidatedPickingSuitelet(request, response)
 		//
 		var companyInfo = nlapiLoadConfiguration('companyinformation');
 		var companyLogo = companyInfo.getFieldValue("pagelogo");
+		var formLogo = companyConfig.getFieldValue("formlogo");
+		var logoFile = nlapiLoadFile(formLogo);
+		var logoURL = nlapiEscapeXML(logoFile.getURL());
 		
 		//Get the input data
 		//
@@ -166,7 +169,7 @@ function consolidatedPickingSuitelet(request, response)
 				    xml += "<tr>"
 					xml += "<td><span style=\"font-size:24px;\"><b>Consolidated Picking Sheet</b></span></td>"
 					xml += "<td align=\"right\">&nbsp;</td>"
-					xml += "<td align=\"right\"><img src=\"https://system.eu1.netsuite.com/core/media/media.nl?id=12&amp;c=4778035_SB1&amp;h=4c53e0b807700747d486\" style=\"float: right; width:200px; height:50px;\" /></td>"
+					xml += "<td align=\"right\"><img src=\"" + logoURL + "\" style=\"float: right; width:200px; height:50px;\" /></td>"
 				    xml += "</tr>"
 
 				    xml += "</table>"
