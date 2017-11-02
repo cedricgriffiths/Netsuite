@@ -35,9 +35,9 @@ function matrixOutputSuitelet(request, response)
 		//
 		var poRecord = nlapiLoadRecord('purchaseorder', poId);
 		var poLines = poRecord.getLineItemCount('item');
-		var poBillAddress = poRecord.getFieldValue('billaddress');
-		var poSubsidiaryAddress = poRecord.getFieldValue('custbody_subsidiary_address');
-		var poShipAddress = poRecord.getFieldValue('shipaddress');
+		var poBillAddress = nlapiEscapeXML(poRecord.getFieldValue('billaddress'));
+		var poSubsidiaryAddress = nlapiEscapeXML(poRecord.getFieldValue('custbody_subsidiary_address'));
+		var poShipAddress = nlapiEscapeXML(poRecord.getFieldValue('shipaddress'));
 		
 		if (poBillAddress)
 			{
@@ -65,7 +65,7 @@ function matrixOutputSuitelet(request, response)
 		var poTotal= poRecord.getFieldValue('total');
 		var poCurrency= poRecord.getFieldText('currency');
 		
-		poMemo = (poMemo == null ? '' : poMemo);
+		poMemo = nlapiEscapeXML((poMemo == null ? '' : poMemo));
 		poDueDate = (poDueDate == null ? '' : poDueDate);
 		
 		//Generate the size & colour matrix
@@ -150,7 +150,7 @@ function matrixOutputSuitelet(request, response)
 		var colourLookupArray = getDescriptions(COLOURID);
 		
 		var companyConfig = nlapiLoadConfiguration("companyinformation");
-		var companyName = companyConfig.getFieldValue("companyname");
+		var companyName = nlapiEscapeXML(companyConfig.getFieldValue("companyname"));
 		var companyLogo = companyConfig.getFieldValue("pagelogo");
 		var companyVatNo = companyConfig.getFieldValue("employerid");
 		var companyAddress = companyConfig.getFieldValue("mainaddress_text").replace(/\r\n/g,'<br />');
@@ -310,7 +310,7 @@ function matrixOutputSuitelet(request, response)
 									break;
 							}
 							
-							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + sizeDescription + "</th>";
+							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + nlapiEscapeXML(sizeDescription) + "</th>";
 						}
 						
 						xml += "</tr>";
@@ -428,6 +428,8 @@ function getDescriptions(listId)
 		valuesArray[ValueId] = ValueText;
 	}
 	
+	valuesArray[''] = '';
+	
 	return valuesArray;
 }
 
@@ -444,7 +446,7 @@ function buildMatrix()
 	
 	//Loop round the colours
 	//
-	for (var int3 = 1; int3 <= colours+1; int3++) 
+	for (var int3 = 1; int3 <= colours+2; int3++) 
 	{
 		var sizeArray = {};
 	
@@ -472,13 +474,19 @@ function buildMatrix()
 		//
 		if(int3 == colours+1)
 			{
-				colourValue = TOTAL;
+				colourValue = '';
 			}
 		else
 			{
-				var colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
+				if(int3 == colours+2)
+					{
+						colourValue = TOTAL;
+					}
+				else
+					{
+						var colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
+					}
 			}
-		   
 		//Attach the size array to the respective colour
 		//
 		colourSizeArray[colourValue] = sizeArray;
