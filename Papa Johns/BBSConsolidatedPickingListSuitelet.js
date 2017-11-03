@@ -25,8 +25,8 @@ function consolidatedPickingSuitelet(request, response)
 
 		// Create a form
 		//
-		var form = nlapiCreateForm('Generate Consolidated PickingList');
-		form.setTitle('Generate Consolidated PickingList');
+		var form = nlapiCreateForm('Generate Consolidated Picking List');
+		form.setTitle('Generate Consolidated Picking List');
 		form.setScript('customscript_bbs_cons_pick_client')
 		
 		//Add a field group for optional filters
@@ -106,10 +106,10 @@ function consolidatedPickingSuitelet(request, response)
 					[
 					   new nlobjSearchColumn("custbody_pj_routeno",null,"GROUP").setSort(false), 
 					   new nlobjSearchColumn("shipdate",null,"GROUP").setSort(false), 
-					   new nlobjSearchColumn("custcol_storage",null,"GROUP"), 
+					   new nlobjSearchColumn("custitemcustitem_pj_pickloc","item","GROUP"), 
 					   new nlobjSearchColumn("custitem_pj_binlocation","item","GROUP"), 
 					   new nlobjSearchColumn("item",null,"GROUP"), 
-					   new nlobjSearchColumn("salesdescription","item","GROUP"), 
+					   new nlobjSearchColumn("displayname","item","GROUP"), 
 					   new nlobjSearchColumn("quantity",null,"SUM"), 
 					   new nlobjSearchColumn("quantitycommitted",null,"SUM"), 
 					   new nlobjSearchColumn("quantityshiprecv",null,"SUM"), 
@@ -252,10 +252,10 @@ function consolidatedPickingSuitelet(request, response)
 					
 					for (var int3 = 0; int3 < salesorderSearch.length; int3++) 
 					{
-						var storage = salesorderSearch[int3].getValue("custcol_storage", null,"GROUP");
+						var storage = salesorderSearch[int3].getValue("custitemcustitem_pj_pickloc", "item","GROUP");
 						var binLoc = salesorderSearch[int3].getValue("custitem_pj_binlocation","item","GROUP");
 						var productCode = salesorderSearch[int3].getText("item",null,"GROUP");
-						var productDecsription = salesorderSearch[int3].getValue("salesdescription","item","GROUP");
+						var productDecsription = salesorderSearch[int3].getValue("displayname","item","GROUP");
 						var qty = Number(salesorderSearch[int3].getValue("quantity",null,"SUM"))
 						var qtyFulfilled = Number(salesorderSearch[int3].getValue("quantityshiprecv",null,"SUM"))
 						var palletQty = Number(salesorderSearch[int3].getValue("custitem_pj_palletquantity","item","MIN"));
@@ -270,10 +270,10 @@ function consolidatedPickingSuitelet(request, response)
 						totalPallet += palletEquiv;
 							
 						xml += "<tr style=\"height: 20px;\">";
-						xml += "<td class=\"item1\" align=\"left\" colspan=\"2\">" + nlapiEscapeXML(storage) + "</td>";
+						xml += "<td class=\"item1\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(storage) + "</td>";
 						xml += "<td class=\"item2\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(binLoc) + "</td>";
 						xml += "<td class=\"item2\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(productCode) +"</td>";
-						xml += "<td class=\"item2\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(productDecsription) + "</td>";
+						xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(productDecsription) + "</td>";
 						xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"2\">" + nlapiEscapeXML(quantityOrdered.toFixed(2)) + "</td>";
 						xml += "<td class=\"item2\" align=\"left\" colspan=\"2\">&nbsp;</td>";
 						xml += "<td class=\"item2\" align=\"left\" colspan=\"8\">&nbsp;</td>";
