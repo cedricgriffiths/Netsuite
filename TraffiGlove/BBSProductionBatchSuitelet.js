@@ -222,6 +222,8 @@ function productionBatchSuitelet(request, response)
 		var soId = request.getParameter('soid'); 
 		var soText = request.getParameter('sotext'); 
 		var batches = request.getParameter('batches'); 
+		var woCommitStatus = request.getParameter('wocommitstatus'); 
+		var woCommitStatusText = request.getParameter('wocommitstatustext'); 
 		
 		// Create a form
 		//
@@ -257,6 +259,12 @@ function productionBatchSuitelet(request, response)
 		var soComStatField = form.addField('custpage_so_com_text', 'text', 'SO Commit Text');
 		soComStatField.setDisplayType('hidden');
 		soComStatField.setDefaultValue(soCommitStatusText);
+		
+		//Store the wo commit status in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var woComStatField = form.addField('custpage_wo_com_text', 'text', 'WO Commit Text');
+		woComStatField.setDisplayType('hidden');
+		woComStatField.setDefaultValue(woCommitStatusText);
 		
 		//Store the so text in a field in the form so that it can be retrieved in the POST section of the code
 		//
@@ -400,6 +408,10 @@ function productionBatchSuitelet(request, response)
 						}
 						
 					}
+				else
+					{
+						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+					}
 				
 				//Add a submit button to the form
 				//
@@ -445,6 +457,12 @@ function productionBatchSuitelet(request, response)
 					var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
 					soTextField.setDisplayType('disabled');
 					soTextField.setDefaultValue(soText);
+				}
+				else
+				{
+					var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+					woCommitStatusField.setDisplayType('disabled');
+					woCommitStatusField.setDefaultValue(woCommitStatusText);
 				}
 				
 				var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
@@ -526,6 +544,11 @@ function productionBatchSuitelet(request, response)
 				if(soCommitStatus != '')
 				{
 					filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
+				}
+				
+				if(woCommitStatus != '')
+				{
+					filterArray.push("AND",["custbody_bbs_commitment_status","anyof",woCommitStatus]);
 				}
 				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
@@ -680,7 +703,7 @@ function productionBatchSuitelet(request, response)
 		//Post request - so process the returned form
 		//
 		
-		//Get the stage of the manpack processing we are at
+		//Get the stage of the processing we are at
 		//
 		var stage = Number(request.getParameter('custpage_stage'));
 		
@@ -698,6 +721,8 @@ function productionBatchSuitelet(request, response)
 				var socommitstatustext = request.getParameter('custpage_so_com_text');
 				var soid = request.getParameter('custpage_so_select');
 				var sotext = request.getParameter('custpage_so_text');
+				var wocommitstatus = request.getParameter('custpage_wo_commit_select');
+				var wocommitstatustext = request.getParameter('custpage_wo_com_text');
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -713,6 +738,8 @@ function productionBatchSuitelet(request, response)
 				params['socommitstatustext'] = socommitstatustext;
 				params['soid'] = soid;
 				params['sotext'] = sotext;
+				params['wocommitstatus'] = wocommitstatus;
+				params['wocommitstatustext'] = wocommitstatustext;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				
