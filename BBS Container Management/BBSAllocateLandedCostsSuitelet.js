@@ -133,15 +133,18 @@ function allocateLandedCostsSuitelet(request, response){
 						listSublistLine.setDisplayType('hidden');
 						
 						var listQtyRec = list1.addField('custpage_col11', 'float', 'Qty Received', null);
-						
 						var listUnitWeight = list1.addField('custpage_col14', 'float', 'Unit Weight', null);
-						
 						var listUnitRate = list1.addField('custpage_col15', 'currency', 'Unit Rate', null);
-						
+						var listValue = list1.addField('custpage_col18', 'currency', 'Recv Value', null);
+						var listUnitCurrency = list1.addField('custpage_col16', 'text', 'Currency', null);
+						var listExchangeRate = list1.addField('custpage_col17', 'float', 'Exch Rate', null);
 						var listItemRec = list1.addField('custpage_col12', 'text', 'Item receipt', null);
 						
 						var listItemRecId = list1.addField('custpage_col13', 'text', 'Item receipt Id', null);
 						listItemRecId.setDisplayType('hidden');
+						
+						var listUnitCurrencyId = list1.addField('custpage_col19', 'text', 'Currency Id', null);
+						listUnitCurrencyId.setDisplayType('hidden');
 						
 						//Add available landed costs
 						//
@@ -157,6 +160,7 @@ function allocateLandedCostsSuitelet(request, response){
 						
 						var lcText = consRecord.getFieldValue('custrecord_bbs_cons_lc_array');
 						var lcArray = JSON.parse(lcText);
+						var first = true;
 						
 						
 						for ( var key in landedCosts) 
@@ -168,10 +172,32 @@ function allocateLandedCostsSuitelet(request, response){
 								var lcAccountTxt = lcData[3];
 								
 								var lcField = form.addField('custpage_lc_value_' + count.toString(), 'currency', lcName, null, 'custpage_lc_group');
+								var lcCurr = form.addField('custpage_lc_currency_' + count.toString(), 'select', lcName + ' Currency', 'currency', 'custpage_lc_group');
+								
+								if (first)
+									{
+										first = false;
+									}
+								else
+									{
+										lcField.setBreakType('startcol');
+									}
 								
 								if (lcArray != null && count < lcArray.length)
 								{
-									lcField.setDefaultValue(lcArray[count]);
+									try
+									{
+										var lcValues = lcArray[count];
+										lcField.setDefaultValue(lcValues[0]);
+										
+										lcCurr.setDefaultValue(lcValues[1]);
+									}
+									catch(errr)
+									{
+										lcField.setDefaultValue(lcArray[count]);
+									}
+									
+									//lcField.setDefaultValue(lcArray[count]);
 								}
 								
 								var temp = list1.addField('custpage_col_lc_' + count.toString(), 'currency', lcName, null);
@@ -213,6 +239,9 @@ function allocateLandedCostsSuitelet(request, response){
 							var lineItemRecId = consRecord.getLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_cons_det_item_receipt', linenum);
 							var lineUnitWeight = consRecord.getLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_item_weight', linenum);
 							var lineUnitRate = consRecord.getLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_item_rate', linenum);
+							var lineUnitCurrency = consRecord.getLineItemText('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_currency', linenum);
+							var lineUnitCurrencyId = consRecord.getLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_currency', linenum);
+							var lineUnitExchangeRate = consRecord.getLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_exch_rate', linenum);
 								
 							list1.setLineItemValue('custpage_col2', linenum, linePoTxt);
 							list1.setLineItemValue('custpage_col3', linenum, linePoLine);
@@ -228,10 +257,13 @@ function allocateLandedCostsSuitelet(request, response){
 							list1.setLineItemValue('custpage_col13', linenum, lineItemRecId);
 							list1.setLineItemValue('custpage_col14', linenum, lineUnitWeight);
 							list1.setLineItemValue('custpage_col15', linenum, lineUnitRate);
+							list1.setLineItemValue('custpage_col16', linenum, lineUnitCurrency);
+							list1.setLineItemValue('custpage_col17', linenum, lineUnitExchangeRate);
+							list1.setLineItemValue('custpage_col18', linenum, Number(lineUnitRate) * Number(lineQtyRec));
+							list1.setLineItemValue('custpage_col19', linenum, lineUnitCurrencyId);
 							
 						}
 					
-						// Add a submit button
 						//
 						form.addSubmitButton('Confirm');
 		

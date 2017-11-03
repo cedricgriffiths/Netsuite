@@ -127,7 +127,16 @@ function clientRecalc(type){
  */
 function clientValidateInsert(type){
   
-    return true;
+	var context = nlapiGetContext().getExecutionContext();
+	
+	if (context == 'userinterface')
+		{
+	    	return false;
+		}
+	else
+		{
+			return true;
+		}
 }
 
 /**
@@ -139,7 +148,16 @@ function clientValidateInsert(type){
  */
 function clientValidateDelete(type){
    
-    return true;
+	var context = nlapiGetContext().getExecutionContext();
+	
+	if (context == 'userinterface')
+		{
+	    	return false;
+		}
+	else
+		{
+			return true;
+		}	
 }
 
 function assignPurchaseOrders() 

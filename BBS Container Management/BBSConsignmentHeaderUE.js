@@ -25,7 +25,8 @@ function consHeaderBeforeLoad(type, form, request)
 	var lcArray = JSON.parse(lcText);
 	
 	var count = Number(0);
-			
+	var first = true;
+	
 	for ( var key in landedCosts) 
 		{
 			var lcData = landedCosts[key];
@@ -35,10 +36,34 @@ function consHeaderBeforeLoad(type, form, request)
 			var lcAccountTxt = lcData[3];
 					
 			var lcField = form.addField('custpage_lc_value_' + count.toString(), 'currency', lcName, null, 'custpage_grp_landed');
-
+			var lcCurr = form.addField('custpage_lc_currency_' + count.toString(), 'select', lcName + ' Currency', 'currency', 'custpage_grp_landed');
+			lcField.setDisplayType('disabled');
+			lcCurr.setDisplayType('disabled');
+			
+			if (first)
+				{
+					first = false;
+				}
+			else
+				{
+					lcField.setBreakType('startcol');
+				}
+			
 			if (lcArray != null && count < lcArray.length)
 				{
-					lcField.setDefaultValue(lcArray[count]);
+					
+					try
+					{
+						var lcValues = lcArray[count];
+						lcField.setDefaultValue(lcValues[0]);
+						
+						lcCurr.setDefaultValue(lcValues[1]);
+					}
+					catch(errr)
+					{
+						lcField.setDefaultValue(lcArray[count]);
+					}
+					//lcField.setDefaultValue(lcArray[count]);
 				}
 			count++;
 		}
@@ -66,10 +91,14 @@ function consHeaderBeforeSubmit(type)
 	for ( var key in landedCosts) 
 		{
 			var lcValue = nlapiGetFieldValue('custpage_lc_value_' + count.toString());
+			var lcCurr = nlapiGetFieldValue('custpage_lc_currency_' + count.toString());
+			
+			var lcData = [lcValue,lcCurr];
 			
 			if(lcValue != null)
 				{
-					lcArray.push(lcValue);
+					//lcArray.push(lcValue);
+					lcArray.push(lcData);
 				}
 			
 			count++;

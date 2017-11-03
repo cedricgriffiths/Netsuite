@@ -87,6 +87,8 @@ function libFindPurchaseOrders(supplier, poNo, item) {
 	columns[11] = new nlobjSearchColumn('memo');
 	columns[12] = new nlobjSearchColumn('weight','item');
 	columns[13] = new nlobjSearchColumn('internalid','vendor');
+	columns[14] = new nlobjSearchColumn('exchangerate');
+	columns[15] = new nlobjSearchColumn('currency');
 	
 	var results = nlapiSearchRecord('transaction', null, filters, columns);
 	
@@ -186,7 +188,7 @@ function libFindConsToDespatch(list1)
 	
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('name');
-	columns[1] = new nlobjSearchColumn('altname');
+	columns[1] = new nlobjSearchColumn(getAltName());
 	columns[2] = new nlobjSearchColumn('custrecord_bbs_consignment_edd');
 	
 	var results = nlapiSearchRecord('customrecord_bbs_consignment', null, filters, columns);
@@ -201,7 +203,7 @@ function libFindConsToDespatch(list1)
 				var Id = results[int].getId();
 				
 				var name = results[int].getValue('name');
-				var altname = results[int].getValue('altname');
+				var altname = results[int].getValue(getAltName());
 				var expDespDate = results[int].getValue('custrecord_bbs_consignment_edd');
 				
 				var consURL = nlapiResolveURL('RECORD', 'customrecord_bbs_consignment', Id, 'VIEW');
@@ -307,7 +309,7 @@ function libFindConsignments(list1) {
 	
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('name');
-	columns[1] = new nlobjSearchColumn('altname');
+	columns[1] = new nlobjSearchColumn(getAltName());
 	columns[2] = new nlobjSearchColumn('custrecordbbs_consignment_container_no');
 	
 	var results = nlapiSearchRecord('customrecord_bbs_consignment', null, filters, columns);
@@ -322,7 +324,7 @@ function libFindConsignments(list1) {
 				
 				var conId = results[int].getId();
 				var id = results[int].getValue('name');
-				var shipRef = results[int].getValue('altname');
+				var shipRef = results[int].getValue(getAltName());
 				var containerNo = results[int].getValue('custrecordbbs_consignment_container_no');
 			
 				list1.setLineItemValue('custpage_col2', line, id); 
@@ -344,7 +346,7 @@ function libFindInTransitConsignments(list1) {
 	
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('name');
-	columns[1] = new nlobjSearchColumn('altname');
+	columns[1] = new nlobjSearchColumn(getAltName());
 	columns[2] = new nlobjSearchColumn('custrecordbbs_consignment_container_no');
 	columns[3] = new nlobjSearchColumn('custrecord_bbs_consignment_ead');
 	
@@ -360,7 +362,7 @@ function libFindInTransitConsignments(list1) {
 				
 				var conId = results[int].getId();
 				var id = results[int].getValue('name');
-				var shipRef = results[int].getValue('altname');
+				var shipRef = results[int].getValue(getAltName());
 				var containerNo = results[int].getValue('custrecordbbs_consignment_container_no');
 				var ead = results[int].getValue('custrecord_bbs_consignment_ead');
 				
@@ -418,7 +420,7 @@ function libFindNotClosedConsignments(list1) {
 	
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('name');
-	columns[1] = new nlobjSearchColumn('altname');
+	columns[1] = new nlobjSearchColumn(getAltName());
 	columns[2] = new nlobjSearchColumn('custrecordbbs_consignment_container_no');
 	columns[3] = new nlobjSearchColumn('custrecord_bbs_consignment_status');
 	
@@ -434,7 +436,7 @@ function libFindNotClosedConsignments(list1) {
 				
 				var conId = results[int].getId();
 				var id = results[int].getValue('name');
-				var shipRef = results[int].getValue('altname');
+				var shipRef = results[int].getValue(getAltName());
 				var containerNo = results[int].getValue('custrecordbbs_consignment_container_no');
 				var status = results[int].getText('custrecord_bbs_consignment_status');
 				
@@ -458,7 +460,7 @@ function libFindReceivedConsignments(list1) {
 	
 	var columns = new Array();
 	columns[0] = new nlobjSearchColumn('name');
-	columns[1] = new nlobjSearchColumn('altname');
+	columns[1] = new nlobjSearchColumn(getAltName());
 	columns[2] = new nlobjSearchColumn('custrecordbbs_consignment_container_no');
 	columns[3] = new nlobjSearchColumn('custrecord_bbs_consignment_ead');
 	columns[4] = new nlobjSearchColumn('custrecord_bbs_consignment_aad');
@@ -475,7 +477,7 @@ function libFindReceivedConsignments(list1) {
 				
 				var conId = results[int].getId();
 				var id = results[int].getValue('name');
-				var shipRef = results[int].getValue('altname');
+				var shipRef = results[int].getValue(getAltName());
 				var containerNo = results[int].getValue('custrecordbbs_consignment_container_no');
 				var ead = results[int].getValue('custrecord_bbs_consignment_ead');
 				var aad = results[int].getValue('custrecord_bbs_consignment_aad');
@@ -488,4 +490,21 @@ function libFindReceivedConsignments(list1) {
 				list1.setLineItemValue('custpage_col7', line, aad); 
 			}
 		}
+}
+
+//Function used to check to see if the "altname" field is present, which it will be if we are using auto numbering
+//If it is not present then we will have to use "name" instead
+//
+function getAltName()
+{
+	var returnFieldName = 'altname';
+	var newConsignmentRec = nlapiCreateRecord('customrecord_bbs_consignment');
+	var allFields = newConsignmentRec.getAllFields();
+	
+	if(allFields.indexOf('altname') == -1)
+		{
+			returnFieldName = 'name';
+		}
+	
+	return returnFieldName;
 }

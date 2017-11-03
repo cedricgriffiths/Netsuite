@@ -94,6 +94,7 @@ function calcLandedCosts()
 					//Get the lc value from the form header
 					//
 					var lcVal = Number(nlapiGetFieldValue('custpage_lc_value_' + count.toString()));
+					var lcCurrency = nlapiGetFieldValue('custpage_lc_currency_' + count.toString());
 					
 					lcData.push(lcVal);
 					landedCosts[key] = lcData;
@@ -132,12 +133,23 @@ function calcLandedCosts()
 										//
 										for (var linenum = 1; linenum <= lineCount; linenum++) 
 										{
+											var lineCurrency = nlapiGetLineItemValue('custpage_sublist1', 'custpage_col19', linenum);
 											var lineQty = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col11', linenum));
 											var lineUnitWeight = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col14', linenum));
 											
-											var lineLandedCost = Math.round(((lineQty * lineUnitWeight) * perUnitValue) * 100) / 100;
+											var lineLandedCost = lineQty * lineUnitWeight;
 											
-											nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
+											//Now we have worked out the quantity we need to convert it from the landed cost currency to the currency on the item receipt
+											//
+											var lineLandedCostInCurrency = lineLandedCost;
+											
+											if (lineCurrency != '' && lcCurrency != '')
+												{
+													lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+												}
+
+											nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCostInCurrency);
+											//nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
 										}
 									}
 									
@@ -162,10 +174,23 @@ function calcLandedCosts()
 								//
 								for (var linenum = 1; linenum <= lineCount; linenum++) 
 								{
+									var lineCurrency = nlapiGetLineItemValue('custpage_sublist1', 'custpage_col19', linenum);
 									var lineQty = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col11', linenum));
-									var lineLandedCost = Math.round((lineQty * perUnitValue) * 100) / 100;
+									var lineLandedCost = lineQty * perUnitValue;
 									
-									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
+									//Now we have worked out the quantity we need to convert it from the landed cost currency to the currency on the item receipt
+									//
+									var lineLandedCostInCurrency = lineLandedCost;
+									
+									if (lineCurrency != '' && lcCurrency != '')
+										{
+											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+										}
+									
+									//Set the sublist value
+									//
+									//nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
+									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCostInCurrency);
 								}
 								
 								break;
@@ -178,10 +203,17 @@ function calcLandedCosts()
 								
 								for (var linenum = 1; linenum <= lineCount; linenum++) 
 								{
-									var lineQty = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col11', linenum));
-									var lineRate = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col15', linenum));
+									var lineValue = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col18', linenum));
+									var lineCurrency = nlapiGetLineItemValue('custpage_sublist1', 'custpage_col19', linenum);
 									
-									totalLineValue += (lineQty * lineRate);
+									//Now convert the the line total into the currency of the landed cost
+									//
+									if (lineCurrency != '' && lcCurrency != '')
+										{
+											lineValue = lineValue * nlapiExchangeRate(lcCurrency, lineCurrency);
+										}
+									
+									totalLineValue += lineValue;
 								}
 								
 								//Calculate the per unit value
@@ -192,11 +224,17 @@ function calcLandedCosts()
 								//
 								for (var linenum = 1; linenum <= lineCount; linenum++) 
 								{
-									var lineQty = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col11', linenum));
-									var lineUnitRate = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col15', linenum));
+									var lineValue = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col18', linenum));
+									var lineLandedCost = lineValue * perUnitValue;
+									var lineCurrency = nlapiGetLineItemValue('custpage_sublist1', 'custpage_col19', linenum);
 									
-									var lineLandedCost = Math.round(((lineQty * lineUnitRate) * perUnitValue) * 100) / 100;
+									var lineLandedCostInCurrency = lineLandedCost;
 									
+									if (lineCurrency != '' && lcCurrency != '')
+										{
+											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+											//var lineLandedCost = Math.round(((lineQty * lineUnitRate) * perUnitValue) * 100) / 100;
+										}
 									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
 								}
 								

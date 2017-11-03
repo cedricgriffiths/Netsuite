@@ -156,6 +156,9 @@ function allocatePOSuitelet(request, response){
 							var listQty = list1.addField('custpage_col6', 'float', 'Quantity', null);
 							var listAmount = list1.addField('custpage_col7', 'currency', 'Amount', null);
 							
+							var listCurrency = list1.addField('custpage_col18', 'text', 'Currency', null);	
+							var listExchRate = list1.addField('custpage_col19', 'float', 'Exch Rate', null);
+							
 							var listReceived = list1.addField('custpage_col11', 'float', 'Received', null);
 							var listContainer = list1.addField('custpage_col12', 'float', 'On Container', null);
 							var listRemain = list1.addField('custpage_col14', 'float', 'Outstanding', null);
@@ -168,6 +171,8 @@ function allocatePOSuitelet(request, response){
 							var listWeight = list1.addField('custpage_col17', 'float', 'Weight', null);
 							listWeight.setDisplayType('hidden');
 
+							var listCurrencyId = list1.addField('custpage_col20', 'text', 'Currency Id', null);	
+							listCurrencyId.setDisplayType('hidden');
 							
 							list1.addButton('custpage_refresh', 'Refresh List', 'ButtonRefresh()');
 					
@@ -215,6 +220,9 @@ function allocatePOSuitelet(request, response){
 										var onCont = results[int].getValue('custcol_bbs_consignment_allocated');
 										var rem = results[int].getValue('formulanumeric');
 										var weight = results[int].getValue('weight','item');
+										var currency = results[int].getValue('currency');
+										var currencyText = results[int].getText('currency');
+										var exchangeRate = results[int].getValue('exchangerate');
 										
 										var poURL = nlapiResolveURL('RECORD', 'purchaseorder', poId, 'VIEW');
 										
@@ -243,6 +251,9 @@ function allocatePOSuitelet(request, response){
 										list1.setLineItemValue('custpage_col14', line, rem);
 										list1.setLineItemValue('custpage_col16', line, itemDesc);
 										list1.setLineItemValue('custpage_col17', line, weight);
+										list1.setLineItemValue('custpage_col18', line, currencyText);
+										list1.setLineItemValue('custpage_col19', line, exchangeRate);
+										list1.setLineItemValue('custpage_col20', line, currency);
 									}
 									
 									
@@ -372,6 +383,8 @@ function allocatePOSuitelet(request, response){
 					var poDescription = request.getLineItemValue('custpage_sublist1', 'custpage_col16', int);
 					var poRate = request.getLineItemValue('custpage_sublist1', 'custpage_col5', int);
 					var poWeight = request.getLineItemValue('custpage_sublist1', 'custpage_col17', int);
+					var poExchangeRate = request.getLineItemValue('custpage_sublist1', 'custpage_col19', int);
+					var poCurrency = request.getLineItemValue('custpage_sublist1', 'custpage_col20', int);
 					
 					//
 					//New Code - Start
@@ -381,7 +394,7 @@ function allocatePOSuitelet(request, response){
 					//
 					if (poChecked == 'T')
 					{
-						var poLineData = [poId,poLine,poChecked,poAllocated,poDescription,poRate,poWeight,int];
+						var poLineData = [poId,poLine,poChecked,poAllocated,poDescription,poRate,poWeight,int,poExchangeRate,poCurrency];
 						
 						if(!poArray[poId])
 							{
@@ -437,6 +450,8 @@ function allocatePOSuitelet(request, response){
 							consDetail.setFieldValue('custrecord_bbs_con_det_item_description', poLineData[4]);
 							consDetail.setFieldValue('custrecord_bbs_con_det_item_rate', poLineData[5]);
 							consDetail.setFieldValue('custrecord_bbs_con_det_item_weight', poLineData[6]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_currency', poLineData[9]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_exch_rate', poLineData[8]);
 							
 							nlapiSubmitRecord(consDetail, false, true);
 						}
