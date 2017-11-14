@@ -37,7 +37,7 @@ function scheduled(type)
 			try
 			{
 				itemSearchResultSet = itemSearchResult.getResults(start, end);
-				resultlen = searchResultSet.length;
+				resultlen = itemSearchResultSet.length;
 			}
 			catch(err)
 			{
@@ -55,15 +55,15 @@ function scheduled(type)
 						var moreSearchResultSet = itemSearchResult.getResults(start, end);
 						resultlen = moreSearchResultSet.length;
 	
-						itemSearchResultSet = searchResultSet.concat(moreSearchResultSet);
+						itemSearchResultSet = itemSearchResultSet.concat(moreSearchResultSet);
 				}
 			
 			if(itemSearchResultSet && itemSearchResultSet.length > 0)
 				{
-					for (var int2 = 0; int2 < searchResultSet.length; int2++) 
+					for (var int2 = 0; int2 < itemSearchResultSet.length; int2++) 
 						{
-							var recType = searchResultSet[int2].getRecordType();
-							var recId = searchResultSet[int2].getId();
+							var recType = itemSearchResultSet[int2].getRecordType();
+							var recId = itemSearchResultSet[int2].getId();
 							
 							var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 							
