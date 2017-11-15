@@ -114,7 +114,7 @@ function consolidatedPickingSuitelet(request, response)
 					   new nlobjSearchColumn("quantitycommitted",null,"SUM"), 
 					   new nlobjSearchColumn("quantityshiprecv",null,"SUM"), 
 					   new nlobjSearchColumn("custitem_pj_grossweight","item","MIN"),
-					   new nlobjSearchColumn("custitem_pj_palletquantity","item","MIN")
+					   new nlobjSearchColumn("custitem_palletequiv","item","MIN")
 					   
 					]
 					);
@@ -258,7 +258,7 @@ function consolidatedPickingSuitelet(request, response)
 						var productDecsription = salesorderSearch[int3].getValue("displayname","item","GROUP");
 						var qty = Number(salesorderSearch[int3].getValue("quantity",null,"SUM"))
 						var qtyFulfilled = Number(salesorderSearch[int3].getValue("quantityshiprecv",null,"SUM"))
-						var palletQty = Number(salesorderSearch[int3].getValue("custitem_pj_palletquantity","item","MIN"));
+						var palletQty = Number(salesorderSearch[int3].getValue("custitem_palletequiv","item","MIN"));
 						var gross = Number(salesorderSearch[int3].getValue("custitem_pj_grossweight","item","MIN"));
 						
 						var quantityOrdered = qty - qtyFulfilled;
