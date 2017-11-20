@@ -87,7 +87,9 @@ function consolidatedPickingSuitelet(request, response)
 				   "AND", 
 				   ["item.type","anyof","InvtPart"], 
 				   "AND", 
-				   ["sum(formulanumeric: {quantity} - NVL({quantitycommitted},0) + NVL({quantitypicked},0))","equalto","0"]
+				   ["sum(formulanumeric: {quantity} - NVL({quantitycommitted},0) + NVL({quantitypicked},0))","equalto","0"],
+				   "AND", 
+				   ["shipdate","within",deliveryDateFrom,deliveryDateTo]
 				], 
 				[
 				   new nlobjSearchColumn("internalid",null,"GROUP"), 
@@ -236,42 +238,42 @@ function consolidatedPickingSuitelet(request, response)
 					//Loop through the results
 					//
 					if(salesorderDetailSearch)
-					{
-						for (var int2 = 0; int2 < salesorderDetailSearch.length; int2++) 
 						{
-							var brand = salesorderDetailSearch[int2].getText("custitem_cseg_bbs_brand", "item", null);
-							var order = salesorderDetailSearch[int2].getValue("tranid", null, null);
-							var channelOrder = salesorderDetailSearch[int2].getValue("custbody_ca_order_id", null, null);
-							var qty = Number(salesorderDetailSearch[int2].getValue("quantity", null, null))
-							var item = salesorderDetailSearch[int2].getValue("itemid", "item", null);
-							var exactColour = salesorderDetailSearch[int2].getValue("custcol_bbs_exact_colour", null, null);
-							var brandSize = salesorderDetailSearch[int2].getText("custcol_bbs_brand_size_chart", null, null);
-							var countrySize = salesorderDetailSearch[int2].getValue("custcol_bbs_country_specific_size", null, null);
-							var productDecsription = salesorderDetailSearch[int2].getValue("salesdescription", "item", null);
-							
-							var colon = item.indexOf(':');
-							
-							if(colon != -1)
+							for (var int2 = 0; int2 < salesorderDetailSearch.length; int2++) 
 								{
-									item = item.substr(colon + 1);
+									var brand = salesorderDetailSearch[int2].getText("custitem_cseg_bbs_brand", "item", null);
+									var order = salesorderDetailSearch[int2].getValue("tranid", null, null);
+									var channelOrder = salesorderDetailSearch[int2].getValue("custbody_ca_order_id", null, null);
+									var qty = Number(salesorderDetailSearch[int2].getValue("quantity", null, null))
+									var item = salesorderDetailSearch[int2].getValue("itemid", "item", null);
+									var exactColour = salesorderDetailSearch[int2].getValue("custcol_bbs_exact_colour", null, null);
+									var brandSize = salesorderDetailSearch[int2].getText("custcol_bbs_brand_size_chart", null, null);
+									var countrySize = salesorderDetailSearch[int2].getValue("custcol_bbs_country_specific_size", null, null);
+									var productDecsription = salesorderDetailSearch[int2].getValue("salesdescription", "item", null);
+									
+									var colon = item.indexOf(':');
+									
+									if(colon != -1)
+										{
+											item = item.substr(colon + 1);
+										}
+									
+									xml += "<tr style=\"height: 20px;\">";
+									xml += "<td class=\"item1\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"4\">" + nlapiEscapeXML(brand) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(order) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"5\">" + nlapiEscapeXML(channelOrder) +"</td>";
+									xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"2\">" + nlapiEscapeXML(qty.toFixed(2)) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(item) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"4\">" + nlapiEscapeXML(exactColour) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(brandSize) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(countrySize) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"10\">" + nlapiEscapeXML(productDecsription) + "</td>";
+									xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"right\" colspan=\"2\">&nbsp;</td>";
+									xml += "</tr>";
+								
 								}
-							
-							xml += "<tr style=\"height: 20px;\">";
-							xml += "<td class=\"item1\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"4\">" + nlapiEscapeXML(brand) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"center\" colspan=\"2\">" + nlapiEscapeXML(order) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"5\">" + nlapiEscapeXML(channelOrder) +"</td>";
-							xml += "<td class=\"item2\" style=\"padding-right: 2px;\" align=\"right\" colspan=\"2\">" + nlapiEscapeXML(qty.toFixed(2)) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(item) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"4\">" + nlapiEscapeXML(exactColour) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(brandSize) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"3\">" + nlapiEscapeXML(countrySize) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"left\" colspan=\"10\">" + nlapiEscapeXML(productDecsription) + "</td>";
-							xml += "<td class=\"item2\" style=\"padding-left: 2px;\" align=\"right\" colspan=\"2\">&nbsp;</td>";
-							xml += "</tr>";
 						
 						}
-					
-					}
 
 					//Finish the item table
 					//
@@ -309,12 +311,12 @@ function consolidatedPickingSuitelet(request, response)
 					//Finish the pdf
 					//
 					xml += "</pdf>";
-				}
-			
-
-
-		
-
+				
+			}		
+		else
+			{
+				xml += '<pdf><body>No data to print</body></pdf>'
+			}
 					
 		//Convert to pdf using the BFO library
 		//
