@@ -33,3 +33,18 @@ function checkAssemblyBeforeLoad(type, form, request)
 			form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
 		}
 }
+
+function checkAssemblyAfterSubmit(type)
+{
+	if (type == 'edit' || type == 'create')
+	{
+		var salesId = nlapiGetRecordId();
+		var params = new Array();
+		
+		params['salesorderid'] = salesId;
+		params['mode'] = 'showmenu';
+		nlapiSetRedirectURL('SUITELET', 'customscript_bbs_chk_assm_suitelet', 'customdeploy_bbs_chk_assm_suitelet', null, params);
+	}
+	
+	
+}

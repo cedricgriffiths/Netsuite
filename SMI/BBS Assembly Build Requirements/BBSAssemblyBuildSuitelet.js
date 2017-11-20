@@ -49,11 +49,17 @@ function suitelet(request, response)
 		//Get parameters
 		//
 		var salesOrderId = request.getParameter('salesorderid');
+		var mode = request.getParameter('mode');
+			
+		//Load the sales order
+		//
+		salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
+		var salesOrder = salesOrderRecord.getFieldValue('tranid');
 		
 		// Create a form
 		//
-		var form = nlapiCreateForm('Assembly Build Requirements', true);
-		form.setTitle('Assembly Build Checking');
+		var form = nlapiCreateForm('Assembly Build Requirements', (mode == 'showmenu' ? false : true));
+		form.setTitle('Assembly Build Checking For Sales Order ' + salesOrder);
 		
 		var tab = form.addTab('custpage_tab_components', 'Assembly Components');
 		tab.setLabel('Assembly Components');
