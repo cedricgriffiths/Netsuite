@@ -33,6 +33,8 @@ function filteredItemSearchSuitelet(request, response){
 		var stage = Number(request.getParameter('stage'));
 		var deptId = request.getParameter('deptid');
 		var deptName = request.getParameter('deptname');
+		var finishId = request.getParameter('finishid');
+		var finishName = request.getParameter('finishname');
 		
 		// Create a form
 		//
@@ -111,6 +113,18 @@ function filteredItemSearchSuitelet(request, response){
 		var depotTextField = form.addField('custpage_depot_name', 'text', 'Depot Name', null,'custpage_grp1');
 		depotTextField.setDisplayType('hidden');
 		depotTextField.setDefaultValue(depotName);
+
+		//Hold the finish id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var finishField = form.addField('custpage_finishid', 'text', 'Finish Id', null,'custpage_grp1');
+		finishField.setDisplayType('hidden');
+		finishField.setDefaultValue(finishId);
+
+		//Hold the finish text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var finishTextField = form.addField('custpage_finish_name', 'text', 'Finish Name', null,'custpage_grp1');
+		finishTextField.setDisplayType('hidden');
+		finishTextField.setDefaultValue(finishName);
 
 		//Hold the department id in a hidden field so that we can retrieve it later in the POST section
 		//
@@ -232,6 +246,11 @@ function filteredItemSearchSuitelet(request, response){
 				
 				warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Warning: Ommitting style when not searching by employee may cause the search to timeout</p>');
 				
+				//Add the finish field
+				//
+				var finishField = form.addField('custpage_finish_select', 'select', 'Finish', 'customlist_bbs_item_finish_ref', 'custpage_grp3');
+				finishField.setDisplaySize(100);
+				finishField.setBreakType('startcol');
 				
 				//Add a submit button to the form
 				//
@@ -260,6 +279,12 @@ function filteredItemSearchSuitelet(request, response){
 				styleField.setDisplayType('disabled');
 				styleField.setDefaultValue(styleName);
 				
+				//Add the finish field
+				//
+				var finishField = form.addField('custpage_finish_select', 'text', 'Finish', null, 'custpage_grp3');
+				finishField.setDisplayType('disabled');
+				finishField.setDefaultValue(finishName);
+		
 				var tab = form.addTab('custpage_tab_items', 'Items To Select');
 				tab.setLabel('Items To Select');
 				
@@ -282,6 +307,7 @@ function filteredItemSearchSuitelet(request, response){
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Belongs To', null);
 				var listId = subList.addField('custpage_sublist_id', 'integer', 'Id', null);
 				var listParent = subList.addField('custpage_sublist_parent', 'text', 'Parent/Style', null);
+				var listFinish = subList.addField('custpage_sublist_finish', 'text', 'Finish', null);
 				
 				listQty.setDisplayType('entry');
 				listId.setDisplayType('hidden');
@@ -341,7 +367,8 @@ function filteredItemSearchSuitelet(request, response){
 							new nlobjSearchColumn("custitem_bbs_item_customer",null,null), 
 							new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
 							new nlobjSearchColumn("incomeaccount",null,null),
-							new nlobjSearchColumn("parent",null,null)
+							new nlobjSearchColumn("parent",null,null),
+							new nlobjSearchColumn("custitemfinish_type",null,null)
 							]
 							);
 				}
@@ -371,7 +398,8 @@ function filteredItemSearchSuitelet(request, response){
 								   new nlobjSearchColumn("custitem_bbs_item_finish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
 								   new nlobjSearchColumn("incomeaccount","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
 								   new nlobjSearchColumn("salesdescription","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null),
-								   new nlobjSearchColumn("parent","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null)
+								   new nlobjSearchColumn("parent","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null),
+								   new nlobjSearchColumn("custitemfinish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null)
 								]
 								);
 					}
@@ -408,10 +436,20 @@ function filteredItemSearchSuitelet(request, response){
 						               ];
 						}
 						
+						//Filter by style if needed
+						//
 						if(styleName != '')
 							{
 							filterArray.push("AND",["parent.name","contains",styleName]);
 							}
+						
+						//Filter by finish if needed
+						//
+						if(finishId != '')
+							{
+							filterArray.push("AND",["custitemfinish_type","anyof",finishId]);
+							}
+						
 						
 						itemSearch = nlapiCreateSearch("item", filterArray, 
 								[
@@ -424,7 +462,8 @@ function filteredItemSearchSuitelet(request, response){
 								new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
 								new nlobjSearchColumn("incomeaccount",null,null),
 								new nlobjSearchColumn("parent",null,null),
-								new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false)
+								new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false),
+								new nlobjSearchColumn("custitemfinish_type",null,null)
 								]
 								);
 					}
@@ -463,6 +502,7 @@ function filteredItemSearchSuitelet(request, response){
 						{
 							var account = searchResultSet[int].getValue("incomeaccount","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
 							var style = searchResultSet[int].getText("parent","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
+							var finish = searchResultSet[int].getText("custitemfinish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
 							
 							if ((account != null && account != '') && (styleName == '' || (styleName != '' && style.indexOf(styleName) != -1)))
 								{
@@ -471,6 +511,7 @@ function filteredItemSearchSuitelet(request, response){
 									subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getValue("custrecord_bbs_web_product_item"));
 									subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText("custitem_bbs_item_customer","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
 									subList.setLineItemValue('custpage_sublist_parent', line, style);
+									subList.setLineItemValue('custpage_sublist_finish', line, finish);
 									
 									line++;
 								}
@@ -489,6 +530,7 @@ function filteredItemSearchSuitelet(request, response){
 									subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer'));
 									//subList.setLineItemValue('custpage_sublist_parent', line, style);
 									subList.setLineItemValue('custpage_sublist_parent', line, searchResultSet[int].getText("parent"));
+									subList.setLineItemValue('custpage_sublist_finish', line, searchResultSet[int].getText("custitemfinish_type"));
 									
 									line++;
 								}
@@ -536,6 +578,8 @@ function filteredItemSearchSuitelet(request, response){
 				var deptId = request.getParameter('custpage_deptid');
 				var deptName = request.getParameter('custpage_dept_name');
 				var styleName = request.getParameter('custpage_style_select');
+				var finishId = request.getParameter('custpage_finishid');
+				var finishName = request.getParameter('custpage_finish_name');
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -547,6 +591,8 @@ function filteredItemSearchSuitelet(request, response){
 				params['depotname'] = depotName;
 				params['deptid'] = deptId;
 				params['deptname'] = deptName;
+				params['finishid'] = finishId;
+				params['finishname'] = finishName;
 				params['stylename'] = styleName;
 				params['employeename'] = employeeName;
 				params['employeeid'] = employeeId;

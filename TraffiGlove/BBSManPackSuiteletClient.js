@@ -17,6 +17,15 @@
  */
 function clientFieldChanged(type, name, linenum)
 {
+	if (name == 'custpage_finish_select')
+	{
+		var finishId = nlapiGetFieldValue('custpage_finish_select');
+		var finishText = nlapiGetFieldText('custpage_finish_select');
+		
+		nlapiSetFieldValue('custpage_finishid', finishId, false, true);
+		nlapiSetFieldValue('custpage_finish_name', finishText, false, true);
+	}
+	
 	if (name == 'custpage_dept_select')
 	{
 		var deptId = nlapiGetFieldValue('custpage_dept_select');
