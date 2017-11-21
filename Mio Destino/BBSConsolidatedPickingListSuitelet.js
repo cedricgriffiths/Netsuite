@@ -89,7 +89,9 @@ function consolidatedPickingSuitelet(request, response)
 				   "AND", 
 				   ["sum(formulanumeric: {quantity} - NVL({quantitycommitted},0) + NVL({quantitypicked},0))","equalto","0"],
 				   "AND", 
-				   ["shipdate","within",deliveryDateFrom,deliveryDateTo]
+				   ["shipdate","within",deliveryDateFrom,deliveryDateTo],
+				   "AND",
+				   ["custbody_bbs_consolidated_pick_printed","is","F"]
 				], 
 				[
 				   new nlobjSearchColumn("internalid",null,"GROUP"), 
@@ -105,7 +107,16 @@ function consolidatedPickingSuitelet(request, response)
 					{
 						salesOrders.push(salesorderSearch[int].getValue('internalid', null, 'GROUP'));
 					}
-					
+				
+				//Create a scheduled job to update the printed flag on the sales orders
+				//
+				var params = {custscript_bbs_orders: JSON.stringify(salesOrders)};
+				
+				nlapiScheduleScript('customscript_bbs_cpl_schedule', 'customdeploy_bbs_cpl_schedule', params);
+				
+				
+				//Perform the detail search
+				//
 				var salesorderDetailSearch = nlapiSearchRecord("salesorder",null,
 						[
 						   ["type","anyof","SalesOrd"], 
