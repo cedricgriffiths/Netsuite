@@ -361,7 +361,10 @@ function receiveConsignmentSuitelet(request, response){
 								
 								//Update the po line to reduce the on consignment quantity
 								//
-								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, consignmentReceived);
+								var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine));
+								onConsignment = onConsignment - Number(consignmentReceived);
+								
+								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, onConsignment);
 								nlapiSubmitRecord(poRecord, false, true);
 								
 								//Now find the corresponding line no in the item receipt record
