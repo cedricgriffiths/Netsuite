@@ -359,6 +359,11 @@ function receiveConsignmentSuitelet(request, response){
 								//
 								var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
 								
+								//Update the po line to reduce the on consignment quantity
+								//
+								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, consignmentReceived);
+								nlapiSubmitRecord(poRecord, false, true);
+								
 								//Now find the corresponding line no in the item receipt record
 								//
 								var itemReceiptLineNo = Number(0);
