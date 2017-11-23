@@ -37,8 +37,7 @@ function(record, dialog, search)
 		var vendorBillRecord = scriptContext.currentRecord;
 		var currentLines = vendorBillRecord.getLineCount({sublistId: 'item'});
 		var currentId = vendorBillRecord.getValue({fieldId: 'id'});
-		var currentCurrency = vendorBillRecord.getValue({fieldId: 'currency'});
-		
+			
 		//Save the current record's values & quantities to the arrays
 		//
 		for (var int = 0; int < currentLines; int++) 
@@ -85,6 +84,13 @@ function(record, dialog, search)
 					{
 						break;
 					}
+	    	}
+	    
+	    //If we are on a new vendor bill then there will not be any related records as yet
+	    //
+	    if(poId == '' && currentId == '')
+	    	{
+	    		poId = vendorBillRecord.getValue({fieldId: 'podocnum'});
 	    	}
 	    
 	    //If we have a purchase order, then we need to find the associated vendor bills
