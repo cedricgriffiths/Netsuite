@@ -38,29 +38,40 @@ function(record, message) {
     				
     					if (customerId != null && customerId != '')
     						{
-    							var custRecord = record.load({type: record.Type.CUSTOMER, id: customerId });
+    							var custRecord = null;
     							
-    							var atRisk = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk'});
-    							var noSupport = custRecord.getValue({fieldId: 'custentity_bbs_customer_support_ended'});
-    							
-    							var atRiskMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk_msg'});
-    							var noSupportMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_no_support_msg'});
-    							
-    							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
-    							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
-    							
-    							
-    							if (atRisk)
+    							try
     								{
-    									var myMsg = message.create({title: '',message: atRiskMessage,type: message.Type.WARNING});
-										myMsg.show();
+    									custRecord = record.load({type: record.Type.CUSTOMER, id: customerId });
+    								}
+    							catch(err)
+    								{
+    									custRecord = null;
     								}
     							
-    							if (noSupport)
-								{
-									var myMsg = message.create({title: '',message: noSupportMessage,type: message.Type.ERROR});
-									myMsg.show();
-								}
+    							if(custRecord)
+    								{
+		    							var atRisk = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk'});
+		    							var noSupport = custRecord.getValue({fieldId: 'custentity_bbs_customer_support_ended'});
+		    							
+		    							var atRiskMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk_msg'});
+		    							var noSupportMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_no_support_msg'});
+		    							
+		    							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
+		    							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
+		    							
+		    							if (atRisk)
+		    								{
+		    									var myMsg = message.create({title: '',message: atRiskMessage,type: message.Type.WARNING});
+												myMsg.show();
+		    								}
+		    							
+		    							if (noSupport)
+											{
+												var myMsg = message.create({title: '',message: noSupportMessage,type: message.Type.ERROR});
+												myMsg.show();
+											}
+    								}
     						}
     				}
     		}
