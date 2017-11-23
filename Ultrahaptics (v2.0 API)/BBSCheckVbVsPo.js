@@ -241,6 +241,7 @@ function(record, dialog, search)
     	  	{
     			//Set up the options for the dialogue box
     			//
+    			warnings += '<p style="color:DarkGreen;">Click \"Ok\" to Save, \"Cancel\" to Amend<p/>';
     			var titleText = 'Please Verify The Following Issues Before Saving';
 	      		var options = {
 		      				title: titleText,
