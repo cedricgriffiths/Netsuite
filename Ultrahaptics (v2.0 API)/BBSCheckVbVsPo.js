@@ -347,7 +347,9 @@ function(record, dialog, search)
 	    						//
 		    					if(!poItemsQty[vbItem])
 		    						{
-		    							warnings += '<p style="color:DARKRED;"> Item "' + vbItem + '" Does note Exist on The Purchase Order<p/><br/><br/>';
+		    							var fieldLookUp = search.lookupFields({type: search.Type.ITEM, id: vbItem, columns: ['itemid']});
+		    							
+		    							warnings += '<p style="color:DARKRED;"> Item "' + fieldLookUp['itemid'] + '" Does note Exist on The Purchase Order<p/><br/><br/>';
 		    						}
 		    				}
 	    			}
