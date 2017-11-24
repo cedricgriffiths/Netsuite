@@ -20,12 +20,23 @@ function(record, dialog, search)
     function saveRecord(scriptContext) 
     {
     	var warnings = '';
-        var poItemsQty = {};
-        var vbItemsQty = {};
-        var poItemsVal = {};
-        var vbItemsVal = {};
-        var poItemsDesc = {};
+    	
+    	var poItemsDesc = {};		//Item description
+        var poItemsQty = {};		//Item quantity
+        var poItemsVal = {};		//Item value
+        var poItemsTbbQty = {};		//Quantity to be billed
+        var poItemsTbbVal = {};		//Value to be billed
         
+        var vbItemsQty = {};
+        var vbItemsVal = {};
+        
+        var thisVbItemsQty = {};
+        var thisVbItemsVal = {};
+        
+        var currentLineItem = '';
+		var currentLineQty = Number(0);
+		var currentLineVal = Number(0);
+		
     	debugger;
     	
     	
@@ -35,16 +46,38 @@ function(record, dialog, search)
 		//Get the current vendor bill record
 		//
 		var vendorBillRecord = scriptContext.currentRecord;
-		var currentLines = vendorBillRecord.getLineCount({sublistId: 'item'});
+		var currentLines = Number(vendorBillRecord.getLineCount({sublistId: 'item'}));
 		var currentId = vendorBillRecord.getValue({fieldId: 'id'});
 			
 		//Save the current record's values & quantities to the arrays
 		//
 		for (var int = 0; int < currentLines; int++) 
 			{
-				var currentLineItem = vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: int});
-				var currentLineQty = vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int});
-				var currentLineVal = vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int});
+				currentLineItem = vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: int});
+				currentLineQty = Number(vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int}));
+				currentLineVal = Number(vendorBillRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int}));
+				
+				//Save this vb quantities
+				//
+				if(!thisVbItemsQty[currentLineItem])
+					{
+						thisVbItemsQty[currentLineItem] = currentLineQty;
+					}
+				else
+					{
+						thisVbItemsQty[currentLineItem] += currentLineQty;
+					}
+				
+				//Save this vb values
+				//
+				if(!thisVbItemsVal[currentLineItem])
+					{
+						thisVbItemsVal[currentLineItem] = currentLineVal;
+					}
+				else
+					{
+						thisVbItemsVal[currentLineItem] += currentLineVal;
+					}
 				
 				//Accumulate the quantities
 				//
@@ -71,7 +104,7 @@ function(record, dialog, search)
 		
 		//Get the number of lines in the purchase order sublist
 		//
-	    var lines = vendorBillRecord.getLineCount({sublistId: 'purchaseorders'});
+	    var lines = Number(vendorBillRecord.getLineCount({sublistId: 'purchaseorders'}));
 	    var poId = '';
 	    
 	    //Find the first purchase order in the sublist
@@ -93,27 +126,53 @@ function(record, dialog, search)
 	    		poId = vendorBillRecord.getValue({fieldId: 'podocnum'});
 	    	}
 	    
-	    //If we have a purchase order, then we need to find the associated vendor bills
+	    //If we have a purchase order, we can procede
 	    //
 	    if 	(poId != null && poId != '')
 	    	{
 	    		//Load the purchase order record
 	    		//
-	    		//var poRecord = nlapiLoadRecord('purchaseorder', poId);
 	    		var poRecord = record.load({type: record.Type.PURCHASE_ORDER, id: poId});
 	    		
 	    		if(poRecord)
 	    			{
-	    				//Build a list of items on the po and their quantities
+	    				//Build a list of items on the po and their quantities etc
 	    				//
 	    				var items = poRecord.getLineCount({sublistId: 'item'});
 	    				
 	    				for (var int2 = 0; int2 < items; int2++) 
 		    				{
 		    					var lineItem = poRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: int2});
-		    					var lineQty = poRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int2});
-		    					var lineVal = poRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int2});
 		    					var lineItemDesc = poRecord.getSublistText({sublistId: 'item', fieldId: 'item', line: int2});
+		    					
+		    					var lineQty = Number(poRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int2}));
+		    					var lineQtyRec = Number(poRecord.getSublistValue({sublistId: 'item', fieldId: 'quantityreceived', line: int2}));
+		    					var lineQtyBil = Number(poRecord.getSublistValue({sublistId: 'item', fieldId: 'quantitybilled', line: int2}));
+		    					var lineQtyRate = Number(poRecord.getSublistValue({sublistId: 'item', fieldId: 'rate', line: int2}));
+		    					
+		    					var lineVal = Number(poRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int2}));
+		    					
+		    					//Accumulate the to be billed quantities
+		    					//
+		    					if(!poItemsTbbQty[lineItem])
+		    						{
+		    							poItemsTbbQty[lineItem] = (lineQtyRec - lineQtyBil);
+		    						}
+		    					else
+		    						{
+		    							poItemsTbbQty[lineItem] += (lineQtyRec - lineQtyBil);
+		    						}
+		    					
+		    					//Accumulate the to be billed values
+		    					//
+		    					if(!poItemsTbbVal[lineItem])
+		    						{
+		    							poItemsTbbVal[lineItem] = ((lineQtyRec - lineQtyBil) * lineQtyRate);
+		    						}
+		    					else
+		    						{
+		    							poItemsTbbVal[lineItem] += ((lineQtyRec - lineQtyBil) * lineQtyRate);
+		    						}
 		    					
 		    					//Accumulate the quantities
 		    					//
@@ -139,7 +198,7 @@ function(record, dialog, search)
 		    						}
 							}
 	    				
-	    				//Get the number of lines in the links sublist & filter out the vendor bills
+	    				//Get the number of lines in the links sublist & filter out the vendor bills & item receipts
 	    				//
 	    				var links = poRecord.getLineCount({sublistId: 'links'});
 	    				
@@ -166,8 +225,8 @@ function(record, dialog, search)
 															for (var int3 = 0; int3 < items; int3++) 
 																{
 																	var lineItem = vbRecord.getSublistValue({sublistId: 'item', fieldId: 'item', line: int3});
-																	var lineQty = vbRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int3});
-																	var lineVal = vbRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int3});
+																	var lineQty = Number(vbRecord.getSublistValue({sublistId: 'item', fieldId: 'quantity', line: int3}));
+																	var lineVal = Number(vbRecord.getSublistValue({sublistId: 'item', fieldId: 'amount', line: int3}));
 											    					
 											    					//Accumulate the quantities
 											    					//
@@ -200,11 +259,13 @@ function(record, dialog, search)
 	    				//
 	    				for ( var poItem in poItemsQty) 
 		    				{
-	    						//Get the quantity from the po for this product
+	    						//Get the quantities/values from the po for this product
 	    						//
-	    						var poQty = Number(poItemsQty[poItem]);
+		    					var poQty = Number(poItemsQty[poItem]);
 	    						var poVal = Number(poItemsVal[poItem]);
-    						
+	    						var poTbbQty = Number(poItemsTbbQty[poItem]);
+	    						var poTbbVal = Number(poItemsTbbVal[poItem]);
+							
 	    						//See if we can find the same item in the list of items from vendor bills
 	    						//
 	    						var vbQty = Number(0);
@@ -220,20 +281,75 @@ function(record, dialog, search)
 	    								vbVal = Number(vbItemsVal[poItem]);
 	    							}
 	    						
+	    						
 	    						//Compare the vb qty with the po qty, if the vb qty > po qty then we need to highlight it
 	    						//
 	    						if(vbQty > poQty)
 	    							{
-	    								warnings += '<p style="color:DarkRed;"> Item ' + poItemsDesc[poItem] + ' : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Purchase Order Qty of ' + poQty.toFixed(2) + '<p/><br/><br/>';
+	    								warnings += '<p style="color:RED;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Purchase Order Qty of ' + poQty.toFixed(2) + '<p/><br/><br/>';
 	    							}
 	    						
 	    						//Compare the vb val with the po val, if the vb val > po val then we need to highlight it
 	    						//
 	    						if(vbVal > poVal)
 	    							{
-	    								warnings += '<p style="color:DarkRed;"> Item ' + poItemsDesc[poItem] + ' : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Purchase Order Value of ' + poVal.toFixed(2) + '<p/><br/><br/>';
+	    								warnings += '<p style="color:RED;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Purchase Order Value of ' + poVal.toFixed(2) + '<p/><br/><br/>';
 	    							}
+	    						
+	    						
 							}
+	    				
+	    				//Compare the po quantities & values of items received not billed to the current vb
+	    				//
+	    				for ( var poItem in poItemsQty) 
+		    				{
+	    						//Get the quantities/values from the po for this product
+	    						//
+		    					var poTbbQty = Number(poItemsTbbQty[poItem]);
+	    						var poTbbVal = Number(poItemsTbbVal[poItem]);
+							
+	    						//See if we can find the same item in the list of items from this vendor bill
+	    						//
+	    						var vbQty = Number(0);
+	    						var vbVal = Number(0);
+	    						
+	    						if(thisVbItemsQty[poItem])
+	    							{
+	    								vbQty = Number(thisVbItemsQty[poItem]);
+	    							}
+	    						
+	    						if(thisVbItemsVal[poItem])
+	    							{
+	    								vbVal = Number(thisVbItemsVal[poItem]);
+	    							}
+	    						
+	    						//Compare the vb qty with the po to be billed qty
+	    						//
+	    						if(vbQty > poTbbQty)
+	    							{
+	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Received not Billed Quantity of ' + poTbbQty.toFixed(2) + '<p/><br/><br/>';
+	    							}
+	    						
+	    						//Compare the vb val with the po to be billed val
+	    						//
+	    						if(vbVal > poTbbVal)
+	    							{
+	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<p/><br/><br/>';
+	    							}
+		    				}
+	    				
+	    				
+	    				//Compare the items on the vb to those on the po & look for items that are not on the po
+	    				//
+	    				for ( var vbItem in vbItemsQty) 
+		    				{
+	    						//Is the item on the vb on the po?
+	    						//
+		    					if(!poItemsQty[vbItem])
+		    						{
+		    							warnings += '<p style="color:DARKRED;"> Item "' + vbItem + '" Does note Exist on The Purchase Order<p/><br/><br/>';
+		    						}
+		    				}
 	    			}
 	    	}
 
