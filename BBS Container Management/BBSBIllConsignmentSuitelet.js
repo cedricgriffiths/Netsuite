@@ -275,7 +275,7 @@ function billConsignmentSuitelet(request, response){
 					{
 						//Create a data element that is the po id + the po line no + the line number from the consignment detail sublist
 						//
-						var poAndLine = poId.toString() + '|' + poLine.toString() + '|' + sublistLineNo.toString();
+						var poAndLine = poId.toString() + '|' + poLine.toString() + '|' + sublistLineNo.toString() + '|' + poAllocated.toString();
 						
 						//Build list of suppliers & their purchase orders/lines that are to processed
 						//
@@ -327,6 +327,7 @@ function billConsignmentSuitelet(request, response){
 						var poId = poAndLIneArray[0];
 						var poLine = poAndLIneArray[1];
 						var consignmentSublistLine = poAndLIneArray[2];
+						var consignmentAllocated = Number(poAndLIneArray[3]);
 						
 						//Read the PO record if we have changed po's
 						//
@@ -383,7 +384,10 @@ function billConsignmentSuitelet(request, response){
 									vendorBillRecord.setCurrentLineItemValue('item', 'item', poLineItem); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'orderdoc', poId); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'orderline', poLine); 
-									vendorBillRecord.setCurrentLineItemValue('item', 'quantity', poLineOnConsignment); 
+									
+									//vendorBillRecord.setCurrentLineItemValue('item', 'quantity', poLineOnConsignment); 
+									vendorBillRecord.setCurrentLineItemValue('item', 'quantity', consignmentAllocated); 
+									
 									vendorBillRecord.setCurrentLineItemValue('item', 'rate', poLineRate); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'amount', poLineAmount); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'location', poLineLocation); 
