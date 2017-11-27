@@ -34,12 +34,24 @@ function userEventAfterSubmit(type){
 					
 					if (poRecord)
 						{
-							var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine));
+							//Find the correct line on the po
+							//
+							var poSublistLineNo = libFindLine(poRecord, 'item', Number(poLine));
 						
+							//Get the current on consignment value
+							//
+							var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLineNo));
+							
+							//Calculate the new value
+							//
 							var newAlloc = onConsignment - poAllocated;
 							
-							poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, newAlloc);
+							//Update the po with the new on consignment value
+							//
+							poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLineNo, newAlloc);
 							
+							//Save the po
+							//
 							nlapiSubmitRecord(poRecord, false, true);
 						}
 				}
