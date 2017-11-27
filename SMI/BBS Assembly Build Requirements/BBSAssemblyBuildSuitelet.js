@@ -61,6 +61,14 @@ function suitelet(request, response)
 		var form = nlapiCreateForm('Assembly Build Requirements', (mode == 'showmenu' ? false : true));
 		form.setTitle('Assembly Build Checking For Sales Order ' + salesOrder);
 		
+		var salesOrderField = form.addField('custpage_sales_order_id', 'text', 'Sales Order Id', null, null);
+		salesOrderField.setDisplayType('hidden');
+		salesOrderField.setDefaultValue(salesOrderId);
+		
+		var modeField = form.addField('custpage_mode', 'text', 'mode', null, null);
+		modeField.setDisplayType('hidden');
+		modeField.setDefaultValue(mode);
+		
 		var tab = form.addTab('custpage_tab_components', 'Assembly Components');
 		tab.setLabel('Assembly Components');
 		
@@ -69,7 +77,6 @@ function suitelet(request, response)
 		
 		var subList1 = form.addSubList('custpage_sublist_comps', 'list', 'Assembly Components', 'custpage_tab_components');
 		subList1.setLabel('Assembly Components');
-		
 		
 		var sublist1Level = subList1.addField('custpage_sublist1_level', 'text', 'Level', null);
 		var sublist1ItemUrl = subList1.addField('custpage_sublist1_item_url', 'url', 'View', null);
@@ -86,6 +93,11 @@ function suitelet(request, response)
 		var sublist2ItemText = subList2.addField('custpage_sublist2_item_txt', 'text', 'Description', null);
 		var sublist2Qty = subList2.addField('custpage_sublist2_qty', 'float', 'Qty Required', null);
 		var sublist2QtyAvail = subList2.addField('custpage_sublist2_qty_avail', 'float', 'Qty Available', null);
+		
+		if(mode == 'showmenu')
+			{
+				form.addSubmitButton('Return to Sales Order');
+			}
 		
 		var bomList = new Array();
 		var lineNo = Number(0);
@@ -212,7 +224,13 @@ function suitelet(request, response)
 	}
 	else
 	{
+		var paramMode = request.getParameter('custpage_mode');
 		
+		if(paramMode == 'showmenu')
+		{
+			var paramSalesOrderId = request.getParameter('custpage_sales_order_id');
+			nlapiSetRedirectURL('RECORD', 'salesorder', paramSalesOrderId, false, null);
+		}
 	}
 }
 
