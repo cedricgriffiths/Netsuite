@@ -327,14 +327,14 @@ function(record, dialog, search)
 	    						//
 	    						if(vbQty > poTbbQty)
 	    							{
-	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Received not Billed Quantity of ' + poTbbQty.toFixed(2) + '<p/><br/><br/>';
+	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Received not Billed Quantity of ' + poTbbQty.toFixed(2) + '<p/><br/><br/>';
 	    							}
 	    						
 	    						//Compare the vb val with the po to be billed val
 	    						//
 	    						if(vbVal > poTbbVal)
 	    							{
-	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<p/><br/><br/>';
+	    								warnings += '<p style="color:DARKSALMON;"> Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<p/><br/><br/>';
 	    							}
 		    				}
 	    				
