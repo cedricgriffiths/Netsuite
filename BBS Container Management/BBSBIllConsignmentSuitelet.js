@@ -341,15 +341,19 @@ function billConsignmentSuitelet(request, response){
 							//
 							if(poRecord)
 								{
+									//Get the correct sublist line for the po record
+									//
+									var poSublistLine = libFindLine(poRecord, 'item', poLine)
+									
 									//Now get the data from the po item line
 									//
-									var poLineAmount = poRecord.getLineItemValue('item', 'amount', poLine);
-									var poLineItem = poRecord.getLineItemValue('item', 'item', poLine);
-									var poLineLocation = poRecord.getLineItemValue('item', 'location', poLine);
-									var poLineRate = poRecord.getLineItemValue('item', 'rate', poLine);
-									var poLineUnits = poRecord.getLineItemValue('item', 'units', poLine);
-									var poLineVendorName = poRecord.getLineItemValue('item', 'vendorname', poLine);
-									var poLineOnConsignment = poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine);
+									var poLineAmount = poRecord.getLineItemValue('item', 'amount', poSublistLine);
+									var poLineItem = poRecord.getLineItemValue('item', 'item', poSublistLine);
+									var poLineLocation = poRecord.getLineItemValue('item', 'location', poSublistLine);
+									var poLineRate = poRecord.getLineItemValue('item', 'rate', poSublistLine);
+									var poLineUnits = poRecord.getLineItemValue('item', 'units', poSublistLine);
+									var poLineVendorName = poRecord.getLineItemValue('item', 'vendorname', poSublistLine);
+									var poLineOnConsignment = poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine);
 									
 									//Use the default vendor bill location if not on po line
 									//

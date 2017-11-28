@@ -357,14 +357,16 @@ function receiveConsignmentSuitelet(request, response){
 							{
 								//Get the actual line number from the item sublist on the po
 								//
-								var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
+								//var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
+								var actualPoLineNo = poLine;
+								var poSublistLine = libFindLine(poRecord, 'item', poLine);
 								
 								//Update the po line to reduce the on consignment quantity
 								//
-								var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine));
+								var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine));
 								onConsignment = onConsignment - Number(consignmentReceived);
 								
-								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, onConsignment);
+								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine, onConsignment);
 								
 								//Now find the corresponding line no in the item receipt record
 								//

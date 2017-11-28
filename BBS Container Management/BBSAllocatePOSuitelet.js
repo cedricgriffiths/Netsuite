@@ -443,7 +443,7 @@ function allocatePOSuitelet(request, response){
 							
 							consDetail.setFieldValue('custrecord_bbs_consignment_header_id', paramConsId);
 							consDetail.setFieldValue('custrecord_bbs_con_det_po_id', poLineData[0]);
-							consDetail.setFieldValue('custrecord_bbs_con_det_po_line', poSublistLineNo); //poLineData[1]);
+							consDetail.setFieldValue('custrecord_bbs_con_det_po_line', poLineData[1]); //poLineData[1]);
 							consDetail.setFieldValue('custrecord_bbs_con_det_allocated', poLineData[3]);
 							consDetail.setFieldValue('custrecord_bbs_con_det_item', poItem);
 							consDetail.setFieldValue('custrecord_bbs_con_det_supplier', poSupplier);
