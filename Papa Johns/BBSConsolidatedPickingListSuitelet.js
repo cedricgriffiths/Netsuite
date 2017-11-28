@@ -107,8 +107,8 @@ function consolidatedPickingSuitelet(request, response)
 					   new nlobjSearchColumn("custbody_pj_routeno",null,"GROUP").setSort(false), 
 					   new nlobjSearchColumn("shipdate",null,"GROUP").setSort(false), 
 					   new nlobjSearchColumn("custitemcustitem_pj_pickloc","item","GROUP"), 
-					   new nlobjSearchColumn("custitem_pj_binlocation","item","GROUP"), 
-					   new nlobjSearchColumn("item",null,"GROUP"), 
+					   new nlobjSearchColumn("custitem_pj_binlocation","item","GROUP").setSort(false), 
+					   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
 					   new nlobjSearchColumn("displayname","item","GROUP"), 
 					   new nlobjSearchColumn("quantity",null,"SUM"), 
 					   new nlobjSearchColumn("quantitycommitted",null,"SUM"), 
@@ -195,18 +195,9 @@ function consolidatedPickingSuitelet(request, response)
 					xml += "</tr>";
 							
 					xml += "</table>";
-				    xml += "</macro>";
-
-					xml += "</macrolist>";
-					xml += "</head>";
-					
-					//Body
-					//
-					xml += "<body header=\"nlheader\" header-height=\"15%\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4-LANDSCAPE\">";
-
-					//Header data
-					//
-					xml += "<table style=\"width: 100%\">";
+                  
+                  
+                    xml += "<table style=\"width: 100%\">";
 					
 					xml += "<tr>";
 					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
@@ -224,6 +215,18 @@ function consolidatedPickingSuitelet(request, response)
 					
 					xml += "</table>\n";
 					xml += "<p></p>";
+				    xml += "</macro>";
+
+					xml += "</macrolist>";
+					xml += "</head>";
+					
+					//Body
+					//
+					xml += "<body header=\"nlheader\" header-height=\"180px\" footer=\"nlfooter\" footer-height=\"2%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4-LANDSCAPE\">";
+
+					//Header data
+					//
+					
 					
 					//Item data
 					//
