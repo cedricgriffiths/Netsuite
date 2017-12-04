@@ -11,6 +11,7 @@ const UNITCOST = 999998;
 const TOTALCOST = 999999;
 const COLOURID = 163;
 const SIZEID = 164;
+const LENGTHID = 165;
 const EMAILINFO = 'sales@smigroupuk.com';
 const TELINFO = '+44 (0) 1428 658333'
 	
@@ -95,6 +96,7 @@ function matrixOutputSuitelet(request, response)
 				   new nlobjSearchColumn("parent","item",null).setSort(false), 
 				   new nlobjSearchColumn("custitem_bbs_item_colouritem","item",null), 
 				   new nlobjSearchColumn("custitem_bbs_item_size1","item",null), 
+				   new nlobjSearchColumn("custitem_bbs_item_size2","item",null), 
 				   new nlobjSearchColumn("type","item",null)
 				]
 				);
@@ -140,15 +142,18 @@ function matrixOutputSuitelet(request, response)
 			var itemRate = Number(purchaseorderSearch[int].getValue("rate",null,null));
 			var itemColour = purchaseorderSearch[int].getValue("custitem_bbs_item_colouritem","item",null);
 			var itemSize = purchaseorderSearch[int].getValue("custitem_bbs_item_size1","item",null);
+			var itemLength = purchaseorderSearch[int].getValue("custitem_bbs_item_size2","item",null);
 			
-			parentArray[parentId][itemColour][itemSize] = parentArray[parentId][itemColour][itemSize] + itemQty; //Update the specific colour & size
-			parentArray[parentId][itemColour][TOTAL] = parentArray[parentId][itemColour][TOTAL] + itemQty; //Update the row total
-			parentArray[parentId][itemColour][UNITCOST] = itemRate; //Update the rate
-			parentArray[parentId][itemColour][TOTALCOST] = parentArray[parentId][itemColour][UNITCOST] * parentArray[parentId][itemColour][TOTAL];
+			var itemLengthColour = (itemLength == null ? '' : itemLength) + '|' + (itemColour == null ? '' : itemColour);
+			
+			parentArray[parentId][itemLengthColour][itemSize] = parentArray[parentId][itemLengthColour][itemSize] + itemQty; //Update the specific colour & size
+			parentArray[parentId][itemLengthColour][TOTAL] = parentArray[parentId][itemLengthColour][TOTAL] + itemQty; //Update the row total
+			parentArray[parentId][itemLengthColour][UNITCOST] = itemRate; //Update the rate
+			parentArray[parentId][itemLengthColour][TOTALCOST] = parentArray[parentId][itemLengthColour][UNITCOST] * parentArray[parentId][itemLengthColour][TOTAL];
 			parentArray[parentId][TOTAL][itemSize] = parentArray[parentId][TOTAL][itemSize] + itemQty; //Update the column total
 			parentArray[parentId][TOTAL][TOTAL] = parentArray[parentId][TOTAL][TOTAL] + itemQty; //Update the grand total
 			parentArray[parentId][TOTAL][UNITCOST] = itemRate; //Update the grand total
-			parentArray[parentId][TOTAL][TOTALCOST] = parentArray[parentId][TOTAL][TOTALCOST] + parentArray[parentId][itemColour][TOTALCOST];
+			parentArray[parentId][TOTAL][TOTALCOST] = parentArray[parentId][TOTAL][TOTALCOST] + parentArray[parentId][itemLengthColour][TOTALCOST];
 
 		}
 		
@@ -193,6 +198,7 @@ function matrixOutputSuitelet(request, response)
 		//
 		var sizeLookupArray = getDescriptions(SIZEID);
 		var colourLookupArray = getDescriptions(COLOURID);
+		var lengthLookupArray = getDescriptions(LENGTHID);
 		
 		var companyConfig = nlapiLoadConfiguration("companyinformation");
 		var companyName = nlapiEscapeXML(companyConfig.getFieldValue("companyname"));
@@ -265,12 +271,12 @@ function matrixOutputSuitelet(request, response)
 		
 		xml += "<macro id=\"nlfooter\">";
 		xml += "<table style=\"width: 100%;\">";
-		xml += "<tr><td><b>Standard Terms and Conditions apply. Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>";
+		//xml += "<tr><td><b>Standard Terms and Conditions apply. Invoices should quote the PO number above and any difference will result in delays in payment</b></td></tr>";
 		//xml += "<tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>";
 		//xml += "<tr><td>&nbsp;</td></tr>";
 		xml += "</table>";
 		xml += "<table class=\"footer\" style=\"width: 100%;\">";
-		xml += "<tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr>";
+		xml += "<tr><td><b>Standard Terms and Conditions apply. Invoices should quote the PO number above and any difference will result in delays in payment</b></td><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr>";
 		xml += "</table></macro>";
 		
 		xml += "</macrolist>";
@@ -348,7 +354,7 @@ function matrixOutputSuitelet(request, response)
 							xml += "</tr>";
 							
 							xml += "<tr >";
-							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour</th>";
+							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
 							
 							for ( var sizeId in row) 
 							{
@@ -386,6 +392,7 @@ function matrixOutputSuitelet(request, response)
 						//Get the colour description so we can print it out
 						//
 						var colourDescription = '';
+						var lengthDescription = '';
 						
 						xml += "<tr >";
 						
@@ -395,8 +402,10 @@ function matrixOutputSuitelet(request, response)
 						}
 						else
 						{
-							colourDescription = colourLookupArray[colourId];
-							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) + "</td>";
+							colourDescription = colourLookupArray[colourId.split('|')[1]];
+							lengthDescription = lengthLookupArray[colourId.split('|')[0]];
+							
+							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) +  " " + nlapiEscapeXML(lengthDescription) + "</td>";
 						}
 						
 						
@@ -511,9 +520,11 @@ function buildMatrix()
 {
 	var colourRecord = nlapiLoadRecord('customlist', COLOURID);
 	var sizeRecord = nlapiLoadRecord('customlist', SIZEID);
+	var lengthRecord = nlapiLoadRecord('customlist', LENGTHID);
 	
 	var colours = colourRecord.getLineItemCount('customvalue');
 	var sizes = sizeRecord.getLineItemCount('customvalue');
+	var lengths = lengthRecord.getLineItemCount('customvalue');
 	
 	var colourSizeArray = {};
 	var colourTotalAdded = false;
@@ -522,49 +533,81 @@ function buildMatrix()
 	//
 	for (var int3 = 1; int3 <= colours+2; int3++) 
 	{
-		var sizeArray = {};
-	
-		//Loop round all the sizes
+		//TODO
+		//Add in a loop to go round the lengths
 		//
-		for (var int4 = 1; int4 <= sizes; int4++) 
+		var lengthValue = '';
+		
+		for (var int5 = 1; int5 <= lengths + 1; int5++) 
 		{
-			var sizeValue = sizeRecord.getLineItemValue('customvalue', 'valueid', int4);
-			sizeArray[sizeValue] = 0;
+			if(int5 == lengths + 1)
+				{
+					//Add a blank length for items that don't have a length
+					//
+					lengthValue = '';
+				}
+			else
+				{
+					lengthValue = lengthRecord.getLineItemValue('customvalue', 'valueid', int5);
+				}
+		
+			var sizeArray = {};
+			var colourValue = '';
+			
+			//Loop round all the sizes
+			//
+			for (var int4 = 1; int4 <= sizes; int4++) 
+			{
+				var sizeValue = sizeRecord.getLineItemValue('customvalue', 'valueid', int4);
+				sizeArray[sizeValue] = 0;
+			}
+		
+			//Insert the row summary as size value -1
+			//
+			sizeArray[TOTAL] = 0;
+			
+			//Insert the row unit cost
+			//
+			sizeArray[UNITCOST] = 0;
+			
+			//Insert the row unit cost
+			//
+			sizeArray[TOTALCOST] = 0;
+			
+			if(int3 == colours+1)
+				{
+					//Add in a blank colour value for items that don't have a colour
+					//
+					colourValue = '';
+				}
+			else
+				{
+					if(int3 == colours+2)
+						{
+							//Add in a dummy colour to hold the column totals
+							//
+							colourValue = TOTAL;
+						}
+					else
+						{
+							//Get the colour value from the list
+							//
+							colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
+						}
+				}
+			
+			//Attach the size array to the respective length + colour
+			//
+			if(colourValue == TOTAL)
+				{
+					colourSizeArray[colourValue] = sizeArray;
+				}
+			else
+				{
+					colourSizeArray[lengthValue + '|' + colourValue] = sizeArray;
+				}
+			
 		}
-	
-		//Insert the row summary as size value -1
-		//
-		sizeArray[TOTAL] = 0;
-		
-		//Insert the row unit cost
-		//
-		sizeArray[UNITCOST] = 0;
-		
-		//Insert the row unit cost
-		//
-		sizeArray[TOTALCOST] = 0;
-		
-		//Add in the row total record as colour value -1
-		//
-		if(int3 == colours+1)
-			{
-				colourValue = '';
-			}
-		else
-			{
-				if(int3 == colours+2)
-					{
-						colourValue = TOTAL;
-					}
-				else
-					{
-						var colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
-					}
-			}
-		//Attach the size array to the respective colour
-		//
-		colourSizeArray[colourValue] = sizeArray;
-	
 	}
 	
 	return colourSizeArray;
