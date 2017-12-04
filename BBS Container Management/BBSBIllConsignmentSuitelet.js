@@ -393,7 +393,7 @@ function billConsignmentSuitelet(request, response){
 									vendorBillRecord.setCurrentLineItemValue('item', 'quantity', consignmentAllocated); 
 									
 									vendorBillRecord.setCurrentLineItemValue('item', 'rate', poLineRate); 
-									vendorBillRecord.setCurrentLineItemValue('item', 'amount', poLineAmount); 
+									//vendorBillRecord.setCurrentLineItemValue('item', 'amount', poLineAmount); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'location', poLineLocation); 
 									vendorBillRecord.setCurrentLineItemValue('item', 'vendorname', poLineVendorName); 
 									vendorBillRecord.commitLineItem('item', false);
