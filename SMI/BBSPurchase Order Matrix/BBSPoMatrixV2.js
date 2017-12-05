@@ -112,7 +112,8 @@ function matrixOutputSuitelet(request, response)
 			var parentId = purchaseorderSearch[int].getValue("parent","item",null);
 			var item = purchaseorderSearch[int].getValue("item",null,null);
 			
-			parentId = (parentId == null || parentId == '' ? NOPARENTID : parentId);
+			//parentId = (parentId == null || parentId == '' ? NOPARENTID : parentId);
+			parentId = (parentId == null || parentId == '' ? item : parentId);
 			
 			//build a blank matrix for each parent
 			//
@@ -136,7 +137,8 @@ function matrixOutputSuitelet(request, response)
 						}
 				}
 				
-				if(parentId == NOPARENTID)
+				//if(parentId == NOPARENTID)
+				if(parentId == item)
 					{
 						parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("item",null,null), ''];
 					}
@@ -323,6 +325,7 @@ function matrixOutputSuitelet(request, response)
 			var parentItem = '';
 			var parentVendorName = '';
 			
+			/*
 			if(parentId != NOPARENTID)
 				{
 					parentDescription = nlapiLookupField('item', parentId, 'description', false);
@@ -335,6 +338,12 @@ function matrixOutputSuitelet(request, response)
 					parentVendorName = parentArrayDetails[parentId][1];
 					parentDescription = parentItem;
 				}
+			*/
+
+			parentDescription = nlapiLookupField('item', parentId, 'description', false);
+			parentItem = parentArrayDetails[parentId][0];
+			parentVendorName = parentArrayDetails[parentId][1];
+			parentDescription = (parentDescription == null || parentDescription == '' ? parentItem : parentDescription);
 			
 			//xml += "<span >";
 			/*
@@ -379,14 +388,14 @@ function matrixOutputSuitelet(request, response)
 							
 							xml += "<tr >";
 							
-							if(parentId == NOPARENTID)
-								{
-									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">&nbsp;</th>";
-								}
-							else
-								{
+							//if(parentId == NOPARENTID)
+							//	{
+							//		xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">&nbsp;</th>";
+							//	}
+							//else
+							//	{
 									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
-								}
+							//	}
 							
 							
 							for ( var sizeId in row) 
@@ -438,6 +447,8 @@ function matrixOutputSuitelet(request, response)
 						{
 							colourDescription = colourLookupArray[colourId.split('|')[1]];
 							lengthDescription = lengthLookupArray[colourId.split('|')[0]];
+							
+							colourDescription = (colourDescription == null || colourDescription == '' ? 'N/A' : colourDescription);
 							
 							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) +  " " + nlapiEscapeXML(lengthDescription) + "</td>";
 						}
