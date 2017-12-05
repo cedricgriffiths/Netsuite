@@ -9,6 +9,7 @@
 const TOTAL = 999997;
 const UNITCOST = 999998;
 const TOTALCOST = 999999;
+const NOPARENTID = 999996;
 const COLOURID = 163;
 const SIZEID = 164;
 const LENGTHID = 165;
@@ -81,9 +82,9 @@ function matrixOutputSuitelet(request, response)
 				   "AND", 
 				   ["internalid","anyof",poId], 
 				   "AND", 
-				   ["taxline","is","F"], 
-				   "AND", 
-				   ["item.matrixchild","is","T"]
+				   ["taxline","is","F"]//, 
+				   //"AND", 
+				   //["item.matrixchild","is","T"]
 				], 
 				[
 				   new nlobjSearchColumn("tranid",null,null), 
@@ -111,6 +112,8 @@ function matrixOutputSuitelet(request, response)
 			var parentId = purchaseorderSearch[int].getValue("parent","item",null);
 			var item = purchaseorderSearch[int].getValue("item",null,null);
 			
+			parentId = (parentId == null || parentId == '' ? NOPARENTID : parentId);
+			
 			//build a blank matrix for each parent
 			//
 			if(!parentArray[parentId])
@@ -133,13 +136,21 @@ function matrixOutputSuitelet(request, response)
 						}
 				}
 				
-				parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("parent","item",null), (parentVendorName == null ? '' : parentVendorName)];
+				if(parentId == NOPARENTID)
+					{
+						parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("item",null,null), ''];
+					}
+				else
+					{
+						parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("parent","item",null), (parentVendorName == null ? '' : parentVendorName)];
+					}
+				
 			}
 		
 			
 			var itemId = purchaseorderSearch[int].getValue("item",null,null);
-			var itemQty = Number(purchaseorderSearch[int].getValue("quantity",null,null));
-			var itemRate = Number(purchaseorderSearch[int].getValue("rate",null,null));
+			var itemQty = Math.abs(Number(purchaseorderSearch[int].getValue("quantity",null,null)));
+			var itemRate = Math.abs(Number(purchaseorderSearch[int].getValue("rate",null,null)));
 			var itemColour = purchaseorderSearch[int].getValue("custitem_bbs_item_colouritem","item",null);
 			var itemSize = purchaseorderSearch[int].getValue("custitem_bbs_item_size1","item",null);
 			var itemLength = purchaseorderSearch[int].getValue("custitem_bbs_item_size2","item",null);
@@ -308,9 +319,22 @@ function matrixOutputSuitelet(request, response)
 		{
 			var sizeColourMatrix = parentArray[parentId];
 
-			var parentDescription = nlapiLookupField('item', parentId, 'description', false);
-			var parentItem = parentArrayDetails[parentId][0];
-			var parentVendorName = parentArrayDetails[parentId][1];
+			var parentDescription = '';
+			var parentItem = '';
+			var parentVendorName = '';
+			
+			if(parentId != NOPARENTID)
+				{
+					parentDescription = nlapiLookupField('item', parentId, 'description', false);
+					parentItem = parentArrayDetails[parentId][0];
+					parentVendorName = parentArrayDetails[parentId][1];
+				}
+			else
+				{
+					parentItem = parentArrayDetails[parentId][0];
+					parentVendorName = parentArrayDetails[parentId][1];
+					parentDescription = parentItem;
+				}
 			
 			//xml += "<span >";
 			/*
@@ -354,7 +378,16 @@ function matrixOutputSuitelet(request, response)
 							xml += "</tr>";
 							
 							xml += "<tr >";
-							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
+							
+							if(parentId == NOPARENTID)
+								{
+									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">&nbsp;</th>";
+								}
+							else
+								{
+									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
+								}
+							
 							
 							for ( var sizeId in row) 
 							{
@@ -365,7 +398,7 @@ function matrixOutputSuitelet(request, response)
 								switch(Number(sizeId))
 								{
 									case Number(TOTAL):
-										sizeDescription = 'Total';
+										sizeDescription = 'Total Qty';
 										break;
 										
 									case Number(UNITCOST):
@@ -377,7 +410,8 @@ function matrixOutputSuitelet(request, response)
 										break;
 										
 									default:
-											sizeDescription = sizeLookupArray[sizeId];
+										sizeDescription = sizeLookupArray[sizeId];
+										sizeDescription = (sizeDescription == '' ? 'Qty' : sizeDescription);
 										break;
 								}
 								
@@ -488,7 +522,7 @@ function matrixOutputSuitelet(request, response)
 
 		//Send back the output in the response message
 		//
-		response.setContentType('PDF', 'Purchase Order', 'inline');
+		response.setContentType('PDF', 'Purchase Order ' + poTranId + '.pdf', 'inline');
 		response.write(file.getValue());
 	}	
 }		
@@ -553,6 +587,10 @@ function buildMatrix()
 		
 			var sizeArray = {};
 			var colourValue = '';
+			
+			//Add in a entry for a blank colour
+			//
+			sizeArray[''] = 0;
 			
 			//Loop round all the sizes
 			//
