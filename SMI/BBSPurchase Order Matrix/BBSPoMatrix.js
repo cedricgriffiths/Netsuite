@@ -9,8 +9,10 @@
 const TOTAL = 999997;
 const UNITCOST = 999998;
 const TOTALCOST = 999999;
+const NOPARENTID = 999996;
 const COLOURID = 163;
 const SIZEID = 164;
+const LENGTHID = 165;
 const EMAILINFO = 'sales@smigroupuk.com';
 const TELINFO = '+44 (0) 1428 658333'
 	
@@ -69,88 +71,147 @@ function matrixOutputSuitelet(request, response)
 		poMemo = nlapiEscapeXML((poMemo == null ? '' : poMemo));
 		poDueDate = (poDueDate == null ? '' : poDueDate);
 		
-		//Generate the size & colour matrix
-		//
-		var sizeColourMatrix = buildMatrix();
 		
-		//Loop round the po lines & fill in the matrix
+		//Get the po lines by using a search
 		//
-		for (var int = 1; int <= poLines; int++) 
+		var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+				[
+				   ["type","anyof","PurchOrd"], 
+				   "AND", 
+				   ["mainline","is","F"], 
+				   "AND", 
+				   ["internalid","anyof",poId], 
+				   "AND", 
+				   ["taxline","is","F"]//, 
+				   //"AND", 
+				   //["item.matrixchild","is","T"]
+				], 
+				[
+				   new nlobjSearchColumn("tranid",null,null), 
+				   new nlobjSearchColumn("entity",null,null), 
+				   new nlobjSearchColumn("item",null,null), 
+				   new nlobjSearchColumn("rate",null,null), 
+				   new nlobjSearchColumn("quantity",null,null), 
+				   new nlobjSearchColumn("amount",null,null), 
+				   new nlobjSearchColumn("salesdescription","item",null), 
+				   new nlobjSearchColumn("parent","item",null).setSort(false), 
+				   new nlobjSearchColumn("custitem_bbs_item_colouritem","item",null), 
+				   new nlobjSearchColumn("custitem_bbs_item_size1","item",null), 
+				   new nlobjSearchColumn("custitem_bbs_item_size2","item",null), 
+				   new nlobjSearchColumn("type","item",null)
+				]
+				);
+		
+		//Loop through the results to see how many parent items we have & build a blank matrix for each parent
+		//
+		var parentArray = {};
+		var parentArrayDetails = {};
+		
+		for (var int = 0; int < purchaseorderSearch.length; int++) 
 		{
-			var itemId = poRecord.getLineItemValue('item', 'item', int);
-			var itemType = poRecord.getLineItemValue('item', 'itemtype', int);
-			var itemQty = Number(poRecord.getLineItemValue('item', 'quantity', int));
-			var itemRate = Number(poRecord.getLineItemValue('item', 'rate', int));
+			var parentId = purchaseorderSearch[int].getValue("parent","item",null);
+			var item = purchaseorderSearch[int].getValue("item",null,null);
 			
-			if(int == 1)
+			//parentId = (parentId == null || parentId == '' ? NOPARENTID : parentId);
+			parentId = (parentId == null || parentId == '' ? item : parentId);
+			
+			//build a blank matrix for each parent
+			//
+			if(!parentArray[parentId])
 				{
-					parentVendorName = poRecord.getLineItemValue('item', 'vendorname', int);
+					parentArray[parentId] = buildMatrix();
+				}
+			
+			if(!parentArrayDetails[parentId])
+			{
+				var parentVendorName = '';
+				
+				for (var int2 = 1; int2 <= poLines; int2++) 
+				{
+					var poLineItem = poRecord.getLineItemValue('item', 'item', int2);
 					
-					var itemResults = nlapiSearchRecord('item', null, 
-							[
-							 ["internalid","anyof",itemId]
-							], 
-							[
-							 new nlobjSearchColumn("itemid","parent",null), 
-							 new nlobjSearchColumn("description","parent",null)
-							]);
-					
-					if(itemResults.length > 0)
+					if(poLineItem == item)
 						{
-							parentProduct = itemResults[0].getValue('itemid','parent');
-							parentDescription = itemResults[0].getValue('description','parent');
+							parentVendorName = poRecord.getLineItemValue('item', 'vendorname', int2);
+							break;
 						}
 				}
-			
-			
-			//Get the colour & size
-			//
-			var itemColour = nlapiLookupField(getItemRecType(itemType), itemId, 'custitem_bbs_item_colouritem', false);
-			var itemSize = nlapiLookupField(getItemRecType(itemType), itemId, 'custitem_bbs_item_size1', false);
-			
-			sizeColourMatrix[itemColour][itemSize] = sizeColourMatrix[itemColour][itemSize] + itemQty; //Update the specific colour & size
-			sizeColourMatrix[itemColour][TOTAL] = sizeColourMatrix[itemColour][TOTAL] + itemQty; //Update the row total
-			sizeColourMatrix[itemColour][UNITCOST] = itemRate; //Update the rate
-			sizeColourMatrix[itemColour][TOTALCOST] = sizeColourMatrix[itemColour][UNITCOST] * sizeColourMatrix[itemColour][TOTAL];
-			sizeColourMatrix[TOTAL][itemSize] = sizeColourMatrix[TOTAL][itemSize] + itemQty; //Update the column total
-			sizeColourMatrix[TOTAL][TOTAL] = sizeColourMatrix[TOTAL][TOTAL] + itemQty; //Update the grand total
-			sizeColourMatrix[TOTAL][UNITCOST] = itemRate; //Update the grand total
-			sizeColourMatrix[TOTAL][TOTALCOST] = sizeColourMatrix[TOTAL][TOTALCOST] + sizeColourMatrix[itemColour][TOTALCOST];
-		}
-		
-		//Remove any un-populated rows in the matrix
-		//
-		for ( var colourId in sizeColourMatrix) 
-		{
-			if(sizeColourMatrix[colourId][TOTAL] == 0)
-				{
-					delete sizeColourMatrix[colourId];
-				}
-		}
-		
-		//Remove any un-populated columns in the matrix
-		//
-		var matrixColumnTotals = sizeColourMatrix[TOTAL];
-		
-		for ( var sizeId in matrixColumnTotals) 
-		{
-			var sizeTotal = Number(matrixColumnTotals[sizeId]);
-			
-			if(sizeTotal == 0)
-				{
-					for ( var colourId in sizeColourMatrix) 
+				
+				//if(parentId == NOPARENTID)
+				if(parentId == item)
 					{
-						delete sizeColourMatrix[colourId][sizeId];
+						parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("item",null,null), ''];
 					}
-				}
+				else
+					{
+						parentArrayDetails[parentId] = [purchaseorderSearch[int].getText("parent","item",null), (parentVendorName == null ? '' : parentVendorName)];
+					}
+				
+			}
+		
+			
+			var itemId = purchaseorderSearch[int].getValue("item",null,null);
+			var itemQty = Math.abs(Number(purchaseorderSearch[int].getValue("quantity",null,null)));
+			var itemRate = Math.abs(Number(purchaseorderSearch[int].getValue("rate",null,null)));
+			var itemColour = purchaseorderSearch[int].getValue("custitem_bbs_item_colouritem","item",null);
+			var itemSize = purchaseorderSearch[int].getValue("custitem_bbs_item_size1","item",null);
+			var itemLength = purchaseorderSearch[int].getValue("custitem_bbs_item_size2","item",null);
+			
+			var itemLengthColour = (itemLength == null ? '' : itemLength) + '|' + (itemColour == null ? '' : itemColour);
+			
+			parentArray[parentId][itemLengthColour][itemSize] = parentArray[parentId][itemLengthColour][itemSize] + itemQty; //Update the specific colour & size
+			parentArray[parentId][itemLengthColour][TOTAL] = parentArray[parentId][itemLengthColour][TOTAL] + itemQty; //Update the row total
+			parentArray[parentId][itemLengthColour][UNITCOST] = itemRate; //Update the rate
+			parentArray[parentId][itemLengthColour][TOTALCOST] = parentArray[parentId][itemLengthColour][UNITCOST] * parentArray[parentId][itemLengthColour][TOTAL];
+			parentArray[parentId][TOTAL][itemSize] = parentArray[parentId][TOTAL][itemSize] + itemQty; //Update the column total
+			parentArray[parentId][TOTAL][TOTAL] = parentArray[parentId][TOTAL][TOTAL] + itemQty; //Update the grand total
+			parentArray[parentId][TOTAL][UNITCOST] = itemRate; //Update the grand total
+			parentArray[parentId][TOTAL][TOTALCOST] = parentArray[parentId][TOTAL][TOTALCOST] + parentArray[parentId][itemLengthColour][TOTALCOST];
+
 		}
 		
+		for ( var parentId in parentArray) 
+		{
+			var sizeColourMatrix = parentArray[parentId];
+			
+			//Remove any un-populated rows in the matrix
+			//
+			for ( var colourId in sizeColourMatrix) 
+			{
+				if(sizeColourMatrix[colourId][TOTAL] == 0)
+					{
+						delete sizeColourMatrix[colourId];
+					}
+			}
+			
+			//Remove any un-populated columns in the matrix
+			//
+			var matrixColumnTotals = sizeColourMatrix[TOTAL];
+			
+			for ( var sizeId in matrixColumnTotals) 
+			{
+				var sizeTotal = Number(matrixColumnTotals[sizeId]);
+				
+				if(sizeTotal == 0)
+					{
+						for ( var colourId in sizeColourMatrix) 
+						{
+							delete sizeColourMatrix[colourId][sizeId];
+						}
+					}
+			}
+			
+			 parentArray[parentId] = sizeColourMatrix;
+		}
+		
+
 		//=============================================================================================
 		//Print formatting
 		//=============================================================================================
 		//
 		var sizeLookupArray = getDescriptions(SIZEID);
 		var colourLookupArray = getDescriptions(COLOURID);
+		var lengthLookupArray = getDescriptions(LENGTHID);
 		
 		var companyConfig = nlapiLoadConfiguration("companyinformation");
 		var companyName = nlapiEscapeXML(companyConfig.getFieldValue("companyname"));
@@ -169,11 +230,11 @@ function matrixOutputSuitelet(request, response)
 		//
 		xml += "<pdf>"
 		xml += "<head>";
-        xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
+        xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 8pt;table-layout: fixed;}";
         xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-        xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+        xml += "td {padding: 0px;vertical-align: top;font-size:8px;}";
         xml += "b {font-weight: bold;color: #333333;}";
-        xml += "table.header td {padding: 0px;font-size: 10pt;}";
+        xml += "table.header td {padding: 0px;font-size: 8pt;}";
         xml += "table.footer td {padding: 0;font-size: 6pt;}";
         xml += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
         xml += "table.body td {padding-top: 0px;}";
@@ -183,7 +244,7 @@ function matrixOutputSuitelet(request, response)
         xml += "tr.messagerow{font-size: 6pt;}";
         xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
         xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-        xml += "td.address {padding-top: 0;font-size: 10pt;}";
+        xml += "td.address {padding-top: 0;font-size: 8pt;}";
         xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
         xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
         xml += "td.message{font-size: 8pt;}";
@@ -207,28 +268,28 @@ function matrixOutputSuitelet(request, response)
 		xml += "<table class=\"header\" style=\"width: 100%;\">";
 		xml += "<tr><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td><td align=\"right\">&nbsp;</td></tr>";
 		xml += "<tr>";
-		xml += "<td colspan=\"2\" rowspan=\"8\" class=\"addressheader\"><span style=\"font-size:10pt\"><b>Supplier Address:</b></span><br /><span class=\"nameandaddress\" style=\"font-size:10pt\">" + poBillAddress + "<br/></span></td>";
-		xml += "<td align=\"right\" style=\"font-size:10pt\"></td>";
+		xml += "<td colspan=\"2\" rowspan=\"8\" class=\"addressheader\"><span style=\"font-size:8pt\"><b>Supplier Address:</b></span><br /><span class=\"nameandaddress\" style=\"font-size:8pt\">" + poBillAddress + "<br/></span></td>";
+		xml += "<td align=\"right\" style=\"font-size:8pt\"></td>";
 		xml += "<td colspan=\"2\" align=\"left\" rowspan=\"8\"><span class=\"nameandaddress\">" + companyAddress + "</span><br/>VAT No. " + companyVatNo + "<br /><br/><b>Email:</b> " + EMAILINFO + "<br /><b>Tel:</b> " + TELINFO + "</td>";
 		xml += "</tr>";
 		xml += "<tr><td align=\"right\"></td></tr>";
-		xml += "<tr><td align=\"right\" style=\"font-size:10pt\"></td></tr>";
-		xml += "<tr><td align=\"right\" style=\"font-size:10pt\">&nbsp;</td></tr>";
-		xml += "<tr><td align=\"right\" style=\"font-size:10pt\">&nbsp;</td></tr>";
-		xml += "<tr><td align=\"right\" style=\"font-size:10pt\">&nbsp;</td></tr>";
-		xml += "<tr style=\"font-size:10pt\"><td align=\"right\">&nbsp;</td></tr>";
-		xml += "<tr style=\"font-size:10pt\"><td align=\"right\">&nbsp;</td></tr>";
+		xml += "<tr><td align=\"right\" style=\"font-size:8pt\"></td></tr>";
+		xml += "<tr><td align=\"right\" style=\"font-size:8pt\">&nbsp;</td></tr>";
+		xml += "<tr><td align=\"right\" style=\"font-size:8pt\">&nbsp;</td></tr>";
+		xml += "<tr><td align=\"right\" style=\"font-size:8pt\">&nbsp;</td></tr>";
+		xml += "<tr style=\"font-size:8pt\"><td align=\"right\">&nbsp;</td></tr>";
+		xml += "<tr style=\"font-size:8pt\"><td align=\"right\">&nbsp;</td></tr>";
 		xml += "</table>"; 
 		xml += "</macro>";
 		
 		xml += "<macro id=\"nlfooter\">";
 		xml += "<table style=\"width: 100%;\">";
-		xml += "<tr><td><b>Standard Terms and Conditions apply</b></td></tr>";
-		xml += "<tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>";
-		xml += "<tr><td>&nbsp;</td></tr>";
+		//xml += "<tr><td><b>Standard Terms and Conditions apply. Invoices should quote the PO number above and any difference will result in delays in payment</b></td></tr>";
+		//xml += "<tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>";
+		//xml += "<tr><td>&nbsp;</td></tr>";
 		xml += "</table>";
 		xml += "<table class=\"footer\" style=\"width: 100%;\">";
-		xml += "<tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr>";
+		xml += "<tr><td><b>Standard Terms and Conditions apply. Invoices should quote the PO number above and any difference will result in delays in payment</b></td><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr>";
 		xml += "</table></macro>";
 		
 		xml += "</macrolist>";
@@ -244,139 +305,198 @@ function matrixOutputSuitelet(request, response)
 		xml += "<table style=\"width: 100%;\">";
 		xml += "<tr><td colspan=\"2\" class=\"addressheader\"><B>Shipping Address:</B></td><td></td><td></td><td></td></tr>";
 		xml += "<tr><td colspan=\"2\" rowspan=\"8\" class=\"address\">" + poShipAddress + "</td><td></td><td></td><td></td></tr>";
-		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:10pt\"><b>Purchase Order No.</b></td><td align=\"right\" style=\"font-size:10pt\">" + poTranId + "</td></tr>";
-		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:10pt\"><b>Purchase Order Date</b></td><td align=\"right\" style=\"font-size:10pt\">" + poTranDate + "</td></tr>";
-		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:10pt\"><b>Reference</b></td><td align=\"right\" style=\"font-size:10pt\">" + poMemo + "</td></tr>";
-		xml += "<tr><td class=\"address\">&nbsp;</td><td align=\"left\" style=\"font-size:10pt\"><b>Account No</b></td><td align=\"right\" style=\"font-size:10pt\">" + poEntity + "</td></tr>";
-		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:10pt\"><b>Delivery Date</b></td><td align=\"right\" style=\"font-size:10pt\">" + poDueDate + "</td></tr>";
+		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:8pt\"><b>Purchase Order No.</b></td><td align=\"right\" style=\"font-size:8pt\">" + poTranId + "</td></tr>";
+		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:8pt\"><b>Purchase Order Date</b></td><td align=\"right\" style=\"font-size:8pt\">" + poTranDate + "</td></tr>";
+		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:8pt\"><b>Reference</b></td><td align=\"right\" style=\"font-size:8pt\">" + poMemo + "</td></tr>";
+		xml += "<tr><td class=\"address\">&nbsp;</td><td align=\"left\" style=\"font-size:8pt\"><b>Account No</b></td><td align=\"right\" style=\"font-size:8pt\">" + poEntity + "</td></tr>";
+		xml += "<tr><td class=\"address\">&nbsp;</td><td  align=\"left\" style=\"font-size:8pt\"><b>Delivery Date</b></td><td align=\"right\" style=\"font-size:8pt\">" + poDueDate + "</td></tr>";
 		xml += "<tr><td class=\"address\">&nbsp;</td><td></td><td></td></tr>";
 		xml += "<tr><td class=\"address\">&nbsp;</td><td></td><td></td></tr>";
 		xml += "<tr><td class=\"address\">&nbsp;</td><td></td><td></td></tr>";
 		xml += "</table>";
-		
-		xml += "<table style=\"width: 100%\">";
-		xml += "<tr>";
-		xml += "<td width=\"50px\" align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Product</b></td>";
-		xml += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(parentVendorName) + " " + nlapiEscapeXML(parentDescription) + "</td>";
-		xml += "</tr>";
-		xml += "</table>\n";
+				
 		//xml += "<p></p>";
 		
-		
-		
-		
-		//Loop round the remaining data in the matrix
-		//
-		var headingDone = false;
-		
-		for ( var colourId in sizeColourMatrix) 
+		for ( var parentId in parentArray) 
 		{
-			if(colourId != TOTAL)
+			var sizeColourMatrix = parentArray[parentId];
+
+			var parentDescription = '';
+			var parentItem = '';
+			var parentVendorName = '';
+			
+			/*
+			if(parentId != NOPARENTID)
 				{
-					//Get the current row
-					//
-					var row = sizeColourMatrix[colourId];
-					
-					//Produce the headings
-					//
-					if(!headingDone)
+					parentDescription = nlapiLookupField('item', parentId, 'description', false);
+					parentItem = parentArrayDetails[parentId][0];
+					parentVendorName = parentArrayDetails[parentId][1];
+				}
+			else
+				{
+					parentItem = parentArrayDetails[parentId][0];
+					parentVendorName = parentArrayDetails[parentId][1];
+					parentDescription = parentItem;
+				}
+			*/
+
+			parentDescription = nlapiLookupField('item', parentId, 'description', false);
+			parentItem = parentArrayDetails[parentId][0];
+			parentVendorName = parentArrayDetails[parentId][1];
+			parentDescription = (parentDescription == null || parentDescription == '' ? parentItem : parentDescription);
+			
+			//xml += "<span >";
+			/*
+			xml += "<table style=\"width: 100%\">";
+			xml += "<tr>";
+			xml += "<td width=\"50px\" align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>" + nlapiEscapeXML(parentVendorName) + "</b></td>";
+			xml += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\"><b>" + nlapiEscapeXML(parentDescription) + "</b></td>";
+			xml += "</tr>";
+			xml += "</table>\n";
+			*/
+			
+			//Loop round the remaining data in the matrix
+			//
+			var headingDone = false;
+			
+			for ( var colourId in sizeColourMatrix) 
+			{
+				if(colourId != TOTAL)
 					{
-						headingDone = true;
+						//Get the current row
+						//
+						var row = sizeColourMatrix[colourId];
 						
-						xml += "<table class=\"itemtable\" style=\"width: 100%; border: 1px solid lightgrey; border-collapse: collapse;\">";
-						xml += "<thead >";
-						xml += "<tr >";
-						xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour</th>";
-						
-						for ( var sizeId in row) 
+						//Produce the headings
+						//
+						if(!headingDone)
 						{
-							//Get the size descriptions & print them out
-							//
-							var sizeDescription = '';
+							headingDone = true;
+							var colCount = Number(2);
 							
-							switch(Number(sizeId))
+							for ( var sizeId in row) 
 							{
-								case Number(TOTAL):
-									sizeDescription = 'Total';
-									break;
-									
-								case Number(UNITCOST):
-									sizeDescription = 'Unit Price';
-									break;
-									
-								case Number(TOTALCOST):
-									sizeDescription = 'Total Price';
-									break;
-									
-								default:
+								colCount++;
+							}
+					
+							
+							xml += "<table page-break-inside=\"avoid\" class=\"itemtable\" style=\"width: 100%; border: 1px solid lightgrey; border-collapse: collapse;\">";
+							xml += "<thead >";
+							xml += "<tr >";
+							xml += "<th colspan = \"" + colCount.toString() + "\">" + nlapiEscapeXML(parentVendorName) + " " + nlapiEscapeXML(parentDescription) + "</th>";
+							xml += "</tr>";
+							
+							xml += "<tr >";
+							
+							//if(parentId == NOPARENTID)
+							//	{
+							//		xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">&nbsp;</th>";
+							//	}
+							//else
+							//	{
+									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
+							//	}
+							
+							
+							for ( var sizeId in row) 
+							{
+								//Get the size descriptions & print them out
+								//
+								var sizeDescription = '';
+								
+								switch(Number(sizeId))
+								{
+									case Number(TOTAL):
+										sizeDescription = 'Total Qty';
+										break;
+										
+									case Number(UNITCOST):
+										sizeDescription = 'Unit Price';
+										break;
+										
+									case Number(TOTALCOST):
+										sizeDescription = 'Total Price';
+										break;
+										
+									default:
 										sizeDescription = sizeLookupArray[sizeId];
-									break;
+										sizeDescription = (sizeDescription == '' ? 'Qty' : sizeDescription);
+										break;
+								}
+								
+								xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + nlapiEscapeXML(sizeDescription) + "</th>";
 							}
 							
-							xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + nlapiEscapeXML(sizeDescription) + "</th>";
+							xml += "</tr>";
+							xml += "</thead>";
 						}
+					
 						
-						xml += "</tr>";
-						xml += "</thead>";
-					}
-				
-					
-					//Get the colour description so we can print it out
-					//
-					var colourDescription = '';
-					
-					xml += "<tr >";
-					
-					if (colourId == TOTAL)
-					{
-						xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\"><b>Total</b></td>";
-					}
-					else
-					{
-						colourDescription = colourLookupArray[colourId];
-						xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) + "</td>";
-					}
-					
-					
-					for ( var sizeId in row) 
-					{
-						var cell = row[sizeId];
-						
-						
-						//Output the values in each cell
+						//Get the colour description so we can print it out
 						//
+						var colourDescription = '';
+						var lengthDescription = '';
+						
+						xml += "<tr >";
+						
 						if (colourId == TOTAL)
 						{
-							cell = (cell == '0' ? '' : Number(cell).toFixed(0));
-							
-							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"left\" colspan=\"1\"><b>" + cell + "</b></td>";
+							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\"><b>Total</b></td>";
 						}
 						else
 						{
-							if(sizeId == TOTAL || sizeId == TOTALCOST || sizeId == UNITCOST)
-								{
-									cell = (cell == '0' ? '' : Number(cell).toFixed(2));
-								
-									xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\"><b>" + cell + "</b></td>";
-								}
-							else
-								{
-									cell = (cell == '0' ? '' : Number(cell).toFixed(0));
-								
-									xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + cell + "</td>";
-								}
+							colourDescription = colourLookupArray[colourId.split('|')[1]];
+							lengthDescription = lengthLookupArray[colourId.split('|')[0]];
+							
+							colourDescription = (colourDescription == null || colourDescription == '' ? 'N/A' : colourDescription);
+							
+							xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">" + nlapiEscapeXML(colourDescription) +  " " + nlapiEscapeXML(lengthDescription) + "</td>";
 						}
-					}
-					
-					xml += "</tr>";
+						
+						
+						for ( var sizeId in row) 
+						{
+							var cell = row[sizeId];
+							
+							
+							//Output the values in each cell
+							//
+							if (colourId == TOTAL)
+							{
+								cell = (cell == '0' ? '' : Number(cell).toFixed(0));
+								
+								xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"left\" colspan=\"1\"><b>" + cell + "</b></td>";
+							}
+							else
+							{
+								if(sizeId == TOTAL || sizeId == TOTALCOST || sizeId == UNITCOST)
+									{
+										cell = (cell == '0' ? '' : Number(cell).toFixed(2));
+									
+										xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"right\" colspan=\"1\"><b>" + cell + "</b></td>";
+									}
+								else
+									{
+										cell = (cell == '0' ? '' : Number(cell).toFixed(0));
+									
+										xml += "<td style=\"border: 1px solid lightgrey; border-collapse: collapse;\" align=\"center\" colspan=\"1\">" + cell + "</td>";
+									}
+							}
+						}
+						
+						xml += "</tr>";
+				}
 			}
+			
+			//Finish the item table
+			//
+			xml += "</table>";
+			//xml += "</span>";
+			//xml += "<hr />";
+			xml += "<p/>";
 		}
+
 		
-		//Finish the item table
-		//
-		xml += "</table>";
-		
-		xml += "<hr />";
 		xml += "<table class=\"total\" style=\"width: 100%;\">";
 		xml += "<tr class=\"totalrow\">";
 		xml += "<td colspan=\"3\">&nbsp;</td>";
@@ -413,7 +533,7 @@ function matrixOutputSuitelet(request, response)
 
 		//Send back the output in the response message
 		//
-		response.setContentType('PDF', 'Purchase Order', 'inline');
+		response.setContentType('PDF', 'Purchase Order ' + poTranId + '.pdf', 'inline');
 		response.write(file.getValue());
 	}	
 }		
@@ -445,9 +565,11 @@ function buildMatrix()
 {
 	var colourRecord = nlapiLoadRecord('customlist', COLOURID);
 	var sizeRecord = nlapiLoadRecord('customlist', SIZEID);
+	var lengthRecord = nlapiLoadRecord('customlist', LENGTHID);
 	
 	var colours = colourRecord.getLineItemCount('customvalue');
 	var sizes = sizeRecord.getLineItemCount('customvalue');
+	var lengths = lengthRecord.getLineItemCount('customvalue');
 	
 	var colourSizeArray = {};
 	var colourTotalAdded = false;
@@ -456,49 +578,85 @@ function buildMatrix()
 	//
 	for (var int3 = 1; int3 <= colours+2; int3++) 
 	{
-		var sizeArray = {};
-	
-		//Loop round all the sizes
+		//TODO
+		//Add in a loop to go round the lengths
 		//
-		for (var int4 = 1; int4 <= sizes; int4++) 
+		var lengthValue = '';
+		
+		for (var int5 = 1; int5 <= lengths + 1; int5++) 
 		{
-			var sizeValue = sizeRecord.getLineItemValue('customvalue', 'valueid', int4);
-			sizeArray[sizeValue] = 0;
+			if(int5 == lengths + 1)
+				{
+					//Add a blank length for items that don't have a length
+					//
+					lengthValue = '';
+				}
+			else
+				{
+					lengthValue = lengthRecord.getLineItemValue('customvalue', 'valueid', int5);
+				}
+		
+			var sizeArray = {};
+			var colourValue = '';
+			
+			//Add in a entry for a blank colour
+			//
+			sizeArray[''] = 0;
+			
+			//Loop round all the sizes
+			//
+			for (var int4 = 1; int4 <= sizes; int4++) 
+			{
+				var sizeValue = sizeRecord.getLineItemValue('customvalue', 'valueid', int4);
+				sizeArray[sizeValue] = 0;
+			}
+		
+			//Insert the row summary as size value -1
+			//
+			sizeArray[TOTAL] = 0;
+			
+			//Insert the row unit cost
+			//
+			sizeArray[UNITCOST] = 0;
+			
+			//Insert the row unit cost
+			//
+			sizeArray[TOTALCOST] = 0;
+			
+			if(int3 == colours+1)
+				{
+					//Add in a blank colour value for items that don't have a colour
+					//
+					colourValue = '';
+				}
+			else
+				{
+					if(int3 == colours+2)
+						{
+							//Add in a dummy colour to hold the column totals
+							//
+							colourValue = TOTAL;
+						}
+					else
+						{
+							//Get the colour value from the list
+							//
+							colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
+						}
+				}
+			
+			//Attach the size array to the respective length + colour
+			//
+			if(colourValue == TOTAL)
+				{
+					colourSizeArray[colourValue] = sizeArray;
+				}
+			else
+				{
+					colourSizeArray[lengthValue + '|' + colourValue] = sizeArray;
+				}
+			
 		}
-	
-		//Insert the row summary as size value -1
-		//
-		sizeArray[TOTAL] = 0;
-		
-		//Insert the row unit cost
-		//
-		sizeArray[UNITCOST] = 0;
-		
-		//Insert the row unit cost
-		//
-		sizeArray[TOTALCOST] = 0;
-		
-		//Add in the row total record as colour value -1
-		//
-		if(int3 == colours+1)
-			{
-				colourValue = '';
-			}
-		else
-			{
-				if(int3 == colours+2)
-					{
-						colourValue = TOTAL;
-					}
-				else
-					{
-						var colourValue = colourRecord.getLineItemValue('customvalue', 'valueid', int3);
-					}
-			}
-		//Attach the size array to the respective colour
-		//
-		colourSizeArray[colourValue] = sizeArray;
-	
 	}
 	
 	return colourSizeArray;
