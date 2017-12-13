@@ -124,6 +124,21 @@ function checkVbVsPoWA()
 		    		
 		    		if(poRecord)
 		    			{
+			    			//Get the PO currency
+		    				//
+		    				var poCurrencyId = poRecord.getFieldValue('currency'); 
+		    				var currencySymbol = '';
+		    				
+		    				if(poCurrencyId != null && poCurrencyId != '')
+		    					{
+		    						var currencyRecord = nlapiLoadRecord('currency', poCurrencyId); 
+		    						
+		    						if(currencyRecord)
+		    							{
+		    								currencySymbol = currencyRecord.getFieldValue('displaysymbol');
+		    							}
+		    					}
+		    				
 		    				//Build a list of items on the po and their quantities etc
 		    				//
 		    				var items = poRecord.getLineItemCount('item');
@@ -271,18 +286,32 @@ function checkVbVsPoWA()
 		    						
 		    						//Compare the vb qty with the po qty, if the vb qty > po qty then we need to highlight it
 		    						//
-		    						if(vbQty > poQty)
-		    							{
-		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Purchase Order Qty of ' + poQty.toFixed(2) + '<br/><br/>';
-		    							}
+		    						//if(vbQty > poQty)
+		    						//	{
+		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Purchase Order Qty of ' + poQty.toFixed(2) + '<br/><br/>';
+		    						//	}
 		    						
+		    						//Compare the vb val with the po val, if the vb val > po val then we need to highlight it
+		    						//
+		    						//if(vbVal > poVal)
+		    						//	{
+		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Purchase Order Value of ' + poVal.toFixed(2) + '<br/><br/>';
+		    						//	}
+		    						if(vbQty > poQty)
+	    							{
+	    								var qtyDiff = Number(vbQty) - Number(poQty);
+	    								
+	    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total invoiced quantity (' + vbQty.toFixed(2) + ') exceeds the PO quantity (' + poQty.toFixed(2) + ') by ' + qtyDiff.toFixed(2) + '<br/><br/>';
+	    							}
+	    						
 		    						//Compare the vb val with the po val, if the vb val > po val then we need to highlight it
 		    						//
 		    						if(vbVal > poVal)
 		    							{
-		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Purchase Order Value of ' + poVal.toFixed(2) + '<br/><br/>';
+		    								var valDiff = Number(vbVal) - Number(poVal);
+	    								
+		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total invoiced value (' + currencySymbol + vbVal.toFixed(2) + ') exceeds the PO value (' + currencySymbol + poVal.toFixed(2) + ') by ' + currencySymbol + valDiff.toFixed(2) + '<br/><br/>';
 		    							}
-		    						
 		    						
 								}
 		    				
@@ -312,16 +341,31 @@ function checkVbVsPoWA()
 		    						
 		    						//Compare the vb qty with the po to be billed qty
 		    						//
-		    						if(vbQty > poTbbQty)
-		    							{
-		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Received not Billed Quantity of ' + poTbbQty.toFixed(2) + '<br/><br/>';
-		    							}
+		    						//if(vbQty > poTbbQty)
+		    						//	{
+		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Qty of ' + vbQty.toFixed(2) + ' Exceeds Received not Billed Quantity of ' + poTbbQty.toFixed(2) + '<br/><br/>';
+		    						//	}
 		    						
+		    						//Compare the vb val with the po to be billed val
+		    						//
+		    						//if(vbVal > poTbbVal)
+		    						//	{
+		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<br/><br/>';
+		    						//	}
+		    						if(vbQty > poTbbQty)
+	    							{
+	    								var qtyDiff = Number(vbQty) - Number(poTbbQty);
+	    								
+	    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total invoice quantity (' + vbQty.toFixed(2) + ') exceeds the quantity received not invoiced (' + poTbbQty.toFixed(2) + ') by ' + qtyDiff.toFixed(2) + '<br/><br/>';
+	    							}
+	    						
 		    						//Compare the vb val with the po to be billed val
 		    						//
 		    						if(vbVal > poTbbVal)
 		    							{
-		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<br/><br/>';
+		    								var valDiff = Number(vbVal) - Number(poTbbVal);
+	    								
+		    								warnings += 'Item "' + poItemsDesc[poItem] + '" : Total invoice value (' + currencySymbol + vbVal.toFixed(2) + ') exceeds the value received not invoiced (' + currencySymbol + poTbbVal.toFixed(2) + ') by '+ currencySymbol + valDiff.toFixed(2) +'<br/><br/>';
 		    							}
 			    				}
 		    				
