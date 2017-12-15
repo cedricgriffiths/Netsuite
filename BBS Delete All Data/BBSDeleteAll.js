@@ -25,12 +25,18 @@ function deleteAllScheduled(type)
 // A = Delete all records
 // T = Delete transaction records only, keeps suppliers, customers, items etc.
 //
-function deleteAll(mode,subsidiaryId)
+function deleteAll(mode,subsidiaryId,bespokeRecordType)
 {
 	var recordTypes = [];
 	
 	switch(mode)
 	{
+		case 'B':
+			recordTypes = [];
+			recordTypes.push(bespokeRecordType);
+			
+			break;
+			
 		case 'C':
 		case 'A':
 			recordTypes = ["addressbookaddress",
@@ -259,6 +265,7 @@ function deleteAll(mode,subsidiaryId)
 			var error = err;
 			search = null;
 			searchResult = null;
+			alert(err);
 		}
 		
 		if (searchResult)
@@ -279,6 +286,7 @@ function deleteAll(mode,subsidiaryId)
 				{
 					var error = err;
 					resultlen = 0;
+					alert(err);
 				}
 				
 				//If there is more than 1000 results, page through them
@@ -323,6 +331,7 @@ function deleteAll(mode,subsidiaryId)
 											{
 												var error = err;
 												var dummy = '';
+												alert(err);
 											}
 										}
 								}
