@@ -462,8 +462,8 @@ function filteredItemSearchSuitelet(request, response){
 								new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
 								new nlobjSearchColumn("incomeaccount",null,null),
 								new nlobjSearchColumn("parent",null,null),
-								new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false),
-								new nlobjSearchColumn("custitemfinish_type",null,null)
+								new nlobjSearchColumn("custitemfinish_type",null,null).setSort(true),
+								new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false)
 								]
 								);
 					}
