@@ -2,7 +2,7 @@
  * Module Description
  * 
  * Version    Date            Author           Remarks
- * 1.00       03 Mar 2017     cedricgriffiths
+ * 1.00       14 Dec 2017     cedricgriffiths
  *
  */
 
@@ -15,9 +15,13 @@
  * @param {nlobjRequest} request Request object
  * @returns {Void}
  */
-function userEventBeforeLoad(type, form, request){
- 
-	var a = form.getSubList('item');
+function userEventBeforeLoad(type, form, request)
+{
+	var nsLsaField = form.getField('custpage_lsa_vis');
+	nsLsaField.setDisplayType('hidden');
 	
-	a.addButton('custpage_bbs_button1', 'Man Packs', 'manPackProcessing()');
+	var nsLsaValue = nlapiGetFieldValue('custpage_lsa_vis');
+	
+	nlapiSetFieldValue('custentity_bbs_lsa_activity', nsLsaValue, false, true);
+
 }
