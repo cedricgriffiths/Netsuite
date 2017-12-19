@@ -474,6 +474,56 @@ function allocateLandedCostsSuitelet(request, response){
 				//
 				consignmentRecord.setFieldValue('custrecord_bbs_consignment_status', 4);
 
+				//Update the consignment with the actual landed cost data used
+				//
+				var landedCosts = libFindLandedCostCategories();
+				
+				var count = Number(0);
+				var lcArray = [];
+				
+				for ( var key in landedCosts) 
+					{
+						var lcValue = request.getParameter('custpage_lc_value_' + count.toString());
+						var lcCurr = request.getParameter('custpage_lc_currency_' + count.toString());
+						
+						var lcData = [lcValue,lcCurr];
+						
+						if(lcValue != null)
+							{
+								//lcArray.push(lcValue);
+								lcArray.push(lcData);
+							}
+						
+						count++;
+					}
+				
+				if(lcArray.length > 0)
+					{
+						var lcString = JSON.stringify(lcArray);
+						
+						consignmentRecord.setFieldValue('custrecord_bbs_cons_lc_array', lcString);
+						
+						var count = Number(0);
+						
+						for ( var lcKey in lcArray) 
+						{
+							
+							try
+							{
+								var lcValues = lcArray[count];
+								consignmentRecord.setFieldValue('custpage_lc_value_' + count.toString(),lcValues[0]);
+								consignmentRecord.setFieldValue('custpage_lc_currency_' + count.toString(),lcValues[1]);
+							}
+							catch(errr)
+							{
+								consignmentRecord.setFieldValue('custpage_lc_value_' + count.toString(),lcArray[count]);
+							}
+							
+							count++;
+						}
+						
+					}
+				
 				//Save the consignment record
 				//
 				nlapiSubmitRecord(consignmentRecord, false, true);

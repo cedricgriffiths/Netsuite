@@ -106,7 +106,10 @@ function receiveConsignmentSuitelet(request, response){
 						
 						//Add a global location selection
 						//
-						form.addField('custpage_location', 'select', 'Location For All Lines', 'location');
+						var itemReceiptLoc = nlapiGetContext().getPreference('custscript_bbs_cons_rec_loc');
+						
+						var locationField = form.addField('custpage_location', 'select', 'Location For All Lines', 'location');
+						locationField.setDefaultValue(itemReceiptLoc);
 						
 						//Add the arrival date 
 						//

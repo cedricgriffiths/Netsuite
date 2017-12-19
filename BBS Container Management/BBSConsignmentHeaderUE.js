@@ -37,8 +37,8 @@ function consHeaderBeforeLoad(type, form, request)
 					
 			var lcField = form.addField('custpage_lc_value_' + count.toString(), 'currency', lcName, null, 'custpage_grp_landed');
 			var lcCurr = form.addField('custpage_lc_currency_' + count.toString(), 'select', lcName + ' Currency', 'currency', 'custpage_grp_landed');
-			lcField.setDisplayType('disabled');
-			lcCurr.setDisplayType('disabled');
+			//lcField.setDisplayType('disabled');
+			//lcCurr.setDisplayType('disabled');
 			
 			if (first)
 				{
