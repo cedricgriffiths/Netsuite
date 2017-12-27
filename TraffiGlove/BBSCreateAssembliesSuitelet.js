@@ -339,11 +339,23 @@ function createAssembliesSuitelet(request, response){
 				break;
 				
 			case 2:
-				
+				//Get the base parents so we can iterate through them
+				//
 				baseParentsParam = request.getParameter('custpage_baseparents_param');
 				var baseParents = JSON.parse(baseParentsParam);
+				
+				//Get the other data needed from the parameters
+				//
+				custIdParam = request.getParameter('custpage_cust_id_param');
+				finishIdParam = request.getParameter('custpage_finish_id_param');
+				finishRefIdParam = request.getParameter('custpage_finishref_id_param');
+				
+				//Create a parent & child object
+				//
 				var parentAndChild = {};
 				
+				//Loop through the base parents sublists
+				//
 				for ( var baseParentId in baseParents) 
 				{
 					var sublistId = 'custpage_sublist_' + baseParentId.toString();
@@ -351,18 +363,38 @@ function createAssembliesSuitelet(request, response){
 					
 					parentAndChild[baseParentId] = [];
 					
+					//Loop through the rows in the sublist
+					//
 					for (var int = 1; int <= lineCount; int++) 
 					{
 						var ticked = request.getLineItemValue(sublistId, sublistId + '_tick', int);
 						
+						//Look for ticked lines
+						//
 						if (ticked == 'T')
 							{
 								var item = request.getLineItemValue(sublistId, sublistId + '_id', int);
 								
+								//Build up the parent & child object
+								//
 								parentAndChild[baseParentId].push(item);
 							}
 					}
 				}
+				
+				//TODO - Now we have the parent & child object we need to process it somehow
+				//
+				var params = {
+							custscript_bbs_parent_child: JSON.stringify(parentAndChild), 
+							custscript_bbs_customer_id: custIdParam,
+							custscript_bbs_finish_id: finishIdParam,
+							custscript_bbs_finishref_id: finishRefIdParam,
+							};
+				
+				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', 'customdeploy_bbs_create_assem_scheduled', params);
+				
+				var xml = "<html><body><script>window.close();</script></body></html>";
+				response.write(xml);
 				
 				break;
 		}
