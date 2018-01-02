@@ -21,13 +21,15 @@ function createAssembliesScheduled(type)
 	var finishId = context.getSetting('SCRIPT', 'custscript_bbs_finish_id');
 	var finishrefId = context.getSetting('SCRIPT', 'custscript_bbs_finishref_id');
 	
+	
 	//nlapiLogExecution('DEBUG', 'Parent And Child Object', parentChildString);
 	//nlapiLogExecution('DEBUG', 'Customer Id', customerId);
 	//nlapiLogExecution('DEBUG', 'Finish Id', finishId);
 	//nlapiLogExecution('DEBUG', 'Finishref Id', finishrefId);
 	
 	var finishrefText = nlapiLookupField('customlist_bbs_item_finish_ref', finishrefId, 'name');
-	
+	var usersEmail = context.getEmail();
+	var emailText = '';
 	
 	//Re-hydrate the parent & child object
 	//
@@ -63,6 +65,14 @@ function createAssembliesScheduled(type)
 							//Get data from the customer record
 							//
 							var customerRef = customerRecord.getFieldValue('entityid');
+							var customerSubsidiary = customerRecord.getFieldValue('subsidiary');
+						
+							//Get data from the subsidiary record
+							//
+							var subsidiaryReocrd = nlapiLoadRecord('subsidiary', customerSubsidiary);
+							var subsidiaryDefaultLocation = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location');
+							var subsidiaryDefaultBin = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location_bin');
+							
 							
 							//Get data from the base parent record
 							//
@@ -71,6 +81,8 @@ function createAssembliesScheduled(type)
 							var parentItemCategoryId = parentRecord.getFieldValue('custitem_bbs_item_category');
 							var newParentName = customerRef + ' ' + parentItemCategory + '-' + parentName;
 							var parentSalesDescription = parentRecord.getFieldValue('salesdescription');
+							var parentSize2 = parentRecord.getFieldValues('custitem_bbs_item_size2');
+							
 							
 							//Get data from the finish item
 							//
@@ -83,6 +95,15 @@ function createAssembliesScheduled(type)
 							
 							//Set field values 
 							//
+							var template = '{custitem_bbs_item_category}-{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
+							
+							if (parentSize2 != '' && parentSize2 != null)
+								{
+									template += '-{custitem_bbs_item_size2}';
+								}
+							
+							template += ' {custitem_bbs_item_finish_ref}';
+							
 							newParentRecord.setFieldValue('matrixtype', 'PARENT');
 							newParentRecord.setFieldValue('itemid', newParentName);
 							newParentRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
@@ -91,14 +112,14 @@ function createAssembliesScheduled(type)
 							newParentRecord.setFieldValue('costcategory', 4);
 							newParentRecord.setFieldValue('costingmethod', 'FIFO');
 							newParentRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
-							newParentRecord.setFieldValue('matrixitemnametemplate', '{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}-{custitem_bbs_item_size2} {custitem_bbs_item_finish_ref}-{custitem_bbs_item_category}');
+							newParentRecord.setFieldValue('matrixitemnametemplate', template);
 							newParentRecord.setFieldValue('unitstype', 1);
 							newParentRecord.setFieldValue('saleunit', 1);
 							newParentRecord.setFieldValue('stockunit', 1);
-							newParentRecord.setFieldValue('subsidiary', 6);
+							newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
 							newParentRecord.setFieldValue('taxschedule', 1);
 							newParentRecord.setFieldValue('usebins', 'T');
-							newParentRecord.setFieldValue('location', 5);
+							newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
 							newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
 							newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
 							newParentRecord.setFieldValue('description', newParentDescription);
@@ -114,25 +135,16 @@ function createAssembliesScheduled(type)
 							//Add a bin number to the assembly
 							//
 							newParentRecord.selectNewLineItem('binnumber');
-							newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', 2);
+							newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
 							newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-							newParentRecord.commitLineItem('binnumber', false);
-							
-							
-							newParentRecord.setFieldValue('custitem_bbs_item_category', 1);
-							newParentRecord.setFieldValue('custitem_bbs_item_colour', 6);
-							newParentRecord.setFieldValue('custitem_bbs_item_size1', 21);
-							newParentRecord.setFieldValue('custitem_bbs_item_size2', 6);
-							newParentRecord.setFieldValue('custitem_bbs_item_finish_ref', 1);
-
-							
-							
-							
-							
+							newParentRecord.commitLineItem('binnumber', false);					
 							
 							//Now save the assembly
 							//
 							var newParentId = nlapiSubmitRecord(newParentRecord, true, true);
+							
+							emailText += '\n';
+							emailText += 'Assembly Matrix Parent (' + newParentId.toString() + ') - ' + newParentName + '\n';
 							
 							
 							//=====================================================================
@@ -164,7 +176,7 @@ function createAssembliesScheduled(type)
 											var newChildDescription = childSalesDescription + ' with ' + finishItemDescription;
 												
 											var childName = childRecord.getFieldValue('itemid');
-											var newChildName = customerRef + ' ' + childName + ' ' + finishrefText;
+											var newChildName = parentItemCategory + '-' + customerRef + ' ' + childName + ' ' + finishrefText;
 											
 											var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
 											var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');
@@ -189,53 +201,32 @@ function createAssembliesScheduled(type)
 											newChildRecord.setFieldValue('unitstype', 1);
 											newChildRecord.setFieldValue('saleunit', 1);
 											newChildRecord.setFieldValue('stockunit', 1);
-											newChildRecord.setFieldValue('subsidiary', 6);
+											newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
 											newChildRecord.setFieldValue('taxschedule', 1);
 											newChildRecord.setFieldValue('usebins', 'T');
-											newChildRecord.setFieldValue('location', 5);
+											newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
 											newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
 											newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
 											newChildRecord.setFieldValue('description', newChildDescription);
-											
-											//newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
-											newChildRecord.setFieldValue('isspecialworkorderitem', 'F');
+											newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
 											newChildRecord.setFieldValue('haschildren', 'F');
 											newChildRecord.setFieldValue('hasparent', 'T');
 											newChildRecord.setFieldValue('includechildren', 'F');
 											newChildRecord.setFieldValue('isphantom', 'F');
-											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', 1);
-											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_colour', 6);
-											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size1', 21);
-											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size2', 6);
-											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_finish_ref', 1);
-											
-											
-											
-											
-											
+											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', parentItemCategoryId);
+											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_colour', childColour);
+											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size1', childSize1);
+											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size2', childSize2);
+											newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_finish_ref', finishrefId);
 											newChildRecord.setFieldValue('custitem_bbs_item_customer', customerId);
 											newChildRecord.setFieldValue('custitem_bbs_item_stock_type', 1);
 											newChildRecord.setFieldValue('custitemfinish_type', finishrefId);
 											newChildRecord.setFieldValue('custitem_bbs_item_finish_type', 1);
-											
-									
-											
-											newChildRecord.setFieldValue('custitem_bbs_item_category', parentItemCategoryId);
-											newChildRecord.setFieldValue('custitem_bbs_item_colour', childColour);
-											newChildRecord.setFieldValue('custitem_bbs_item_size1', childSize1);
-											newChildRecord.setFieldValue('custitem_bbs_item_size2', childSize2);
-											newChildRecord.setFieldValue('custitem_bbs_item_finish_ref', finishrefId);
-											
-											newChildRecord.setFieldValue('custitem_bbs_item_category', 1);
-											newChildRecord.setFieldValue('custitem_bbs_item_colour', 6);
-											newChildRecord.setFieldValue('custitem_bbs_item_size1', 21);
-											newChildRecord.setFieldValue('custitem_bbs_item_size2', 6);
-											newChildRecord.setFieldValue('custitem_bbs_item_finish_ref', 1);
 
 											//Add a bin number to the assembly
 											//
 											newChildRecord.selectNewLineItem('binnumber');
-											newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', 2);
+											newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
 											newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
 											newChildRecord.commitLineItem('binnumber', false);
 											
@@ -258,11 +249,15 @@ function createAssembliesScheduled(type)
 											//
 											var newchildId = nlapiSubmitRecord(newChildRecord, true, true);
 											
+											emailText += 'Assembly Matrix Child (' + newchildId.toString() + ') - ' + newChildName + '\n';
+											
 										}
 								}
 						}
 				}
 		}
+	
+	nlapiSendEmail(usersEmail, usersEmail, 'Assembly Creation', emailText);
 }
 
 

@@ -131,13 +131,16 @@ function createAssembliesSuitelet(request, response){
 					
 					//Add a select field to pick the finish ref from
 					//
-					var finishRefField = form.addField('custpage_finish_ref_select', 'select', 'Finish Ref', 'customlist_bbs_item_finish_ref', 'custpage_grp_finish');
+					var finishRefField = form.addField('custpage_finish_ref_select', 'select', 'Finish Ref', null, 'custpage_grp_finish');
 					
 					//Add a select field to pick the base parent from
 					//
 					var baseParentField = form.addField('custpage_base_parent_select', 'multiselect', 'Base Parent Items', null, 'custpage_grp_parent');
 					baseParentField.setDisplaySize(600, 10);
-					//baseParentField.addSelectOption(0, '', true);
+					
+					//Add a filter field to limit the base parent
+					//
+					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Filter', null, 'custpage_grp_parent');
 					
 					var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
 							[
@@ -146,8 +149,8 @@ function createAssembliesSuitelet(request, response){
 							   ["matrix","is","T"]
 							], 
 							[
-							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
-							   new nlobjSearchColumn("salesdescription",null,null)
+							   new nlobjSearchColumn("itemid",null,null), 
+							   new nlobjSearchColumn("salesdescription",null,null).setSort(false)
 							]
 							);
 					
@@ -180,7 +183,7 @@ function createAssembliesSuitelet(request, response){
 					for (var int = 0; int < searchResultSet.length; int++) 
 						{
 							var baseParentId = searchResultSet[int].getId();
-							var baseParentText = searchResultSet[int].getValue('itemid') + ' ' + searchResultSet[int].getValue('salesdescription');
+							var baseParentText = searchResultSet[int].getValue('itemid') + ' - ' + searchResultSet[int].getValue('salesdescription');
 							
 							baseParentField.addSelectOption(baseParentId, baseParentText, false);
 
