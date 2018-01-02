@@ -28,8 +28,8 @@ function createAssembliesScheduled(type)
 	//nlapiLogExecution('DEBUG', 'Finishref Id', finishrefId);
 	
 	var finishrefText = nlapiLookupField('customlist_bbs_item_finish_ref', finishrefId, 'name');
-	var usersEmail = context.getEmail();
-	var emailText = '';
+	var usersEmail = context.getUser();
+	var emailText = 'The following items have been created;';
 	
 	//Re-hydrate the parent & child object
 	//
