@@ -294,6 +294,21 @@ function createAssembliesSuitelet(request, response){
 					form.addSubmitButton('Create Assemblies');
 					
 					break;
+					
+			case 3:
+					//Get the context & the users email address
+					//
+					var context = nlapiGetContext();
+					var emailAddress = context.getEmail();
+					
+					//Add a message field 
+					//
+					var messageField = form.addField('custpage_message', 'textarea', 'Message', null, null);
+					messageField.setDisplaySize(120, 4);
+					messageField.setDisplayType('readonly');
+					messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the assembly creation process has completed.');
+				
+					break;
 		}
 			
 		//Write the response
@@ -385,19 +400,26 @@ function createAssembliesSuitelet(request, response){
 					}
 				}
 				
-				//TODO - Now we have the parent & child object we need to process it somehow
+				//Now we have the parent & child object we need to process it somehow
 				//
-				var params = {
+				var scheduleParams = {
 							custscript_bbs_parent_child: JSON.stringify(parentAndChild), 
 							custscript_bbs_customer_id: custIdParam,
 							custscript_bbs_finish_id: finishIdParam,
 							custscript_bbs_finishref_id: finishRefIdParam,
 							};
 				
-				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', 'customdeploy_bbs_create_assem_scheduled', params);
+				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', 'customdeploy_bbs_create_assem_scheduled', scheduleParams);
 				
-				var xml = "<html><body><script>window.close();</script></body></html>";
-				response.write(xml);
+				//var xml = "<html><body><script>window.close();</script></body></html>";
+				//response.write(xml);
+				
+				var params = new Array();
+				params['stage'] = stage + 1;
+				
+				var context = nlapiGetContext();
+				
+				response.sendRedirect('SUITELET',context.getScriptId(), context.getDeploymentId(), null, params);
 				
 				break;
 		}
