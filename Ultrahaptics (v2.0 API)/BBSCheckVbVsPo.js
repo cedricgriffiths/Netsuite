@@ -372,7 +372,7 @@ function(record, dialog, search)
 		    						{
 		    							var fieldLookUp = search.lookupFields({type: search.Type.ITEM, id: vbItem, columns: ['itemid']});
 		    							
-		    							warnings += '<p style="color:DARKRED;"> Item "' + fieldLookUp['itemid'] + '" Does note Exist on The Purchase Order<p/><br/><br/>';
+		    							warnings += '<p style="color:DARKRED;"> Item "' + fieldLookUp['itemid'] + '" Does not Exist on The Purchase Order<p/><br/><br/>';
 		    						}
 		    				}
 	    			}

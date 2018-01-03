@@ -414,7 +414,7 @@ function checkVbVsPoWA()
 					    								}
 			    								}
 			    								
-			    							warnings += 'Item "' + (fieldLookUp == null ? vbItem : fieldLookUp) + '" Does note Exist on The Purchase Order<br/><br/>';
+			    							warnings += 'Item "' + (fieldLookUp == null ? vbItem : fieldLookUp) + '" Does not Exist on The Purchase Order<br/><br/>';
 			    						}
 			    				}
 		    			}
