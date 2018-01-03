@@ -1373,12 +1373,35 @@ function productionBatchSuitelet(request, response)
 				
 				//Convert to pdf using the BFO library
 				//
-				var file = nlapiXMLToPDF(xml);
+				var pdfFileObject = nlapiXMLToPDF(xml);
+				
+				//Build the file name
+				//
+				var today = new Date();
+				var pdfFileName = 'Production Batch Documentation ' + today.toUTCString();
+				
+				//Set the file name & folder
+				//
+				pdfFileObject.setName(pdfFileName);
+				pdfFileObject.setFolder(-10);
 
+			    //Upload the file to the file cabinet.
+				//
+			    var fileId = nlapiSubmitFile(pdfFileObject);
+			 
+			    //Attach file to the batches
+			    //
+			    for (var int6 = 0; int6 < batchesArray.length; int6++) 
+			    {
+					var batchId = batchesArray[int6];
+					
+					nlapiAttachRecord("file", fileId, "customrecord_bbs_assembly_batch", batchId);
+				}
+			    
 				//Send back the output in the response message
 				//
 				response.setContentType('PDF', 'Production Batch Documents', 'inline');
-				response.write(file.getValue());
+				response.write(pdfFileObject.getValue());
 				
 				break;
 		}
