@@ -435,6 +435,15 @@ function allocateLandedCostsSuitelet(request, response){
 									//
 									itemReceiptRecord.selectLineItem('item', int3);
 								
+									try
+									{
+										itemReceiptRecord.removeCurrentLineItemSubrecord('item', 'landedcost');
+									}
+									catch(err)
+									{
+										var errorTxt = '';
+									}
+									
 									//Update the landed costs on this line
 									//
 									var landedCost = itemReceiptRecord.createCurrentLineItemSubrecord('item', 'landedcost');
