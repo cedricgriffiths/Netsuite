@@ -32,6 +32,7 @@ function createAssembliesSuitelet(request, response){
 		var finishRefIdParam = request.getParameter('finishrefid');
 		var finishRefTxtParam = request.getParameter('finishreftxt');
 		var baseParentsParam = request.getParameter('baseparents');
+		var sessionParam = request.getParameter('session');
 		
 		stageParam = (stageParam == 0 ? 1 : stageParam);
 		
@@ -92,6 +93,12 @@ function createAssembliesSuitelet(request, response){
 		stageField.setDisplayType('hidden');
 		stageField.setDefaultValue(stageParam);
 		
+		//Session
+		//
+		var sessionField = form.addField('custpage_session_param', 'text', 'session');
+		sessionField.setDisplayType('hidden');
+		sessionField.setDefaultValue(sessionParam);
+		
 		
 		//=====================================================================
 		// Field groups creation
@@ -121,6 +128,11 @@ function createAssembliesSuitelet(request, response){
 		switch(stageParam)
 		{
 			case 1:	
+					//Get a session
+					//
+					var sessionId = libCreateSession();
+					sessionField.setDefaultValue(sessionId);
+					
 					//Add a select field to pick the customer from
 					//
 					var customerField = form.addField('custpage_customer_select', 'select', 'Customer', 'customer', 'custpage_grp_customer');
@@ -146,7 +158,9 @@ function createAssembliesSuitelet(request, response){
 							[
 							   ["type","anyof","InvtPart"], 
 							   "AND", 
-							   ["matrix","is","T"]
+							   ["matrix","is","T"], 
+							   "AND", 
+							   ["custitem_bbs_item_category","anyof","1","2","3"]
 							], 
 							[
 							   new nlobjSearchColumn("itemid",null,null), 
@@ -224,6 +238,27 @@ function createAssembliesSuitelet(request, response){
 					var dummyTab = form.addTab('custpage_dummy_tab', '');
 					form.addField('custpage_dummy_2', 'text', 'Dummy 2', null, 'custpage_dummy_tab');
 					
+					
+					//Read the finish record
+					//
+					var finishRecord = nlapiLoadRecord('assemblyitem', finishIdParam);
+					var finishCost = Number(0);
+					
+					if(finishRecord)
+						{
+							finishCost = Number(finishRecord.getFieldValue('custitem_bbs_item_cost'));
+						}
+					
+					//Get the session data
+					//
+					var sessionData = libGetSessionData(sessionParam);
+					var filters = {};
+					
+					if(sessionData != null && sessionData != '')
+						{
+							filters = JSON.parse(sessionData);
+						}
+					
 					//Process the base parent items
 					//
 					var baseParents = JSON.parse(baseParentsParam);
@@ -241,18 +276,42 @@ function createAssembliesSuitelet(request, response){
 
 							//Create & populate a sublist for each base parent item we have selected
 							//
+							var subtabId = 'custpage_subtab_' + baseParentId.toString();
 							var sublistId = 'custpage_sublist_' + baseParentId.toString();
+							var fieldId = 'custpage_def_sales_' + baseParentId.toString();
 							
-							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], 'custpage_child_items_tab');
+							var subtab = form.addSubTab(subtabId, baseParents[baseParentId], 'custpage_child_items_tab');
+							form.addField(fieldId, 'currency', 'Default Sales Price', null, subtabId);
+							
+							
+							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], subtabId);
 							sublist.addMarkAllButtons();
+							sublist.setLabel(baseParents[baseParentId]);
+							
+							var buttionFunction = "updateSalesPrice('" + baseParentId.toString() + "')";
+							sublist.addButton(sublistId + '_update', 'Update Sales Prices', buttionFunction);
+							
+							sublist.addRefreshButton();
 							
 							var sublistFieldTick = sublist.addField(sublistId + '_tick', 'checkbox', 'Select', null);
 							var sublistFieldId = sublist.addField(sublistId + '_id', 'text', 'Id', null);
 							var sublistFieldName = sublist.addField(sublistId + '_name', 'text', 'Name', null);
-							var sublistFieldOpt1 = sublist.addField(sublistId + '_opt1', 'text', 'Colour', null);
-							var sublistFieldOpt2 = sublist.addField(sublistId + '_opt2', 'text', 'Item Category', null);
+							var sublistFieldOpt1 = sublist.addField(sublistId + '_opt1', 'text', 'Item Category', null);
+							var sublistFieldOpt2 = sublist.addField(sublistId + '_opt2', 'text', 'Colour', null);
 							var sublistFieldOpt3 = sublist.addField(sublistId + '_opt3', 'text', 'Size1', null);
 							var sublistFieldOpt4 = sublist.addField(sublistId + '_opt4', 'text', 'Size2', null);
+							var sublistFieldCost = sublist.addField(sublistId + '_cost', 'currency', 'Cost', null);
+							var sublistFieldSales = sublist.addField(sublistId + '_sales', 'currency', 'Sales Price', null);
+							var sublistFieldMargin = sublist.addField(sublistId + '_margin', 'text', 'Margin', null);
+							var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
+							var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
+							
+							//Set entry fields
+							//
+							sublistFieldSales.setDisplayType('entry');
+							sublistFieldMargin.setDisplayType('entry');
+							sublistFieldMin.setDisplayType('entry');
+							sublistFieldMax.setDisplayType('entry');
 							
 							//Hide the id field
 							//
@@ -267,25 +326,124 @@ function createAssembliesSuitelet(request, response){
 									//Process the child items
 									//
 									var matrixCount = baseParentRecord.getLineItemCount('matrixmach');
+									var matrixIds = [];
 									
+									//Get the id's of all the matrix child items
+									//
 									for (var int2 = 1; int2 <= matrixCount; int2++) 
 										{
-											var matrixId = baseParentRecord.getLineItemValue('matrixmach', 'mtrxid', int2);
-											var matrixName = baseParentRecord.getLineItemValue('matrixmach', 'mtrxname', int2);
-											var matrixOpt1 = baseParentRecord.getLineItemValue('matrixmach', 'mtrxoption1', int2);
-											var matrixOpt2 = baseParentRecord.getLineItemValue('matrixmach', 'mtrxoption2', int2);
-											var matrixOpt3 = baseParentRecord.getLineItemValue('matrixmach', 'mtrxoption3', int2);
-											var matrixOpt4 = baseParentRecord.getLineItemValue('matrixmach', 'mtrxoption4', int2);
-											
-											//Populate the sublist
-											//
-											sublist.setLineItemValue(sublistId + '_id', int2, matrixId);
-											sublist.setLineItemValue(sublistId + '_name', int2, matrixName);
-											sublist.setLineItemValue(sublistId + '_opt1', int2, matrixOpt1);
-											sublist.setLineItemValue(sublistId + '_opt2', int2, matrixOpt2);
-											sublist.setLineItemValue(sublistId + '_opt3', int2, matrixOpt3);
-											sublist.setLineItemValue(sublistId + '_opt4', int2, matrixOpt4);
+											matrixIds.push(baseParentRecord.getLineItemValue('matrixmach', 'mtrxid', int2));
 										}
+									
+									//Extract the filters for the specific parent
+									//
+									var parentFiltersColour = [];
+									var parentFiltersSize1 = [];
+									var parentFiltersSize2 = [];
+									
+									parentFilters = filters[baseParentId];
+									
+									if(parentFilters != null)
+										{
+											try
+												{
+													parentFiltersColour = parentFilters[0];
+													parentFiltersSize1 = parentFilters[1];
+													parentFiltersSize2 = parentFilters[2];
+												}
+											catch(err)
+												{
+												
+												}
+										}
+									
+									//Search for the matrix children
+									//
+									var matrixChildFilter = [
+															   ["type","anyof","InvtPart"], 
+															   "AND", 
+															   ["matrixchild","is","T"], 
+															   "AND", 
+															   ["internalid","anyof",matrixIds], 
+															   "AND", 
+															   ["ispreferredvendor","is","T"]
+															];
+									
+									
+									var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
+											matrixChildFilter, 
+											[
+											   new nlobjSearchColumn("itemid",null,null), 
+											   new nlobjSearchColumn("displayname",null,null), 
+											   new nlobjSearchColumn("salesdescription",null,null), 
+											   new nlobjSearchColumn("type",null,null), 
+											   new nlobjSearchColumn("baseprice",null,null), 
+											   new nlobjSearchColumn("vendorcost",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_item_category",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_item_size2",null,null), 
+											   new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false)
+											]
+											);
+									
+									var matrixColours = {};
+									var matrixSize1s = {};
+									var matrixSize2s = {};
+									
+									if(matrixChildSearch)
+										{
+											for (var int3 = 0; int3 < matrixChildSearch.length; int3++) 
+												{
+													var matrixId = matrixChildSearch[int3].getId();
+													var matrixName = matrixChildSearch[int3].getValue('itemid');
+													var matrixOpt1 = matrixChildSearch[int3].getText('custitem_bbs_item_category');
+													var matrixOpt2 = matrixChildSearch[int3].getText('custitem_bbs_item_colour');
+													var matrixOpt3 = matrixChildSearch[int3].getText('custitem_bbs_item_size1');
+													var matrixOpt4 = matrixChildSearch[int3].getText('custitem_bbs_item_size2');
+													var matrixOpt2Id = matrixChildSearch[int3].getValue('custitem_bbs_item_colour');
+													var matrixOpt3Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size1');
+													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
+													var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
+
+													matrixColours[matrixOpt2Id] = matrixOpt2;
+													matrixSize1s[matrixOpt3Id] = matrixOpt3;
+													matrixSize2s[matrixOpt4Id] = matrixOpt4;
+													
+													//Populate the sublist
+													//
+													var sublistLine = int3 + 1;
+													
+													sublist.setLineItemValue(sublistId + '_id', sublistLine, matrixId);
+													sublist.setLineItemValue(sublistId + '_name', sublistLine, matrixName);
+													sublist.setLineItemValue(sublistId + '_opt1', sublistLine, matrixOpt1);
+													sublist.setLineItemValue(sublistId + '_opt2', sublistLine, matrixOpt2);
+													sublist.setLineItemValue(sublistId + '_opt3', sublistLine, matrixOpt3);
+													sublist.setLineItemValue(sublistId + '_opt4', sublistLine, matrixOpt4);
+													sublist.setLineItemValue(sublistId + '_cost', sublistLine, matrixCost);
+												}
+										}
+									
+									//Add filter by fields
+									//
+									var filterByColour = form.addField('custpage_filter_colour_' + baseParentId.toString(), 'multiselect', 'Filter by Colour', null, subtabId);
+									for ( var matrixColour in matrixColours) 
+										{
+											filterByColour.addSelectOption(matrixColour, matrixColours[matrixColour], false);
+										}
+									
+									var filterBySize1 = form.addField('custpage_filter_size1_' + baseParentId.toString(), 'multiselect', 'Filter by Size1', null, subtabId);
+									for ( var matrixSize1 in matrixSize1s) 
+										{
+											filterBySize1.addSelectOption(matrixSize1, matrixSize1s[matrixSize1], false);
+										}
+									
+									var filterBySize2 = form.addField('custpage_filter_size2_' + baseParentId.toString(), 'multiselect', 'Filter by Size2', null, subtabId);
+									for ( var matrixSize2 in matrixSize2s) 
+										{
+											filterBySize2.addSelectOption(matrixSize2, matrixSize2s[matrixSize2], false);
+										}
+									
 								}
 						}
 
@@ -308,6 +466,8 @@ function createAssembliesSuitelet(request, response){
 					messageField.setDisplayType('readonly');
 					messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the assembly creation process has completed.');
 				
+					libClearSessionData(sessionParam);
+					
 					break;
 		}
 			
@@ -336,6 +496,7 @@ function createAssembliesSuitelet(request, response){
 				finishRefIdParam = request.getParameter('custpage_finishref_id_param');
 				finishRefTxtParam = request.getParameter('custpage_finishref_txt_param');
 				baseParentsParam = request.getParameter('custpage_baseparents_param');
+				sessionParam = request.getParameter('custpage_session_param');
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -347,6 +508,7 @@ function createAssembliesSuitelet(request, response){
 				params['finishrefid'] = finishRefIdParam;
 				params['finishreftxt'] = finishRefTxtParam;
 				params['baseparents'] = baseParentsParam;
+				params['session'] = sessionParam;
 				
 				params['stage'] = stage + 1;
 				
@@ -414,8 +576,11 @@ function createAssembliesSuitelet(request, response){
 				//var xml = "<html><body><script>window.close();</script></body></html>";
 				//response.write(xml);
 				
+				var sessionId = request.getParameter('custpage_session_param');
+				
 				var params = new Array();
 				params['stage'] = stage + 1;
+				params['session'] = sessionId;
 				
 				var context = nlapiGetContext();
 				
