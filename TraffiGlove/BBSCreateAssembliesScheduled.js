@@ -90,6 +90,10 @@ function createAssembliesScheduled(type)
 							var finishItemDescription = finishRecord.getFieldValue('description');
 							var newParentDescription = parentSalesDescription + ' with ' + finishItemDescription;
 							
+							//Initialise the new parent id
+							//
+							var newParentId = null;
+							
 							try
 								{
 									//Instantiate an assembly item record
@@ -145,11 +149,11 @@ function createAssembliesScheduled(type)
 									
 									//Now save the assembly
 									//
-									var newParentId = nlapiSubmitRecord(newParentRecord, true, true);
+									newParentId = nlapiSubmitRecord(newParentRecord, true, true);
 									
 									//Add info to the email message
 									//
-									var newParentUrl = 'https://system.eu1.netsuite.com/' + nlapiResolveURL('RECORD', 'assemblyitem', newParentId, 'view');
+									var newParentUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'assemblyitem', newParentId, 'view');
 									emailText += '\n';
 									emailText += 'Assembly Matrix Parent (' + newParentId.toString() + ') - ' + newParentName + ' ' + newParentUrl + '\n';
 								}
@@ -158,183 +162,189 @@ function createAssembliesScheduled(type)
 									emailText += 'Error creating assembly parent record (' + newParentName + '), message is "' + err.message +'"\n';
 								}
 							
+							
 							//=====================================================================
 							//Process the child items
 							//=====================================================================
 							//
-										
-							//Get the child items for this parent
-							//
-							var children = parentAndChild[parent];
 							
-							//Loop through the child items
+							//Check to see if we have creaated the new parent ok
 							//
-							for (var int = 0; int < children.length; int++) 
+							if(newParentId)
 								{
-									var data = children[int];
-									
-									var child = data[0];
-									var salesPrice = data[1];
-									var minStock = data[2];
-									var maxStock = data[3];
-									
-									//Read the child record
+									//Get the child items for this parent
 									//
-									var childRecord = nlapiLoadRecord('inventoryitem', child);
+									var children = parentAndChild[parent];
 									
-									//Ok to proceede?
+									//Loop through the child items
 									//
-									if(childRecord)
+									for (var int = 0; int < children.length; int++) 
 										{
-											//Check the remaining governance units available & yield if required
-											//
-											var execContext = nlapiGetContext();
-											var execRemaining = execContext.getRemainingUsage();
+											var data = children[int];
 											
-											if(execRemaining < 100)
+											var child = data[0];
+											var salesPrice = data[1];
+											var minStock = data[2];
+											var maxStock = data[3];
+											
+											//Read the child record
+											//
+											var childRecord = nlapiLoadRecord('inventoryitem', child);
+											
+											//Ok to proceede?
+											//
+											if(childRecord)
 												{
-													nlapiYieldScript();
-												}
-											else
-												{
-													//Get data from the child record
+													//Check the remaining governance units available & yield if required
 													//
-													var childSalesDescription = childRecord.getFieldValue('salesdescription');
-													var newChildDescription = childSalesDescription + ' with ' + finishItemDescription;
-														
-													var childName = childRecord.getFieldValue('itemid');
-													var newChildName = parentItemCategory + '-' + customerRef + ' ' + childName + ' ' + finishrefText;
+													var execContext = nlapiGetContext();
+													var execRemaining = execContext.getRemainingUsage();
 													
-													var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
-													var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');
-													var childSize2 = childRecord.getFieldValue('custitem_bbs_item_size2');
-													
-													try
+													if(execRemaining < 100)
 														{
-															//Instantiate an assembly item record
+															nlapiYieldScript();
+														}
+													else
+														{
+															//Get data from the child record
 															//
-															var newChildRecord = nlapiCreateRecord('assemblyitem', {recordmode: 'dynamic'});
+															var childSalesDescription = childRecord.getFieldValue('salesdescription');
+															var newChildDescription = childSalesDescription + ' with ' + finishItemDescription;
+																
+															var childName = childRecord.getFieldValue('itemid');
+															var newChildName = parentItemCategory + '-' + customerRef + ' ' + childName + ' ' + finishrefText;
 															
-															//Set field values 
-															//
-															newChildRecord.setFieldValue('matrixtype', 'CHILD');
-															newChildRecord.setFieldValue('parent', newParentId);
-															newChildRecord.setFieldValue('itemid', newChildName);
-															newChildRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
-															newChildRecord.setFieldValue('autopreferredstocklevel', 'F');
-															newChildRecord.setFieldValue('autoreorderpoint', 'F');
-															newChildRecord.setFieldValue('costcategory', 4);
-															newChildRecord.setFieldValue('costingmethod', 'FIFO');
-															newChildRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
-															newChildRecord.setFieldValue('unitstype', 1);
-															newChildRecord.setFieldValue('saleunit', 1);
-															newChildRecord.setFieldValue('stockunit', 1);
-															newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
-															newChildRecord.setFieldValue('taxschedule', 1);
-															newChildRecord.setFieldValue('usebins', 'T');
-															newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
-															newChildRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
-															newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
-															newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
-															newChildRecord.setFieldValue('description', newChildDescription);
+															var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
+															var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');
+															var childSize2 = childRecord.getFieldValue('custitem_bbs_item_size2');
 															
-															//Do we have min/max stock levels?
-															//
-															if((minStock != null && minStock != '') || (maxStock != null && maxStock != ''))
+															try
 																{
-																	//This is not a special works order item if we have stock levels
+																	//Instantiate an assembly item record
 																	//
-																	newChildRecord.setFieldValue('isspecialworkorderitem', 'F');
+																	var newChildRecord = nlapiCreateRecord('assemblyitem', {recordmode: 'dynamic'});
 																	
-																	//Also, now set the safety stock & preferred stock levels
+																	//Set field values 
 																	//
-																	var locationCount = newChildRecord.getLineItemCount('locations');
+																	newChildRecord.setFieldValue('matrixtype', 'CHILD');
+																	newChildRecord.setFieldValue('parent', newParentId);
+																	newChildRecord.setFieldValue('itemid', newChildName);
+																	newChildRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
+																	newChildRecord.setFieldValue('autopreferredstocklevel', 'F');
+																	newChildRecord.setFieldValue('autoreorderpoint', 'F');
+																	newChildRecord.setFieldValue('costcategory', 4);
+																	newChildRecord.setFieldValue('costingmethod', 'FIFO');
+																	newChildRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
+																	newChildRecord.setFieldValue('unitstype', 1);
+																	newChildRecord.setFieldValue('saleunit', 1);
+																	newChildRecord.setFieldValue('stockunit', 1);
+																	newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
+																	newChildRecord.setFieldValue('taxschedule', 1);
+																	newChildRecord.setFieldValue('usebins', 'T');
+																	newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
+																	newChildRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
+																	newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
+																	newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
+																	newChildRecord.setFieldValue('description', newChildDescription);
 																	
-																	//Find the default location in the sublist of locations
+																	//Do we have min/max stock levels?
 																	//
-																	for (var int2 = 1; int2 <= locationCount; int2++) 
+																	if((minStock != null && minStock != '') || (maxStock != null && maxStock != ''))
 																		{
-																			var locationId = newChildRecord.getLineItemValue('locations', 'location', int2);
-																			
-																			//Found the matching location
+																			//This is not a special works order item if we have stock levels
 																			//
-																			if(locationId == subsidiaryDefaultLocation)
+																			newChildRecord.setFieldValue('isspecialworkorderitem', 'F');
+																			
+																			//Also, now set the safety stock & preferred stock levels
+																			//
+																			var locationCount = newChildRecord.getLineItemCount('locations');
+																			
+																			//Find the default location in the sublist of locations
+																			//
+																			for (var int2 = 1; int2 <= locationCount; int2++) 
 																				{
-																					if(minStock != null && minStock != '')
-																						{
-																							newChildRecord.setLineItemValue('locations', 'safetystocklevel', int2, minStock);
-																						}
+																					var locationId = newChildRecord.getLineItemValue('locations', 'location', int2);
 																					
-																					if(maxStock != null && maxStock != '')
+																					//Found the matching location
+																					//
+																					if(locationId == subsidiaryDefaultLocation)
 																						{
-																							newChildRecord.setLineItemValue('locations', 'preferredstocklevel', int2, maxStock);
+																							if(minStock != null && minStock != '')
+																								{
+																									newChildRecord.setLineItemValue('locations', 'safetystocklevel', int2, minStock);
+																								}
+																							
+																							if(maxStock != null && maxStock != '')
+																								{
+																									newChildRecord.setLineItemValue('locations', 'preferredstocklevel', int2, maxStock);
+																								}
+																						
+																							break;
 																						}
-																				
-																					break;
 																				}
 																		}
+																	else
+																		{
+																			newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
+																		}
+																	
+																	newChildRecord.setFieldValue('haschildren', 'F');
+																	newChildRecord.setFieldValue('hasparent', 'T');
+																	newChildRecord.setFieldValue('includechildren', 'F');
+																	newChildRecord.setFieldValue('isphantom', 'F');
+																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', parentItemCategoryId);
+																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_colour', childColour);
+																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size1', childSize1);
+																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size2', childSize2);
+																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_finish_ref', finishrefId);
+																	newChildRecord.setFieldValue('custitem_bbs_item_customer', customerId);
+																	newChildRecord.setFieldValue('custitem_bbs_item_stock_type', 1);
+																	newChildRecord.setFieldValue('custitemfinish_type', finishrefId);
+																	newChildRecord.setFieldValue('custitem_bbs_item_finish_type', 1);
+						
+																	//Add a bin number to the assembly
+																	//
+																	newChildRecord.selectNewLineItem('binnumber');
+																	newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+																	newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+																	newChildRecord.commitLineItem('binnumber', false);
+																	
+																	//Add components to the assembly
+																	//
+																	newChildRecord.selectNewLineItem('member');
+																	newChildRecord.setCurrentLineItemValue('member', 'item', child);
+																	newChildRecord.setCurrentLineItemValue('member', 'quantity', 1);
+																	newChildRecord.setCurrentLineItemValue('member', 'itemsource', 'STOCK');
+																	newChildRecord.commitLineItem('member', false);
+																	
+																	newChildRecord.selectNewLineItem('member');
+																	newChildRecord.setCurrentLineItemValue('member', 'item', finishId);
+																	newChildRecord.setCurrentLineItemValue('member', 'quantity', 1);
+																	newChildRecord.setCurrentLineItemValue('member', 'itemsource', 'PHANTOM');
+																	newChildRecord.commitLineItem('member', false);
+																	
+																	//Calculate the matrix item sequence number
+																	//
+																	var itemSequence = resequence(newParentId,childColour,childSize1,childSize2);
+																	newChildRecord.setFieldValue('custitem_bbs_matrix_item_seq', itemSequence);
+																	
+																	//Now save the assembly
+																	//
+																	var newchildId = nlapiSubmitRecord(newChildRecord, true, true);
+																	
+																	//Add the sales price and the record id to the list of all child item prices
+																	//
+																	allChildPricing[newchildId] = salesPrice;
+																	
+																	//Add info to the email message
+																	//
+																	var newChildUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'assemblyitem', newchildId, 'view');
+																	emailText += 'Assembly Matrix Child (' + newchildId.toString() + ') - ' + newChildName + ' ' + newChildUrl + '\n';
 																}
-															else
+															catch(err)
 																{
-																	newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
+																	emailText += 'Error creating assembly child record (' + newChildName + '), message is "' + err.message +'"\n';
 																}
-															
-															newChildRecord.setFieldValue('haschildren', 'F');
-															newChildRecord.setFieldValue('hasparent', 'T');
-															newChildRecord.setFieldValue('includechildren', 'F');
-															newChildRecord.setFieldValue('isphantom', 'F');
-															newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', parentItemCategoryId);
-															newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_colour', childColour);
-															newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size1', childSize1);
-															newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size2', childSize2);
-															newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_finish_ref', finishrefId);
-															newChildRecord.setFieldValue('custitem_bbs_item_customer', customerId);
-															newChildRecord.setFieldValue('custitem_bbs_item_stock_type', 1);
-															newChildRecord.setFieldValue('custitemfinish_type', finishrefId);
-															newChildRecord.setFieldValue('custitem_bbs_item_finish_type', 1);
-				
-															//Add a bin number to the assembly
-															//
-															newChildRecord.selectNewLineItem('binnumber');
-															newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-															newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-															newChildRecord.commitLineItem('binnumber', false);
-															
-															//Add components to the assembly
-															//
-															newChildRecord.selectNewLineItem('member');
-															newChildRecord.setCurrentLineItemValue('member', 'item', child);
-															newChildRecord.setCurrentLineItemValue('member', 'quantity', 1);
-															newChildRecord.setCurrentLineItemValue('member', 'itemsource', 'STOCK');
-															newChildRecord.commitLineItem('member', false);
-															
-															newChildRecord.selectNewLineItem('member');
-															newChildRecord.setCurrentLineItemValue('member', 'item', finishId);
-															newChildRecord.setCurrentLineItemValue('member', 'quantity', 1);
-															newChildRecord.setCurrentLineItemValue('member', 'itemsource', 'PHANTOM');
-															newChildRecord.commitLineItem('member', false);
-															
-															//Calculate the matrix item sequence number
-															//
-															var itemSequence = resequence(newParentId,childColour,childSize1,childSize2);
-															newChildRecord.setFieldValue('custitem_bbs_matrix_item_seq', itemSequence);
-															
-															//Now save the assembly
-															//
-															var newchildId = nlapiSubmitRecord(newChildRecord, true, true);
-															
-															//Add the sales price and the record id to the list of all child item prices
-															//
-															allChildPricing[newchildId] = salesPrice;
-															
-															//Add info to the email message
-															//
-															var newChildUrl = 'https://system.eu1.netsuite.com/' + nlapiResolveURL('RECORD', 'assemblyitem', newchildId, 'view');
-															emailText += 'Assembly Matrix Child (' + newchildId.toString() + ') - ' + newChildName + ' ' + newChildUrl + '\n';
-														}
-													catch(err)
-														{
-															emailText += 'Error creating assembly child record (' + newChildName + '), message is "' + err.message +'"\n';
 														}
 												}
 										}
@@ -344,18 +354,21 @@ function createAssembliesScheduled(type)
 			
 			//Update the customer's item pricing with the new child items created
 			//
-			for (var childPrice in allChildPricing) 
+			if(Object.keys(allChildPricing).length > 0)
 				{
-					var customerCurrency = customerRecord.getFieldValue('currency');
-					
 					try
 						{
-							customerRecord.selectNewLineItem('itempricing');
-							customerRecord.setCurrentLineItemValue('itempricing', 'item', childPrice);
-							customerRecord.setCurrentLineItemValue('itempricing', 'level', -1);
-							customerRecord.setCurrentLineItemValue('itempricing', 'currency', customerCurrency);
-							customerRecord.setCurrentLineItemValue('itempricing', 'price', allChildPricing[childPrice]);
-							customerRecord.commitLineItem('itempricing', false);
+							for (var childPrice in allChildPricing) 
+								{
+									var customerCurrency = customerRecord.getFieldValue('currency');
+		
+									customerRecord.selectNewLineItem('itempricing');
+									customerRecord.setCurrentLineItemValue('itempricing', 'item', childPrice);
+									customerRecord.setCurrentLineItemValue('itempricing', 'level', -1);
+									customerRecord.setCurrentLineItemValue('itempricing', 'currency', customerCurrency);
+									customerRecord.setCurrentLineItemValue('itempricing', 'price', allChildPricing[childPrice]);
+									customerRecord.commitLineItem('itempricing', false);
+								}
 							
 							nlapiSubmitRecord(customerRecord, true, true);
 							
