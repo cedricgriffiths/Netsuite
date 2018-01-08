@@ -309,6 +309,7 @@ function createAssembliesSuitelet(request, response){
 							//Set entry fields
 							//
 							sublistFieldSales.setDisplayType('entry');
+							sublistFieldSales.setMandatory(true);
 							sublistFieldMargin.setDisplayType('entry');
 							sublistFieldMin.setDisplayType('entry');
 							sublistFieldMax.setDisplayType('entry');
@@ -369,8 +370,22 @@ function createAssembliesSuitelet(request, response){
 															   ["ispreferredvendor","is","T"]
 															];
 									
-									
-									var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
+									if(parentFiltersColour.length > 0)
+									{
+										matrixChildFilter.push("AND", ["custitem_bbs_item_colour","anyof",parentFiltersColour]);
+									}
+								
+									if(parentFiltersSize1.length > 0)
+									{
+										matrixChildFilter.push("AND", ["custitem_bbs_item_size1","anyof",parentFiltersSize1]);
+									}
+								
+									if(parentFiltersSize2.length > 0)
+									{
+										matrixChildFilter.push("AND", ["custitem_bbs_item_size2","anyof",parentFiltersSize2]);
+									}
+								
+								var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
 											matrixChildFilter, 
 											[
 											   new nlobjSearchColumn("itemid",null,null), 
@@ -554,10 +569,15 @@ function createAssembliesSuitelet(request, response){
 						if (ticked == 'T')
 							{
 								var item = request.getLineItemValue(sublistId, sublistId + '_id', int);
+								var salesPrice = request.getLineItemValue(sublistId, sublistId + '_sales', int);
+								var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
+								var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
+								
+								var data = [item,salesPrice,minStock,maxStock];
 								
 								//Build up the parent & child object
 								//
-								parentAndChild[baseParentId].push(item);
+								parentAndChild[baseParentId].push(data);
 							}
 					}
 				}
