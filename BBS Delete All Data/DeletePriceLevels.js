@@ -46,7 +46,7 @@ function scheduled(type)
 			
 			var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 			
-			if(remaining < 50)
+			if(remaining < 100)
 				{
 					nlapiYieldScript();
 				}
@@ -80,6 +80,21 @@ function scheduled(type)
 										}
 								}
 							
+							itemRecord.setFieldValue('price1quantity1',null);
+							itemRecord.setFieldValue('price1quantity2',null);
+							itemRecord.setFieldValue('price1quantity3',null);
+							itemRecord.setFieldValue('price1quantity4',null);
+
+							itemRecord.setFieldValue('price2quantity1',null);
+							itemRecord.setFieldValue('price2quantity2',null);
+							itemRecord.setFieldValue('price2quantity3',null);
+							itemRecord.setFieldValue('price2quantity4',null);
+
+							itemRecord.setFieldValue('price4quantity1',null);
+							itemRecord.setFieldValue('price4quantity2',null);
+							itemRecord.setFieldValue('price4quantity3',null);
+							itemRecord.setFieldValue('price4quantity4',null);
+							
 							nlapiSubmitRecord(itemRecord, false, true);
 						}
 					catch(err)
@@ -88,6 +103,10 @@ function scheduled(type)
 						}
 				}
 		}
+	var context = nlapiGetContext();
+	var usersEmail = context.getUser();
+	
+	nlapiSendEmail(usersEmail, usersEmail, 'Pricelevel Deletion', 'The pricelevel deletion scheduled script finished');
 }
 
 function getItemRecordType(girtItemType)
@@ -108,9 +127,13 @@ function getItemRecordType(girtItemType)
 		girtItemRecordType = 'assemblyitem';
 		break;
 		
-		case 'NonInvtPart':
-		girtItemRecordType = 'noninventoryitem';
+		case 'OthCharge':
+		girtItemRecordType = 'otherchargeitem';
 		break;
+		
+		case 'Discount':
+			girtItemRecordType = 'discountitem';
+			break;
 	}
 
 	return girtItemRecordType;
