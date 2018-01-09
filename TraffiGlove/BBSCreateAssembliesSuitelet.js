@@ -128,6 +128,11 @@ function createAssembliesSuitelet(request, response){
 		switch(stageParam)
 		{
 			case 1:	
+					//=====================================================================
+					// Stage 1 - Get the customer, Finish Item, Finish Ref & Base Parent(s)
+					//=====================================================================
+					//
+				
 					//Get a session
 					//
 					var sessionId = libCreateSession();
@@ -210,7 +215,12 @@ function createAssembliesSuitelet(request, response){
 	
 					break;
 			
-			case 2:	
+			case 2:
+					//=====================================================================
+					// Stage 2 - Display sublists of child items for each parent
+					//=====================================================================
+					//
+				
 					//Add fields to show the previous selections
 					//
 					var customerField = form.addField('custpage_customer_select', 'text', 'Customer', null, 'custpage_grp_customer');
@@ -370,6 +380,8 @@ function createAssembliesSuitelet(request, response){
 															   ["ispreferredvendor","is","T"]
 															];
 									
+									//Add additional filters based on colour, size1 & size2
+									//
 									if(parentFiltersColour.length > 0)
 									{
 										matrixChildFilter.push("AND", ["custitem_bbs_item_colour","anyof",parentFiltersColour]);
@@ -385,7 +397,9 @@ function createAssembliesSuitelet(request, response){
 										matrixChildFilter.push("AND", ["custitem_bbs_item_size2","anyof",parentFiltersSize2]);
 									}
 								
-								var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
+									//Run the search
+									//
+									var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
 											matrixChildFilter, 
 											[
 											   new nlobjSearchColumn("itemid",null,null), 
@@ -402,12 +416,16 @@ function createAssembliesSuitelet(request, response){
 											]
 											);
 									
+									//Instantiate objects to hold the possible colour selections
+									//
 									var matrixColours = {};
 									var matrixSize1s = {};
 									var matrixSize2s = {};
 									
 									if(matrixChildSearch)
 										{
+											//Loop through the search results
+											//
 											for (var int3 = 0; int3 < matrixChildSearch.length; int3++) 
 												{
 													var matrixId = matrixChildSearch[int3].getId();
@@ -420,7 +438,9 @@ function createAssembliesSuitelet(request, response){
 													var matrixOpt3Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size1');
 													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
 													var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
-
+													
+													//Build up the list of available coulours & sizes
+													//
 													matrixColours[matrixOpt2Id] = matrixOpt2;
 													matrixSize1s[matrixOpt3Id] = matrixOpt3;
 													matrixSize2s[matrixOpt4Id] = matrixOpt4;
@@ -439,7 +459,7 @@ function createAssembliesSuitelet(request, response){
 												}
 										}
 									
-									//Add filter by fields
+									//Add the "filter by" fields
 									//
 									var filterByColour = form.addField('custpage_filter_colour_' + baseParentId.toString(), 'multiselect', 'Filter by Colour', null, subtabId);
 									for ( var matrixColour in matrixColours) 
@@ -458,7 +478,6 @@ function createAssembliesSuitelet(request, response){
 										{
 											filterBySize2.addSelectOption(matrixSize2, matrixSize2s[matrixSize2], false);
 										}
-									
 								}
 						}
 
@@ -469,6 +488,11 @@ function createAssembliesSuitelet(request, response){
 					break;
 					
 			case 3:
+					//=====================================================================
+					// Stage 3 - Display message about email to be received
+					//=====================================================================
+					//
+				
 					//Get the context & the users email address
 					//
 					var context = nlapiGetContext();
@@ -504,6 +528,14 @@ function createAssembliesSuitelet(request, response){
 		switch(stage)
 		{
 			case 1:
+				//=====================================================================
+				// Stage 1 - Process the chosen customer, Finish Item, Finish Ref & 
+				// Base Parent(s), then move to stage 2
+				//=====================================================================
+				//
+				
+				//Retrieve the parameters from the form fields
+				//
 				custIdParam = request.getParameter('custpage_cust_id_param');
 				custTxtParam = request.getParameter('custpage_cust_txt_param');
 				finishIdParam = request.getParameter('custpage_finish_id_param');
@@ -524,16 +556,20 @@ function createAssembliesSuitelet(request, response){
 				params['finishreftxt'] = finishRefTxtParam;
 				params['baseparents'] = baseParentsParam;
 				params['session'] = sessionParam;
-				
 				params['stage'] = stage + 1;
 				
 				var context = nlapiGetContext();
-				
 				response.sendRedirect('SUITELET',context.getScriptId(), context.getDeploymentId(), null, params);
 				
 				break;
 				
 			case 2:
+				//=====================================================================
+				// Stage 2 - Process the chosen child items, submit the scheduled script
+				// then move to stage 3
+				//=====================================================================
+				//
+				
 				//Get the base parents so we can iterate through them
 				//
 				baseParentsParam = request.getParameter('custpage_baseparents_param');
@@ -582,7 +618,7 @@ function createAssembliesSuitelet(request, response){
 					}
 				}
 				
-				//Now we have the parent & child object we need to process it somehow
+				//Now we have the parent & child object we need to pass it to the scheduled script
 				//
 				var scheduleParams = {
 							custscript_bbs_parent_child: JSON.stringify(parentAndChild), 
@@ -592,18 +628,15 @@ function createAssembliesSuitelet(request, response){
 							};
 				
 				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', 'customdeploy_bbs_create_assem_scheduled', scheduleParams);
-				
-				//var xml = "<html><body><script>window.close();</script></body></html>";
-				//response.write(xml);
-				
+
+				//Call the next stage
+				//
 				var sessionId = request.getParameter('custpage_session_param');
-				
 				var params = new Array();
 				params['stage'] = stage + 1;
 				params['session'] = sessionId;
 				
 				var context = nlapiGetContext();
-				
 				response.sendRedirect('SUITELET',context.getScriptId(), context.getDeploymentId(), null, params);
 				
 				break;

@@ -20,14 +20,13 @@ function createAssembliesScheduled(type)
 	var customerId = context.getSetting('SCRIPT', 'custscript_bbs_customer_id');
 	var finishId = context.getSetting('SCRIPT', 'custscript_bbs_finish_id');
 	var finishrefId = context.getSetting('SCRIPT', 'custscript_bbs_finishref_id');
-	
-	
-	//nlapiLogExecution('DEBUG', 'Parent And Child Object', parentChildString);
-	//nlapiLogExecution('DEBUG', 'Customer Id', customerId);
-	//nlapiLogExecution('DEBUG', 'Finish Id', finishId);
-	//nlapiLogExecution('DEBUG', 'Finishref Id', finishrefId);
-	
+
+	//Read the finish ref textual name
+	//
 	var finishrefText = nlapiLookupField('customlist_bbs_item_finish_ref', finishrefId, 'name');
+	
+	//Initialise local variables
+	//
 	var usersEmail = context.getUser();
 	var emailText = 'The following items have been created;\n';
 	var allChildPricing = {};

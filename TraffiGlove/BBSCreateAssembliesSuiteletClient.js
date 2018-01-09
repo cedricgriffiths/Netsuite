@@ -17,6 +17,9 @@
  */
 function createAssembliesFieldChanged(type, name, linenum)
 {
+	//If any of the colour, size1, size2 filters are changed, then get the data from all of those filters for 
+	//all of the parent/children & store the data in the session data
+	//
 	if(name.startsWith('custpage_filter_'))
 		{
 			var baseParentsString = nlapiGetFieldValue('custpage_baseparents_param');
@@ -39,6 +42,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 			libSetSessionData(session, filtersString);
 		}
 	
+	//If the sales price is changed, then update the margin calculation
+	//
 	if(type != null && type.startsWith('custpage_sublist') && name.endsWith('_sales'))
 		{
 			var costFieldName = type + '_cost';
@@ -59,7 +64,9 @@ function createAssembliesFieldChanged(type, name, linenum)
 		}
 	
 	
-	
+	//If the customer is changed, then generate the list of finish items to select from
+	//Also get the list of finish refs that are applicable
+	//
 	if (name == 'custpage_customer_select')
 		{
 			//Get the selected customer
@@ -210,6 +217,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 				}
 		}
 	
+	//If the finish item is selected then pre-select the corresponding finish ref in the list of finish ref's
+	//
 	if (name == 'custpage_finish_item_select')
 		{
 			//Get the selected finish item
@@ -329,6 +338,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 			
 		}
 
+	//If the finish ref has been changed, then save the selected value
+	//
 	if (name == 'custpage_finish_ref_select')
 	{
 		//Get the selected finish item
@@ -343,6 +354,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 	}
 
 	
+	//If the finish parent item has been changed, then save the selected value
+	//
 	if (name == 'custpage_base_parent_select')
 		{
 			//Get the selected base parent
@@ -362,6 +375,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 			nlapiSetFieldValue('custpage_baseparents_param', JSON.stringify(baseParents), false, true);
 		}
 	
+	//If the parent filter has changed, then apply the filter to the parent items
+	//
 	if (name == 'custpage_base_parent_filter')
 	{
 		var filterValue = nlapiGetFieldValue('custpage_base_parent_filter');
@@ -437,6 +452,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 	}
 }
 
+//Function called by the update sales price button
+//
 function updateSalesPrice(baseParentId)
 {
 	var sublistId = 'custpage_sublist_' + baseParentId.toString();
@@ -447,28 +464,23 @@ function updateSalesPrice(baseParentId)
 	
 	for (var int = 1; int <= lines; int++) 
 		{
-			//var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
+			nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, salesPrice);
 			
-			//if(ticked == 'T')
-			//	{
-					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, salesPrice);
-					
-					var costFieldName = sublistId + '_cost';
-					var marginFieldName = sublistId + '_margin';
+			var costFieldName = sublistId + '_cost';
+			var marginFieldName = sublistId + '_margin';
 				
-					var sales = salesPrice;
-					var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
+			var sales = salesPrice;
+			var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
 					
-					if(!isNaN(sales) && !isNaN(cost))
-						{
-							sales = Number(sales);
-							cost = Number(cost);
+			if(!isNaN(sales) && !isNaN(cost))
+				{
+					sales = Number(sales);
+					cost = Number(cost);
 							
-							var margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
-							
-							nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
-						}
-			//	}
+					var margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
+						
+					nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
+				}
 		}
 }
 
