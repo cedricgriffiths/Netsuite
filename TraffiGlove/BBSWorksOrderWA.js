@@ -32,23 +32,8 @@ function workflowAction()
 		//
 		var params = {custscript_bbs_woid: woId};
 	
-		var status = '';
-		
-		while(status != 'QUEUED')
-			{
-				status = nlapiScheduleScript('customscript_bbs_wo_schedule', 'customdeploy_bbs_wo_schedule', params);
-				
-				//If null is returned then the script in not in a deployed state, so we should break out of the loop
-				//
-				if(status == null)
-					{
-						break;
-					}
-				else
-					{
-						wait(1000);
-					}
-			}
+		nlapiScheduleScript('customscript_bbs_wo_schedule', null, params);
+
 	}
 }
 

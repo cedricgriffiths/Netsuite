@@ -35,7 +35,7 @@ function worksOrderAfterSubmit(type)
 			//
 			var params = {custscript_bbs_woid: woId};
 		
-			nlapiScheduleScript('customscript_bbs_wo_schedule', 'customdeploy_bbs_wo_schedule', params);
+			nlapiScheduleScript('customscript_bbs_wo_schedule', null, params);
 			
 		}
 	}

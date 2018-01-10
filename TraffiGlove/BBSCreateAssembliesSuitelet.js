@@ -627,7 +627,7 @@ function createAssembliesSuitelet(request, response){
 							custscript_bbs_finishref_id: finishRefIdParam,
 							};
 				
-				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', 'customdeploy_bbs_create_assem_scheduled', scheduleParams);
+				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', null, scheduleParams);
 
 				//Call the next stage
 				//

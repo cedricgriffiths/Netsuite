@@ -186,6 +186,8 @@ function resequence(recType, recId)
 	//Submit the item record for update
 	//
 	nlapiSubmitRecord(itemRecord, false, true);
+	
+	nlapiLogExecution('DEBUG', 'Item Updated', itemRecord.getId());
 }
 
 
