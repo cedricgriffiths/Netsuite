@@ -30,6 +30,7 @@ function createAssembliesScheduled(type)
 	var usersEmail = context.getUser();
 	var emailText = 'The following items have been created;\n';
 	var allChildPricing = {};
+	var allChildWebProducts = {};
 	
 	//Re-hydrate the parent & child object
 	//
@@ -185,6 +186,7 @@ function createAssembliesScheduled(type)
 											var salesPrice = data[1];
 											var minStock = data[2];
 											var maxStock = data[3];
+											var webProduct = data[4];
 											
 											//Read the child record
 											//
@@ -335,6 +337,13 @@ function createAssembliesScheduled(type)
 																	//
 																	allChildPricing[newchildId] = salesPrice;
 																	
+																	//Add the child item to the list of web products
+																	//
+																	if(webProduct)
+																		{
+																			allChildWebProducts[newchildId] = newchildId;
+																		}
+																	
 																	//Add info to the email message
 																	//
 																	var newChildUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'assemblyitem', newchildId, 'view');
@@ -357,10 +366,10 @@ function createAssembliesScheduled(type)
 				{
 					try
 						{
+							var customerCurrency = customerRecord.getFieldValue('currency');
+						
 							for (var childPrice in allChildPricing) 
 								{
-									var customerCurrency = customerRecord.getFieldValue('currency');
-		
 									customerRecord.selectNewLineItem('itempricing');
 									customerRecord.setCurrentLineItemValue('itempricing', 'item', childPrice);
 									customerRecord.setCurrentLineItemValue('itempricing', 'level', -1);
@@ -377,6 +386,30 @@ function createAssembliesScheduled(type)
 						{
 							emailText += 'Error creating customer item pricing, message is "' + err.message +'"\n';
 						}
+				}
+			
+			//Update the customer's web product with the new child items created
+			//
+			if(Object.keys(allChildWebProducts).length > 0)
+				{
+					for (var childWebProduct in allChildWebProducts) 
+						{
+							try
+								{
+									var webProductRecord = nlapiCreateRecord('customrecord_bbs_customer_web_product');
+
+									webProductRecord.setFieldValue('custrecord_bbs_web_product_customer', customerId);
+									webProductRecord.setFieldValue('custrecord_bbs_web_product_item', childWebProduct);
+									
+									nlapiSubmitRecord(webProductRecord, true, true);
+								}
+							catch(err)
+								{
+									emailText += 'Error creating customer web product record, message is "' + err.message +'"\n';
+								}
+						}
+					
+					emailText += 'Customer web products have been updated\n';
 				}
 		}
 	

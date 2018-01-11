@@ -315,6 +315,7 @@ function createAssembliesSuitelet(request, response){
 							var sublistFieldMargin = sublist.addField(sublistId + '_margin', 'text', 'Margin', null);
 							var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
 							var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
+							var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Web Product', null);
 							
 							//Set entry fields
 							//
@@ -608,8 +609,9 @@ function createAssembliesSuitelet(request, response){
 								var salesPrice = request.getLineItemValue(sublistId, sublistId + '_sales', int);
 								var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
 								var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
+								var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
 								
-								var data = [item,salesPrice,minStock,maxStock];
+								var data = [item,salesPrice,minStock,maxStock,webProduct];
 								
 								//Build up the parent & child object
 								//
