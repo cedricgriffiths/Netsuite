@@ -44,6 +44,12 @@ function priceListSuitelet(request, response)
 		//=====================================================================
 		//
 		
+		//Stage
+		//
+		var stageField = form.addField('custpage_stage', 'integer', 'stage');
+		stageField.setDisplayType('hidden');
+		stageField.setDefaultValue(stageParam);
+		
 		//Session
 		//
 		var sessionField = form.addField('custpage_session_param', 'text', 'session');
@@ -270,6 +276,28 @@ function priceListSuitelet(request, response)
 				form.addSubmitButton('Generate Price Lists');
 		
 				break;
+				
+			case 3:
+				//=====================================================================
+				// Stage 3 - Display message about email to be received
+				//=====================================================================
+				//
+			
+				//Get the context & the users email address
+				//
+				var context = nlapiGetContext();
+				var emailAddress = context.getEmail();
+				
+				//Add a message field 
+				//
+				var messageField = form.addField('custpage_message', 'textarea', 'Message', null, null);
+				messageField.setDisplaySize(120, 4);
+				messageField.setDisplayType('readonly');
+				messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the pricelist creation process has completed.');
+			
+				libClearSessionData(sessionParam);
+				
+				break;
 		}
 		
 		//Write the response
@@ -295,11 +323,46 @@ function priceListSuitelet(request, response)
 				//Retrieve the parameters from the form fields
 				//
 				var messageParam = request.getParameter('custpage_customer_message');
-				var custTypeParam = request.getParameter('custpage_cust_type_select');
 				var last12MonthsParam = request.getParameter('custpage_last_12_months');
 				var consolidatedParam = request.getParameter('custpage_consolidated_output');
 				var internalParam = request.getParameter('custpage_internal_output');
+				var lineCount = request.getLineItemCount('custpage_sublist_customer');
+				var customerIds = [];
+				
+				for (var int2 = 1; int2 < lineCount; int2++) 
+					{
+						var ticked = request.getLineItemValue('custpage_sublist_customer', 'custpage_sublist_customer_tick', int2);
+					
+						//Look for ticked lines
+						//
+						if (ticked == 'T')
+							{
+								var custId = request.getLineItemValue('custpage_sublist_customer', 'custpage_sublist_customer_internal', int2);
+								customerIds.push(custId);
+							}
+					}
+				
+				var parameterObject = {};
+				parameterObject['message'] = messageParam;
+				parameterObject['12Months'] = last12MonthsParam;
+				parameterObject['consolidated'] = consolidatedParam;
+				parameterObject['internal'] = internalParam;
+				parameterObject['custids'] = customerIds;
+				
+				
+				var scheduleParams = {custscript_bbs_pricelist_params: JSON.stringify(parameterObject)};
+				//nlapiScheduleScript('customscript_bbs_pricelist_scheduled', null, scheduleParams);
 
+				//Call the next stage
+				//
+				var sessionId = request.getParameter('custpage_session_param');
+				var params = new Array();
+				params['stage'] = stage + 1;
+				params['session'] = sessionId;
+				
+				var context = nlapiGetContext();
+				response.sendRedirect('SUITELET',context.getScriptId(), context.getDeploymentId(), null, params);
+				
 				break;
 		}
 	}
