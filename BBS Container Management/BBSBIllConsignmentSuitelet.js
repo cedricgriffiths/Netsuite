@@ -373,6 +373,7 @@ function billConsignmentSuitelet(request, response){
 									//Set the vendor bill currency from the po currency
 									//
 									vendorBillRecord.setFieldValue('currency', poHeadCurrency); 
+									vendorBillRecord.setFieldValue('location', poLineLocation); 
 									
 									
 									//Save the unique po's for this supplier into an array so we can update the purchaseorders sublist on the vendor bill
