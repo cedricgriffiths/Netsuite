@@ -329,7 +329,7 @@ function priceListSuitelet(request, response)
 				var lineCount = request.getLineItemCount('custpage_sublist_customer');
 				var customerIds = [];
 				
-				for (var int2 = 1; int2 < lineCount; int2++) 
+				for (var int2 = 1; int2 <= lineCount; int2++) 
 					{
 						var ticked = request.getLineItemValue('custpage_sublist_customer', 'custpage_sublist_customer_tick', int2);
 					
@@ -351,7 +351,7 @@ function priceListSuitelet(request, response)
 				
 				
 				var scheduleParams = {custscript_bbs_pricelist_params: JSON.stringify(parameterObject)};
-				//nlapiScheduleScript('customscript_bbs_pricelist_scheduled', null, scheduleParams);
+				nlapiScheduleScript('customscript_bbs_pricelist_scheduled', null, scheduleParams);
 
 				//Call the next stage
 				//

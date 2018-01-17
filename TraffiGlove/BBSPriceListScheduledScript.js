@@ -21,6 +21,7 @@ function scheduled(type)
 	//
 	var context = nlapiGetContext();
 	var parameters = context.getSetting('SCRIPT', 'custscript_bbs_pricelist_params');
+	var usersEmail = context.getUser();
 	var parameterObject = JSON.parse(parameters);
 	
 	nlapiLogExecution('DEBUG', 'Parameters', parameters);
@@ -52,6 +53,8 @@ function scheduled(type)
 		//
 		if (customerId != null && customerId != '')
 			{
+				checkResources();
+				
 				//Read the customer record
 				//
 				var customerRecord = nlapiLoadRecord('customer', customerId);
@@ -93,9 +96,10 @@ function scheduled(type)
 						//(Style is actually the Parent or Base Parent of the item)
 						//=============================================================================================
 						//
+						checkResources();
+						
 						if(last12MonthsParam == 'T')
 							{							
-								
 								var salesorderSearch = nlapiSearchRecord("salesorder",null,
 										[
 										   ["type","anyof","SalesOrd"], 
@@ -137,6 +141,8 @@ function scheduled(type)
 						//See if the customer has web pricing
 						//=============================================================================================
 						//
+						checkResources();
+						
 						var hasWebCat = false;
 						
 						var webProductSearch = nlapiCreateSearch("customrecord_bbs_customer_web_product",
@@ -211,6 +217,8 @@ function scheduled(type)
 								//or products where there is no owner
 								//=============================================================================================
 								//
+								checkResources();
+							
 								var filterArray = [];
 							
 								if(customerParent != null && customerParent != '')
@@ -294,6 +302,8 @@ function scheduled(type)
 						//First get any customer specific item pricing, but filter by the list of items we want to report on
 						//=============================================================================================
 						//
+						checkResources();
+						
 						var customerItemsCount = customerRecord.getLineItemCount('itempricing');
 						
 						for (var int = 1; int <= customerItemsCount; int++) 
@@ -333,53 +343,154 @@ function scheduled(type)
 						//items we want to report on
 						//=============================================================================================
 						//
+						checkResources();
+						
 						var reportItemArray = [];
 						for ( var reportItem in itemsToReportOn) 
 							{
 								reportItemArray.push(reportItem);
 							}
 						
-						var filterArray = [
-							               ["internalid","anyof",reportItemArray]
-							               ];
-							
-						var searchResultSet = getItems(filterArray);
-							
-						//Process the returned item data 
+						//Only get the pricing data if we have any items to report on
 						//
-						processItemResults(searchResultSet, priceListArray, customerCurrencyId, customerPriceLevel, itemsToReportOn);
-						
+						if(reportItemArray.length > 0)
+							{
+								var filterArray = [
+									               ["internalid","anyof",reportItemArray]
+									               ];
+									
+								var searchResultSet = getItems(filterArray);
+									
+								//Process the returned item data 
+								//
+								processItemResults(searchResultSet, priceListArray, customerCurrencyId, customerPriceLevel, itemsToReportOn);
+							}
 						
 						//=============================================================================================
 						//Add to the priceListArray, the value of last 12 months sales
 						//=============================================================================================
 						//
-						var salesorderSearch = nlapiSearchRecord("salesorder",null,
-								[
-								   ["type","anyof","SalesOrd"], 
-								   "AND", 
-								   ["mainline","is","F"], 
-								   "AND", 
-								   ["taxline","is","F"], 
-								   "AND", 
-								   ["trandate","within",lastYearsDateString,todaysDateString], 
-								   "AND", 
-								   ["customer.internalid","anyof",reportItemArray]
-								], 
-								[
-								   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
-								   new nlobjSearchColumn("quantity",null,"SUM")
-								]
-								);
+						checkResources();
 						
-						for (var int4 = 0; int4 < salesorderSearch.length; int4++) 
+						if(reportItemArray.length > 0)
 							{
-								var salesItemId = salesorderSearch[int4].getValue("item",null,"GROUP");
-								var salesItemQty = salesorderSearch[int4].getValue("quantity",null,"SUM");
+								var salesorderSearch = nlapiSearchRecord("salesorder",null,
+										[
+										   ["type","anyof","SalesOrd"], 
+										   "AND", 
+										   ["mainline","is","F"], 
+										   "AND", 
+										   ["taxline","is","F"], 
+										   "AND", 
+										   ["trandate","within",lastYearsDateString,todaysDateString], 
+										   "AND", 
+										   ["customer.internalid","anyof",customerId]
+										], 
+										[
+										   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
+										   new nlobjSearchColumn("quantity",null,"SUM")
+										]
+										);
 								
-								if(priceListArray[salesItemId])
+								var ytdSales = {};
+								
+								if(salesorderSearch)
 									{
-										priceListArray[salesItemId].push(salesItemQty);
+										for (var int4 = 0; int4 < salesorderSearch.length; int4++) 
+											{
+												var salesItemId = salesorderSearch[int4].getValue("item",null,"GROUP");
+												var salesItemQty = salesorderSearch[int4].getValue("quantity",null,"SUM");
+												
+												ytdSales[salesItemId] = Number(salesItemQty).toFixed(2);
+											}
+									}
+								
+								for (var priceList in priceListArray) 
+									{
+										if(ytdSales[priceList])
+											{
+												priceListArray[priceList].push(ytdSales[priceList]);
+											}
+										else
+											{
+												priceListArray[priceList].push('0.00');
+											}
+								}
+							}
+						
+						//=============================================================================================
+						//Add to the priceListArray, the cost price of the items
+						//=============================================================================================
+						//
+						if(internalParam == 'T')
+							{
+								checkResources();
+								
+								if(reportItemArray.length > 0)
+									{
+										//Search the items based on the reportItemArray
+										//
+										var itemSearch = nlapiCreateSearch("item",
+												[
+												   ["type","anyof","InvtPart","Assembly"], 
+												   "AND", 
+												   ["internalid","anyof",reportItemArray], 
+												   "AND", 
+												   ["matrixchild","is","T"], 
+												   "AND", 
+												   [[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"]],"OR",["type","anyof","Assembly"]]
+												], 
+												[
+												   new nlobjSearchColumn("itemid",null,null), 
+												   new nlobjSearchColumn("type",null,null), 
+												   new nlobjSearchColumn("vendorcost",null,null)
+												]
+												);
+										
+										var itemSearchResultSet = getResults(itemSearch);
+										
+										if(itemSearchResultSet)
+											{
+												for (var int5 = 0; int5 < itemSearchResultSet.length; int5++) 
+													{
+														var theCost = '';
+														var itemId = itemSearchResultSet[int5].getId();
+														var itemCost = itemSearchResultSet[int5].getValue('vendorcost');
+														var itemType = itemSearchResultSet[int5].getValue('type');
+														
+														if(itemType == 'InvtPart')
+															{
+																theCost = itemCost;
+															}
+														else
+															{
+																theCost = '0.01';	//TODO get the cost from the assembly
+															}
+														
+														priceListArray[itemId].push(theCost);
+													}
+											}
+										
+										//Calculate the margin
+										//
+										for ( var priceListItem in priceListArray) 
+											{
+												var sales = Number(priceListArray[priceListItem][4]);
+												var cost = Number(priceListArray[priceListItem][17]);
+												
+												var margin = '';
+												
+												if(sales > 0.0)
+													{
+														margin = (((sales - cost) / sales) * 100.0).toFixed(2) + '%';
+													}
+												else
+													{
+														margin = 'n/a';
+													}
+												
+												priceListArray[priceListItem].push(margin);
+											}
 									}
 							}
 					}
@@ -390,7 +501,14 @@ function scheduled(type)
 				//=============================================================================================
 				//
 				fileContents = messageParam + '\r\n';
-				fileContents += '"Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd"\r\n';
+				fileContents += '"Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd"';
+				
+				if(internalParam == 'T')
+					{
+						fileContents += ',"Item Cost","Margin"';
+					}
+				
+				fileContents += '\r\n';
 				
 				//Order the output list 
 				//
@@ -407,7 +525,7 @@ function scheduled(type)
 					
 					for (var int2 = 0; int2 < priceData.length; int2++) 
 					{
-						fileContents += '"' + priceData[int2] + '"' + (int2 < (priceData.length - 1) ? ',': '\r\n');
+						fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '"' + (int2 < (priceData.length - 1) ? ',': '\r\n');
 					}
 				}
 				
@@ -422,6 +540,10 @@ function scheduled(type)
 				nlapiAttachRecord('file', fileId, 'customer', customerId, null);
 			}
 	}
+	
+	//Send the email to the user to say that we have finished
+	//
+	nlapiSendEmail(usersEmail, usersEmail, 'Price List Export', 'Price list export has completed - please check customer records for attached price list files');
 }
 
 //=============================================================================================
@@ -453,6 +575,8 @@ function getItems(giFilterArray)
 
 	//If there is more than 1000 results, page through them
 	//
+	checkResources();
+	
 	while (resultlen == 1000) 
 		{
 				start += 1000;
@@ -495,6 +619,8 @@ function getItemRecordType(girtItemType)
 
 function getItemPricingData(gipdItemId, gipdItemType, gipdItemDisplayName, gipdCurrencyId, gipdPriceLevel, gipdStyle, gipdDecription)
 {
+	checkResources();
+	
 	var priceArray = null;
 	
 	//Load the item record
@@ -554,6 +680,8 @@ function getItemPricingData(gipdItemId, gipdItemType, gipdItemDisplayName, gipdC
 
 function getResults(grSearch)
 {
+	checkResources();
+	
 	var searchResult = grSearch.runSearch();
 	
 	//Get the initial set of results
@@ -581,6 +709,8 @@ function getResults(grSearch)
 
 function processItemResults(pirSearchResultSet, priceListArray, pirCurrencyId, pirPriceLevel, pirItemsToReportOn)
 {
+	checkResources();
+	
 	for (var int = 0; int < pirSearchResultSet.length; int++) 
 	{
 		//Get the item id & type
@@ -607,4 +737,14 @@ function processItemResults(pirSearchResultSet, priceListArray, pirCurrencyId, p
 			}
 	}
 
+}
+
+function checkResources()
+{
+	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+	
+	if(remaining < 100)
+		{
+			nlapiYieldScript();
+		}
 }
