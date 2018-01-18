@@ -89,7 +89,22 @@ function scheduled(type)
 																
 						var lastYearsDateString = lastYearsDate.getDate() + "/" + (lastYearsDate.getMonth() + 1) + "/" + lastYearsDate.getFullYear();
 						var todaysDateString = todaysDate.getDate() + "/" + (todaysDate.getMonth() + 1) + "/" + todaysDate.getFullYear();
-								
+						
+						//Set the export file name 
+						//
+						fileName = customerNo + '-Price List-' + todaysDate.getDate() + (todaysDate.getMonth() + 1)  + todaysDate.getFullYear() + '-' + (internalParam == 'T' ? 'INTERNAL' : 'CUSTOMER') + '.csv';
+						
+
+						
+						//=============================================================================================
+						//=============================================================================================
+						//
+						//Section that deals with building the list of items we want prices for
+						//
+						//=============================================================================================
+						//=============================================================================================
+						//	
+						
 						
 						//=============================================================================================
 						//List of styles sold in the last 12 months
@@ -132,11 +147,7 @@ function scheduled(type)
 									}
 							}
 						
-						//Set the export file name 
-						//
-						fileName = customerNo + '-Price List-' + todaysDate.getDate() + "/" + (todaysDate.getMonth() + 1) + "/" + todaysDate.getFullYear() + '-' + (internalParam == 'T' ? 'INTERNAL' : 'CUSTOMER') + '.csv';
 						
-
 						//=============================================================================================
 						//See if the customer has web pricing
 						//=============================================================================================
@@ -290,13 +301,22 @@ function scheduled(type)
 											}
 										else
 											{
-												//Don't filter, just copy all the web catalogue items
+												//Don't filter, just copy all the items
 												//
 												itemsToReportOn[itemProduct] = [itemProductTxt,itemStyle,itemParent,itemDescription,itemType];
 											}
 									}
 							}
 						
+						
+						//=============================================================================================
+						//=============================================================================================
+						//
+						//Section that deals with getting the prices for the items we want to report on
+						//
+						//=============================================================================================
+						//=============================================================================================
+						//						
 
 						//=============================================================================================
 						//First get any customer specific item pricing, but filter by the list of items we want to report on
@@ -419,114 +439,194 @@ function scheduled(type)
 							}
 						
 						//=============================================================================================
-						//Add to the priceListArray, the cost price of the items
+						//Add to the priceListArray, the cost price of the items & also get the matrix sequence number
 						//=============================================================================================
 						//
-						if(internalParam == 'T')
-							{
-								checkResources();
+						
+						checkResources();
 								
-								if(reportItemArray.length > 0)
+						if(reportItemArray.length > 0)
+							{
+								//Search the items based on the reportItemArray
+								//
+								var itemSearch = nlapiCreateSearch("item",
+										[
+										   ["type","anyof","InvtPart","Assembly"], 
+										   "AND", 
+										   ["internalid","anyof",reportItemArray], 
+										   "AND", 
+										   ["matrixchild","is","T"], 
+										   "AND", 
+										   [[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"]],"OR",["type","anyof","Assembly"]]
+										], 
+										[
+										   	new nlobjSearchColumn("itemid",null,null), 
+										   	new nlobjSearchColumn("type",null,null), 
+										   	new nlobjSearchColumn("vendorcost",null,null),
+										   	new nlobjSearchColumn("custitem_bbs_item_cost",null,null),
+										   	new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null)
+										]
+										);
+										
+								var itemSearchResultSet = getResults(itemSearch);
+										
+								if(itemSearchResultSet)
 									{
-										//Search the items based on the reportItemArray
-										//
-										var itemSearch = nlapiCreateSearch("item",
-												[
-												   ["type","anyof","InvtPart","Assembly"], 
-												   "AND", 
-												   ["internalid","anyof",reportItemArray], 
-												   "AND", 
-												   ["matrixchild","is","T"], 
-												   "AND", 
-												   [[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"]],"OR",["type","anyof","Assembly"]]
-												], 
-												[
-												   new nlobjSearchColumn("itemid",null,null), 
-												   new nlobjSearchColumn("type",null,null), 
-												   new nlobjSearchColumn("vendorcost",null,null)
-												]
-												);
-										
-										var itemSearchResultSet = getResults(itemSearch);
-										
-										if(itemSearchResultSet)
+										for (var int5 = 0; int5 < itemSearchResultSet.length; int5++) 
 											{
-												for (var int5 = 0; int5 < itemSearchResultSet.length; int5++) 
-													{
-														var theCost = '';
-														var itemId = itemSearchResultSet[int5].getId();
-														var itemCost = itemSearchResultSet[int5].getValue('vendorcost');
-														var itemType = itemSearchResultSet[int5].getValue('type');
+												var theCost = Number(0);
+												var itemId = itemSearchResultSet[int5].getId();
+												var itemCost = Number(itemSearchResultSet[int5].getValue('vendorcost'));
+												var itemAssmbCost = Number(itemSearchResultSet[int5].getValue('custitem_bbs_item_cost'));
+												var itemType = itemSearchResultSet[int5].getValue('type');
+												var itemSeq = itemSearchResultSet[int5].getValue('custitem_bbs_matrix_item_seq');
 														
-														if(itemType == 'InvtPart')
-															{
-																theCost = itemCost;
-															}
-														else
-															{
-																theCost = '0.01';	//TODO get the cost from the assembly
-															}
-														
-														priceListArray[itemId].push(theCost);
-													}
-											}
-										
-										//Calculate the margin
-										//
-										for ( var priceListItem in priceListArray) 
-											{
-												var sales = Number(priceListArray[priceListItem][4]);
-												var cost = Number(priceListArray[priceListItem][17]);
-												
-												var margin = '';
-												
-												if(sales > 0.0)
+												if(itemType == 'InvtPart')
 													{
-														margin = (((sales - cost) / sales) * 100.0).toFixed(2) + '%';
+														theCost = itemCost;
 													}
 												else
 													{
-														margin = 'n/a';
+														theCost = itemAssmbCost;
+														/*
+																checkResources();
+																
+																var assemblyRecord = nlapiLoadRecord('assemblyitem', itemId);
+																var topLevelDescription = assemblyRecord.getFieldValue('description');
+																var topLevelItemId = assemblyRecord.getFieldValue('itemid');
+																var topLevelData = [0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly','', 0]; //Level, ItemId, Item, item Desc, Item Unit, Item Qty, Item Type, Item Source, Item Cost
+																var itemQty = Number(1);
+																var level = Number(1);
+																
+																bomList.push(topLevelData);
+																
+																explodeBom(itemId, bomList, level, itemQty);
+											
+																for (var int7 = 0; int7 < bomList.length; int7++) 
+																	{ 
+																		theCost += Number(bomList[int7][8]);
+																	}
+																*/
 													}
-												
-												priceListArray[priceListItem].push(margin);
+														
+												priceListArray[itemId].push(theCost);
+												priceListArray[itemId].push(itemType);
+												priceListArray[itemId].push(itemSeq);
 											}
 									}
-							}
+										
+								//Calculate the margin
+								//
+								for ( var priceListItem in priceListArray) 
+									{
+										var sales = Number(priceListArray[priceListItem][4]);
+										var cost = Number(priceListArray[priceListItem][17]);
+												
+										var margin = '';
+												
+										if(sales > 0.0)
+											{
+												margin = (((sales - cost) / sales) * 100.0).toFixed(2) + '%';
+											}
+										else
+											{
+												margin = 'n/a';
+											}
+											
+										priceListArray[priceListItem].push(margin);
+									}
+							}						
 					}
 				
-
+				//=============================================================================================
+				//=============================================================================================
+				//
+				//Section that deals with outputting the price list to a file
+				//
+				//=============================================================================================
+				//=============================================================================================
+				//	
+				
+				
 				//=============================================================================================
 				//Build the output file
 				//=============================================================================================
 				//
+				//Column Numbers:-
+				//0  = Item Id
+				//1  = Item Name
+				//2  = Item Style
+				//3  = Item Description
+				//4  = Item Price 1
+				//5  = Item Price 2
+				//6  = Item Price 3
+				//7  = Item Price 4
+				//8  = Item Price 5
+				//9  = Item Price 6
+				//10 = Item Qty 1
+				//11 = Item Qty 2
+				//12 = Item Qty 3
+				//13 = Item Qty 4
+				//14 = Item Qty 5
+				//15 = Item Qty 6
+				//16 = Sales Qty Ytd
+				//17 = Item Cost
+				//18 = Item Type
+				//19 = Matrix Sequence
+				//20 = Margin
+				//
+				
 				fileContents = messageParam + '\r\n';
-				fileContents += '"Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd"';
+				
+				var columsToPrint = [];
+				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Margin"];
 				
 				if(internalParam == 'T')
 					{
-						fileContents += ',"Item Cost","Margin"';
+						columsToPrint = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20];
+					}
+				else
+					{					
+						columsToPrint = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+					}
+				
+				for (var int6 = 0; int6 < columsToPrint.length; int6++) 
+					{
+						fileContents += '"' + columnHeadings[columsToPrint[int6]] + '",';
 					}
 				
 				fileContents += '\r\n';
 				
 				//Order the output list 
 				//
-				const orderedPrices = {};
-				Object.keys(priceListArray).sort().forEach(function(key) {
-					orderedPrices[key] = priceListArray[key];
+				var tempObject = {};
+				
+				for ( var key in priceListArray) 
+					{
+						tempObject[priceListArray[key][19]] = key;
+					}
+				
+				
+				const orderedTemp = {};
+				Object.keys(tempObject).sort().forEach(function(key) {
+					orderedTemp[key] = tempObject[key];
 				});
 				
 				//Loop through the keys
 				//
-				for ( var key in orderedPrices) 
+				for ( var key in orderedTemp) 
 				{
-					var priceData = orderedPrices[key];
+					var priceData = priceListArray[orderedTemp[key]];
 					
 					for (var int2 = 0; int2 < priceData.length; int2++) 
-					{
-						fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '"' + (int2 < (priceData.length - 1) ? ',': '\r\n');
-					}
+						{
+							if(columsToPrint.indexOf(int2) > -1)
+								{
+									fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+								}
+						}
+					
+					fileContents += '\r\n'
 				}
 				
 				//Create the file
@@ -748,3 +848,58 @@ function checkResources()
 			nlapiYieldScript();
 		}
 }
+
+function explodeBom(topLevelAssemblyId, bomList, level, requiredQty)
+{
+	var assemblyRecord = nlapiLoadRecord('assemblyitem', topLevelAssemblyId);
+	var memberCount = assemblyRecord.getLineItemCount('member');
+	
+	for (var int = 1; int <= memberCount; int++) 
+	{
+		var memberItem = assemblyRecord.getLineItemValue('member', 'item', int);
+		var memberItemText = assemblyRecord.getLineItemText('member', 'item', int);
+		var memberDesc = assemblyRecord.getLineItemValue('member', 'memberdescr', int);
+		var memberUnit = assemblyRecord.getLineItemValue('member', 'memberunit', int);
+		var memberQty = Number(assemblyRecord.getLineItemValue('member', 'quantity', int)) * requiredQty;
+		var memberType = assemblyRecord.getLineItemValue('member', 'sitemtype', int);
+		var memberSource = assemblyRecord.getLineItemValue('member', 'itemsource', int);
+		var itemCost = Number(0);
+		
+		
+		//We only want inventory items in the component summary
+		//
+		if (memberType == 'InvtPart')
+			{
+				var itemSearchResultSet = nlapiSearchRecord("item", null,
+						[
+						   ["internalid","anyof",memberItem]
+						], 
+						[
+						   new nlobjSearchColumn("itemid",null,null), 
+						   new nlobjSearchColumn("type",null,null), 
+						   new nlobjSearchColumn("vendorcost",null,null)
+						]
+						);
+
+				if(itemSearchResultSet)
+					{
+						for (var int6 = 0; int6 < itemSearchResultSet.length; int6++) 
+							{
+								itemCost = Number(itemSearchResultSet[int6].getValue('vendorcost'));
+							}
+					}
+			}
+		
+		var lineData = [level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource,itemCost];
+		
+		bomList.push(lineData);
+		
+		//If we have found another assembly, then explode that as well
+		//
+		if(memberType == 'Assembly')
+			{
+				explodeBom(memberItem, bomList, level + 1, requiredQty);
+			}
+	}
+}
+
