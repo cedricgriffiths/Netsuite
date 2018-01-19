@@ -13,7 +13,9 @@
 function scheduled(type) 
 {
 	//=============================================================================================
+	//=============================================================================================
 	//Start of main code
+	//=============================================================================================
 	//=============================================================================================
 	//
 
@@ -34,7 +36,7 @@ function scheduled(type)
 	
 	//Get number of quantity price breaks
 	//
-	var maxQtyBreaks = Number(context.getPreference('QTYPRICECOUNT'));
+	//var maxQtyBreaks = Number(context.getPreference('QTYPRICECOUNT'));
 		
 	//Loop round the customers
 	//
@@ -439,12 +441,35 @@ function scheduled(type)
 							}
 						
 						//=============================================================================================
-						//Add to the priceListArray, the cost price of the items & also get the matrix sequence number
+						//Add to the priceListArray, the cost price of the items, the matrix sequence number,
+						//the base parent & the finish
 						//=============================================================================================
 						//
 						
 						checkResources();
-								
+						
+						//Get the list of available colours into an object
+						//
+						var colourArray = {};
+						
+						var colourSearchResultSet = nlapiSearchRecord("customlist_bbs_item_colour",null,[], 
+								[
+								  new nlobjSearchColumn("abbreviation",null,null) 	
+								]
+								);
+
+						if(colourSearchResultSet)
+							{
+								for (var int5 = 0; int5 < colourSearchResultSet.length; int5++) 
+									{
+										var colourId = colourSearchResultSet[int5].getId();
+										var colourAbbr = colourSearchResultSet[int5].getValue('abbreviation');	
+										
+										colourArray[colourId] = colourAbbr;
+									}
+							}
+						
+						
 						if(reportItemArray.length > 0)
 							{
 								//Search the items based on the reportItemArray
@@ -464,7 +489,10 @@ function scheduled(type)
 										   	new nlobjSearchColumn("type",null,null), 
 										   	new nlobjSearchColumn("vendorcost",null,null),
 										   	new nlobjSearchColumn("custitem_bbs_item_cost",null,null),
-										   	new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null)
+										   	new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null),
+										   	new nlobjSearchColumn("custitemfinish_type",null,null),
+										   	new nlobjSearchColumn("custitem_bbs_item_colour",null,null),
+										   	new nlobjSearchColumn("description","parent",null)
 										]
 										);
 										
@@ -480,7 +508,12 @@ function scheduled(type)
 												var itemAssmbCost = Number(itemSearchResultSet[int5].getValue('custitem_bbs_item_cost'));
 												var itemType = itemSearchResultSet[int5].getValue('type');
 												var itemSeq = itemSearchResultSet[int5].getValue('custitem_bbs_matrix_item_seq');
-														
+												var itemFinish = itemSearchResultSet[int5].getText('custitemfinish_type');
+												var itemColour = itemSearchResultSet[int5].getValue('custitem_bbs_item_colour');
+												var itemParentDesc = itemSearchResultSet[int5].getValue('description','parent');
+												
+												itemColour = colourArray[itemColour];
+												
 												if(itemType == 'InvtPart')
 													{
 														theCost = itemCost;
@@ -512,15 +545,22 @@ function scheduled(type)
 												priceListArray[itemId].push(theCost);
 												priceListArray[itemId].push(itemType);
 												priceListArray[itemId].push(itemSeq);
+												priceListArray[itemId].push((itemFinish == null ? '' : itemFinish));
+												priceListArray[itemId].push((itemColour == null ? '' : itemColour));
+												priceListArray[itemId].push((itemParentDesc == null ? '' : itemParentDesc));
+												
 											}
 									}
 										
-								//Calculate the margin
+								//Calculate the margin & combine the style, colour & finish
 								//
 								for ( var priceListItem in priceListArray) 
 									{
 										var sales = Number(priceListArray[priceListItem][4]);
 										var cost = Number(priceListArray[priceListItem][17]);
+										var style = priceListArray[priceListItem][2];
+										var finish = priceListArray[priceListItem][20];
+										var colour = priceListArray[priceListItem][21];
 												
 										var margin = '';
 												
@@ -534,6 +574,7 @@ function scheduled(type)
 											}
 											
 										priceListArray[priceListItem].push(margin);
+										priceListArray[priceListItem].push(style + '-' + colour + ' ' + finish);
 									}
 							}						
 					}
@@ -546,13 +587,8 @@ function scheduled(type)
 				//=============================================================================================
 				//=============================================================================================
 				//	
-				
-				
-				//=============================================================================================
-				//Build the output file
-				//=============================================================================================
+				//Column Numbers in output data:-
 				//
-				//Column Numbers:-
 				//0  = Item Id
 				//1  = Item Name
 				//2  = Item Style
@@ -573,70 +609,159 @@ function scheduled(type)
 				//17 = Item Cost
 				//18 = Item Type
 				//19 = Matrix Sequence
-				//20 = Margin
+				//20 = Finish
+				//21 = Item Colour
+				//22 = Item Parent Description
+				//23 = Margin
+				//24 = Style + Colour + Finish
 				//
 				
-				fileContents = messageParam + '\r\n';
-				
+				//Define the column headings that are available
+				//
 				var columsToPrint = [];
-				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Margin"];
-				
-				if(internalParam == 'T')
+				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Finish","Item Colour","Parent Description","Margin","Style-Colour Finish"];
+						
+				if(consolidatedParam == 'T')
 					{
-						columsToPrint = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20];
+						//=============================================================================================
+						//Consolidated output
+						//=============================================================================================
+						//
+						fileContents = '"Price List Consolidated By Style & Finish"' + '\r\n\r\n';
+						fileContents = messageParam + '\r\n\r\n';
+				
+						//Build up a list of styles & finishes
+						//
+						var styleAndFinish = {};
+						
+						for ( var priceListItem in priceListArray) 
+							{
+								var sAndFData = priceListArray[priceListItem][24];
+								var ParentData = priceListArray[priceListItem][22];
+								var PriceData = Number(priceListArray[priceListItem][4]);
+								var ytdData = Number(priceListArray[priceListItem][16]);
+								
+								if(!styleAndFinish[sAndFData])
+									{
+										styleAndFinish[sAndFData] = [sAndFData,ParentData,9999999,0]; //Style Colour & Finish, Parent Description, min price, tyd sales
+									}
+								
+								//If this price is less that the current stored price, save it
+								//
+								if(PriceData < styleAndFinish[sAndFData][2])
+									{
+										styleAndFinish[sAndFData][2] = PriceData;
+									}
+								
+								//Sum up the ytd values
+								//
+								styleAndFinish[sAndFData][3] = Number(styleAndFinish[sAndFData][3]) + Number(ytdData);
+							}
+						
+						const orderedStyleAndFinish = {};
+						Object.keys(styleAndFinish).sort().forEach(function(key) {
+							orderedStyleAndFinish[key] = styleAndFinish[key];
+						});
+						
+						fileContents += '"Style Colour Finish","Description","Price","Ytd Sales"\r\n';
+						
+						for ( var key in orderedStyleAndFinish) 
+							{
+								var priceData = orderedStyleAndFinish[key];
+	
+								for (var int2 = 0; int2 < priceData.length; int2++) 
+									{
+										fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+									}
+								
+								fileContents += '\r\n';
+							}
 					}
 				else
-					{					
-						columsToPrint = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
-					}
-				
-				for (var int6 = 0; int6 < columsToPrint.length; int6++) 
 					{
-						fileContents += '"' + columnHeadings[columsToPrint[int6]] + '",';
+						//=============================================================================================
+						//Non consolidated output
+						//=============================================================================================
+						//
+						
+						//Headings are based on price list type (internal / external)
+						//
+						if(internalParam == 'T')
+							{
+								fileContents = '"****PRICE LIST FOR INTERNAL USE ONLY****"' + '\r\n\r\n';
+								fileContents += messageParam + '\r\n\r\n';
+								
+								columsToPrint = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,21,22,23,24];
+							}
+						else
+							{		
+								fileContents = '"Price List By SKU"' + '\r\n\r\n';
+								fileContents = messageParam + '\r\n\r\n';
+							
+								columsToPrint = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16];
+							}
+						
+						//Output the required headings
+						//
+						for (var int6 = 0; int6 < columsToPrint.length; int6++) 
+							{
+								fileContents += '"' + columnHeadings[columsToPrint[int6]] + '",';
+							}
+						
+						fileContents += '\r\n';
+						
+						//Order the output list by the matrix sequence number
+						//
+						var tempObject = {};
+						
+						for ( var key in priceListArray) 
+							{
+								tempObject[priceListArray[key][19]] = key;
+							}
+						
+						const orderedTemp = {};
+						Object.keys(tempObject).sort().forEach(function(key) {
+							orderedTemp[key] = tempObject[key];
+						});
+						
+						//Loop through the keys
+						//
+						for ( var key in orderedTemp) 
+							{
+								var priceData = priceListArray[orderedTemp[key]];
+
+								for (var int2 = 0; int2 < priceData.length; int2++) 
+									{
+										if(columsToPrint.indexOf(int2) > -1)
+											{
+												fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+											}
+									}
+								
+								fileContents += '\r\n';
+							}
 					}
 				
-				fileContents += '\r\n';
 				
-				//Order the output list 
+				//=============================================================================================
+				//Build the output file
+				//=============================================================================================
 				//
-				var tempObject = {};
-				
-				for ( var key in priceListArray) 
-					{
-						tempObject[priceListArray[key][19]] = key;
-					}
-				
-				
-				const orderedTemp = {};
-				Object.keys(tempObject).sort().forEach(function(key) {
-					orderedTemp[key] = tempObject[key];
-				});
-				
-				//Loop through the keys
-				//
-				for ( var key in orderedTemp) 
-				{
-					var priceData = priceListArray[orderedTemp[key]];
-					
-					for (var int2 = 0; int2 < priceData.length; int2++) 
-						{
-							if(columsToPrint.indexOf(int2) > -1)
-								{
-									fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
-								}
-						}
-					
-					fileContents += '\r\n'
-				}
 				
 				//Create the file
 				//
 				var fileObject = nlapiCreateFile(fileName, 'CSV', fileContents);
 				
+				//Set the folder
+				//
 				fileObject.setFolder(-10);
 				
+				//Save the file to the filing cabinet
+				//
 				var fileId = nlapiSubmitFile(fileObject);
 				
+				//Attach the file to the customer
+				//
 				nlapiAttachRecord('file', fileId, 'customer', customerId, null);
 			}
 	}
@@ -647,7 +772,9 @@ function scheduled(type)
 }
 
 //=============================================================================================
+//=============================================================================================
 //Functions
+//=============================================================================================
 //=============================================================================================
 //
 function getItems(giFilterArray)
