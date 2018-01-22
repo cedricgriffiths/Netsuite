@@ -38,22 +38,27 @@ function bomSpecialInstructionsAfterSubmit(type)
     var members = nlapiGetLineItemCount('member'); 
     var itemid = nlapiGetRecordId();
 
-    for (var i = 0; members != null && i < members; i++) 
-    {
-        var memberId = nlapiGetLineItemValue('member','item',i+1);
-        var customfield = nlapiGetLineItemValue('member','custpage_bom_spec_inst',i+1);    
-
-        if (checkMVF(itemid, memberId)){
-            nlapiSubmitField('customrecord_bbs_bom_fields',mvfid,'custrecord_bbs_custom_field_1',customfield);
-        }
-        else{
-            var rec = nlapiCreateRecord('customrecord_bbs_bom_fields');
-            rec.setFieldValue('custrecord_bbs_bom_item', itemid);
-            rec.setFieldValue('custrecord_bbs_bom_member', memberId);
-            rec.setFieldValue('custrecord_bbs_custom_field_1', customfield);
-            nlapiSubmitRecord(rec);
-        }
-    }
+    if(itemid != null && itemid != '')
+    	{
+		    for (var i = 0; members != null && i < members; i++) 
+			    {
+			        var memberId = nlapiGetLineItemValue('member','item',i+1);
+			        var customfield = nlapiGetLineItemValue('member','custpage_bom_spec_inst',i+1);    
+			
+			        if (checkMVF(itemid, memberId))
+				        {
+				            nlapiSubmitField('customrecord_bbs_bom_fields',mvfid,'custrecord_bbs_custom_field_1',customfield);
+				        }
+			        else
+				        {
+				            var rec = nlapiCreateRecord('customrecord_bbs_bom_fields');
+				            rec.setFieldValue('custrecord_bbs_bom_item', itemid);
+				            rec.setFieldValue('custrecord_bbs_bom_member', memberId);
+				            rec.setFieldValue('custrecord_bbs_custom_field_1', customfield);
+				            nlapiSubmitRecord(rec);
+				        }
+			    }
+    	}
 }
 
 function addField(form)
