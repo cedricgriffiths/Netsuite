@@ -94,7 +94,7 @@ function scheduled(type)
 						
 						//Set the export file name 
 						//
-						fileName = customerNo + '-Price List-' + todaysDate.getDate() + (todaysDate.getMonth() + 1)  + todaysDate.getFullYear() + '-' + (internalParam == 'T' ? 'INTERNAL' : 'CUSTOMER') + '.csv';
+						fileName = customerNo + '-Price List-' + todaysDate.getDate() + (todaysDate.getMonth() + 1)  + todaysDate.getFullYear() + '-' + (internalParam == 'T' ? 'INTERNAL' : 'CUSTOMER') + '-' + (consolidatedParam == 'T' ? 'CONSOLIDATED' : 'SKU') + '.csv';
 						
 
 						
@@ -492,7 +492,8 @@ function scheduled(type)
 										   	new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null),
 										   	new nlobjSearchColumn("custitemfinish_type",null,null),
 										   	new nlobjSearchColumn("custitem_bbs_item_colour",null,null),
-										   	new nlobjSearchColumn("description","parent",null)
+										   	new nlobjSearchColumn("description","parent",null),
+										   	new nlobjSearchColumn("custitem_bbs_item_category",null,null)
 										]
 										);
 										
@@ -511,6 +512,7 @@ function scheduled(type)
 												var itemFinish = itemSearchResultSet[int5].getText('custitemfinish_type');
 												var itemColour = itemSearchResultSet[int5].getValue('custitem_bbs_item_colour');
 												var itemParentDesc = itemSearchResultSet[int5].getValue('description','parent');
+												var itemCategory = itemSearchResultSet[int5].getValue('custitem_bbs_item_category');
 												
 												itemColour = colourArray[itemColour];
 												
@@ -548,6 +550,7 @@ function scheduled(type)
 												priceListArray[itemId].push((itemFinish == null ? '' : itemFinish));
 												priceListArray[itemId].push((itemColour == null ? '' : itemColour));
 												priceListArray[itemId].push((itemParentDesc == null ? '' : itemParentDesc));
+												priceListArray[itemId].push((itemCategory == null ? '' : itemCategory));
 												
 											}
 									}
@@ -612,15 +615,18 @@ function scheduled(type)
 				//20 = Finish
 				//21 = Item Colour
 				//22 = Item Parent Description
-				//23 = Margin
-				//24 = Style + Colour + Finish
+				//23 = Item Category
+				//24 = Margin
+				//25 = Style + Colour + Finish
 				//
 				
 				//Define the column headings that are available
 				//
 				var columsToPrint = [];
-				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Finish","Item Colour","Parent Description","Margin","Style-Colour Finish"];
-						
+				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Finish","Item Colour","Parent Description","Category","Margin","Style-Colour Finish"];
+				
+				nlapiLogExecution('DEBUG', 'priceListArray length', priceListArray.length);
+				
 				if(consolidatedParam == 'T')
 					{
 						//=============================================================================================
@@ -636,7 +642,7 @@ function scheduled(type)
 						
 						for ( var priceListItem in priceListArray) 
 							{
-								var sAndFData = priceListArray[priceListItem][24];
+								var sAndFData = priceListArray[priceListItem][25];
 								var ParentData = priceListArray[priceListItem][22];
 								var PriceData = Number(priceListArray[priceListItem][4]);
 								var ytdData = Number(priceListArray[priceListItem][16]);
@@ -644,6 +650,9 @@ function scheduled(type)
 								if(!styleAndFinish[sAndFData])
 									{
 										styleAndFinish[sAndFData] = [sAndFData,ParentData,9999999,0]; //Style Colour & Finish, Parent Description, min price, tyd sales
+										
+										//nlapiLogExecution('DEBUG', 'Adding to styleAndFinish array', sAndFData);
+										
 									}
 								
 								//If this price is less that the current stored price, save it
@@ -691,7 +700,7 @@ function scheduled(type)
 								fileContents = '"****PRICE LIST FOR INTERNAL USE ONLY****"' + '\r\n\r\n';
 								fileContents += messageParam + '\r\n\r\n';
 								
-								columsToPrint = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,20,21,22,23,24];
+								columsToPrint = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,24];
 							}
 						else
 							{		
@@ -716,7 +725,13 @@ function scheduled(type)
 						
 						for ( var key in priceListArray) 
 							{
-								tempObject[priceListArray[key][19]] = key;
+							var sortKeyOne = priceListArray[key][23]; //Category
+							var sortKeyTwo = priceListArray[key][19]; //Matrix sequence number
+							var sortKeyThree = priceListArray[key][20]; //Finish
+							
+								tempObject[sortKeyOne + sortKeyTwo + sortKeyThree] = key;
+								
+								//tempObject[priceListArray[key][19]] = key;
 							}
 						
 						const orderedTemp = {};
@@ -1028,5 +1043,24 @@ function explodeBom(topLevelAssemblyId, bomList, level, requiredQty)
 				explodeBom(memberItem, bomList, level + 1, requiredQty);
 			}
 	}
+}
+
+//left padding s with c to a total of n chars
+//
+function padding_left(s, c, n) 
+{
+	if (! s || ! c || s.length >= n) 
+	{
+		return s;
+	}
+	
+	var max = (n - s.length)/c.length;
+	
+	for (var i = 0; i < max; i++) 
+	{
+		s = c + s;
+	}
+	
+	return s;
 }
 
