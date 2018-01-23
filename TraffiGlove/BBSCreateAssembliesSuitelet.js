@@ -133,6 +133,11 @@ function createAssembliesSuitelet(request, response){
 					//=====================================================================
 					//
 				
+					//Initialise the base parent parameter field
+					//
+					var dummyObject = {};
+					baseParentIdField.setDefaultValue(JSON.stringify(dummyObject));
+				
 					//Get a session
 					//
 					var sessionId = libCreateSession();
@@ -245,8 +250,8 @@ function createAssembliesSuitelet(request, response){
 					var childItemsTab = form.addTab('custpage_child_items_tab', 'Child Items');
 					childItemsTab.setLabel('Child Items');
 					
-					var dummyTab = form.addTab('custpage_dummy_tab', '');
-					form.addField('custpage_dummy_2', 'text', 'Dummy 2', null, 'custpage_dummy_tab');
+					//var dummyTab = form.addTab('custpage_dummy_tab', '');
+					//form.addField('custpage_dummy_2', 'text', 'Dummy 2', null, 'custpage_dummy_tab');
 					
 					
 					//Read the finish record
