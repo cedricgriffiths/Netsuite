@@ -623,9 +623,7 @@ function scheduled(type)
 				//Define the column headings that are available
 				//
 				var columsToPrint = [];
-				var columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Finish","Item Colour","Parent Description","Category","Margin","Style-Colour Finish"];
-				
-				nlapiLogExecution('DEBUG', 'priceListArray length', priceListArray.length);
+				var columnHeadings = [];
 				
 				if(consolidatedParam == 'T')
 					{
@@ -633,9 +631,7 @@ function scheduled(type)
 						//Consolidated output
 						//=============================================================================================
 						//
-						fileContents = '"Price List Consolidated By Style & Finish"' + '\r\n\r\n';
-						fileContents = messageParam + '\r\n\r\n';
-				
+						
 						//Build up a list of styles & finishes
 						//
 						var styleAndFinish = {};
@@ -646,13 +642,11 @@ function scheduled(type)
 								var ParentData = priceListArray[priceListItem][22];
 								var PriceData = Number(priceListArray[priceListItem][4]);
 								var ytdData = Number(priceListArray[priceListItem][16]);
+								var costData = Number(priceListArray[priceListItem][17]);
 								
 								if(!styleAndFinish[sAndFData])
 									{
-										styleAndFinish[sAndFData] = [sAndFData,ParentData,9999999,0]; //Style Colour & Finish, Parent Description, min price, tyd sales
-										
-										//nlapiLogExecution('DEBUG', 'Adding to styleAndFinish array', sAndFData);
-										
+										styleAndFinish[sAndFData] = [sAndFData,ParentData,9999999,0,0,0,0,'']; //Style Colour & Finish, Parent Description, min price, ytd sales, sum of cost, # of costs, avg cost, margin
 									}
 								
 								//If this price is less that the current stored price, save it
@@ -662,25 +656,85 @@ function scheduled(type)
 										styleAndFinish[sAndFData][2] = PriceData;
 									}
 								
+								//Average cost price
+								//
+								styleAndFinish[sAndFData][4] = Number(styleAndFinish[sAndFData][4]) + costData;
+								styleAndFinish[sAndFData][5] = Number(styleAndFinish[sAndFData][5]) + Number(1);
+								
+								if(Number(styleAndFinish[sAndFData][5]) != 0)
+									{
+										styleAndFinish[sAndFData][6] = Number(styleAndFinish[sAndFData][4]) / Number(styleAndFinish[sAndFData][5]);
+									}
+								
 								//Sum up the ytd values
 								//
 								styleAndFinish[sAndFData][3] = Number(styleAndFinish[sAndFData][3]) + Number(ytdData);
+								
+								//Calculate the margin
+								//
+								var sales = Number(styleAndFinish[sAndFData][2]);
+								var cost = Number(styleAndFinish[sAndFData][6]);
+								var margin = '';
+								
+								if(sales > 0.0)
+									{
+										margin = (((sales - cost) / sales) * 100.0).toFixed(2) + '%';
+									}
+								else
+									{
+										margin = 'n/a';
+									}
+								
+								styleAndFinish[sAndFData][7] = margin;
 							}
 						
+						//Sort the output
+						//
 						const orderedStyleAndFinish = {};
 						Object.keys(styleAndFinish).sort().forEach(function(key) {
 							orderedStyleAndFinish[key] = styleAndFinish[key];
 						});
 						
-						fileContents += '"Style Colour Finish","Description","Price","Ytd Sales"\r\n';
+						//Headings are based on price list type (internal / external)
+						//
+						columnHeadings = ["Style Colour Finish","Description","Min Price","Ytd Sales","Sum of Cost","# of Costs","Avg Cost","Margin"];
 						
+						if(internalParam == 'T')
+							{
+								fileContents = '"****CONSOLIDATED PRICE LIST FOR INTERNAL USE ONLY****"' + '\r\n\r\n';
+								fileContents += messageParam + '\r\n\r\n';
+								
+								columsToPrint = [0,1,2,3,6,7];
+							}
+						else
+							{		
+								fileContents = '"Price List Consolidated By Style & Finish"' + '\r\n\r\n';
+								fileContents = messageParam + '\r\n\r\n';
+							
+								columsToPrint = [0,1,2,3];
+							}
+						
+						//Output the required headings
+						//
+						for (var int6 = 0; int6 < columsToPrint.length; int6++) 
+							{
+								fileContents += '"' + columnHeadings[columsToPrint[int6]] + '",';
+							}
+						
+						fileContents += '\r\n';
+						
+						//Loop through the keys
+						//
 						for ( var key in orderedStyleAndFinish) 
 							{
 								var priceData = orderedStyleAndFinish[key];
 	
 								for (var int2 = 0; int2 < priceData.length; int2++) 
 									{
-										fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+										if(columsToPrint.indexOf(int2) > -1)
+											{
+												fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+											}
 									}
 								
 								fileContents += '\r\n';
@@ -695,6 +749,8 @@ function scheduled(type)
 						
 						//Headings are based on price list type (internal / external)
 						//
+						columnHeadings = ["Item Id","Item Name","Style","Description","Price 1","Price 2","Price 3","Price 4","Price 5","Price 6","Qty Break 1","Qty Break 2","Qty Break 3","Qty Break 4","Qty Break 5","Qty Break 6","Sales Qty Ytd","Item Cost","Item Type","Matrix Sequence","Finish","Item Colour","Parent Description","Category","Margin","Style-Colour Finish"];
+					
 						if(internalParam == 'T')
 							{
 								fileContents = '"****PRICE LIST FOR INTERNAL USE ONLY****"' + '\r\n\r\n';
