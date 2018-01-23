@@ -137,7 +137,7 @@ function calcLandedCosts()
 											var lineQty = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col11', linenum));
 											var lineUnitWeight = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col14', linenum));
 											
-											var lineLandedCost = lineQty * lineUnitWeight;
+											var lineLandedCost = (lineQty * lineUnitWeight) * perUnitValue;
 											
 											//Now we have worked out the quantity we need to convert it from the landed cost currency to the currency on the item receipt
 											//
@@ -145,7 +145,7 @@ function calcLandedCosts()
 											
 											if (lineCurrency != '' && lcCurrency != '')
 												{
-													lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+													lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lcCurrency,lineCurrency)).toFixed(2);
 												}
 
 											nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCostInCurrency);
@@ -184,7 +184,7 @@ function calcLandedCosts()
 									
 									if (lineCurrency != '' && lcCurrency != '')
 										{
-											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lcCurrency,lineCurrency)).toFixed(2);
 										}
 									
 									//Set the sublist value
@@ -210,7 +210,7 @@ function calcLandedCosts()
 									//
 									if (lineCurrency != '' && lcCurrency != '')
 										{
-											lineValue = lineValue * nlapiExchangeRate(lcCurrency, lineCurrency);
+											lineValue = lineValue * nlapiExchangeRate(lineCurrency,lcCurrency);
 										}
 									
 									totalLineValue += lineValue;
@@ -225,17 +225,17 @@ function calcLandedCosts()
 								for (var linenum = 1; linenum <= lineCount; linenum++) 
 								{
 									var lineValue = Number(nlapiGetLineItemValue('custpage_sublist1', 'custpage_col18', linenum));
-									var lineLandedCost = lineValue * perUnitValue;
+									var lineLandedCost = (lineValue * nlapiExchangeRate(lineCurrency,lcCurrency)) * perUnitValue;
 									var lineCurrency = nlapiGetLineItemValue('custpage_sublist1', 'custpage_col19', linenum);
 									
 									var lineLandedCostInCurrency = lineLandedCost;
 									
 									if (lineCurrency != '' && lcCurrency != '')
 										{
-											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lineCurrency, lcCurrency)).toFixed(2);
+											lineLandedCostInCurrency = (lineLandedCost * nlapiExchangeRate(lcCurrency,lineCurrency)).toFixed(2);
 											//var lineLandedCost = Math.round(((lineQty * lineUnitRate) * perUnitValue) * 100) / 100;
 										}
-									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCost);
+									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col_lc_' + count.toString(), linenum, lineLandedCostInCurrency);
 								}
 								
 								break;
