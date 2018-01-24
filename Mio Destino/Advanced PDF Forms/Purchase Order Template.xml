@@ -1,0 +1,298 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  
+        <#assign regInfo>Company Registration No: 6013204. Registered Office: Unit 2, 2 Pillings Road, Oakham, Rutland LE15 6QF.</#assign>
+        <#assign emailInfo>service@miodestino.com</#assign>
+        <#assign telInfo>+44 (0) 1572 869 462</#assign>
+        <#assign vatInfo>GB 933218535</#assign>
+        <#assign logoInfo>${companyInformation.logoUrl}</#assign>
+  
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    <tr>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    </tr>
+    <!--<tr><td>&nbsp;</td></tr>-->
+    <tr>
+  <td><span style="font-size:24px;">${record@title}</span></td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  </tr>
+          </table>
+    <table class="header" style="width: 100%;">
+
+  <tr>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
+  <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
+  <td align="right" style="font-size:10pt"></td>
+  <!--<td align="right" style="font-size:10pt"></td>-->
+
+ <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+
+  
+  </tr>
+  <tr>
+    <!--<<td align="right"></td>-->
+  <td align="right"></td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt"></td>-->
+  <td align="right" style="font-size:10pt"></td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+  <td align="right" style="font-size:10pt">&nbsp;</td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+  <td align="right" style="font-size:10pt">&nbsp;</td>
+  </tr>
+  <tr >
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+    <td align="right" style="font-size:10pt">&nbsp;</td>
+  </tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+
+          </table>
+        </macro>
+
+        <macro id="nlfooter">
+
+          <!--<hr />-->
+          
+        <table style="width: 100%;">
+
+          <tr><td><b>Standard Terms and Conditions apply</b></td></tr>
+          <tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>
+
+          <tr><td>&nbsp;</td></tr>
+        </table>
+
+        <table style="width: 100%;">
+          <tr class="messagerow">
+              <td align="left" class="message">${regInfo}</td>
+      </tr>
+        </table>
+
+    <table class="footer" style="width: 100%;">
+          <tr>
+      <td align="right"><pagenumber/> of <totalpages/></td>
+    </tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+        border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:9px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+			font-size: 6pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+        border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="3%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    <table style="width: 100%;">
+    <tr>
+  <td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+  </tr>
+  <tr>
+  <td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+  </tr>
+  <tr>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+  <tr>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.memo}</td>
+    </tr>
+        <tr>
+  <td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+    </tr>
+      <tr>
+        <#if record.duedate?has_content>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Date</b></td><td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
+            </#if>
+    </tr>
+    
+      <tr>
+  <td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+  <td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+  <td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+  </table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead >
+  <tr >
+  <th align="left" colspan="5">Description</th>
+  <th align="left" colspan="2">EAN</th>
+  <th align="left" colspan="1">Product<br/>Code</th>
+  <th align="left" colspan="2">Exact Colour</th>
+  <th align="left" colspan="1">Brand<br/>Size</th>
+
+  <th align="center" colspan="1">Quantity</th>
+  <th align="right" colspan="1">Unit Price</th>
+
+  <th align="center" colspan="1">VAT Code</th>
+
+  <th align="right" colspan="1">Amount<br/>(${record.currency.symbol})</th>
+  </tr>
+</thead>
+</#if>
+
+  <tr>
+  <td align="left" colspan="5" margin-right="5px">${item.item} ${item.description}</td>
+  <td align="left" colspan="2">${item.custcol_mio_ean}</td>
+  <td align="left" colspan="1">${item.custcol_displayname}</td>
+  <td align="left" colspan="2">${item.custcol_bbs_exact_colour}</td>
+  <td align="left" colspan="1">${item.custcol_bbs_brand_size_chart}</td>
+  <td align="center" colspan="1">${item.quantity}</td>
+  <td align="center" colspan="1">${item.rate}</td>
+
+  <td align="center" colspan="1">${item.taxcode}</td>
+
+  <td align="right" colspan="1">${item.amount}</td>
+  </tr>
+  </#list><!-- end items --></table>
+</#if>
+
+<hr />
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Subtotal</b></td>
+  <td class="totalcell"  align="right">${record.subtotal}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+
+  <td class="totalcell" align="right"><b>VAT Total</b></td>
+  
+  <td class="totalcell"  align="right">${record.taxtotal}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
+  <td class="totalcell"  align="right">${record.total}</td>
+  </tr>
+  <tr>
+  <td>&nbsp;</td>
+  </tr></table>
+</body>
+</pdf>

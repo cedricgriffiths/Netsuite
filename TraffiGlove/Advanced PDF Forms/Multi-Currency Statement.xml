@@ -1,0 +1,299 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
+<pdf>
+<head>
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+  
+        <#assign aging2 = statement.aging2?c?number>
+  		<#assign aging3 = statement.aging3?c?number>
+  		<#assign aging4 = statement.aging4?c?number>
+  		<#assign aging5 = statement.aging5?c?number>
+		<#assign aging = aging2 + aging3 + aging4 + aging5>
+  
+        <#assign subsidiary>${statement.subsidiary}</#assign>
+
+        <#if subsidiary=="Swift">
+              <#assign regInfo>Company Registration No: 06863317. Registered Office: Venture Park, Selborne Road, Alton, Hampshire, GU34 3HL, United Kingdom.</#assign>
+              <#assign emailInfo>sales@swiftindustrial.co.uk</#assign>
+              <#assign telInfo>01420 592500</#assign>
+              <#assign vatInfo>GB 730 047 570</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=12&amp;c=3865332_SB1&amp;h=8c7ade4a997e5c95e9aa</#assign>
+        </#if>
+  
+        <#if subsidiary=="BrandXUK">
+              <#assign regInfo>Company Registration No: 06683211. Registered Office: Maxx House, Western Road, Bracknell, Berkshire, RG12 1QP, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@traffiglove.com</#assign>
+              <#assign telInfo>01344 207090</#assign>
+              <#assign vatInfo>GB 938 0690 02</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=11&amp;c=3865332_SB1&amp;h=e0957c1448ab1bfcd5af</#assign>
+        </#if>
+
+          
+          <#assign done>N</#assign>
+          <#assign compadr></#assign>
+            
+          <#list statement.lines as line>
+            
+            <#if line.custbody_subsidiary_address?length gt 0 && done=="N" >
+			<#assign compadr>${line.custbody_subsidiary_address}</#assign>
+            
+        	<#assign done>Y</#assign>
+
+    		</#if>
+          </#list>
+
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;"><tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
+	</tr>
+	<tr><td>&nbsp;</td></tr>
+	<tr>
+	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr></table>
+
+<table class="header" style="width: 100%;"><tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${statement.vatregnum}</span></td>
+	<td align="right" style="font-size:10pt"></td>
+	
+	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${compadr}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	</tr>
+	<tr>
+    <!--<<td align="right"></td>-->
+	<td align="right"></td>
+	</tr>
+	<tr>
+	<!--<<td align="right" style="font-size:10pt"></td>-->
+	<td align="right" style="font-size:10pt"></td>
+	</tr>
+	<tr>
+	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+	<td align="right" style="font-size:10pt">&nbsp;</td>
+	</tr>
+	<tr>
+	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+	<td align="right" style="font-size:10pt">&nbsp;</td>
+	</tr>
+	<tr >
+	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+    <td align="right" style="font-size:10pt">&nbsp;</td>
+	</tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+          </table>
+        </macro>
+        <macro id="nlfooter">
+          
+ 		<#assign done>N</#assign>
+          
+          <#list statement.lines as line>
+            <#assign accno>${line.custbody_bbs_account_no}</#assign>
+            
+            <#if accno?length gt 0 && done=="N" >
+        <table style="width: 100%;">
+          <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
+          <tr><td>${line.custbody_bbs_bank_account}</td></tr>
+          <tr><td>${line.custbody_bbs_bank_name}</td></tr>
+          <tr><td>Account Number: ${line.custbody_bbs_account_no}</td></tr>
+          <tr><td>Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
+          <tr><td>IBAN: ${line.custbody_bbs_iban}</td></tr>
+          <tr><td>Swift Code: ${line.custbody_bbs_bic}</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          
+        <#assign done>Y</#assign>
+        </table>
+    </#if>
+          </#list>  
+        
+        <table style="width: 100%;">
+          <tr class="messagerow">
+              <td align="left" class="message">${regInfo}</td>
+		  </tr>
+        </table>
+
+<table class="footer" style="width: 100%;"><tr>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="9%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+  
+    <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="8" class="address"></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Statement Date</b></td><td align="right" style="font-size:10pt">${statement.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+
+
+  </table>
+  
+  
+    <#if statement.lines?has_content>
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">Debit</th>
+	<th align="right" colspan="4">Credit</th>
+      <th align="right" colspan="4">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>Overdue</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${aging?string.currency}</td>
+	<td>${statement.agingbal}</td>
+	</tr>
+      </table>
+</#if></body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>

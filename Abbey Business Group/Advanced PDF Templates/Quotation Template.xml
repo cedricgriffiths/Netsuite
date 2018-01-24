@@ -1,0 +1,238 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;"><tr>
+	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right" rowspan="2"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:200px; height:133px;" /> </#if></td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+	<td rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span></td>
+	<td align="right">Quotation Number</td>
+	<td align="right">${record.custbody_bbs_quote_ref}</td>
+	</tr>
+	<tr>
+	<td align="right">Quotation Date</td>
+	<td align="right">${record.trandate}</td>
+	</tr>
+	<tr>
+	<td align="right">${record.duedate@label}</td>
+	<td align="right">${record.duedate}</td>
+	</tr>
+	<tr>
+	<td align="right">${record.expectedclosedate@label}</td>
+	<td align="right">${record.expectedclosedate }</td>
+	</tr>
+	<tr>
+	<td align="right">${record.salesrep@label}</td>
+	<td align="right">${record.salesrep }</td>
+	</tr>
+    <tr>
+	<td align="right">${record.custbody_cseg_bbs_project_no@label}</td>
+	<td align="right">${record.custbody_cseg_bbs_project_no}</td>
+	</tr>
+	<tr>
+	<td align="right">${record.custbody_bbs_so_project_text@label}</td>
+	<td align="right">${record.custbody_bbs_so_project_text}</td>
+	</tr>
+    </table>
+        </macro>
+        <macro id="nlfooter">
+
+    <table class="total" style="width: 100%;">
+    <tr class="totalrow">
+	<td background-color="#ffffff" colspan="4" class="addressheader">Deliver To:</td>
+	<td align="right"><b>${record.subtotal@label}</b></td>
+	<td align="right" background-color="#ffffff">${record.subtotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td background-color="#ffffff" rowspan="4" colspan="4" class="address">${record.shipaddress}</td>
+	<td align="right"><b>${record.taxtotal@label}</b></td>
+	<td align="right" background-color="#ffffff">${record.taxtotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td align="right"><b>${record.total@label}</b></td>
+	<td align="right" background-color="#ffffff">${record.total}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+        <tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr>
+    <tr>
+	<td>&nbsp;</td>
+	<td>&nbsp;</td>
+	</tr></table>
+      
+    <table style="width: 100%;">
+	<tr class="messagerow">
+	<td class="message" style="font-size: 5pt"><b>ABBEY BUSINESS EQUIPMENT LIMITED RETAINS THE TITLE TO THE GOODS SUPPLIED UNTIL FULL PAYMENT HAS BEEN RECEIVED. HOWEVER RISK PASSES ON DELIVERY TO YOURSELVES</b></td>
+	</tr>
+    </table>
+
+<table class="footer" style="width: 100%;"><tr>
+    <td align="left" colspan="3" style="font-size: 5pt">REG. OFFICE NO. 2200765 REG> OFFICE: Units 23 &amp; 24 Neptune Business Centre, Tewkesbury Road, Cheltenham, Gloucestershire. GL51 9FB VAT REG. No. 484 6151 31</td>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+          
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+            font-family: sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 0px;
+            vertical-align: middle;
+            font-size:12px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 125%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+      td.message{
+        font-size: 6pt;
+        font-weight: bold;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="12%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+    <table style="width: 100%;"><tr>
+	<td class="addressheader">Invoice To:</td>
+	</tr>
+	<tr>
+	<td class="address">${record.billaddress}</td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td>
+	</tr></table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th align="center" colspan="3">${item.quantity@label}</th>
+    <th align="center" colspan="3">${item.custcol_bbs_quote_cad@label}</th>
+	<th colspan="12">${item.item@label}</th>
+	<th align="right" colspan="4">Unit Price</th>
+	<th align="right" colspan="4">${item.amount@label}</th>
+	</tr>
+</thead>
+</#if><#if item.custcol_bbs_sales_print>
+      <tr>
+	<td align="center" colspan="3" line-height="150%">${item.quantity}</td>
+    <td align="left" colspan="3">${item.custcol_bbs_quote_cad}</td>
+        <#if item.custcol_bbs_sales_generic_desc == "">
+          <td colspan="12">&nbsp;</td>
+          <#else>
+            <#if item.item == "Disclaimer">
+          <td colspan="12" font-weight="bold">${item.custcol_bbs_sales_generic_desc}</td>
+          <#else>
+            <td colspan="12">${item.custcol_bbs_sales_generic_desc}</td>
+          </#if>
+          </#if>
+	<td align="right" colspan="4">${item.rate}</td>
+	<td align="right" colspan="4">${item.amount}</td>
+	</tr>
+
+	</#if></#list><!-- end items --></table>
+</#if>
+
+<hr />
+
+</body>
+</pdf>
