@@ -1,0 +1,284 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+    
+              <#assign regInfo>Company Registration No: 07644080. Registered Office: Corporate House, Haslemere, GU27 2QH, United Kingdom.</#assign>
+              <#assign emailInfo>creditcontrol@smigroupuk.com</#assign>
+              <#assign telInfo>01428 658333</#assign>
+              <#assign vatInfo>GB 217 1244 96</#assign>
+              <#assign logoInfo>${companyInformation.logoUrl}</#assign>
+
+  
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    <tr>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    <td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    </tr>
+    <!--<tr><td>&nbsp;</td></tr>-->
+    <tr>
+    <td><span style="font-size:24px;">Remittance Advice</span></td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    </tr>
+          </table>
+    <table class="header" style="width: 100%;">
+
+    <tr>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    <td align="right">&nbsp;</td>
+    </tr>
+    <tr>
+    <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Payment Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.entity}<br/>${record.address}</span></td>
+    <td align="right" style="font-size:10pt"></td>
+    
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress" style="font-size:10pt"></span><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    </tr>
+    <tr>
+    <!--<<td align="right"></td>-->
+    <td align="right"></td>
+    </tr>
+    <tr>
+    <!--<<td align="right" style="font-size:10pt"></td>-->
+    <td align="right" style="font-size:10pt"></td>
+    </tr>
+    <tr>
+    <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+    <td align="right" style="font-size:10pt">&nbsp;</td>
+    </tr>
+    <tr>
+    <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+    <td align="right" style="font-size:10pt">&nbsp;</td>
+    </tr>
+    <tr >
+    <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+    <td align="right" style="font-size:10pt">&nbsp;</td>
+    </tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+    <tr style="font-size:10pt">
+      <!--<td align="right">&nbsp;</td>-->
+      <td align="right">&nbsp;</td>
+      </tr>
+
+          </table>
+        </macro>
+
+        <macro id="nlfooter">
+
+        <table style="width: 100%;">
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+        </table>
+
+
+
+        <table style="width: 100%;">
+
+          <tr class="messagerow">
+              <td align="left" class="message"><b>Cleared Funds Will Be Received Within 3 Business Days Of The Above Mentioned Payment Date</b></td>
+          </tr>
+          <tr class="messagerow">
+            <td align="left" class="message">${regInfo}</td>
+          </tr>
+        </table>
+
+        <table class="footer" style="width: 100%;">
+          <tr>
+            <td align="right"><pagenumber/> of <totalpages/></td>
+        </tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+            font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+            border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+            border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="11%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    <table style="width: 100%;">
+    <tr>
+    <td  align="left" style="font-size:10pt"><b>Payment Date</b></td><td align="left" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td><td  align="left" style="font-size:10pt">&nbsp;</td><td  align="left" style="font-size:10pt">&nbsp;</td>
+    </tr>
+    <tr>
+    <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td><td  align="left" style="font-size:10pt">&nbsp;</td><td  align="left" style="font-size:10pt">&nbsp;</td>
+    </tr>
+  <tr>
+    <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"></td><td align="right" style="font-size:10pt"></td><td  align="left" style="font-size:10pt">&nbsp;</td><td  align="left" style="font-size:10pt">&nbsp;</td>
+    </tr>
+
+  </table>
+<#if record.apply?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
+<thead>
+    <tr>
+    <th align="left" colspan="3">Invoice Date</th>
+    <th colspan="3">${apply.refnum@label}</th>
+    <th align="right" colspan="3">Invoice Total</th>
+    <th align="right" colspan="3">${apply.due@label}</th>
+    <th align="right" colspan="3">${apply.disc@label}</th>
+    <th align="right" colspan="4">${apply.amount@label}</th>
+    </tr>
+</thead>
+</#if>
+  <tr>
+    <td align="left" colspan="3" line-height="150%">${apply.applydate?string["dd MMM yyyy"]}</td>
+    <td colspan="3">${apply.refnum}</td>
+    <td align="right" colspan="3">${apply.total}</td>
+    <td align="right" colspan="3">${apply.due}</td>
+    <td align="right" colspan="3">${apply.disc}</td>
+    <td align="right" colspan="4">${apply.amount}</td>
+    </tr>
+    </#list><!-- end apply --></table>
+</#if>
+
+  <#if record.credit?has_content>
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start credit sublist --><#list record.credit as credit>
+      <#if credit_index==0>
+<thead>
+    <tr>
+    <th align="left" colspan="3">Credit Date</th>
+    <th colspan="3">${credit.refnum@label}</th>
+    <th align="right" colspan="3">${credit.total@label}</th>
+    <th align="right" colspan="6">${credit.appliedto@label}</th>
+    <th align="right" colspan="4">${credit.amount@label}</th>
+    </tr>
+</thead>
+</#if>
+  <tr>
+    <td align="left" colspan="3" line-height="150%">${credit.creditdate?string["dd MMM yyyy"]}</td>
+    <td colspan="3">${credit.refnum}</td>
+    <td align="right" colspan="3">${credit.total}</td>
+    <td align="right" colspan="6">${credit.appliedto}</td>
+    <td align="right" colspan="4">${credit.amount}</td>
+    </tr>
+    </#list><!-- end credit--></table>
+
+</#if>
+<hr/>
+<table class="total" style="width: 100%;">
+  
+    <tr class="totalrow">
+    <td colspan="4">&nbsp;</td>
+    <td class="totalcell" align="right"><b>Total (${record.currency})</b></td>
+    <td class="totalcell" align="right">${record.total}</td>
+    </tr>
+    <tr>
+    <td>&nbsp;</td>
+    </tr></table>
+</body>
+</pdf>
