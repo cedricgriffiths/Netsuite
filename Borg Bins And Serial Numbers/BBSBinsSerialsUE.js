@@ -60,3 +60,59 @@ function binsSerialNumbersBS(type)
 	}
 	 
 }
+
+function serialNumbersAS(type)
+{
+	if(type == 'create' || type == 'edit')
+	{
+		var newRecord = nlapiGetNewRecord();
+		var newId = newRecord.getId();
+		var newType = newRecord.getRecordType();
+		var thisRecord = null;
+		
+		try
+		{
+			thisRecord = nlapiLoadRecord(newType, newId);
+		}
+		catch(err)
+		{
+			thisRecord = null;
+		}
+		
+		if(thisRecord)
+			{
+				var count = thisRecord.getLineItemCount('item');
+				
+				for (var int = 1; int <= count; int++) 
+				{
+					var serials = "";
+					
+					var rec = thisRecord.viewLineItemSubrecord('item', 'inventorydetail', int);
+					
+					if (rec)
+					{
+						var invcount = rec.getLineItemCount('inventoryassignment');  
+						 
+						  for(var x = 1; x <=invcount ; x++) 
+						  {
+							  //rec.selectLineItem('inventoryassignment', x);
+							  //var serialNumber = rec.getCurrentLineItemText('inventoryassignment', 'issueinventorynumber');
+							  var serialNumber = rec.getLineItemText('inventoryassignment', 'issueinventorynumber', x);
+							  
+							  if(x>1)
+							  {
+								  serials += '\n';
+							  }
+							  
+							  serials += serialNumber;
+						  }
+					}
+					
+					thisRecord.setLineItemValue('item', 'custcol_bbs_if_serial_no', int, serials);
+				}
+				
+				nlapiSubmitRecord(thisRecord, false, true);
+			}
+	}
+}	
+
