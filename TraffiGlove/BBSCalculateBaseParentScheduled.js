@@ -17,7 +17,9 @@ function scheduledBaseParent(type)
 			[
 			   ["type","anyof","Assembly"], 
 			   "AND", 
-			   ["custitem_sw_base_parent","anyof","@NONE@"]
+			   ["custitem_sw_base_parent","anyof","@NONE@"],
+			   "AND", 
+			   ["matrixchild","is","T"]
 			], 
 			[
 			   new nlobjSearchColumn("itemid",null,null)
