@@ -162,7 +162,9 @@ function createAssembliesSuitelet(request, response){
 					
 					//Add a filter field to limit the base parent
 					//
-					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Filter', null, 'custpage_grp_parent');
+					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Filter - Description Contains', null, 'custpage_grp_parent');
+					var baseParentFilter2Field = form.addField('custpage_base_parent_filter2', 'text', 'Base Parent Filter - Name Starts With', null, 'custpage_grp_parent');
+					baseParentFilterField.setBreakType('startcol');
 					
 					var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
 							[
@@ -173,8 +175,8 @@ function createAssembliesSuitelet(request, response){
 							   ["custitem_bbs_item_category","anyof","1","2","3"]
 							], 
 							[
-							   new nlobjSearchColumn("itemid",null,null), 
-							   new nlobjSearchColumn("salesdescription",null,null).setSort(false)
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("salesdescription",null,null)
 							]
 							);
 					

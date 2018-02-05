@@ -21,6 +21,13 @@ function createAssembliesScheduled(type)
 	var finishId = context.getSetting('SCRIPT', 'custscript_bbs_finish_id');
 	var finishrefId = context.getSetting('SCRIPT', 'custscript_bbs_finishref_id');
 
+	//Debugging
+	//
+	nlapiLogExecution('DEBUG', 'parentChildString', parentChildString);
+	nlapiLogExecution('DEBUG', 'customerId', customerId);
+	nlapiLogExecution('DEBUG', 'finishId', finishId);
+	nlapiLogExecution('DEBUG', 'finishrefId', finishrefId);
+	
 	//Read the finish ref textual name
 	//
 	var finishrefText = nlapiLookupField('customlist_bbs_item_finish_ref', finishrefId, 'name');
@@ -56,7 +63,14 @@ function createAssembliesScheduled(type)
 					//	
 					var parentRecord = nlapiLoadRecord('inventoryitem', parent);
 					
-					if(parentRecord)
+					//Get the child items for this parent
+					//
+					var children = parentAndChild[parent];
+					
+					//Check to see if we have a parent & it also has children
+					//We don't want to create the parent if there are no children to create
+					//
+					if(parentRecord && children.length > 0)
 						{
 							//=====================================================================
 							//Process the parent record to create a new assembly item parent
@@ -102,7 +116,8 @@ function createAssembliesScheduled(type)
 									
 									//Set field values 
 									//
-									var template = '{custitem_bbs_item_category}-{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
+									//var template = '{custitem_bbs_item_category}-{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
+									var template = '{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
 									
 									if (parentSize2 != '' && parentSize2 != null)
 										{
@@ -168,13 +183,10 @@ function createAssembliesScheduled(type)
 							//=====================================================================
 							//
 							
-							//Check to see if we have creaated the new parent ok
+							//Check to see if we have created the new parent ok
 							//
 							if(newParentId)
 								{
-									//Get the child items for this parent
-									//
-									var children = parentAndChild[parent];
 									
 									//Loop through the child items
 									//
@@ -272,7 +284,7 @@ function createAssembliesScheduled(type)
 																						{
 																							if(minStock != null && minStock != '')
 																								{
-																									newChildRecord.setLineItemValue('locations', 'safetystocklevel', int2, minStock);
+																									newChildRecord.setLineItemValue('locations', 'reorderpoint', int2, minStock);
 																								}
 																							
 																							if(maxStock != null && maxStock != '')
@@ -293,7 +305,7 @@ function createAssembliesScheduled(type)
 																	newChildRecord.setFieldValue('hasparent', 'T');
 																	newChildRecord.setFieldValue('includechildren', 'F');
 																	newChildRecord.setFieldValue('isphantom', 'F');
-																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', parentItemCategoryId);
+																	//newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_category', parentItemCategoryId);
 																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_colour', childColour);
 																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size1', childSize1);
 																	newChildRecord.setFieldValue('matrixoptioncustitem_bbs_item_size2', childSize2);
@@ -339,7 +351,7 @@ function createAssembliesScheduled(type)
 																	
 																	//Add the child item to the list of web products
 																	//
-																	if(webProduct)
+																	if(webProduct == 'T')
 																		{
 																			allChildWebProducts[newchildId] = newchildId;
 																		}

@@ -377,11 +377,12 @@ function createAssembliesFieldChanged(type, name, linenum)
 	
 	//If the parent filter has changed, then apply the filter to the parent items
 	//
-	if (name == 'custpage_base_parent_filter')
+	if (name == 'custpage_base_parent_filter' || name == 'custpage_base_parent_filter2')
 	{
 		var filterValue = nlapiGetFieldValue('custpage_base_parent_filter');
+		var filterValue2 = nlapiGetFieldValue('custpage_base_parent_filter2');
 		
-		if(filterValue != null && filterValue != '')
+		if((filterValue != null && filterValue != '') || (filterValue2 != null && filterValue2 != ''))
 			{
 				nlapiRemoveSelectOption('custpage_base_parent_select', null);
 				
@@ -396,15 +397,21 @@ function createAssembliesFieldChanged(type, name, linenum)
 				
 				if(filterValue != null && filterValue != '')
 					{
-					filterArray.push("AND");
-					filterArray.push(["salesdescription","contains",filterValue]);
+						filterArray.push("AND");
+						filterArray.push(["salesdescription","contains",filterValue]);
 					}
-				
-				var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
+			
+				if(filterValue2 != null && filterValue2 != '')
+					{
+						filterArray.push("AND");
+						filterArray.push(["itemid","startswith",filterValue2]);
+					}
+			
+			var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
 						filterArray, 
 						[
-						   new nlobjSearchColumn("itemid",null,null), 
-						   new nlobjSearchColumn("salesdescription",null,null).setSort(false)
+						   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+						   new nlobjSearchColumn("salesdescription",null,null)
 						]
 						);
 				
@@ -450,6 +457,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 				alert('Blank filter ignored - Base Parent list will be too long to process');
 			}
 	}
+	
 }
 
 //Function called by the update sales price button
