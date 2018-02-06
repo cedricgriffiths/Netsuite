@@ -59,6 +59,11 @@ function avgcostSuitelet(request, response)
 		var locField = form.addField('custpage_location', 'text', 'location');
 		locField.setDisplayType('hidden');
 		
+		//Account
+		//
+		var accField = form.addField('custpage_account', 'text', 'account');
+		accField.setDisplayType('hidden');
+		
 
 		//=====================================================================
 		// Form layout based on stage number
@@ -87,10 +92,17 @@ function avgcostSuitelet(request, response)
 				//Add a select field to select the subsidiary
 				//
 				var subsidiaryField = form.addField('custpage_subsidiary_select', 'select', 'Subsidiary', 'subsidiary', 'custpage_grp_header');
+				subsidiaryField.setMandatory(true);
 				
 				//Add a text field to select the location
 				//
 				var beginsWithField = form.addField('custpage_location_select', 'select', 'Location', null, 'custpage_grp_header');
+				beginsWithField.setMandatory(true);
+				
+				//Add a text field to select the account
+				//
+				var accountField = form.addField('custpage_account_select', 'select', 'Account', 'account', 'custpage_grp_header');
+				accountField.setMandatory(true);
 				
 				form.addSubmitButton('Update Average Costs');
 				
@@ -142,10 +154,12 @@ function avgcostSuitelet(request, response)
 				//
 				var subsidiaryParam = request.getParameter('custpage_subsidiary');
 				var locationParam = request.getParameter('custpage_location');
+				var accountParam = request.getParameter('custpage_account');
 				
 				var parameterObject = {};
 				parameterObject['subsidiary'] = subsidiaryParam;
 				parameterObject['location'] = locationParam;
+				parameterObject['account'] = accountParam;
 				
 				var scheduleParams = {custscript_bbs_avgcost_params: JSON.stringify(parameterObject)};
 				nlapiScheduleScript('customscript_bbs_avgcost_scheduled', null, scheduleParams);

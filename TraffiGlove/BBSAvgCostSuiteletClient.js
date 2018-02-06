@@ -62,6 +62,13 @@ function avgcostFieldChanged(type, name, linenum)
 			
 		}
 
-	
+	if(name == 'custpage_account_select')
+	{
+		var locationId =  nlapiGetFieldValue(name);
+		nlapiSetFieldValue('custpage_account', locationId, false, true);
+		
+	}
+
+
 
 }	
