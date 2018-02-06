@@ -89,23 +89,27 @@ function addField(form)
 
 function checkMVF(item, member)
 {
-	
-	//nlapiLogExecution('DEBUG', 'Progress', 'In checkMVF');
-	
-    var itemFilters = new Array();
-    itemFilters[0] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', item);
-    itemFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_member', null, 'is', member);
-    var itemColumns = new Array();
-    itemColumns[0] = new nlobjSearchColumn('internalid', null, null);
-    var searchresults = nlapiSearchRecord('customrecord_bbs_bom_fields', null, itemFilters, itemColumns);
-
-    if (numRows(searchresults) > 0) {
-        mvfid = searchresults[0].getValue('internalid');
-        return true;
-    }
-    else{
-        return false;
-    }
+	if(item != null && item != '' && member != null && member != '')
+		{
+		    var itemFilters = new Array();
+		    itemFilters[0] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', item);
+		    itemFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_member', null, 'is', member);
+		    
+		    var itemColumns = new Array();
+		    itemColumns[0] = new nlobjSearchColumn('internalid', null, null);
+		    
+		    var searchresults = nlapiSearchRecord('customrecord_bbs_bom_fields', null, itemFilters, itemColumns);
+		
+		    if (numRows(searchresults) > 0) 
+			    {
+			        mvfid = searchresults[0].getValue('internalid');
+			        return true;
+			    }
+		    else
+			    {
+			        return false;
+			    }
+		}
 }
 
 function numRows(obj){
