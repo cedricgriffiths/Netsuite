@@ -30,7 +30,9 @@ function scheduled(type)
 	var locationParam = parameterObject['location'];
 	var accountParam = parameterObject['account'];
 
+	//=============================================================================================
 	//Search for inventory items
+	//=============================================================================================
 	//
 	var itemSearch = nlapiCreateSearch("item",
 			[
@@ -67,8 +69,12 @@ function scheduled(type)
 		{
 			var counter = Number(0);
 			
+			//Loop round the results
+			//
 			for (var int = 0; int < itemSearchResult.length; int++) 
 				{
+					//Check resources
+					//
 					if(counter % 50)
 						{
 							checkResources();
@@ -78,52 +84,240 @@ function scheduled(type)
 					var itemVendorCost = Number(itemSearchResult[int].getValue('vendorcost'));
 					var itemAverageCost = Number(itemSearchResult[int].getValue('custitem_bbs_item_ave_cost'));
 					
+					//Get the costs
+					//
 					itemAverageCost = (isNaN(itemAverageCost) ? 0 : itemAverageCost);
 					itemVendorCost = (isNaN(itemVendorCost) ? 0 : itemVendorCost);
 					
+					//Read the inventory item
+					//
+					var selecedVendorCurrency = '1';
+					var binId = '';
+					
+					var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
+					
+					if(itemRecord)
+						{
+							//Find the preferred vendor's currency
+							//
+							var vendors = itemRecord.getLineItemCount('itemvendor');
+							
+							for (var int2 = 1; int2 <= vendors; int2++) 
+								{
+									var vendorPreferred = itemRecord.getLineItemValue('itemvendor', 'preferredvendor', int2);
+									var vendorCurrency = itemRecord.getLineItemValue('itemvendor', 'vendorcurrencyid', int2);
+									var vendorSubsidiary = itemRecord.getLineItemValue('itemvendor', 'subsidiary', int2);
+									
+									if(vendorPreferred == 'T' && vendorSubsidiary == subsidiaryParam)
+										{
+											selecedVendorCurrency= vendorCurrency;
+											break;
+										}
+								}
+							
+							//Find the preferred bin for the location
+							//
+							binId = findBin(itemRecord, locationParam);
+						}
+					
+					//Choose which cost to use
+					//
 					var selectedCost = Number(0);
 					
+					//Use the item average cost if available
+					//
 					if(itemAverageCost != 0)
 						{
 							selectedCost = itemAverageCost;
 						}
 					else
 						{
-							selectedCost = itemVendorCost;
+							//Otherwise use the cost from the supplier & convert it from the suppliers currency to the base currency
+							//
+							var exchangeRate = nlapiExchangeRate(selecedVendorCurrency, '1');
+							
+							selectedCost = itemVendorCost * exchangeRate;
 						}
 
-					var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
 					
-					if(itemRecord)
-					{
-						var binCount = itemRecord.getLineItemCount('binnumber');
-						
-						var binId = '';
-						
-						for (var int2 = 1; int2 <= binCount; int2++) 
-							{
-								var binLocation = itemRecord.getLineItemValue('binnumber', 'location', int2);
-								var binNumber = itemRecord.getLineItemValue('binnumber', 'binnumber', int2);
-								var binActive = itemRecord.getLineItemValue('binnumber', 'locationactive', int2);
-								var binPreferred = itemRecord.getLineItemValue('binnumber', 'preferredbin', int2);
-								
-								if(binLocation == locationParam && binActive == 'Yes' && binPreferred == 'T')
-									{
-										binId = binNumber;
-										break;
-									}
-							}
-							
-							stockAdjust(itemId, 'IN', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
-							stockAdjust(itemId, 'OUT', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
+					//Stock adjust a quantity of one in & then out 
+					//
+					stockAdjust(itemId, 'IN', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
+					stockAdjust(itemId, 'OUT', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
 
+					counter++;
+				}
+		}
+
+	
+	//=============================================================================================
+	//Search for assembly items
+	//=============================================================================================
+	//
+	var itemSearch = nlapiCreateSearch("item",
+			[
+			   ["locationaveragecost","isempty",""], 
+			   "AND", 
+			   ["inventorylocation","anyof",locationParam],
+			   "AND",
+			   ["type","anyof","Assembly"],
+			   "AND", 
+			   ["matrixchild","is","T"],
+			   "AND", 
+			   ["isphantom","is","F"]
+			], 
+			[
+			   new nlobjSearchColumn("itemid",null,null).setSort(false)
+			]
+			);
+
+	//Get all the results from the search (i.e. > 1000 lines)
+	//
+	var itemSearchResult = getResults(itemSearch);
+	
+	if(itemSearchResult)
+		{
+			var counter = Number(0);
+			
+			//Loop round the results
+			//
+			for (var int = 0; int < itemSearchResult.length; int++) 
+				{
+					//Check resources
+					//
+					if(counter % 50)
+						{
+							checkResources();
+						}
+					
+					//Initialise the cost of the assembly to zero
+					//
+					var assemblyTotalCost = Number(0);
+					
+					//Get the id of the assembly
+					//
+					var assemblyId = itemSearchResult[int].getId();
+					
+					//Read the assembly record
+					//
+					var assemblyRecord = nlapiLoadRecord('assemblyitem', assemblyId);
+					
+					if(assemblyRecord)
+						{
+							//Loop through the components
+							//
+							var components = assemblyRecord.getLineItemCount('member');
+							
+							for (var int3 = 1; int3 <= components; int3++) 
+								{
+									var componentId = assemblyRecord.getLineItemValue('member', 'item', int3);
+									var componentType = assemblyRecord.getLineItemValue('member', 'sitemtype', int3);
+									var componentQty = assemblyRecord.getLineItemValue('member', 'quantity', int3);
+									
+									switch(componentType)
+										{
+											case 'InvtPart':
+												
+												var componentRecord = nlapiLoadRecord('inventoryitem', componentId);
+												
+												if(componentRecord)
+													{
+														//Get the average cost
+														//
+														var componentAvgCost = Number(componentRecord.getFieldValue('custitem_bbs_item_ave_cost'));
+														
+														//If we have an average cost then use it
+														//
+														if(componentAvgCost != 0)
+															{
+																//Multiply the cost by the component quantity
+																//
+																var componentCombinedCost = componentAvgCost * componentQty;
+																
+																//Update the combined cost
+																//
+																assemblyTotalCost += componentCombinedCost;
+															}
+														else
+															{
+																//If not, then we will have to get the supplier price
+																//
+																var suppliers = componentRecord.getLineItemCount('itemvendor');
+																var supplierPrice = Number(0);
+																
+																for (var int4 = 1; int4 <= suppliers; int4++) 
+																	{
+																		var supplierPreferred = componentRecord.getLineItemValue('itemvendor', 'preferredvendor', int4);
+																		var supplierCurrency = componentRecord.getLineItemValue('itemvendor', 'vendorcurrencyid', int4);
+																		var supplierSubsidiary = componentRecord.getLineItemValue('itemvendor', 'subsidiary', int4);
+																		supplierPrice = Number(componentRecord.getLineItemValue('itemvendor', 'purchaseprice', int4));
+																		
+																		if(supplierPreferred == 'T' && supplierSubsidiary == subsidiaryParam && supplierPrice != 0)
+																			{
+																				//Get the exchange rate to convert the suppliers price into base currency
+																				//
+																				var exchangeRate = nlapiExchangeRate(supplierCurrency, '1');
+																			
+																				//Multiply the cost by the component quantity
+																				//
+																				var componentCombinedCost = (supplierPrice * exchangeRate) * componentQty;
+																				
+																				//Update the combined cost
+																				//
+																				assemblyTotalCost += componentCombinedCost;
+																				
+																				break;
+																			}
+																	}
+															
+															}
+													}
+												
+												break;
+												
+											case 'Assembly':
+												
+												//Read the assembly item 
+												//
+												var componentRecord = nlapiLoadRecord('assemblyitem', componentId);
+												
+												if(componentRecord)
+													{	
+														//Get the costs
+														//
+														var componentApplicationCost = Number(componentRecord.getFieldValue('custitem_bbs_item_application_cost'));
+														var componentItemCost = Number(componentRecord.getFieldValue('custitem_bbs_item_cost'));
+														
+														//Multiply the costs by the component quantity
+														//
+														var componentCombinedCost = (componentApplicationCost + componentItemCost) * componentQty;
+														
+														//Update the combined cost
+														//
+														assemblyTotalCost += componentCombinedCost;
+													}
+												
+												break;
+										}
+								}
+						
+							//Find the preferred bin for the location
+							//
+							binId = findBin(assemblyRecord, locationParam);
+							
+							//Stock adjust a quantity of one in & then out 
+							//
+							stockAdjust(assemblyId, 'IN', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
+							stockAdjust(assemblyId, 'OUT', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
 						}
 					
 					counter++;
 				}
 		}
 
+	//=============================================================================================
 	//Send the email to the user to say that we have finished
+	//=============================================================================================
 	//
 	nlapiSendEmail(usersEmail, usersEmail, 'Average Cost Update', 'The average cost update has completed');
 }
@@ -218,4 +412,27 @@ function stockAdjust(itemId, direction, locationId, accountId, costPrice, subsid
 	invAdjRecord.commitLineItem('inventory');
 	
 	var invTranId = nlapiSubmitRecord(invAdjRecord, true, true);
+}
+
+function findBin(itemRec, locationId)
+{
+	var binId = '';
+	
+	var binCount = itemRec.getLineItemCount('binnumber');
+	
+	for (var int2 = 1; int2 <= binCount; int2++) 
+		{
+			var binLocation = itemRec.getLineItemValue('binnumber', 'location', int2);
+			var binNumber = itemRec.getLineItemValue('binnumber', 'binnumber', int2);
+			var binActive = itemRec.getLineItemValue('binnumber', 'locationactive', int2);
+			var binPreferred = itemRec.getLineItemValue('binnumber', 'preferredbin', int2);
+			
+			if(binLocation == locationId && binActive == 'Yes' && binPreferred == 'T')
+				{
+					binId = binNumber;
+					break;
+				}
+		}
+	
+	return binId;
 }
