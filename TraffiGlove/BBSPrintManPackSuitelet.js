@@ -135,7 +135,8 @@ function buildOutput(salesOrderNumber)
 			   new nlobjSearchColumn("entityid","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("shipaddress",null,null),
-			   new nlobjSearchColumn("custbodycustomer_notes_1",null,null)
+			   new nlobjSearchColumn("custbodycustomer_notes_1",null,null),
+			   new nlobjSearchColumn("custbodycnotesonpick",null,null)
 			]
 			);
 
@@ -167,15 +168,17 @@ function buildOutput(salesOrderNumber)
 					var salesOrder = salesorderSearch[int].getValue('tranid');
 					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
 					var notes = salesorderSearch[int].getValue('custbodycustomer_notes_1');
+					var printNotes = salesorderSearch[int].getValue('custbodycnotesonpick');
 					
 					var entityRecord = nlapiLoadRecord('customer', salesEntityId);
 					
 					var salesEntityName = entityRecord.getFieldValue('altname');
+					var notesText = '';
 					
-					if (notes)
+					if (notes && printNotes == 'T')
 					{
 						notes = nlapiEscapeXML(notes);
-						notes = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+						notesText = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 					}
 					
 					if (salesShipAddress)
@@ -297,7 +300,7 @@ function buildOutput(salesOrderNumber)
 							xml += "<table style=\"width: 100%\">";
 							xml += "<tr>";
 							xml += "<td align=\"left\" style=\"font-size:14px;\">Notes</td>";
-							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:10px;\">" + notes + "</td>";
+							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:10px;\">" + notesText + "</td>";
 							xml += "</tr>";
 							xml += "</table>";
 							
