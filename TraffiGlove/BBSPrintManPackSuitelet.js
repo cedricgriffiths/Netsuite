@@ -21,9 +21,9 @@ function printManPackSuitelet(request, response)
 			
 	if (salesOrderParam != null && salesOrderParam != '') 
 		{
-			// Build the report
+			// Build the output
 			//	
-			var file = buildReport(salesOrderParam);
+			var file = buildOutput(salesOrderParam);
 	
 			// Send back the output in the response message
 			//
@@ -85,9 +85,9 @@ function printManPackSuitelet(request, response)
 					//
 					var salesOrder = request.getParameter('custpage_salesorder_select');
 			
-					// Build the report
+					// Build the output
 					//	
-					var file = buildReport(salesOrder);
+					var file = buildOutput(salesOrder);
 			
 					//Send back the output in the response message
 					//
@@ -102,7 +102,7 @@ function printManPackSuitelet(request, response)
 // Functions
 //=====================================================================
 //
-function buildReport(salesOrderNumber)
+function buildOutput(salesOrderNumber)
 {
 	//Start the xml off with the basic header info 
 	//
@@ -128,10 +128,14 @@ function buildReport(salesOrderNumber)
 			   new nlobjSearchColumn("tranid",null,null), 
 			   new nlobjSearchColumn("entity",null,null), 
 			   new nlobjSearchColumn("item",null,null), 
-			   new nlobjSearchColumn("quantityshiprecv",null,null), 
+			   new nlobjSearchColumn("quantitycommitted",null,null), 
 			   new nlobjSearchColumn("quantity",null,null), 
 			   new nlobjSearchColumn("custcol_bbs_sales_line_contact",null,null).setSort(false), 
-			   new nlobjSearchColumn("salesdescription","item",null)
+			   new nlobjSearchColumn("salesdescription","item",null),
+			   new nlobjSearchColumn("entityid","custcol_bbs_sales_line_contact",null),
+			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
+			   new nlobjSearchColumn("shipaddress",null,null),
+			   new nlobjSearchColumn("custbodycustomer_notes_1",null,null)
 			]
 			);
 
@@ -142,6 +146,8 @@ function buildReport(salesOrderNumber)
 			xml += "<pdfset>";
 		
 			var lastContact = '';
+			var today = new Date();
+			var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
 			
 			//Loop through the results
 			//
@@ -149,11 +155,34 @@ function buildReport(salesOrderNumber)
 				{
 					var salesId = salesorderSearch[int].getId();
 					var salesItem = salesorderSearch[int].getText('item');
-					var salesItemDesc = salesorderSearch[int].getText('salesdescription','item');
-					var salesQtyShip = salesorderSearch[int].getValue('quantityshiprecv');
+					var salesItemDesc = salesorderSearch[int].getValue('salesdescription','item');
+					var salesQtyShip = salesorderSearch[int].getValue('quantitycommitted');
 					var salesQty = salesorderSearch[int].getValue('quantity');
 					var salesContact = salesorderSearch[int].getText('custcol_bbs_sales_line_contact');
+					var salesContactName = salesorderSearch[int].getValue('entityid','custcol_bbs_sales_line_contact');
+					var salesContactEmpNo = salesorderSearch[int].getValue('custentity_bbs_contact_employee_number','custcol_bbs_sales_line_contact');
 					var salesContactId = salesorderSearch[int].getValue('custcol_bbs_sales_line_contact');
+					var salesEntity = salesorderSearch[int].getText('entity');
+					var salesEntityId = salesorderSearch[int].getValue('entity');
+					var salesOrder = salesorderSearch[int].getValue('tranid');
+					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
+					var notes = salesorderSearch[int].getValue('custbodycustomer_notes_1');
+					
+					var entityRecord = nlapiLoadRecord('customer', salesEntityId);
+					
+					var salesEntityName = entityRecord.getFieldValue('altname');
+					
+					if (notes)
+					{
+						notes = nlapiEscapeXML(notes);
+						notes = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+					}
+					
+					if (salesShipAddress)
+					{
+						salesShipAddress = nlapiEscapeXML(salesShipAddress);
+						salesShipAddress = salesShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+					}
 					
 					if(lastContact != salesContactId)
 						{
@@ -161,6 +190,10 @@ function buildReport(salesOrderNumber)
 							//
 							if(lastContact != '')
 								{
+									//Finish the item table
+									//
+									xml += "</table>";
+									
 									//Finish the body
 									//
 									xml += "</body>";
@@ -221,26 +254,84 @@ function buildReport(salesOrderNumber)
 							//
 							xml += "<table style=\"width: 100%\">";
 							xml += "<tr>";
-							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-							xml += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Man Pack - Sales Order " +  salesOrderNumber + "</b></td>";
-							xml += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Account:</td>";
+							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\">" + nlapiEscapeXML(salesEntityName) + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Order No:</td>";
+							xml += "<td align=\"right\" style=\"font-size:14px;\">" + nlapiEscapeXML(salesOrder) + "</td>";
+							xml += "</tr>";
+						
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td colspan=\"16\" align=\"left\" style=\"font-size:12px;\">Employee - " + salesContact +"</td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Employee:</td>";
+							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
 							xml += "</tr>";
 							
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "</tr>";
+							
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Employee No:</td>";
+							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\"><b>" + nlapiEscapeXML(salesContactEmpNo) + "</b></td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Date:</td>";
+							xml += "<td align=\"right\" style=\"font-size:14px;\">" + todayString + "</td>";
+							xml += "</tr>";
+							
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "</tr>";
+							
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Del Address:</td>";
+							xml += "<td rowspan=\"5\" colspan=\"2\" align=\"left\" style=\"font-size:14px;\">" + salesShipAddress + "</td>";
+							xml += "</tr>";
 							xml += "</table>\n";
-							xml += "<p></p>";
-					
+							
+							xml += "<hr/>";
+							
+							xml += "<table style=\"width: 100%\">";
+							xml += "<tr>";
+							xml += "<td align=\"left\" style=\"font-size:14px;\">Notes</td>";
+							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:10px;\">" + notes + "</td>";
+							xml += "</tr>";
+							xml += "</table>";
+							
+							xml += "<hr/>";
+							
+							//Item data
+							//
+							xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
+							xml += "<thead >";
+							xml += "<tr >";
+							xml += "<th colspan=\"6\">Item Code</th>";
+							xml += "<th align=\"left\" colspan=\"12\">Item Description</th>";
+							xml += "<th align=\"left\" colspan=\"2\">Qty Packed</th>";
+							xml += "</tr>";
+							xml += "</thead>";
 						}
 					
 					//Do the detail lines output here
 					//
-					xml += "<b>Detail lines goes here</b>";
+					xml += "<tr>";
+					xml += "<td colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
+					xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
+					xml += "<td align=\"left\" colspan=\"2\">" + salesQtyShip + "</td>";
+					xml += "</tr>";
 					
+					xml += "<tr>";
+					xml += "<td align=\"left\">&nbsp;</td>";
+					xml += "</tr>";
 					
 				}
+			
+			//Finish the item table
+			//
+			xml += "</table>";
 			
 			//Finish the body
 			//
