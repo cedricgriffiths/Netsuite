@@ -12,6 +12,120 @@
  */
 function createAssembliesScheduled(type) 
 {
+	//List of custom fields to copy across
+	//
+	var customFields = [
+						"custitem_bbs_item_app_attrib1",
+						"custitem_bbs_item_app_attrib10",
+						"custitem_bbs_item_app_attrib11",
+						"custitem_bbs_item_app_attrib12",
+						"custitem_bbs_item_app_attrib13",
+						"custitem_bbs_item_app_attrib14",
+						"custitem_bbs_item_app_attrib15",
+						"custitem_bbs_item_app_attrib2",
+						"custitem_bbs_item_app_attrib3",
+						"custitem_bbs_item_app_attrib4",
+						"custitem_bbs_item_app_attrib5",
+						"custitem_bbs_item_app_attrib6",
+						"custitem_bbs_item_app_attrib7",
+						"custitem_bbs_item_app_attrib8",
+						"custitem_bbs_item_app_attrib9",
+						"custitem_bbs_item_attrib1",
+						"custitem_bbs_item_attrib10",
+						"custitem_bbs_item_attrib11",
+						"custitem_bbs_item_attrib12",
+						"custitem_bbs_item_attrib13",
+						"custitem_bbs_item_attrib14",
+						"custitem_bbs_item_attrib15",
+						"custitem_bbs_item_attrib2",
+						"custitem_bbs_item_attrib3",
+						"custitem_bbs_item_attrib4",
+						"custitem_bbs_item_attrib5",
+						"custitem_bbs_item_attrib6",
+						"custitem_bbs_item_attrib7",
+						"custitem_bbs_item_attrib8",
+						"custitem_bbs_item_attrib9",
+						"custitem_bbs_item_back_image_loc",
+						"custitem_bbs_item_body_address",
+						"custitem_bbs_item_brand",
+						"custitem_bbs_item_cert_no",
+						"custitem_bbs_item_download_desc",
+						"custitem_bbs_item_download_pdf",
+						"custitem_bbs_item_front_image_loc",
+						"custitem_bbs_item_long_desc",
+						"custitem_bbs_item_r1",
+						"custitem_bbs_item_r1_body_name",
+						"custitem_bbs_item_r1_body_no",
+						"custitem_bbs_item_r1_cert_end",
+						"custitem_bbs_item_r1_cert_no",
+						"custitem_bbs_item_r1_cert_start",
+						"custitem_bbs_item_r1_image_loc",
+						"custitem_bbs_item_r1_rating",
+						"custitem_bbs_item_r2",
+						"custitem_bbs_item_r2_body_address",
+						"custitem_bbs_item_r2_body_name",
+						"custitem_bbs_item_r2_body_no",
+						"custitem_bbs_item_r2_cert_end",
+						"custitem_bbs_item_r2_cert_start",
+						"custitem_bbs_item_r2_image_loc",
+						"custitem_bbs_item_r2_rating",
+						"custitem_bbs_item_r3",
+						"custitem_bbs_item_r3_body_address",
+						"custitem_bbs_item_r3_body_name",
+						"custitem_bbs_item_r3_body_no",
+						"custitem_bbs_item_r3_cert_end",
+						"custitem_bbs_item_r3_cert_no",
+						"custitem_bbs_item_r3_cert_start",
+						"custitem_bbs_item_r3_image_loc",
+						"custitem_bbs_item_r3_rating",
+						"custitem_bbs_item_r4",
+						"custitem_bbs_item_r4_body_address",
+						"custitem_bbs_item_r4_body_name",
+						"custitem_bbs_item_r4_body_no",
+						"custitem_bbs_item_r4_cert_end",
+						"custitem_bbs_item_r4_cert_no",
+						"custitem_bbs_item_r4_cert_start",
+						"custitem_bbs_item_r4_image_loc",
+						"custitem_bbs_item_r4_rating",
+						"custitem_bbs_item_r5",
+						"custitem_bbs_item_r5_body_address",
+						"custitem_bbs_item_r5_body_name",
+						"custitem_bbs_item_r5_body_no",
+						"custitem_bbs_item_r5_cert_end",
+						"custitem_bbs_item_r5_cert_no",
+						"custitem_bbs_item_r5_cert_start",
+						"custitem_bbs_item_r5_image_loc",
+						"custitem_bbs_item_r5_rating",
+						"custitem_bbs_item_thumbnail",
+						"custitem_bbs_item_uom1",
+						"custitem_bbs_item_uom1_barcode",
+						"custitem_bbs_item_uom1_gross_weight",
+						"custitem_bbs_item_uom1_height",
+						"custitem_bbs_item_uom1_length",
+						"custitem_bbs_item_uom1_nett_weight",
+						"custitem_bbs_item_uom1_qty",
+						"custitem_bbs_item_uom1_width",
+						"custitem_bbs_item_uom2",
+						"custitem_bbs_item_uom2_barcode",
+						"custitem_bbs_item_uom2_gross_weight",
+						"custitem_bbs_item_uom2_height",
+						"custitem_bbs_item_uom2_length",
+						"custitem_bbs_item_uom2_nett_weight",
+						"custitem_bbs_item_uom2_qty",
+						"custitem_bbs_item_uom2_vol",
+						"custitem_bbs_item_uom2_width",
+						"custitem_bbs_item_uom3",
+						"custitem_bbs_item_uom3_barcode",
+						"custitem_bbs_item_uom3_gross_weight",
+						"custitem_bbs_item_uom3_height",
+						"custitem_bbs_item_uom3_length",
+						"custitem_bbs_item_uom3_qty",
+						"custitem_bbs_item_uom3_vol",
+						"custitem_bbs_item_uom3_width",
+						"custitem_bbs_item_upom1_vol",
+						"custitem_bbs_item_upom3_nett_weight",
+						"custitem1"
+						];
 
 	//Read in the parameter containing the parent child object
 	//
@@ -23,10 +137,10 @@ function createAssembliesScheduled(type)
 
 	//Debugging
 	//
-	nlapiLogExecution('DEBUG', 'parentChildString', parentChildString);
-	nlapiLogExecution('DEBUG', 'customerId', customerId);
-	nlapiLogExecution('DEBUG', 'finishId', finishId);
-	nlapiLogExecution('DEBUG', 'finishrefId', finishrefId);
+	//nlapiLogExecution('DEBUG', 'parentChildString', parentChildString);
+	//nlapiLogExecution('DEBUG', 'customerId', customerId);
+	//nlapiLogExecution('DEBUG', 'finishId', finishId);
+	//nlapiLogExecution('DEBUG', 'finishrefId', finishrefId);
 	
 	//Read the finish ref textual name
 	//
@@ -88,7 +202,6 @@ function createAssembliesScheduled(type)
 							var subsidiaryDefaultLocation = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location');
 							var subsidiaryDefaultBin = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location_bin');
 							
-							
 							//Get data from the base parent record
 							//
 							var parentName = parentRecord.getFieldValue('itemid');
@@ -97,8 +210,7 @@ function createAssembliesScheduled(type)
 							var newParentName = customerRef + ' ' + parentItemCategory + '-' + parentName;
 							var parentSalesDescription = parentRecord.getFieldValue('salesdescription');
 							var parentSize2 = parentRecord.getFieldValues('custitem_bbs_item_size2');
-							
-							
+
 							//Get data from the finish item
 							//
 							var finishItemDescription = finishRecord.getFieldValue('description');
@@ -147,6 +259,13 @@ function createAssembliesScheduled(type)
 									newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
 									newParentRecord.setFieldValue('description', newParentDescription);
 		
+									//Copy in the custom fields
+									//
+									for (var int = 0; int < customFields.length; int++) 
+										{
+											newParentRecord.setFieldValue(customFields[int], parentRecord.getFieldValue(customFields[int]));
+										}
+									
 									//Add a component to the assembly
 									//
 									newParentRecord.selectNewLineItem('member');
@@ -259,6 +378,13 @@ function createAssembliesScheduled(type)
 																	newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
 																	newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
 																	newChildRecord.setFieldValue('description', newChildDescription);
+																	
+																	//Copy in the custom fields
+																	//
+																	for (var int = 0; int < customFields.length; int++) 
+																		{
+																			newChildRecord.setFieldValue(customFields[int], parentRecord.getFieldValue(customFields[int]));
+																		}
 																	
 																	//Do we have min/max stock levels?
 																	//
