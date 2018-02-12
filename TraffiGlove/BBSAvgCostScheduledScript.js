@@ -23,13 +23,17 @@ function scheduled(type)
 	//
 	var context = nlapiGetContext();
 	var parameters = context.getSetting('SCRIPT', 'custscript_bbs_avgcost_params');
+	
+	nlapiLogExecution('DEBUG', 'Parameters', parameters);
+	
 	var usersEmail = context.getUser();
 	var parameterObject = JSON.parse(parameters);
 	
 	var subsidiaryParam = parameterObject['subsidiary'];
 	var locationParam = parameterObject['location'];
 	var accountParam = parameterObject['account'];
-
+	var emailMessage = '';
+	
 	//=============================================================================================
 	//Search for inventory items
 	//=============================================================================================
@@ -43,6 +47,8 @@ function scheduled(type)
 			   ["ispreferredvendor","is","T"],
 			   "AND",
 			   ["type","anyof","InvtPart"],
+			   "AND", 
+			   ["matrixchild","is","T"],
 			   "AND", 
    			   ["vendor.subsidiary","anyof",subsidiaryParam]
 			], 
@@ -93,11 +99,14 @@ function scheduled(type)
 					//
 					var selecedVendorCurrency = '1';
 					var binId = '';
+					var useBins = '';
 					
 					var itemRecord = nlapiLoadRecord('inventoryitem', itemId);
 					
 					if(itemRecord)
 						{
+							useBins = itemRecord.getFieldValue('usebins');
+							
 							//Find the preferred vendor's currency
 							//
 							var vendors = itemRecord.getLineItemCount('itemvendor');
@@ -139,12 +148,25 @@ function scheduled(type)
 							selectedCost = itemVendorCost * exchangeRate;
 						}
 
+					if(binId == '' && useBins == 'T')
+						{
+							emailMessage += "Stock adjust error - Inventory Id: " + itemId + " Location Id : " + locationParam + " Subsidiary Id : " + subsidiaryParam + " Bin Id : " + binId + " Use Bins = T, but no bin available\n";
+						}
+					else
+						{
+							//Stock adjust a quantity of one in & then out 
+							//
+							try
+								{
+									stockAdjust(itemId, 'IN', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
+									stockAdjust(itemId, 'OUT', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
+								}
+							catch(err)
+								{
+									emailMessage += "Stock adjust unexpected error - Inventory Id: " + itemId + " Location Id : " + locationParam + " Subsidiary Id : " + subsidiaryParam + " Bin Id : " + binId + " Message : " + err.message + "\n";
+								}
+						}
 					
-					//Stock adjust a quantity of one in & then out 
-					//
-					stockAdjust(itemId, 'IN', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
-					stockAdjust(itemId, 'OUT', locationParam, accountParam, selectedCost, subsidiaryParam, binId);
-
 					counter++;
 				}
 		}
@@ -200,10 +222,14 @@ function scheduled(type)
 					
 					//Read the assembly record
 					//
+					var useBins = '';
+					var binId = '';
 					var assemblyRecord = nlapiLoadRecord('assemblyitem', assemblyId);
 					
 					if(assemblyRecord)
 						{
+							useBins = assemblyRecord.getFieldValue('usebins');
+						
 							//Loop through the components
 							//
 							var components = assemblyRecord.getLineItemCount('member');
@@ -307,8 +333,22 @@ function scheduled(type)
 							
 							//Stock adjust a quantity of one in & then out 
 							//
-							stockAdjust(assemblyId, 'IN', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
-							stockAdjust(assemblyId, 'OUT', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
+							if(binId == '' && useBins == 'T')
+							{
+								emailMessage += "Stock adjust error - Assembly Id: " + assemblyId + " Location Id : " + locationParam + " Subsidiary Id : " + subsidiaryParam + " Bin Id : " + binId + " Use Bins = T, but no bin available\n";
+							}
+						else
+							{
+								try
+									{
+										stockAdjust(assemblyId, 'IN', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
+										stockAdjust(assemblyId, 'OUT', locationParam, accountParam, assemblyTotalCost, subsidiaryParam, binId);
+									}
+								catch(err)
+									{
+										emailMessage += "Stock adjust unexpected error - Assembly Id: " + assemblyId + " Location Id : " + locationParam + " Subsidiary Id : " + subsidiaryParam + " Bin Id :" + binId + " Message : " + err.message + "\n";
+									}
+							}
 						}
 					
 					counter++;
@@ -319,7 +359,9 @@ function scheduled(type)
 	//Send the email to the user to say that we have finished
 	//=============================================================================================
 	//
-	nlapiSendEmail(usersEmail, usersEmail, 'Average Cost Update', 'The average cost update has completed');
+	emailMessage += 'The average cost update has finished, please review any errors';
+	
+	nlapiSendEmail(usersEmail, usersEmail, 'Average Cost Update', emailMessage);
 }
 
 //=============================================================================================

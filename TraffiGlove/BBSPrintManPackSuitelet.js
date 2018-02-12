@@ -135,8 +135,8 @@ function buildOutput(salesOrderNumber)
 			   new nlobjSearchColumn("entityid","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("shipaddress",null,null),
-			   new nlobjSearchColumn("custbodycustomer_notes_1",null,null),
-			   new nlobjSearchColumn("custbodycnotesonpick",null,null)
+			   new nlobjSearchColumn("memo",null,null),
+			   new nlobjSearchColumn("custbody_sw_on_manpack",null,null)
 			]
 			);
 
@@ -149,6 +149,7 @@ function buildOutput(salesOrderNumber)
 			var lastContact = '';
 			var today = new Date();
 			var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
+			var salesOrderRecord = null;
 			
 			//Loop through the results
 			//
@@ -167,16 +168,30 @@ function buildOutput(salesOrderNumber)
 					var salesEntityId = salesorderSearch[int].getValue('entity');
 					var salesOrder = salesorderSearch[int].getValue('tranid');
 					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
-					var notes = salesorderSearch[int].getValue('custbodycustomer_notes_1');
-					var printNotes = salesorderSearch[int].getValue('custbodycnotesonpick');
+					var notes = salesorderSearch[int].getValue('memo');
+					var printNotes = salesorderSearch[int].getValue('custbody_sw_on_manpack');
 					
 					var entityRecord = nlapiLoadRecord('customer', salesEntityId);
 					
 					var salesEntityName = entityRecord.getFieldValue('altname');
 					var notesText = '';
 					
-					if (notes && printNotes == 'T')
+					var colon = salesItem.indexOf(' : ');
+					
+					if(colon > -1)
+						{
+							salesItem = salesItem.substr(colon + 2);
+						}
+					
+					if (printNotes == 'T')
 					{
+						if(salesOrderRecord == null)
+							{
+								salesOrderRecord = nlapiLoadRecord('salesorder', salesId);
+							}
+						
+						notes = salesOrderRecord.getFieldValue('memo');
+						notes = (notes == null ? '' : notes);
 						notes = nlapiEscapeXML(notes);
 						notesText = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 					}
@@ -257,41 +272,41 @@ function buildOutput(salesOrderNumber)
 							//
 							xml += "<table style=\"width: 100%\">";
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Account:</td>";
-							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\">" + nlapiEscapeXML(salesEntityName) + "</td>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Order No:</td>";
-							xml += "<td align=\"right\" style=\"font-size:14px;\">" + nlapiEscapeXML(salesOrder) + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Account:</td>";
+							xml += "<td colspan=\"3\" align=\"left\" style=\"font-size:16px;\">" + nlapiEscapeXML(salesEntityName) + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Order No:</td>";
+							xml += "<td align=\"right\" style=\"font-size:16px;\">" + nlapiEscapeXML(salesOrder) + "</td>";
 							xml += "</tr>";
 						
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Employee:</td>";
-							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Employee:</td>";
+							xml += "<td colspan=\"3\" align=\"left\" style=\"font-size:16px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Employee No:</td>";
-							xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:14px;\"><b>" + nlapiEscapeXML(salesContactEmpNo) + "</b></td>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Date:</td>";
-							xml += "<td align=\"right\" style=\"font-size:14px;\">" + todayString + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Empl. No:</td>";
+							xml += "<td colspan=\"3\" align=\"left\" style=\"font-size:16px;\"><b>" + nlapiEscapeXML(salesContactEmpNo) + "</b></td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Date:</td>";
+							xml += "<td align=\"right\" style=\"font-size:16px;\">" + todayString + "</td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">&nbsp;</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
 							xml += "</tr>";
 							
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Del Address:</td>";
-							xml += "<td rowspan=\"5\" colspan=\"2\" align=\"left\" style=\"font-size:14px;\">" + salesShipAddress + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Del Address:</td>";
+							xml += "<td rowspan=\"5\" colspan=\"4\" align=\"left\" style=\"font-size:16px;\">" + salesShipAddress + "</td>";
 							xml += "</tr>";
 							xml += "</table>\n";
 							
@@ -299,8 +314,8 @@ function buildOutput(salesOrderNumber)
 							
 							xml += "<table style=\"width: 100%\">";
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:14px;\">Notes</td>";
-							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:10px;\">" + notesText + "</td>";
+							xml += "<td align=\"left\" style=\"font-size:16px;\">Notes</td>";
+							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:12px;\">" + notesText + "</td>";
 							xml += "</tr>";
 							xml += "</table>";
 							
@@ -311,9 +326,9 @@ function buildOutput(salesOrderNumber)
 							xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
 							xml += "<thead >";
 							xml += "<tr >";
-							xml += "<th colspan=\"6\">Item Code</th>";
-							xml += "<th align=\"left\" colspan=\"12\">Item Description</th>";
-							xml += "<th align=\"left\" colspan=\"2\">Qty Packed</th>";
+							xml += "<th style=\"font-size:12px;\" colspan=\"6\">Item Code</th>";
+							xml += "<th style=\"font-size:12px;\" align=\"left\" colspan=\"12\">Item Description</th>";
+							xml += "<th style=\"font-size:12px;\" align=\"left\" colspan=\"2\">Qty Packed</th>";
 							xml += "</tr>";
 							xml += "</thead>";
 						}
@@ -321,9 +336,9 @@ function buildOutput(salesOrderNumber)
 					//Do the detail lines output here
 					//
 					xml += "<tr>";
-					xml += "<td colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
-					xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
-					xml += "<td align=\"left\" colspan=\"2\">" + salesQtyShip + "</td>";
+					xml += "<td style=\"font-size:12px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
+					xml += "<td style=\"font-size:12px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
+					xml += "<td style=\"font-size:12px;\" align=\"left\" colspan=\"2\">" + salesQtyShip + "</td>";
 					xml += "</tr>";
 					
 					xml += "<tr>";

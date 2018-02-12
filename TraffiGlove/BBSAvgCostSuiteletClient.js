@@ -22,15 +22,19 @@ function avgcostFieldChanged(type, name, linenum)
 		{
 			var subsidId =  nlapiGetFieldValue(name);
 			nlapiSetFieldValue('custpage_subsidiary', subsidId, false, true);
+			nlapiSetFieldValue('custpage_location', null, true, true);
 			
-			var locationSearch = nlapiSearchRecord("location",null,
-					[
-					   ["subsidiary","anyof",subsidId]
-					], 
-					[
-					   new nlobjSearchColumn("name",null,null).setSort(false)
-					]
-					);
+			if(subsidId)
+				{
+					var locationSearch = nlapiSearchRecord("location",null,
+							[
+							   ["subsidiary","anyof",subsidId]
+							], 
+							[
+							   new nlobjSearchColumn("name",null,null).setSort(false)
+							]
+							);
+				}
 			
 			//Remove any existing selections
 			//
@@ -38,7 +42,7 @@ function avgcostFieldChanged(type, name, linenum)
 			
 			//Add a blank selection
 			//
-			nlapiInsertSelectOption('custpage_location_select', 0, '', true);
+			//nlapiInsertSelectOption('custpage_location_select', 0, '', true);
 			
 			//Add in the finish items into the select list
 			//

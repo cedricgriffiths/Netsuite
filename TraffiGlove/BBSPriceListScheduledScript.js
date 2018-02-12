@@ -34,6 +34,8 @@ function scheduled(type)
 	var internalParam = parameterObject['internal'];
 	var customerIds = parameterObject['custids'];
 	
+	var emailMessage = '';
+	
 	//Get number of quantity price breaks
 	//
 	//var maxQtyBreaks = Number(context.getPreference('QTYPRICECOUNT'));
@@ -72,6 +74,8 @@ function scheduled(type)
 						var customerNo = customerRecord.getFieldValue('entityid');
 						var customerParent = customerRecord.getFieldValue('parent');
 						var customerSubsidiary = customerRecord.getFieldValue('subsidiary');
+						
+						emailMessage += 'Processing price list for ' + customerName;
 						
 						if (customerPriceLevel == null || customerPriceLevel == '')
 							{
@@ -623,6 +627,18 @@ function scheduled(type)
 				//26 = Style + Colour + Finish
 				//
 				
+				
+				//Remove any entries that have a zero price
+				//
+				for ( var key in priceListArray) 
+					{
+						if(Number(priceListArray[key][4]) == 0)
+							{
+								delete priceListArray[key];
+							}
+					}
+				
+				
 				//Define the column headings that are available
 				//
 				var columsToPrint = [];
@@ -789,7 +805,18 @@ function scheduled(type)
 									{
 										if(columsToPrint.indexOf(int2) > -1)
 											{
-												fileContents += '"' + (priceData[int2].toString()).replace(/"/g, '') + '",';
+												var temp = priceData[int2];
+												
+												if(temp)
+													{
+														temp = (temp.toString()).replace(/"/g, '');
+													}
+												else
+													{
+														temp = '';
+													}
+												
+												fileContents += '"' + temp + '",';
 											}
 									}
 								
@@ -907,12 +934,16 @@ function scheduled(type)
 				//Attach the file to the customer
 				//
 				nlapiAttachRecord('file', fileId, 'customer', customerId, null);
+				
+				emailMessage += ' - ' + fileName + '\n';
 			}
 	}
 	
 	//Send the email to the user to say that we have finished
 	//
-	nlapiSendEmail(usersEmail, usersEmail, 'Price List Export', 'Price list export has completed - please check customer records for attached price list files');
+	emailMessage += '\n';
+	emailMessage += 'Price list export has completed - please check customer records for attached price list files\n';
+	nlapiSendEmail(usersEmail, usersEmail, 'Price List Export', emailMessage);
 }
 
 //=============================================================================================

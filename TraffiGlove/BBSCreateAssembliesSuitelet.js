@@ -149,11 +149,12 @@ function createAssembliesSuitelet(request, response){
 					
 					//Add a select field to pick the finish process item from
 					//
-					var finishProcessItemField = form.addField('custpage_finish_item_select', 'select', 'Finish Process Item', null, 'custpage_grp_finish');
+					var finishProcessItemField = form.addField('custpage_finish_item_select', 'select', 'Finish To Be Applied', null, 'custpage_grp_finish');
 					
 					//Add a select field to pick the finish ref from
 					//
 					var finishRefField = form.addField('custpage_finish_ref_select', 'select', 'Finish Ref', null, 'custpage_grp_finish');
+					finishRefField.setDisplayType('disabled');
 					
 					//Add a select field to pick the base parent from
 					//
@@ -162,8 +163,8 @@ function createAssembliesSuitelet(request, response){
 					
 					//Add a filter field to limit the base parent
 					//
-					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Filter - Description Contains', null, 'custpage_grp_parent');
-					var baseParentFilter2Field = form.addField('custpage_base_parent_filter2', 'text', 'Base Parent Filter - Name Starts With', null, 'custpage_grp_parent');
+					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Description Filter - Contains', null, 'custpage_grp_parent');
+					var baseParentFilter2Field = form.addField('custpage_base_parent_filter2', 'text', 'Base Parent Code Filter - Starts With', null, 'custpage_grp_parent');
 					baseParentFilterField.setBreakType('startcol');
 					
 					var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
@@ -298,7 +299,7 @@ function createAssembliesSuitelet(request, response){
 							var fieldId = 'custpage_def_sales_' + baseParentId.toString();
 							
 							var subtab = form.addSubTab(subtabId, baseParents[baseParentId], 'custpage_child_items_tab');
-							form.addField(fieldId, 'currency', 'Default Sales Price', null, subtabId);
+							form.addField(fieldId, 'currency', 'Customer Specific Sales Price', null, subtabId);
 							
 							
 							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], subtabId);
