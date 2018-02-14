@@ -261,9 +261,17 @@ function createAssembliesScheduled(type)
 		
 									//Copy in the custom fields
 									//
-									for (var int = 0; int < customFields.length; int++) 
+									for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 
 										{
-											newParentRecord.setFieldValue(customFields[int], parentRecord.getFieldValue(customFields[int]));
+											try
+												{
+													newParentRecord.setFieldValue(customFields[custFieldCount], parentRecord.getFieldValue(customFields[custFieldCount]));
+												}
+											catch(err)
+												{
+													var msg = err.message;
+												}
+											
 										}
 									
 									//Add a component to the assembly
@@ -344,7 +352,7 @@ function createAssembliesScheduled(type)
 															var newChildDescription = childSalesDescription + ' with ' + finishItemDescription;
 																
 															var childName = childRecord.getFieldValue('itemid');
-															var newChildName = parentItemCategory + '-' + customerRef + ' ' + childName + ' ' + finishrefText;
+															var newChildName = customerRef + ' ' + childName + ' ' + finishrefText;
 															
 															var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
 															var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');
@@ -381,11 +389,18 @@ function createAssembliesScheduled(type)
 																	
 																	//Copy in the custom fields
 																	//
-																	for (var int = 0; int < customFields.length; int++) 
+																	for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 
 																		{
-																			newChildRecord.setFieldValue(customFields[int], parentRecord.getFieldValue(customFields[int]));
+																			try
+																				{
+																					newChildRecord.setFieldValue(customFields[custFieldCount], parentRecord.getFieldValue(customFields[custFieldCount]));
+																				}
+																			catch(err)
+																				{
+																					var msg = err.message;
+																				}
 																		}
-																	
+
 																	//Do we have min/max stock levels?
 																	//
 																	if((minStock != null && minStock != '') || (maxStock != null && maxStock != ''))

@@ -488,7 +488,8 @@ function scheduled(type)
 										   "AND", 
 										   ["matrixchild","is","T"], 
 										   "AND", 
-										   [[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"]],"OR",["type","anyof","Assembly"]]
+										   //[[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"]],"OR",["type","anyof","Assembly"]]
+										  [[["type","anyof","InvtPart"],"AND",["ispreferredvendor","is","T"],"AND",["vendor.subsidiary","anyof",customerSubsidiary]],"OR",["type","anyof","Assembly"]]
 										], 
 										[
 										   	new nlobjSearchColumn("itemid",null,null), 
