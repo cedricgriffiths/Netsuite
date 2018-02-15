@@ -36,7 +36,7 @@ function percentageFulfilmentARS(type)
 			{
 				var itemType = nlapiGetLineItemValue('item', 'itemtype', int);
 				
-				if(itemType == 'InvtPart')
+				if(itemType == 'InvtPart' || itemType == 'Assembly')
 					{
 						qtyOrdered += Number(nlapiGetLineItemValue('item', 'quantity', int));
 						qtyCommitted += Number(nlapiGetLineItemValue('item', 'quantitycommitted', int));
