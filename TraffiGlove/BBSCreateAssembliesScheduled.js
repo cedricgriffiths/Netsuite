@@ -152,6 +152,9 @@ function createAssembliesScheduled(type)
 	var emailText = 'The following items have been created;\n';
 	var allChildPricing = {};
 	var allChildWebProducts = {};
+	var useItemPricing = false;
+	var customerPriceLevel = null;
+	var customerCurrency = null;
 	
 	//Re-hydrate the parent & child object
 	//
@@ -195,7 +198,18 @@ function createAssembliesScheduled(type)
 							//
 							var customerRef = customerRecord.getFieldValue('entityid');
 							var customerSubsidiary = customerRecord.getFieldValue('subsidiary');
-						
+							var customerParent = customerRecord.getFieldValue('parent');
+							customerPriceLevel = customerRecord.getFieldValue('pricelevel');
+							customerCurrency  = customerRecord.getFieldValue('currency');
+							
+							//If the customer has a parent, or if it does not have a parent, but its price level is the system default one,
+							//then use item pricing, otherwise use the pricing level
+							//
+							if((customerParent != null && customerParent != '') || ((customerParent == null || customerParent == '') && customerPriceLevel == '1' ))
+								{
+									useItemPricing = true;
+								}
+							
 							//Get data from the subsidiary record
 							//
 							var subsidiaryReocrd = nlapiLoadRecord('subsidiary', customerSubsidiary);
@@ -477,6 +491,31 @@ function createAssembliesScheduled(type)
 																	newChildRecord.setCurrentLineItemValue('member', 'itemsource', 'PHANTOM');
 																	newChildRecord.commitLineItem('member', false);
 																	
+																	//Use customer's price level if required
+																	//
+																	if(!useItemPricing)
+																		{
+																			//Read the price sublist based on the customer's currency code
+																			//
+																			var priceSublist = 'price' + customerCurrency.toString();
+																			
+																			var priceLineCount = newChildRecord.getLineItemCount(priceSublist);
+																			var quantityLevels = newChildRecord.getMatrixCount(priceSublist, 'price');
+																			
+																			for (var priceLine = 1; priceLine <= priceLineCount; priceLine++) 
+																			{
+																				var pricePriceLevel = newChildRecord.getLineItemValue(priceSublist, 'pricelevel', priceLine);
+																				
+																				if (pricePriceLevel == customerPriceLevel)
+																					{
+																						newChildRecord.selectLineItem(priceSublist, priceLine);
+																						newChildRecord.setCurrentLineItemMatrixValue(priceSublist, 'price', 1, salesPrice);
+																						newChildRecord.commitLineItem(priceSublist, false);
+																						break;
+																					}
+																			}
+																		}
+																	
 																	//Calculate the matrix item sequence number
 																	//
 																	var itemSequence = resequence(newParentId,childColour,childSize1,childSize2);
@@ -513,9 +552,9 @@ function createAssembliesScheduled(type)
 						}
 				}
 			
-			//Update the customer's item pricing with the new child items created
+			//Update the customer's item pricing with the new child items created, but only if we are using item pricing
 			//
-			if(Object.keys(allChildPricing).length > 0)
+			if(Object.keys(allChildPricing).length > 0 && useItemPricing)
 				{
 					try
 						{

@@ -261,10 +261,12 @@ function createAssembliesSuitelet(request, response){
 					//
 					var finishRecord = nlapiLoadRecord('assemblyitem', finishIdParam);
 					var finishCost = Number(0);
+					var finishPrice = Number(0);
 					
 					if(finishRecord)
 						{
 							finishCost = Number(finishRecord.getFieldValue('custitem_bbs_item_cost'));
+							finishPrice = Number(finishRecord.getFieldValue('custitem_sw_cust_finish_price'));
 						}
 					
 					//Get the session data
@@ -297,10 +299,14 @@ function createAssembliesSuitelet(request, response){
 							var subtabId = 'custpage_subtab_' + baseParentId.toString();
 							var sublistId = 'custpage_sublist_' + baseParentId.toString();
 							var fieldId = 'custpage_def_sales_' + baseParentId.toString();
+							var fieldFinishPriceId = 'custpage_fin_price_' + baseParentId.toString();
 							
 							var subtab = form.addSubTab(subtabId, baseParents[baseParentId], 'custpage_child_items_tab');
-							form.addField(fieldId, 'currency', 'Customer Specific Sales Price', null, subtabId);
+							form.addField(fieldId, 'currency', 'Sales Price', null, subtabId);
 							
+							var finishPriceField = form.addField(fieldFinishPriceId, 'currency', 'Customer Finish Price', null, subtabId);
+							finishPriceField.setDisplayType('disabled');
+							finishPriceField.setDefaultValue(finishPrice.toFixed(2));
 							
 							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], subtabId);
 							sublist.addMarkAllButtons();
