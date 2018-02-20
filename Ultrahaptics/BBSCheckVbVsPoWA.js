@@ -120,7 +120,16 @@ function checkVbVsPoWA()
 		    	{
 		    		//Load the purchase order record
 		    		//
-		    		var poRecord = nlapiLoadRecord('purchaseorder', poId);
+		    		var poRecord = null;
+		    		
+		    		try
+			    		{
+			    			poRecord = nlapiLoadRecord('purchaseorder', poId);
+			    		}
+		    		catch(err)
+			    		{
+		    				poRecord = null;
+			    		}
 		    		
 		    		if(poRecord)
 		    			{
@@ -297,7 +306,7 @@ function checkVbVsPoWA()
 		    						//	{
 		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : Total Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Purchase Order Value of ' + poVal.toFixed(2) + '<br/><br/>';
 		    						//	}
-		    						if(vbQty > poQty)
+		    						if(Number(vbQty) > Number(poQty))
 	    							{
 	    								var qtyDiff = Number(vbQty) - Number(poQty);
 	    								
@@ -306,7 +315,7 @@ function checkVbVsPoWA()
 	    						
 		    						//Compare the vb val with the po val, if the vb val > po val then we need to highlight it
 		    						//
-		    						if(vbVal > poVal)
+		    						if(Number(vbVal) > Number(poVal))
 		    							{
 		    								var valDiff = Number(vbVal) - Number(poVal);
 	    								
@@ -352,7 +361,7 @@ function checkVbVsPoWA()
 		    						//	{
 		    						//		warnings += 'Item "' + poItemsDesc[poItem] + '" : This Vendor Bill Value of ' + vbVal.toFixed(2) + ' Exceeds Received not Billed Value of ' + poTbbVal.toFixed(2) + '<br/><br/>';
 		    						//	}
-		    						if(vbQty > poTbbQty)
+		    						if(Number(vbQty) > Number(poTbbQty))
 	    							{
 	    								var qtyDiff = Number(vbQty) - Number(poTbbQty);
 	    								
@@ -361,7 +370,7 @@ function checkVbVsPoWA()
 	    						
 		    						//Compare the vb val with the po to be billed val
 		    						//
-		    						if(vbVal > poTbbVal)
+		    						if(Number(vbVal) > Number(poTbbVal))
 		    							{
 		    								var valDiff = Number(vbVal) - Number(poTbbVal);
 	    								

@@ -130,9 +130,24 @@ function(record, dialog, search)
 	    //
 	    if 	(poId != null && poId != '')
 	    	{
+	    		var poRecord = null;
+	    		var errCode = '';
+	    		
 	    		//Load the purchase order record
 	    		//
-	    		var poRecord = record.load({type: record.Type.PURCHASE_ORDER, id: poId});
+	    		try
+		    		{
+		    			poRecord = record.load({type: record.Type.PURCHASE_ORDER, id: poId});
+		    		}
+	    		catch(err)
+		    		{
+		    			errCode = err.code;
+		    			
+		    			if(errCode == 'RCRD_LOCKED_BY_WF')
+		    				{
+		    					warnings += '<p style="color:RED;">The associated Purchase Order is locked pending approval, please cancel this transaction until the Purchase Order is approved<p/><br/><br/>';
+		    				}
+		    		}
 	    		
 	    		if(poRecord)
 	    			{
@@ -299,7 +314,7 @@ function(record, dialog, search)
 	    						
 	    						//Compare the vb qty with the po qty, if the vb qty > po qty then we need to highlight it
 	    						//
-	    						if(vbQty > poQty)
+	    						if(Number(vbQty) > Number(poQty))
 	    							{
 	    								var qtyDiff = Number(vbQty) - Number(poQty);
 	    								
@@ -308,7 +323,7 @@ function(record, dialog, search)
 	    						
 	    						//Compare the vb val with the po val, if the vb val > po val then we need to highlight it
 	    						//
-	    						if(vbVal > poVal)
+	    						if(Number(vbVal) > Number(poVal))
 	    							{
 	    								var valDiff = Number(vbVal) - Number(poVal);
     								
@@ -344,7 +359,7 @@ function(record, dialog, search)
 	    						
 	    						//Compare the vb qty with the po to be billed qty
 	    						//
-	    						if(vbQty > poTbbQty)
+	    						if(Number(vbQty) > Number(poTbbQty))
 	    							{
 	    								var qtyDiff = Number(vbQty) - Number(poTbbQty);
 	    								
@@ -353,7 +368,7 @@ function(record, dialog, search)
 	    						
 	    						//Compare the vb val with the po to be billed val
 	    						//
-	    						if(vbVal > poTbbVal)
+	    						if(Number(vbVal) > Number(poTbbVal))
 	    							{
 	    								var valDiff = Number(vbVal) - Number(poTbbVal);
     								
