@@ -10,7 +10,7 @@
 	<td align="right">&nbsp;</td>
 	<td align="right" rowspan="8"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:295px; height:180px;" /> </#if></td>
 	</tr>
-	<tr><td><span style="font-size:18px; color:red; font-weight: bold;">INVOICE</span></td><td align="right">&nbsp;</td></tr>
+	<tr><td><span style="font-size:18px; color:red; font-weight: bold;">SALES ORDER</span></td><td align="right">&nbsp;</td></tr>
 	<tr><td rowspan="5"><span style="font-size:10px;">${companyInformation.addressText}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
 	<tr><td align="left">&nbsp;</td></tr>
 	<tr><td align="left">&nbsp;</td></tr>
@@ -26,33 +26,33 @@
 	<tr>
 	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To</td>
 	<td align="left">&nbsp;</td>
-	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">INVOICE NO:</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">ORDER NO:</td>
 	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
 	</tr>
 
 	<tr>
 	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.billaddress}</td>
     <td align="left">&nbsp;</td>
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice/Tax Date:</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date:</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
 	</tr>
 
     <tr>
 	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Purchase Order No:</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Ship Date:</td>
+	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.shipdate}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Customer's Order No:</td>
 	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.otherrefnum}</td>
 	</tr>
 
     <tr>
 	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Account No:</td>
-	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.entity.entityid}</td>
-	</tr>
-
-    <tr>
-	<td align="left">&nbsp;</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Project No:</td>
-	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_so_project_text}</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Project No:</td>
+	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_cseg_bbs_project_no}</td>
 	</tr>
 
 	</table>
@@ -61,7 +61,7 @@
 
 	<table style="width: 100%;">
 	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To/Notes:</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To:</td>
     <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">VAT Reg. No. 484 6151 31<br/>Terms: Nett 30 Days<br/>E&amp;OE</td>
 	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
 	<td align="right" style="font-size: 10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
@@ -94,6 +94,9 @@
 	<tr class="messagerow">
 	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
     </tr>
+    <tr class="messagerow">  
+    <td class="message" align="center" style="font-size: 6pt"><b>All deliveries to be made between 9:00am and 5:00pm normal business days, unless special arrangements have been made</b></td>
+    </tr>  
 	<tr class="messagerow">
 	<td class="message" align="center" style="font-size: 6pt"><b>ABBEY BUSINESS EQUIPMENT LIMITED RETAINS THE TITLE TO THE GOODS SUPPLIED UNTIL FULL PAYMENT HAS BEEN RECEIVED. HOWEVER RISK PASSES ON DELIVERY TO YOURSELVES</b></td>
 	</tr>
@@ -101,7 +104,7 @@
 
 <table class="footer" style="width: 100%;">
   	<tr>
-    <td align="center" style="font-size: 6pt">REG. OFFICE NO. 2200765 REG> OFFICE: Units 23 &amp; 24 Neptune Business Centre, Tewkesbury Road, Cheltenham, Gloucestershire. GL51 9FB VAT REG. No. 484 6151 31</td>
+    <td align="center" style="font-size: 6pt">REG. OFFICE NO. 2200765 REG. OFFICE: Units 23 &amp; 24 Neptune Business Centre, Tewkesbury Road, Cheltenham, Gloucestershire. GL51 9FB VAT REG. No. 484 6151 31</td>
 	</tr>
   	<tr>
     <td align="right"><pagenumber/> of <totalpages/></td>
@@ -208,7 +211,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="160px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="170px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
 
 <#if record.item?has_content>
   <table class="itemtable" style="width: 100%;"><!-- start items -->
@@ -218,6 +221,7 @@
             <tr>
             <th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
             <th align="center" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_quote_cad@label}</th>
+            <th align="left" colspan="3"  style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.units@label}</th>
             <th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.item@label}</th>
             <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Unit Price</th>
             <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">${item.amount@label}</th>
@@ -229,7 +233,18 @@
           <tr>
           <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
           <td align="left" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_quote_cad}</td>
-          <td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}<br/>${item.description}</td>
+          <td align="left" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.units}</td>
+
+          <#if item.custcol_bbs_sales_generic_desc == "">
+      		<td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">&nbsp;</td>
+          <#else>
+         	<#if item.item == "Disclaimer">
+                <td colspan="15" font-weight="bold" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
+            <#else>
+            	<td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
+          	</#if>
+      	  </#if>
+
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.00###"]}</td>
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${item.amount}</td>
           </tr>
