@@ -78,7 +78,103 @@ function createAssembliesFieldChanged(type, name, linenum)
 			//
 			nlapiSetFieldValue('custpage_cust_id_param', customerId, false, true);
 			nlapiSetFieldValue('custpage_cust_txt_param', customerTxt, false, true);
+
+			//Remove any existing finish items
+			//
+			nlapiRemoveSelectOption('custpage_finish_item_select', null);
 			
+			//Add a blank finish item
+			//
+			nlapiInsertSelectOption('custpage_finish_item_select', 0, '', true);
+			
+			var finishList = {};
+			
+			if (customerId != null && customerId != '')
+				{
+					var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   ["custitem_bbs_item_customer","anyof",customerId]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+		
+					var lastId = '';
+					var accumulatedDescription = '';
+					
+					if(assemblyitemSearch)
+						{
+							for (var int = 0; int < assemblyitemSearch.length; int++) 
+								{
+									var thisId = assemblyitemSearch[int].getId();
+										
+									if(lastId != thisId)
+										{
+											if(lastId != '')
+											{
+												accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+												accumulatedDescription += ')';
+													
+												//add the previous finish to the select list
+												//
+												//nlapiInsertSelectOption('custpage_finish_item_select', lastId, accumulatedDescription, false);
+												var posHyphen = accumulatedDescription.indexOf('-') + 2;
+												var posColon = accumulatedDescription.indexOf(' :');
+												var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+												
+												finishList[indexer] = [lastId,accumulatedDescription];
+											}
+												
+											lastId = thisId;
+												
+											accumulatedDescription = assemblyitemSearch[int].getValue('itemid') + ' : ' + '(' + assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+										}
+									else
+										{
+											accumulatedDescription += assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+										}
+										
+								}
+				
+							if(lastId != '')
+								{
+									accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+									accumulatedDescription += ')';
+											
+									//add the last finish to the select list
+									//
+									//nlapiInsertSelectOption('custpage_finish_item_select', thisId, accumulatedDescription, false);
+									
+									var posHyphen = accumulatedDescription.indexOf('-') + 2;
+									var posColon = accumulatedDescription.indexOf(' :');
+									var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+									
+									finishList[indexer] = [thisId,accumulatedDescription];
+								}
+						}
+				}
+			
+			//Sort the list of finishes
+			//
+			const orderedTemp = {};
+			Object.keys(finishList).sort().forEach(function(key) {
+				orderedTemp[key] = finishList[key];
+			});
+			
+			for ( var tempKey in orderedTemp) 
+				{
+					var tempData = orderedTemp[tempKey];
+					nlapiInsertSelectOption('custpage_finish_item_select', tempData[0], tempData[1], false);
+				}
+			
+			/*
 			//Find the finish items belonging to the customer
 			//
 			var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
@@ -95,14 +191,6 @@ function createAssembliesFieldChanged(type, name, linenum)
 					]
 					);
 			
-			//Remove any existing finish items
-			//
-			nlapiRemoveSelectOption('custpage_finish_item_select', null);
-			
-			//Add a blank finish item
-			//
-			nlapiInsertSelectOption('custpage_finish_item_select', 0, '', true);
-			
 			//Add in the finish items into the select list
 			//
 			if(assemblyitemSearch)
@@ -110,7 +198,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 					for (var int = 0; int < assemblyitemSearch.length; int++) 
 						{
 							var finishId = assemblyitemSearch[int].getId();
-							var assemblyRecord = nlapiLoadRecord('assemblyitem', finishId);
+							var assemblyRecord = null; //nlapiLoadRecord('assemblyitem', finishId);
 							var finishDescription = assemblyitemSearch[int].getValue('description');
 							
 							if(assemblyRecord)
@@ -131,7 +219,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 							nlapiInsertSelectOption('custpage_finish_item_select', finishId, finishText, false);
 						}
 				}
-			
+			*/
 			
 			//Remove any existing finish refs
 			//
@@ -143,78 +231,81 @@ function createAssembliesFieldChanged(type, name, linenum)
 			
 			//Find assembly items that are not a matrix parent or child & that belong to the customer
 			//
-			var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
-					[
-					   ["matrix","is","F"], 
-					   "AND", 
-					   ["matrixchild","is","F"], 
-					   "AND", 
-					   ["custitem_bbs_item_customer","anyof",customerId], 
-					   "AND", 
-					   ["type","anyof","Assembly"]
-					], 
-					[
-					   new nlobjSearchColumn("formulatext",null,null).setFormula("SUBSTR({name},INSTR({name}, '-' )+1)")
-					]
-					);
-			
-			//Add the results to an object
-			//
-			var finishRefs = {};
-			
-			if(assemblyitemSearch)
+			if(customerId != null && customerId != '')
 				{
-					for (var int2 = 0; int2 < assemblyitemSearch.length; int2++) 
+					var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
+							[
+							   ["matrix","is","F"], 
+							   "AND", 
+							   ["matrixchild","is","F"], 
+							   "AND", 
+							   ["custitem_bbs_item_customer","anyof",customerId], 
+							   "AND", 
+							   ["type","anyof","Assembly"]
+							], 
+							[
+							   new nlobjSearchColumn("formulatext",null,null).setFormula("SUBSTR({name},INSTR({name}, '-' )+1)")
+							]
+							);
+					
+					//Add the results to an object
+					//
+					var finishRefs = {};
+					
+					if(assemblyitemSearch)
 						{
-							var finishRefText = assemblyitemSearch[int2].getValue('formulatext');
-							finishRefs[finishRefText] = finishRefText;
-						}
-				}
-			
-			//Search the custom list of finishes
-			//
-			var finishRefSearch = nlapiCreateSearch("customlist_bbs_item_finish_ref",
-					[
-					], 
-					[
-					   new nlobjSearchColumn("name",null,null)
-					]
-					);
-			
-			var searchResult = finishRefSearch.runSearch();
-			
-			//Get the initial set of results
-			//
-			var start = 0;
-			var end = 1000;
-			var searchResultSet = searchResult.getResults(start, end);
-			var resultlen = (searchResultSet == null ? 0 :  searchResultSet.length);
-	
-			//If there is more than 1000 results, page through them
-			//
-			while (resultlen == 1000) 
-				{
-					start += 1000;
-					end += 1000;
-	
-					var moreSearchResultSet = searchResult.getResults(start, end);
-					resultlen = moreSearchResultSet.length;
-	
-					searchResultSet = searchResultSet.concat(moreSearchResultSet);
-				}
-
-			//Read through the list & add any rows that match the previous search to the select list
-			//
-			if(searchResultSet !=  null)
-				{
-					for (var int = 0; int < searchResultSet.length; int++) 
-						{
-							var finishRefId = searchResultSet[int].getId();
-							var finishRefName = searchResultSet[int].getValue('name');
-							
-							if(finishRefs[finishRefName])
+							for (var int2 = 0; int2 < assemblyitemSearch.length; int2++) 
 								{
-									nlapiInsertSelectOption('custpage_finish_ref_select', finishRefId, finishRefName, false);
+									var finishRefText = assemblyitemSearch[int2].getValue('formulatext');
+									finishRefs[finishRefText] = finishRefText;
+								}
+						}
+					
+					//Search the custom list of finishes
+					//
+					var finishRefSearch = nlapiCreateSearch("customlist_bbs_item_finish_ref",
+							[
+							], 
+							[
+							   new nlobjSearchColumn("name",null,null)
+							]
+							);
+					
+					var searchResult = finishRefSearch.runSearch();
+					
+					//Get the initial set of results
+					//
+					var start = 0;
+					var end = 1000;
+					var searchResultSet = searchResult.getResults(start, end);
+					var resultlen = (searchResultSet == null ? 0 :  searchResultSet.length);
+			
+					//If there is more than 1000 results, page through them
+					//
+					while (resultlen == 1000) 
+						{
+							start += 1000;
+							end += 1000;
+			
+							var moreSearchResultSet = searchResult.getResults(start, end);
+							resultlen = moreSearchResultSet.length;
+			
+							searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						}
+		
+					//Read through the list & add any rows that match the previous search to the select list
+					//
+					if(searchResultSet !=  null)
+						{
+							for (var int = 0; int < searchResultSet.length; int++) 
+								{
+									var finishRefId = searchResultSet[int].getId();
+									var finishRefName = searchResultSet[int].getValue('name');
+									
+									if(finishRefs[finishRefName])
+										{
+											nlapiInsertSelectOption('custpage_finish_ref_select', finishRefId, finishRefName, false);
+										}
 								}
 						}
 				}

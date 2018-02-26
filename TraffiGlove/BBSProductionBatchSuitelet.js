@@ -665,26 +665,29 @@ function productionBatchSuitelet(request, response)
 						
 						var batchesArray = JSON.parse(batches);
 						
-						var filters = new Array();
-						filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
-						
-						var columns = new Array();
-						columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
-						columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
-						columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
-						
-						var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
-						
-						for (var int2 = 0; int2 < batchResults.length; int2++) 
-						{
-							lineNo++;
-							
-							subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
-							subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-							subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
-							subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
-							subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
-						}
+						if(batchesArray.length > 0)
+							{
+								var filters = new Array();
+								filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+								
+								var columns = new Array();
+								columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
+								columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
+								columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+								
+								var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
+								
+								for (var int2 = 0; int2 < batchResults.length; int2++) 
+									{
+										lineNo++;
+										
+										subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
+										subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
+										subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
+										subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
+										subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
+									}
+							}
 					}
 				
 				//Add a submit button to the form

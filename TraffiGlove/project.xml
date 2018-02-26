@@ -2,5 +2,7 @@
   <folder name="TraffiGlove" bundleable="false">
     <file name="BBSPriceListScheduledScript.js"/>
     <file name="BBSPriceListSuitelet.js"/>
+    <file name="BBS_CI_Detailed_layout.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="sales_order_weight_and_no_items_client_script.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
   </folder>
 </project>
