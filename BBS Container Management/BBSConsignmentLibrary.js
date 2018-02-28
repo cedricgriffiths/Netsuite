@@ -90,9 +90,36 @@ function libFindPurchaseOrders(supplier, poNo, item) {
 	columns[14] = new nlobjSearchColumn('exchangerate');
 	columns[15] = new nlobjSearchColumn('currency');
 	
-	var results = nlapiSearchRecord('transaction', null, filters, columns);
+	//var results = nlapiSearchRecord('transaction', null, filters, columns);
 	
-	return results;
+	//return results;
+	
+	var poSearch = nlapiCreateSearch('transaction', filters, columns);
+	var searchResult = poSearch.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
+
+	
 	/*
 	var suppliers = {};
 	var pos = {};
