@@ -1,0 +1,28 @@
+<project info="SuiteCloud IDE generated file, do not edit." setAttributesOnUpdate="false">
+  <folder name="Invoice Consolidation" bundleable="false">
+    <file name="Generic Company Logo.png" bundleable="true" hideInBundle="false" isOnline="true" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Cleanup_orphan_CIL.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Detailed_layout.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Lib_ConsolidationProcessing.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Lib_Constants.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Lib_UtilAndObjects.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_MR_Update_CIL.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_MR_generateCIL.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_SL_ConsolidatedInvoicing.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_SS_ConsolidatedInvoicingOnline.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_SS_ConsolidatedInvoicingScheduled.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Summarize_By_Detailes_subcustomer.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Summarize_By_DueDate.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_Summarize_By_Item.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_UE_CIL.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_UE_ConsolidatedInvoicing.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_UE_Invoice.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_CI_UE_task.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_SS_suitelet_async_processing.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_SWVA_Lib_Constants.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_SWVA_Lib_ObjectsAndFunctions.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="NSTS_SWVA_WA_EmailARContacts.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="SS_CI_v2.5.0_SolutionGuide.pdf" bundleable="false" hideInBundle="false" isOnline="true" textFileEncoding="_utf8"/>
+    <file name="nsts_ci_consolidated_invoice_validation_cs.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+  </folder>
+</project>

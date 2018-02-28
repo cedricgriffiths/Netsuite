@@ -1,0 +1,399 @@
+<?xml version="1.0" ?>
+<!DOCTYPE PDF PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<#assign cs = "{currencySymbol}">
+
+<#assign hh = "{headerHeight}">
+
+<#assign BFS = "{bodyFontSize}px">
+<#assign TFS = "{titleFontSize}px">
+<#assign STFS = "{subTitleFontSize}px">
+<#assign THFS = "{thFontSize}px">
+<#assign TRFS = "{trFontSize}px">
+
+<#assign BSFS = "{billshipFontSize}px">
+<#assign BSTBLH = "{billshipTBLHeight}px">
+
+<#function toCurrency value showSymbol=false>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#return retval>
+</#function>
+
+<head>
+<style type="text/css">
+body {
+	font-family: sans-serif;
+	font-size: ${BFS};
+}
+
+table {
+	width: 100%;
+	border-color:#004480;
+}
+table th{
+	font-weight: bold;
+	font-size: ${THFS};
+	vertical-align: middle;
+	padding-right: 6px;
+	padding-left: 6px;
+	padding-bottom: 3px;
+	padding-top: 5px;
+	background-color: #004480;
+	color: white;
+	white-space: nowrap;
+}
+table td {
+	font-size: ${TRFS};
+	white-space: nowrap;
+}
+.toSum th {
+	font-weight: bold;
+	font-size: ${THFS};
+	vertical-align: middle;
+	padding-right: 6px;
+	padding-left: 6px;
+	padding-bottom: 3px;
+	padding-top: 5px;
+	background-color: #004480;
+	color: white;
+	white-space: nowrap;
+}
+
+.toSum td {
+	font-size: ${TRFS};
+	white-space: nowrap;
+}
+
+b {
+	font-weight: bolder;
+	font-weight: bold;
+}
+
+hr {
+	width: 100%;
+	color: #004480;
+	background-color: #004480;
+	height: 1px;
+}
+
+.brdB {
+	border-bottom: 1px;
+	border-bottom-color: #004480;
+}
+.brdT {
+	border-top: 1px;
+	border-top-color: #004480;
+}
+.brdL {
+	border-left: 1px;
+	border-left-color: #004480;
+}
+.brdR {
+	border-right: 1px;
+	border-right-color: #004480;
+}
+
+.toSumByDueDate td{
+	border-left: 1px;
+	border-left-color: #004480;
+}
+
+.minH{
+	height:12px;
+}
+
+.title{
+	font-size: ${TFS};
+}
+
+.subtitle{
+	font-size: ${STFS};
+}
+
+.BSTBLH{
+	height: ${BSTBLH};
+}
+.BSFS{
+	font-size: ${BSFS};
+}
+</style>	
+
+
+<macrolist> <macro id="nlheader">
+<table class="header">
+	<tr>
+		<td>
+			<table>
+				<tr>
+					<td>
+					<#if "${company.logo}" != "">
+					<img src="${company.logo}" style="float: left; margin: 7px;width: 200px" />					</#if>
+					</td>
+				</tr>
+				<Tr>
+					<td>
+					<b class="title">${companyinformation.companyname}</b> <br/>
+					</td>
+				</Tr>
+				<tr>
+					<td>
+						${companyinformation.mainaddress_text}
+					</td>
+				</tr>
+			</table>	
+		</td>
+		<td></td>
+		<td rowspan="3">
+			<table>
+				<tr>
+					<td><b class="title">CONSOLIDATED INVOICE</b></td>
+				</tr>
+				
+				<tr>
+					<td align="left">
+					<table>
+						<tr>
+							<th>CONSOLIDATED INVOICE #</th>
+							<th>INVOICE DATE</th>
+							<#if companyinformation.basecurrency?has_content>
+								<th>CURRENCY</th>
+							</#if>
+						</tr>
+						<tr class="brdB">
+							<td class="brdR brdL">${ci.name}</td>
+							<td class="brdR">${ci.custrecord_nsts_ci_date}</td>
+							<#if companyinformation.basecurrency?has_content>
+								<td class="brdR">${ci.custrecord_nsts_ci_pref_currency}</td>
+							</#if>
+						</tr>
+					</table>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	
+
+</table>
+
+<table>
+	<tr>
+		<th align="left"><b>Bill To:</b></th>
+		<td></td>
+		<th align="left" class="brdT brdL brdR"><b>Ship To:</b></th>
+	</tr>
+	<tr class="BSTBLH">
+		<td class="brdL brdR brdB BSFS">
+		<#if customer.billattention?has_content>
+		${customer.billattention}<br/>
+		</#if>
+		<#if customer.billaddressee?has_content>
+		${customer.billaddressee}<br/>
+		</#if>
+		
+		<#if customer.billaddr1?has_content>
+		${customer.billaddr1}<br/>
+		</#if>
+
+		<#if customer.billaddr2?has_content>
+		${customer.billaddr2}<br/>
+		</#if>
+
+		<#if customer.billaddr3?has_content>
+		${customer.billaddr3}<br/>
+		</#if>
+		
+		<#if customer.billcity?has_content>
+		${customer.billcity}<br/>
+		</#if>
+		
+		<#if customer.billstate?has_content>
+		${customer.billstate}<br/>
+		</#if>
+
+		<#if customer.billzip?has_content>
+		${customer.billzip}<br/>
+		</#if>
+		
+		<#if customer.billcountry?has_content>
+		${customer.billcountry}<br/>
+		</#if>
+		
+		<#if customer.billphone?has_content>
+		${customer.billphone}<br/>
+		</#if>
+		</td>
+		<td></td>
+		<td class="brdL brdR brdB BSFS">
+		<#if customer.shipattention?has_content>
+		${customer.shipattention}<br/>
+		</#if>
+		<#if customer.shipaddressee?has_content>
+		${customer.shipaddressee}<br/>
+		</#if>
+		
+		<#if customer.shipaddr1?has_content>
+		${customer.shipaddr1}<br/>
+		</#if>
+
+		<#if customer.shipaddr2?has_content>
+		${customer.shipaddr2}<br/>
+		</#if>
+
+		<#if customer.shipaddr3?has_content>
+		${customer.shipaddr3}<br/>
+		</#if>
+		
+		<#if customer.shipcity?has_content>
+		${customer.shipcity}<br/>
+		</#if>
+		
+		<#if customer.shipstate?has_content>
+		${customer.shipstate}<br/>
+		</#if>
+
+		<#if customer.shipzip?has_content>
+		${customer.shipzip}<br/>
+		</#if>
+		
+		<#if customer.shipcountry?has_content>
+		${customer.shipcountry}<br/>
+		</#if>
+		
+		<#if customer.shipphone?has_content>
+		${customer.shipphone}<br/>
+		</#if>
+		</td>
+	</tr>
+</table>
+
+<table style="padding-top: 2;">
+	<tr>
+		<th >SALES REP</th>
+		<th class="brdB">PARTNER</th>
+		<#if ci.custrecord_nsts_ci_cld_inv_duedate_upd == true>
+			<th class="brdB">CI DUE DATE</th>
+		<#else>
+			<th class="brdB">PAYMENT TERMS</th>
+		</#if>
+	</tr>
+	<tr class="minH">
+		<td class="brdL brdR brdB">${customer.salesrep}</td>
+		<td class="brdR brdB">${customer.partner}</td>
+		<#if ci.custrecord_nsts_ci_cld_inv_duedate_upd == true>
+			<td class="brdR brdB">${ci.custrecord_nsts_ci_tran_duedate}</td>
+		<#else>
+			<td class="brdR brdB">${customer.terms}</td>
+		</#if>
+	</tr>
+</table>
+</macro> <macro id="nlfooter">
+<table class="footer">
+	<tr>
+		<td align="right"><pagenumber /> of <totalpages /></td>
+	</tr>
+</table>
+</macro> </macrolist>
+</head>
+
+<body {isLandscape} header="nlheader" header-height="${hh}" footer="nlfooter" footer-height="20pt">
+	<#assign subtotal=0> 
+	<#if invoiceline?has_content>
+	<b>Summary By Due Date</b> 
+	<table class="toSum brdB">
+		<thead>
+			<tr>
+				<th align="center">DUEDATE</th>
+				<th align="center">INVOICE #</th>
+				<th align="center">INVOICE DATE</th>
+				<th align="right">AMOUNT</th>
+			</tr>
+		</thead>
+		<#list invoiceline as item> 
+		
+		<#if item_index == 0>
+		<tr>
+			<td class="brdR brdL"><b>${item.duedate}</b></td>
+			<td class="brdR "></td>
+			<td class="brdR"></td>
+			<td class="brdR"></td>
+		</tr>
+		</#if> 
+		
+		<#if prevduedate?string != item.duedate?string> 
+		<#if item_index &gt; 0>
+		<tr>
+			<td class="brdR brdL"></td>
+			<td class="brdR"></td>
+			<td class="brdR"></td>
+			<td align="right"  class="brdR"><b>SUB TOTAL: ${cs}${subtotal?string["#,##0.00"]}</b></td>
+		</tr>
+		</#if>
+		<tr class="brdT">
+			<td class="brdR brdL"><b>
+			<!-- ${item.duedate} -->
+			<#if item.duedate?has_content>
+				${item.duedate}
+			<#else>
+				(Not Set)
+			</#if>
+			</b></td>
+			<td class="brdR "></td>
+			<td class="brdR"></td>
+			<td class="brdR"></td>
+		</tr>
+		<#assign subtotal=0>
+		</#if>
+
+		<tr>
+			<td align="center" class="brdR brdL">${item.duedate}</td>
+			<td align="center" class="brdR">${item.tranid}</td>
+			<td align="center" class="brdR">${item.trandate}</td>
+			<td align="right" class="brdR">${toCurrency(item.formulacurrency)}</td>
+		</tr>
+
+		<#assign subtotal=subtotal + item.formulacurrency>
+		<#assign prevduedate=item.duedate> 
+		
+		<#if item_has_next == false>
+		<tr>
+			<td class="brdR brdL"></td>
+			<td class="brdR"></td>
+			<td class="brdR"></td>
+			<td align="right" class="brdR"><b>SUB TOTAL: ${toCurrency(subtotal)}</b></td>
+		</tr>
+		</#if> 
+		</#list>
+	</table>
+	<table class="toSum brdL brdR brdB">
+		<tr class="totalrow">
+			<td colspan="7">&nbsp;</td>
+			<td align="right" class="brdR"><b>TOTAL</b></td>			
+			<td align="right" class="brdT">${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)}</td>
+		</tr>
+		<tr class="totalrow">
+			<td colspan="7">&nbsp;</td>
+			<td align="right" class="brdR"><b>AMOUNT PAID</b></td>			
+			<td align="right">${toCurrency(ci.custrecord_nsts_ci_pdf_amountpaid)}</td>
+		</tr>
+		<tr class="totalrow">
+			<td colspan="7">&nbsp;</td>
+			<td align="right" class="brdR"><b>TOTAL DUE</b></td>			
+			<td align="right">${toCurrency(ci.custrecord_nsts_ci_pdf_total_due,true)}</td>
+		</tr>
+	</table>
+	</#if>
+
+	<p></p>
+</body>
+</pdf>
