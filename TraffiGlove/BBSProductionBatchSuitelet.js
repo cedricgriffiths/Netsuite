@@ -658,6 +658,7 @@ function productionBatchSuitelet(request, response)
 				var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Production Batch', null);
 				var listEntered = subList.addField('custpage_sublist_entered', 'date', 'Date Entered', null);
 				var listDue = subList.addField('custpage_sublist_due', 'date', 'Due Date', null);
+				var listUpdated = subList.addField('custpage_sublist_updated', 'checkbox', 'W/O Updated To Batch', null);
 				
 				if(batches != '')
 					{
@@ -674,6 +675,7 @@ function productionBatchSuitelet(request, response)
 								columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
 								columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
 								columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+								columns[3] = new nlobjSearchColumn('custrecord_bbs_wo_updated');
 								
 								var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
 								
@@ -686,9 +688,13 @@ function productionBatchSuitelet(request, response)
 										subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
 										subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
 										subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
+										subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getValue('custrecord_bbs_wo_updated'));
 									}
 							}
 					}
+				//Add a refresh button
+				//
+				subList.addRefreshButton();
 				
 				//Add a submit button to the form
 				//
@@ -835,6 +841,12 @@ function productionBatchSuitelet(request, response)
 					
 					var prodBatchId = '';
 					
+					var remaining = nlapiGetContext().getRemainingUsage();
+					nlapiLogExecution('DEBUG', 'Usage left before batch/wo update', remaining.toString());
+					nlapiLogExecution('DEBUG', 'Count of prod batches', (Object.keys(woArray).length).toString());
+					
+					var woToProcessArray = {};
+					
 					//Loop round the batch keys to create the batches
 					//
 					for (var woKey in woArray) 
@@ -852,13 +864,29 @@ function productionBatchSuitelet(request, response)
 						//Loop round the w/o id's associated with this batch
 						//
 						woIds = woArray[woKey];
+						
+						//Save the id of the created batch along with the works orders that go with it
+						//
+						woToProcessArray[prodBatchId] = woIds;
+						
+						/*
+						nlapiLogExecution('DEBUG', 'Count of wo in batch ' + woKey, woIds.length.toString());
+						
 						for (var int2 = 0; int2 < woIds.length; int2++) 
 						{
 							var woRecord = nlapiLoadRecord('workorder', woIds[int2]);
 							woRecord.setFieldValue('custbody_bbs_wo_batch', prodBatchId);
 							nlapiSubmitRecord(woRecord, false, true);
+							
+							var remaining = nlapiGetContext().getRemainingUsage();
+							nlapiLogExecution('DEBUG', 'Usage left after wo update', remaining.toString());
+							
 						}
+						*/
 					}
+					
+					var scheduleParams = {custscript_wo_array: JSON.stringify(woToProcessArray)};
+					nlapiScheduleScript('customscript_bbs_prod_batch_scheduled', null, scheduleParams);
 					
 					var batchesCreatedText = JSON.stringify(batchesCreated);
 					var params = new Array();
@@ -925,12 +953,16 @@ function productionBatchSuitelet(request, response)
 					
 					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
 							[
-							   new nlobjSearchColumn("tranid",null,null), 
+							   new nlobjSearchColumn("tranid",null,null).setSort(false), 
 							   new nlobjSearchColumn("entity",null,null), 
 							   new nlobjSearchColumn("item",null,null), 
 							   new nlobjSearchColumn("quantity",null,null),
 							   //new nlobjSearchColumn("binnumber","item",null),
-							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
+							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
+							   new nlobjSearchColumn("item",null,null),
+							   new nlobjSearchColumn("description","item",null),
+							   new nlobjSearchColumn("mainline",null,null)
+							   
 							]
 							);
 
@@ -1034,7 +1066,8 @@ function productionBatchSuitelet(request, response)
 					
 					xml += "<tr>";
 					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
-					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
 					xml += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xml += "</tr>";
 					
@@ -1060,9 +1093,16 @@ function productionBatchSuitelet(request, response)
 					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 					{
 						var woId = searchResultSet[int3].getId();
+						var woAssemblyItem = searchResultSet[int3].getText('item');
+						var woAssemblyItemDesc = searchResultSet[int3].getValue('description','item');
+						var woAssemblyItemQty = searchResultSet[int3].getValue('quantity');
+						var woMainline = searchResultSet[int3].getValue('mainline');
 						
+						/*
 						xml += "<tr>";
 						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+						*/
+						
 						//xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
 						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
 						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
@@ -1077,14 +1117,13 @@ function productionBatchSuitelet(request, response)
 						if (woRecord)
 							{
 								var woLocation = woRecord.getFieldValue('location');
-							
 								var componentsCount = woRecord.getLineItemCount('item');
 								
 								for (var int4 = 1; int4 <= componentsCount; int4++) 
 								{
 									var itemType = woRecord.getLineItemValue('item', 'itemtype', int4);
 									
-									if(itemType == 'InvtPart' || itemType == 'NonInvtPart' )
+									if(itemType == 'InvtPart' || itemType == 'NonInvtPart')
 										{
 											var committedQty = Number(woRecord.getLineItemValue('item', 'quantitycommitted', int4));
 											var componentText = woRecord.getLineItemText('item', 'item', int4);
@@ -1092,6 +1131,11 @@ function productionBatchSuitelet(request, response)
 											
 											//Find the default bin 
 											//
+											var componentBin = '';
+											var componentDescription = '';
+											var componentSpecInst = '';
+											
+											
 											var componentRecord = nlapiLoadRecord(getItemRecType(itemType), componentId);
 											var componentDescription = componentRecord.getFieldValue('salesdescription');
 											var componentSpecInst = componentRecord.getFieldValue('custitem_bbs_item_instructions');
@@ -1099,7 +1143,6 @@ function productionBatchSuitelet(request, response)
 											componentSpecInst = (componentSpecInst == null ? "" : componentSpecInst);
 											
 											var binCount = componentRecord.getLineItemCount('binnumber');
-											var componentBin = '';
 											
 											for (var int5 = 1; int5 <= binCount; int5++) 
 											{
@@ -1111,12 +1154,52 @@ function productionBatchSuitelet(request, response)
 														componentBin = componentRecord.getLineItemText('binnumber', 'binnumber', int5);
 													}
 											}
+
+										if(firstLine)
+												{
+													firstLine = false;
+													
+													xml += "<tr>";
+													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+													xml += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
+													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
+													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
+													xml += "</tr>";
+													
+													xml += "<tr>";
+													xml += "<td colspan=\"2\">&nbsp;</td>";
+													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+													xml += "</tr>";
+													
+													xml += "<tr>";
+													xml += "<td colspan=\"2\">&nbsp;</td>";
+													xml += "</tr>";
+												}
 											
+											xml += "<tr>";
+											xml += "<td colspan=\"4\">&nbsp;</td>";
+											xml += "<td align=\"left\" colspan=\"10\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(componentText) + "</b></td>";
+											xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
+											xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
+											xml += "</tr>";
+											
+											xml += "<tr>";
+											xml += "<td colspan=\"4\">&nbsp;</td>";
+											xml += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(componentDescription) + "</td>";
+											xml += "</tr>";
+											
+											xml += "<tr>";
+											xml += "<td colspan=\"4\">&nbsp;</td>";
+											xml += "<td align=\"left\" colspan=\"10\"><b>" + nlapiEscapeXML(componentSpecInst) + "</b></td>";
+											xml += "</tr>";
+											
+											
+											
+											/*
 											if(firstLine)
 												{
 													firstLine = false;
-												
-													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) + "</td>";
+													xml += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(componentText) + "</b><br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
 													xml += "</tr>";
@@ -1125,28 +1208,23 @@ function productionBatchSuitelet(request, response)
 												{
 													xml += "<tr>";
 													xml += "<td colspan=\"2\">&nbsp;</td>";
-													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(componentText) + "<br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) +  "</td>";
+													xml += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(componentText) + "</b><br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) +  "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
 													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
 													xml += "</tr>";
 												}
-											
+											*/
 											
 											xml += "<tr>";
-											xml += "<td colspan=\"2\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+											xml += "<td colspan=\"18\">&nbsp;</td>";
 											xml += "</tr>";
+											
 										}
 								}
 							}
 						
 						xml += "<tr>";
-						xml += "<td colspan=\"2\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
+						xml += "<td colspan=\"18\">&nbsp;</td>";
 						xml += "</tr>";
 					}
 					
@@ -1162,10 +1240,11 @@ function productionBatchSuitelet(request, response)
 					//
 					xml += "</pdf>";
 	
-					
+				
 					//
 					//Produce the batch putaway documents
 					//
+					/*
 					var batchId = batchResults[int2].getId();
 					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
 
@@ -1324,9 +1403,11 @@ function productionBatchSuitelet(request, response)
 						
 						//Find the default bin 
 						//
+						var assemblyBin = '';
+						
+						
 						var assemblyRecord = nlapiLoadRecord('assemblyitem', assemblyItemId);
 						var binCount = assemblyRecord.getLineItemCount('binnumber');
-						var assemblyBin = '';
 						
 						for (var int5 = 1; int5 <= binCount; int5++) 
 						{
@@ -1338,7 +1419,7 @@ function productionBatchSuitelet(request, response)
 									assemblyBin = assemblyRecord.getLineItemText('binnumber', 'binnumber', int5);
 								}
 						}
-					
+						
 						
 						xml += "<tr>";
 						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
@@ -1367,6 +1448,9 @@ function productionBatchSuitelet(request, response)
 					//Finish the pdf
 					//
 					xml += "</pdf>";
+					
+					*/
+					
 				}
 
 				//

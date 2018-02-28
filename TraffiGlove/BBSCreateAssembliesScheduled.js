@@ -234,90 +234,113 @@ function createAssembliesScheduled(type)
 							//
 							var newParentId = null;
 							
-							try
+							//See if the new parent actually already exists
+							//
+							var existingParentSearch = nlapiSearchRecord("assemblyitem",null,
+									[
+									   ["type","anyof","Assembly"], 
+									   "AND", 
+									   ["name","is",newParentName]
+									], 
+									[
+									   new nlobjSearchColumn("itemid",null,null)
+									]
+									);
+							
+							if(existingParentSearch && existingParentSearch.length == 1)
 								{
-									//Instantiate an assembly item record
-									//
-									var newParentRecord = nlapiCreateRecord('assemblyitem', {recordmode: 'dynamic'});
+									newParentId = existingParentSearch[0].getId();
 									
-									//Set field values 
-									//
-									//var template = '{custitem_bbs_item_category}-{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
-									var template = '{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
-									
-									if (parentSize2 != '' && parentSize2 != null)
-										{
-											template += '-{custitem_bbs_item_size2}';
-										}
-									
-									template += ' {custitem_bbs_item_finish_ref}';
-									
-									newParentRecord.setFieldValue('matrixtype', 'PARENT');
-									newParentRecord.setFieldValue('itemid', newParentName);
-									newParentRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
-									newParentRecord.setFieldValue('autopreferredstocklevel', 'F');
-									newParentRecord.setFieldValue('autoreorderpoint', 'F');
-									newParentRecord.setFieldValue('costcategory', 4);
-									newParentRecord.setFieldValue('costingmethod', 'FIFO');
-									newParentRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
-									newParentRecord.setFieldValue('matrixitemnametemplate', template);
-									newParentRecord.setFieldValue('unitstype', 1);
-									newParentRecord.setFieldValue('saleunit', 1);
-									newParentRecord.setFieldValue('stockunit', 1);
-									newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
-									newParentRecord.setFieldValue('taxschedule', 1);
-									newParentRecord.setFieldValue('usebins', 'T');
-									newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
-									newParentRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
-									newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
-									newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
-									newParentRecord.setFieldValue('description', newParentDescription);
-		
-									//Copy in the custom fields
-									//
-									for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 
-										{
-											try
-												{
-													newParentRecord.setFieldValue(customFields[custFieldCount], parentRecord.getFieldValue(customFields[custFieldCount]));
-												}
-											catch(err)
-												{
-													var msg = err.message;
-												}
-											
-										}
-									
-									//Add a component to the assembly
-									//
-									newParentRecord.selectNewLineItem('member');
-									newParentRecord.setCurrentLineItemValue('member', 'item', finishId);
-									newParentRecord.setCurrentLineItemValue('member', 'quantity', 1);
-									newParentRecord.setCurrentLineItemValue('member', 'itemsource', 'PHANTOM');
-									newParentRecord.commitLineItem('member', false);
-									
-									//Add a bin number to the assembly
-									//
-									newParentRecord.selectNewLineItem('binnumber');
-									newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-									newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-									newParentRecord.commitLineItem('binnumber', false);					
-									
-									//Now save the assembly
-									//
-									newParentId = nlapiSubmitRecord(newParentRecord, true, true);
-									
-									//Add info to the email message
-									//
 									var newParentUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'assemblyitem', newParentId, 'view');
 									emailText += '\n';
-									emailText += 'Assembly Matrix Parent (' + newParentId.toString() + ') - ' + newParentName + ' ' + newParentUrl + '\n';
+									emailText += 'Existing Assembly Matrix Parent (' + newParentId.toString() + ') - ' + newParentName + ' ' + newParentUrl + '\n';
 								}
-							catch(err)
-								{
-									emailText += 'Error creating assembly parent record (' + newParentName + '), message is "' + err.message +'"\n';
+							else
+								{									
+									try
+										{
+											//Instantiate an assembly item record
+											//
+											var newParentRecord = nlapiCreateRecord('assemblyitem', {recordmode: 'dynamic'});
+											
+											//Set field values 
+											//
+											//var template = '{custitem_bbs_item_category}-{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
+											var template = '{itemid}-{custitem_bbs_item_colour}-{custitem_bbs_item_size1}';
+											
+											if (parentSize2 != '' && parentSize2 != null)
+												{
+													template += '-{custitem_bbs_item_size2}';
+												}
+											
+											template += ' {custitem_bbs_item_finish_ref}';
+											
+											newParentRecord.setFieldValue('matrixtype', 'PARENT');
+											newParentRecord.setFieldValue('itemid', newParentName);
+											newParentRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
+											newParentRecord.setFieldValue('autopreferredstocklevel', 'F');
+											newParentRecord.setFieldValue('autoreorderpoint', 'F');
+											newParentRecord.setFieldValue('costcategory', 4);
+											newParentRecord.setFieldValue('costingmethod', 'FIFO');
+											newParentRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
+											newParentRecord.setFieldValue('matrixitemnametemplate', template);
+											newParentRecord.setFieldValue('unitstype', 1);
+											newParentRecord.setFieldValue('saleunit', 1);
+											newParentRecord.setFieldValue('stockunit', 1);
+											newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
+											newParentRecord.setFieldValue('taxschedule', 1);
+											newParentRecord.setFieldValue('usebins', 'T');
+											newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
+											newParentRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
+											newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
+											newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
+											newParentRecord.setFieldValue('description', newParentDescription);
+				
+											//Copy in the custom fields
+											//
+											for (var custFieldCount = 0; custFieldCount < customFields.length; custFieldCount++) 
+												{
+													try
+														{
+															newParentRecord.setFieldValue(customFields[custFieldCount], parentRecord.getFieldValue(customFields[custFieldCount]));
+														}
+													catch(err)
+														{
+															var msg = err.message;
+														}
+													
+												}
+											
+											//Add a component to the assembly
+											//
+											newParentRecord.selectNewLineItem('member');
+											newParentRecord.setCurrentLineItemValue('member', 'item', finishId);
+											newParentRecord.setCurrentLineItemValue('member', 'quantity', 1);
+											newParentRecord.setCurrentLineItemValue('member', 'itemsource', 'PHANTOM');
+											newParentRecord.commitLineItem('member', false);
+											
+											//Add a bin number to the assembly
+											//
+											newParentRecord.selectNewLineItem('binnumber');
+											newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+											newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+											newParentRecord.commitLineItem('binnumber', false);					
+											
+											//Now save the assembly
+											//
+											newParentId = nlapiSubmitRecord(newParentRecord, true, true);
+											
+											//Add info to the email message
+											//
+											var newParentUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'assemblyitem', newParentId, 'view');
+											emailText += '\n';
+											emailText += 'Assembly Matrix Parent (' + newParentId.toString() + ') - ' + newParentName + ' ' + newParentUrl + '\n';
+										}
+									catch(err)
+										{
+											emailText += 'Error creating assembly parent record (' + newParentName + '), message is "' + err.message +'"\n';
+										}
 								}
-							
 							
 							//=====================================================================
 							//Process the child items
