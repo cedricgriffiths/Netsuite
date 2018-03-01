@@ -127,7 +127,10 @@ function createAssembliesFieldChanged(type, name, linenum)
 												//nlapiInsertSelectOption('custpage_finish_item_select', lastId, accumulatedDescription, false);
 												var posHyphen = accumulatedDescription.indexOf('-') + 2;
 												var posColon = accumulatedDescription.indexOf(' :');
+												var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+												var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
 												var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+												indexer = indexer + prefixValue;
 												
 												finishList[indexer] = [lastId,accumulatedDescription];
 											}
@@ -154,7 +157,10 @@ function createAssembliesFieldChanged(type, name, linenum)
 									
 									var posHyphen = accumulatedDescription.indexOf('-') + 2;
 									var posColon = accumulatedDescription.indexOf(' :');
+									var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+									var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
 									var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+									indexer = indexer + prefixValue;
 									
 									finishList[indexer] = [thisId,accumulatedDescription];
 								}
