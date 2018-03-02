@@ -65,6 +65,7 @@
 <#assign shipaddress>${lines.shipaddress}</#assign>
 <#assign custid>${lines.customer.externalid}</#assign>
 <#assign subsidiary>${lines.subsidiary.internalid}</#assign>
+<#assign shipcountry>${lines.shipcountrycode}</#assign>
 
 </#list>
 
@@ -230,13 +231,13 @@
 <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
-	<td align="right">&nbsp;</td>
+	<td colspan="2"><span style="font-size:20px;">Consolidated Invoice</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td colspan="2"><span style="font-size:20px;">Consolidated Invoice</span></td>
+	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
           </table>
@@ -308,7 +309,7 @@
 </macro> </macrolist>
 </head>
 
-<body {isLandscape} header="nlheader" header-height="25%" footer="nlfooter" footer-height="21%">
+<body {isLandscape} header="nlheader" header-height="270px" footer="nlfooter" footer-height="200px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
@@ -323,10 +324,6 @@
     <tr><td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Currency</b></td><td align="right" style="font-size:10pt">${ci.custrecord_nsts_ci_pref_currency}</td></tr>
     <tr><td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>&nbsp;</b></td><td align="right" style="font-size:10pt">&nbsp;</td></tr>
     <tr><td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>&nbsp;</b></td><td align="right" style="font-size:10pt">&nbsp;</td></tr>
-    <!--<tr><td class="address">&nbsp;</td><td></td><td></td></tr>
-    <tr><td class="address">&nbsp;</td><td></td><td></td></tr>-->
-    <tr><td class="address">&nbsp;</td><td></td><td></td></tr>
-    <tr><td class="address">&nbsp;</td><td></td><td></td></tr>
   </table>
 
 
@@ -353,11 +350,36 @@
 		</thead>
 
 		<#list invoiceline as item>
+		
 		<#assign itemtotal=item.grossamount + item.taxamount>
+		
+		<#if subsidiary=="6">
+      		<#assign itemInfo>${item.item?chop_linebreak}</#assign>
+    	<#else>
+      		<#if item.custcol_sw_alt_item_number?has_content>
+        		<#assign itemInfo>${item.custcol_sw_alt_item_number}</#assign>
+      		<#else>
+        		<#assign itemInfo>${item.item?chop_linebreak}</#assign>
+      		</#if>
+    	</#if>
+		
 		<tr>
 			<#assign itemcount=itemcount+1> 
-			<td class="brdR brdL brdT" align="left" colspan="5" style="padding: 0px 0px 0px 5px">${item.item?chop_linebreak}<br/><span font-size="7pt">${item.item.salesdescription?chop_linebreak}</span></td>
+			
+			<td class="brdR brdL brdT" align="left" colspan="5" style="padding: 0px 0px 0px 5px">${itemInfo}<br/><span font-size="7pt">${item.item.salesdescription?chop_linebreak}</span><br/>
+			<#if shipcountry == "GB">
+     		<#elseif shipcountry == "US">
+     			<span font-size="5pt">US Commodity Code - ${item.item.custitem_bbs_item_us_commodity} ~ Country of Origin - ${item.item.custitem_bbs_item_country_origin}</span>
+     		<#elseif shipcountry == "CA">
+     			<span font-size="5pt">US Commodity Code - ${item.item.custitem_bbs_item_us_commodity} ~ Country of Origin - ${item.item.custitem_bbs_item_country_origin}</span>
+     		<#else>
+     			<span font-size="6pt">EU Commodity Code - ${item.item.custitem_commodity_code} ~ Country of Origin - ${item.item.custitem_bbs_item_country_origin}</span>
+     		</#if>
+     		</td>
+			
+			
 			<td class="brdR brdT" align="left" colspan="2" style="padding: 0px 0px 0px 5px">${item.otherrefnum}</td>
+			
 			<#if item.item.type == "Discount">
 				<td class="brdR brdT" align="right" style="padding: 0px 5px 0px 0px"></td>
 				<td class="brdR brdT" align="center" style="padding: 0px 0px 0px 0px">${item.unit}</td>
@@ -383,34 +405,39 @@
 	</table>
 	
 	
+	<#if subsidiary=="8">
+		<#assign TaxName>Sales Tax Total</#assign>
+  	<#else>
+  		<#assign TaxName>VAT Total</#assign>
+  	</#if>
 	
 
 	<table style="width: 100%;" class="toSum brdL brdR brdB">
 		<tr class="totalrow">
 			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>SUB TOTAL</b></td>
+			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>Net Total</b></td>
 			
-			<#assign subTotal=ci.custrecord_nsts_ci_pdf_subtotal + ci.custrecord_nsts_ci_pdf_discount + ci.custrecord_nsts_ci_pdf_tax>
+			<#assign subTotal=ci.custrecord_nsts_ci_pdf_subtotal + ci.custrecord_nsts_ci_pdf_discount>
 			<td align="right" style="padding: 0px 5px 0px 0px">${toCurrency(subTotal)}</td>
 		</tr>
 		<tr class="totalrow">
 			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>SHIPPING</b></td>
-			<td align="right" style="padding: 0px 5px 0px 0px">${toCurrency(ci.custrecord_nsts_ci_pdf_shipping_handling)}</td>
+			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>${TaxName}</b></td>
+			<td align="right" style="padding: 0px 5px 0px 0px">${toCurrency(ci.custrecord_nsts_ci_pdf_tax)}</td>
 		</tr>
 		<tr class="totalrow">
 			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>TOTAL</b></td>			
+			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>Gross Total</b></td>			
 			<td align="right" class="brdT" style="padding: 0px 5px 0px 0px">${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)}</td>
 		</tr>
 		<tr class="totalrow">
 			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>AMOUNT PAID</b></td>			
+			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>Amount Paid</b></td>			
 			<td align="right" style="padding: 0px 5px 0px 0px">${toCurrency(ci.custrecord_nsts_ci_pdf_amountpaid)}</td>
 		</tr>
 		<tr class="totalrow">
 			<td colspan="7">&nbsp;</td>
-			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>TOTAL DUE</b></td>			
+			<td align="right" class="brdR" style="padding: 0px 5px 0px 0px"><b>Total Due</b></td>			
 			<td align="right" style="padding: 0px 5px 0px 0px">${toCurrency(ci.custrecord_nsts_ci_pdf_total_due,true)}</td>
 		</tr>
 	</table>
