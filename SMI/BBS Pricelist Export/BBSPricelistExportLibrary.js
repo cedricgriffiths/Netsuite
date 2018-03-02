@@ -19,6 +19,6 @@ function libPricelistExport()
 	//
 	window.open(url, '_blank', 'Schedule Customer Pricelist Generation', 'height=100, width=100, menubar=no, titlebar=no, toolbar=no, scrollbars=no, resizable=yes');
 	
-	alert('Pricelist genration has been submitted & will be attached to the customer record when completed.');
+	alert('Pricelist generation has been submitted & will be attached to the customer record. You will receive an email when this is completed.');
 
 }

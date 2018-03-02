@@ -28,7 +28,7 @@ function suitelet(request, response)
 		//
 		var params = {custscript_bbs_customerid: customerId};
 	
-		nlapiScheduleScript('customscript_bbs_pricelist_schedule', 'customdeploy_bbs_pricelist_schedule', params);
+		nlapiScheduleScript('customscript_bbs_pricelist_schedule', null, params);
 		
 		var xml = "<html><body><script>window.close();</script></body></html>";
 		response.write(xml);

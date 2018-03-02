@@ -28,6 +28,12 @@ function scheduled(type)
 	//var customerId = request.getParameter('customerid');
 	var context = nlapiGetContext();
 	var customerId = context.getSetting('SCRIPT', 'custscript_bbs_customerid');
+	var usersEmail = context.getUser();
+	var emailMessage = '';
+	var customerName = '';
+	var today = new Date();
+	
+	var todaysDate = new Date(today);
 	
 	nlapiLogExecution('DEBUG', 'Customer Id', customerId);
 	
@@ -44,7 +50,7 @@ function scheduled(type)
 					//Get the price level & name from the customer
 					//
 					var customerPriceLevel = customerRecord.getFieldValue('pricelevel');
-					var customerName = customerRecord.getFieldValue('companyname');
+					customerName = customerRecord.getFieldValue('companyname');
 					
 					if (customerPriceLevel == null || customerPriceLevel == '')
 						{
@@ -60,7 +66,7 @@ function scheduled(type)
 					
 					//Set the export file name 
 					//
-					fileName = 'Price List ' + customerName + ' ' + currencySymbol + '.csv';
+					fileName = 'Price List ' + customerName + ' ' + todaysDate.getDate() + (todaysDate.getMonth() + 1)  + todaysDate.getFullYear() + ' ' + currencySymbol + '.csv';
 					
 					//Now see if the customer has specific item pricing
 					//
@@ -181,6 +187,9 @@ function scheduled(type)
 			var fileId = nlapiSubmitFile(fileObject);
 			
 			nlapiAttachRecord('file', fileId, 'customer', customerId, null);
+			
+			emailMessage = 'Price list export has completed for customer ' + customerName;
+			nlapiSendEmail(usersEmail, usersEmail, 'Price List Export', emailMessage);
 		}
 }
 

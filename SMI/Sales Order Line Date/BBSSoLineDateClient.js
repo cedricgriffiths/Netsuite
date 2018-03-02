@@ -17,7 +17,7 @@
  */
 function soLineDateFieldChanged(type, name, linenum)
 {
-	if(name == 'entity')
+	if(name == 'entity' || name == 'otherrefnum')
 		{
 			//Get the customer id
 			//
