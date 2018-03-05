@@ -47,17 +47,21 @@ function assemblyBuildAS(type)
 						if(binPreferred == 'T' && binLocation == buildLocation)
 							{
 								componentBin = itemRecord.getLineItemValue('binnumber', 'binnumber', int5);
+								break;
 							}
 					}
 					
-					var invDetailSubRecord = buildRecord.createSubrecord('inventorydetail');
-					invDetailSubRecord.selectNewLineItem('inventoryassignment');
-					invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'quantity', buildQuantity);
-					invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'binnumber', componentBin);
-					invDetailSubRecord.commitLineItem('inventoryassignment');
-					invDetailSubRecord.commit();
-					
-					nlapiSubmitRecord(buildRecord, false, true);
+					if(componentBin != '')
+						{
+							var invDetailSubRecord = buildRecord.createSubrecord('inventorydetail');
+							invDetailSubRecord.selectNewLineItem('inventoryassignment');
+							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'quantity', buildQuantity);
+							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'binnumber', componentBin);
+							invDetailSubRecord.commitLineItem('inventoryassignment');
+							invDetailSubRecord.commit();
+							
+							nlapiSubmitRecord(buildRecord, false, true);
+						}
 				}
 		}
 }
