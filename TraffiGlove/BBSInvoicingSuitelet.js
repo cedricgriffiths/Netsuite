@@ -152,16 +152,16 @@ function invoicingSuitelet(request, response)
 				
 				//Create a tab for the sublists
 				//
-				var customersTab = form.addTab('custpage_customers_tab', 'Customers');
+				var customersTab = form.addTab('custpage_fulfillments_tab', 'Fulfillments');
 				customersTab.setLabel('Customers');
 				
 				//Create a subtab
 				//
-				var subtab = form.addSubTab('custpage_customers_subtab', 'Customer Selection', 'custpage_customers_tab');
+				var subtab = form.addSubTab('custpage_fulfillments_subtab', 'Fulfillment Selection', 'custpage_fulfillments_tab');
 				
 				//Add a field group for filters
 				//
-				var fieldGroupFilters = form.addFieldGroup('custpage_grp_filters', 'Filters', 'custpage_customers_subtab');
+				var fieldGroupFilters = form.addFieldGroup('custpage_grp_filters', 'Filters', 'custpage_fulfillments_subtab');
 
 				//Add a select field to select the subsidiary
 				//
@@ -184,7 +184,7 @@ function invoicingSuitelet(request, response)
 				
 				//Add a sublist to the subtab
 				//
-				var sublist = form.addSubList('custpage_sublist_fulfils', 'list', 'Fulfilments', 'custpage_customers_subtab');
+				var sublist = form.addSubList('custpage_sublist_fulfils', 'list', 'Fulfilments', 'custpage_fulfillments_subtab');
 				sublist.setLabel('Fulfilments');
 				
 				//Add buttons to the sublist
