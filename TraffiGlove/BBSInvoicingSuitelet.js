@@ -168,13 +168,23 @@ function invoicingSuitelet(request, response)
 				var subsidiaryField = form.addField('custpage_subsidiary_select', 'select', 'Subsidiary', 'subsidiary', 'custpage_grp_filters');
 				//subsidiaryField.setDefaultValue(usersSubsidiary);
 				
-				//Add a text field to filter the ship date
-				//
-				var shipDateField = form.addField('custpage_ship_date', 'date', 'Sales Order Ship Date', null, 'custpage_grp_filters');
-				
 				//Add a text field to filter the company name
 				//
 				var customerField = form.addField('custpage_customer_select', 'select', 'Customer', null, 'custpage_grp_filters');
+				
+				//Add a text field to filter the ship date
+				//
+				var today = new Date();
+				var todayString = nlapiDateToString(today);
+				
+				var shipDateFieldStart = form.addField('custpage_ship_start', 'date', 'Sales Order Ship Date Start', null, 'custpage_grp_filters');
+				var shipDateFieldEnd = form.addField('custpage_ship_end', 'date', 'Sales Order Ship Date End', null, 'custpage_grp_filters');
+				
+				shipDateFieldStart.setDefaultValue(todayString);
+				shipDateFieldEnd.setDefaultValue(todayString);
+				
+				shipDateFieldStart.setMandatory(true);
+				shipDateFieldEnd.setMandatory(true);
 				
 				
 				//=====================================================================
@@ -241,9 +251,9 @@ function invoicingSuitelet(request, response)
 							filterArray.push("AND",["subsidiary","anyof",filters['subsidiary']]);
 						}
 					
-						if(filters['shipdate'] != '')
+						if(filters['shipdatestart'] != '' && filters['shipdateend'] != '')
 						{
-							filterArray.push("AND",["createdfrom.shipdate","on",filters['shipdate']]);
+							filterArray.push("AND",["createdfrom.shipdate","within",filters['shipdatestart'],filters['shipdateend']]);
 						}
 					
 						if(filters['customer'] != '' && filters['customer'] != '0')
