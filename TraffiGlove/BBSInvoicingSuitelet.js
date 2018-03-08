@@ -168,9 +168,9 @@ function invoicingSuitelet(request, response)
 				var subsidiaryField = form.addField('custpage_subsidiary_select', 'select', 'Subsidiary', 'subsidiary', 'custpage_grp_filters');
 				//subsidiaryField.setDefaultValue(usersSubsidiary);
 				
-				//Add a text field to filter the company name
+				//Add a text field to filter the ship date
 				//
-				//var beginsWithField = form.addField('custpage_begins_with', 'text', 'Customer Name Begins With', null, 'custpage_grp_filters');
+				var shipDateField = form.addField('custpage_ship_date', 'date', 'Sales Order Ship Date', null, 'custpage_grp_filters');
 				
 				//Add a text field to filter the company name
 				//
@@ -197,10 +197,12 @@ function invoicingSuitelet(request, response)
 				var sublistFieldSubsidiary = sublist.addField('custpage_sublist_customer_subsid', 'text', 'Subsidiary', null);
 				var sublistFieldCustomer = sublist.addField('custpage_sublist_customer_name', 'text', 'Customer', null);
 				var sublistFieldSalesOrder = sublist.addField('custpage_sublist_sales_order', 'text', 'Sales Order', null);
+				var sublistFieldFulfilSoStatus = sublist.addField('custpage_sublist_so_status', 'text', 'SO Status', null);
+				var sublistFieldFulfilSoShip = sublist.addField('custpage_sublist_so_shipdate', 'date', 'SO Ship Date', null);
 				var sublistFieldFulfilNo = sublist.addField('custpage_sublist_fulfil_no', 'text', 'Fulfilment No', null);
 				var sublistFieldFulfilDate = sublist.addField('custpage_sublist_fulfil_date', 'date', 'Date', null);
-				var sublistFieldFulfilId = sublist.addField('custpage_sublist_fulfil_memo', 'text', 'Memo', null);
-				var sublistFieldFulfilId = sublist.addField('custpage_sublist_fulfil_currency', 'text', 'Currency', null);
+				var sublistFieldFulfilMemo = sublist.addField('custpage_sublist_fulfil_memo', 'text', 'Memo', null);
+				var sublistFieldFulfilCurrency = sublist.addField('custpage_sublist_fulfil_currency', 'text', 'Currency', null);
 				var sublistFieldFulfilId = sublist.addField('custpage_sublist_fulfil_id', 'text', 'Id', null);
 				sublistFieldFulfilId.setDisplayType('hidden');
 				
@@ -221,13 +223,17 @@ function invoicingSuitelet(request, response)
 				if(filters != null)
 					{
 						var filterArray =  [
-						                   ["custbody_bbs_related_invoice","anyof","@NONE@"],
+						                   ["custbody_bbs_related_invoice","anyof","@NONE@"],	//Not already been through this process
 						                   "AND",
-						                   ["type","anyof","ItemShip"],
+						                   ["type","anyof","ItemShip"],							//Fulfillments
 						                   "AND",
-						                   ["mainline","is","T"],
+						                   ["mainline","is","T"],								//Main line 
 						                   "AND", 
-						                   ["status","anyof","ItemShip:C"]
+						                   ["status","anyof","ItemShip:C"],						//Fulfilment status is "Shipped"
+						                   "AND", 
+						                   ["createdfrom","noneof","@NONE@"], 					//Created from is filled in
+						                   "AND", 
+						                   ["createdfrom.status","noneof","SalesOrd:G"]			//Sales order not at "Billed" status
 						                   ];
 						
 						if(filters['subsidiary'] != '')
@@ -235,10 +241,10 @@ function invoicingSuitelet(request, response)
 							filterArray.push("AND",["subsidiary","anyof",filters['subsidiary']]);
 						}
 					
-						//if(filters['beginswith'] != '')
-						//{
-						//	filterArray.push("AND",["customer.entityid","startswith",filters['beginswith']]);
-						//}
+						if(filters['shipdate'] != '')
+						{
+							filterArray.push("AND",["createdfrom.shipdate","on",filters['shipdate']]);
+						}
 					
 						if(filters['customer'] != '' && filters['customer'] != '0')
 						{
@@ -253,7 +259,9 @@ function invoicingSuitelet(request, response)
 							   new nlobjSearchColumn("createdfrom",null,null), 
 							   new nlobjSearchColumn("subsidiary",null,null), 
 							   new nlobjSearchColumn("memo",null,null), 
-							   new nlobjSearchColumn("currency",null,null)
+							   new nlobjSearchColumn("currency",null,null),
+							   new nlobjSearchColumn("status","createdfrom",null),
+							   new nlobjSearchColumn("shipdate","createdfrom",null)
 							]
 							);
 						
@@ -279,6 +287,8 @@ function invoicingSuitelet(request, response)
 									searchResultSet = searchResultSet.concat(moreSearchResultSet);
 							}
 						
+						//Populate the sublist
+						//
 						for (var int = 0; int < searchResultSet.length; int++) 
 							{
 								var ffIntId = searchResultSet[int].getId();
@@ -289,6 +299,8 @@ function invoicingSuitelet(request, response)
 								var ffDate = searchResultSet[int].getValue('trandate');
 								var ffCurrency = searchResultSet[int].getText('currency');
 								var ffMemo = searchResultSet[int].getValue('memo');
+								var ffSoStatus = searchResultSet[int].getText('status','createdfrom');
+								var ffSoShipdate = searchResultSet[int].getValue('shipdate','createdfrom');
 								
 								var sublistLine = int + 1;
 								
@@ -300,7 +312,8 @@ function invoicingSuitelet(request, response)
 								sublist.setLineItemValue('custpage_sublist_fulfil_id', sublistLine, ffIntId);
 								sublist.setLineItemValue('custpage_sublist_fulfil_memo', sublistLine, ffMemo);
 								sublist.setLineItemValue('custpage_sublist_fulfil_currency', sublistLine, ffCurrency);
-								
+								sublist.setLineItemValue('custpage_sublist_so_status', sublistLine, ffSoStatus);
+								sublist.setLineItemValue('custpage_sublist_so_shipdate', sublistLine, ffSoShipdate);
 							}
 					}
 
