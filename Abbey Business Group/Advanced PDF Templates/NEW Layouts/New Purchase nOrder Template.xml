@@ -24,7 +24,7 @@
 
     <table style="width: 100%;">
 	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Supplier Details</td>
 	<td align="left">&nbsp;</td>
 	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">ORDER NO:</td>
 	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
@@ -95,7 +95,13 @@
 	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
     </tr>
 	<tr class="messagerow">
-	<td class="message" align="center" style="font-size: 6pt"><b>ALL DELIVERIES MUST BE BOOKED IN 48 HOURS PRIOR TO DELIVERY</b></td>
+	<td class="message" align="center" style="font-size: 6pt"><b>ALL DELIVERIES MUST BE BOOKED IN 48 HOURS PRIOR TO DELIVERY - EMAIL: deliveries@abbeybusinessgroup.com</b></td>
+	</tr>
+	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt"><b>ALL DELIVERIES TO BE MADE BETWEEN 9:00am AND 5:00pm NORMAL BUSINESS DAYS, UNLESS SPECIAL ARRANGEMENTS HAVE BEEN MADE</b></td>
+	</tr>
+	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
 	</tr>
     </table>
 
@@ -208,7 +214,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="160px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="175px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
 
 <#if record.item?has_content>
   <table class="itemtable" style="width: 100%;"><!-- start items -->
