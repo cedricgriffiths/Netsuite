@@ -91,6 +91,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 			
 			if (customerId != null && customerId != '')
 				{
+					/*
 					var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
 							[
 							   ["type","anyof","Assembly"], 
@@ -105,7 +106,26 @@ function createAssembliesFieldChanged(type, name, linenum)
 							   new nlobjSearchColumn("description","memberItem",null)
 							]
 							);
-		
+					*/
+					var search = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   ["custitem_bbs_item_customer","anyof",customerId],
+							   "AND", 
+							   ["isinactive","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+					
+					assemblyitemSearch = getResults(search);
+					
 					var lastId = '';
 					var accumulatedDescription = '';
 					
@@ -239,7 +259,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 			//
 			if(customerId != null && customerId != '')
 				{
-					var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
+					var search = nlapiCreateSearch("assemblyitem",
 							[
 							   ["matrix","is","F"], 
 							   "AND", 
@@ -247,12 +267,16 @@ function createAssembliesFieldChanged(type, name, linenum)
 							   "AND", 
 							   ["custitem_bbs_item_customer","anyof",customerId], 
 							   "AND", 
-							   ["type","anyof","Assembly"]
+							   ["type","anyof","Assembly"],
+							   "AND", 
+							   ["isinactive","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("formulatext",null,null).setFormula("SUBSTR({name},INSTR({name}, '-' )+1)")
 							]
 							);
+					
+					var assemblyitemSearch = getResults(search);
 					
 					//Add the results to an object
 					//
@@ -277,6 +301,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 							]
 							);
 					
+					var searchResult = getResults(finishRefSearch);
+					/*
 					var searchResult = finishRefSearch.runSearch();
 					
 					//Get the initial set of results
@@ -298,7 +324,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 			
 							searchResultSet = searchResultSet.concat(moreSearchResultSet);
 						}
-		
+					*/
+					
 					//Read through the list & add any rows that match the previous search to the select list
 					//
 					if(searchResultSet !=  null)
@@ -349,7 +376,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 					
 					//Find assembly items that are not a matrix parent or child & that belong to the customer
 					//
-					var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
+					var search = nlapiCreateSearch("assemblyitem",
 							[
 							   ["matrix","is","F"], 
 							   "AND", 
@@ -357,12 +384,16 @@ function createAssembliesFieldChanged(type, name, linenum)
 							   "AND", 
 							   ["custitem_bbs_item_customer","anyof",customerId], 
 							   "AND", 
-							   ["type","anyof","Assembly"]
+							   ["type","anyof","Assembly"],
+							   "AND", 
+							   ["isinactive","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("formulatext",null,null).setFormula("SUBSTR({name},INSTR({name}, '-' )+1)")
 							]
 							);
+					
+					var assemblyitemSearch = getResults(search);
 					
 					//Add the results to an object
 					//
@@ -384,6 +415,9 @@ function createAssembliesFieldChanged(type, name, linenum)
 							]
 							);
 					
+					var searchResultSet = getResults(finishRefSearch);
+					
+					/*
 					var searchResult = finishRefSearch.runSearch();
 					
 					//Get the initial set of results
@@ -405,7 +439,9 @@ function createAssembliesFieldChanged(type, name, linenum)
 			
 							searchResultSet = searchResultSet.concat(moreSearchResultSet);
 						}
-
+					*/
+					
+					
 					//Read through the list & add any rows that match the previous search to the select list
 					//
 					if(searchResultSet !=  null)
@@ -491,7 +527,9 @@ function createAssembliesFieldChanged(type, name, linenum)
 						   "AND", 
 						   ["matrix","is","T"], 
 						   "AND", 
-						   ["custitem_bbs_item_category","anyof","1","2","3"]
+						   ["custitem_bbs_item_category","anyof","1","2","3"],
+						   "AND", 
+						   ["isinactive","is","F"]
 						];
 				
 				
@@ -507,13 +545,14 @@ function createAssembliesFieldChanged(type, name, linenum)
 						filterArray.push(["itemid","startswith",filterValue2]);
 					}
 			
-			var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
+				var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
 						filterArray, 
 						[
 						   new nlobjSearchColumn("itemid",null,null).setSort(false), 
 						   new nlobjSearchColumn("salesdescription",null,null)
 						]
 						);
+				
 				
 				var searchResult = inventoryitemSearch.runSearch();
 				
@@ -596,4 +635,31 @@ function createAssembliesPageInit(type)
 {
 	
 	
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
 }

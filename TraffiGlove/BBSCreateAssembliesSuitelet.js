@@ -173,7 +173,9 @@ function createAssembliesSuitelet(request, response){
 							   "AND", 
 							   ["matrix","is","T"], 
 							   "AND", 
-							   ["custitem_bbs_item_category","anyof","1","2","3"]
+							   ["custitem_bbs_item_category","anyof","1","2","3"],
+							   "AND", 
+							   ["isinactive","is","F"]
 							], 
 							[
 							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
@@ -392,7 +394,9 @@ function createAssembliesSuitelet(request, response){
 															   "AND", 
 															   ["internalid","anyof",matrixIds], 
 															   "AND", 
-															   ["ispreferredvendor","is","T"]
+															   ["ispreferredvendor","is","T"],
+															   "AND", 
+															   ["isinactive","is","F"]
 															];
 									
 									//Add additional filters based on colour, size1 & size2
