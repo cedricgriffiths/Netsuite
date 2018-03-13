@@ -243,7 +243,7 @@ function invoicingSuitelet(request, response)
 						                   "AND", 
 						                   ["createdfrom","noneof","@NONE@"], 					//Created from is filled in
 						                   "AND", 
-						                   ["createdfrom.status","noneof","SalesOrd:G"]			//Sales order not at "Billed" status
+						                   ["createdfrom.status","noneof","SalesOrd:G","SalesOrd:C","SalesOrd:H","SalesOrd:A"]			//Sales order not at "Billed","Cancelled","Closed","Pending Approval" status
 						                   ];
 						
 						if(filters['subsidiary'] != '')
@@ -263,6 +263,7 @@ function invoicingSuitelet(request, response)
 						
 						var fulfillmentSearch = nlapiCreateSearch("itemfulfillment",filterArray,
 							[
+							   new nlobjSearchColumn("subsidiary",null,null).setSort(false), 
 							   new nlobjSearchColumn("entity",null,null).setSort(false), 
 							   new nlobjSearchColumn("trandate",null,null).setSort(false),
 							   new nlobjSearchColumn("tranid",null,null),
@@ -405,7 +406,7 @@ function invoicingSuitelet(request, response)
 				parameterObject['period'] = invPeriodValue;
 				
 				var scheduleParams = {custscript_bbs_invoicing_params: JSON.stringify(parameterObject)};
-				//nlapiScheduleScript('customscript_bbs_invoicing_scheduled', null, scheduleParams);
+				nlapiScheduleScript('customscript_bbs_invoicing_scheduled', null, scheduleParams);
 
 				//Call the next stage
 				//

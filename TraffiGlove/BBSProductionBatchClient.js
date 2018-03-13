@@ -19,6 +19,8 @@ function clientFieldChanged(type, name, linenum){
  
 }
 
+
+
 function assignWorksOrders()
 {
 	var id = nlapiGetRecordId();

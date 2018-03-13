@@ -53,7 +53,7 @@ function invoicingFieldChanged(type, name, linenum)
 			
 			for ( var customerId in customersObject) 
 			{
-				nlapiInsertSelectOption('custpage_customer_select', customerId, customersObject[customerId], false);
+				nlapiInsertSelectOption('custpage_customer_select', customersObject[customerId], customerId, false);
 			}
 			
 		}

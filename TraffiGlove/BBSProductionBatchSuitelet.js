@@ -394,22 +394,36 @@ function productionBatchSuitelet(request, response)
 							var soId = searchResultSet[int].getValue('createdfrom');
 							var soText = searchResultSet[int].getText('createdfrom');
 							
-							if(!soArray[soId])
+							if(!soArray[soText])
 								{
-									soArray[soId] = soText;
+									soArray[soText] = soId;
 								}
 						}
 						
+						//Sort the sales orders
+						//
+						const orderedSalesOrders = {};
+						Object.keys(soArray).sort().forEach(function(key) {
+							orderedSalesOrders[key] = soArray[key];
+						});
+						
+						
 						soSelectionField.addSelectOption( '', '', true);
 						
-						for ( var soKey in soArray) 
+						for ( var soKey in orderedSalesOrders) 
 						{
-							soSelectionField.addSelectOption(soKey, soArray[soKey], false);
+							soSelectionField.addSelectOption(orderedSalesOrders[soKey], soKey, false);
 						}
 						
+						//Works Order Commitment Status Filter
+						//
+						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+
 					}
 				else
 					{
+						//Works Order Commitment Status Filter
+						//	
 						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
 					}
 				
@@ -457,6 +471,10 @@ function productionBatchSuitelet(request, response)
 					var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
 					soTextField.setDisplayType('disabled');
 					soTextField.setDefaultValue(soText);
+					
+					var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+					woCommitStatusField.setDisplayType('disabled');
+					woCommitStatusField.setDefaultValue(woCommitStatusText);
 				}
 				else
 				{
@@ -640,6 +658,10 @@ function productionBatchSuitelet(request, response)
 				var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
 				batchesField.setDisplayType('hidden');
 				batchesField.setDefaultValue(batches);
+				
+				var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
+				warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen untill all works orders are updated to the batch, before producing documentation<p/>');
+				warningField.setDisplayType('disabled');
 				
 				var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
 				tab.setLabel('Production Batches Created');
@@ -869,20 +891,6 @@ function productionBatchSuitelet(request, response)
 						//
 						woToProcessArray[prodBatchId] = woIds;
 						
-						/*
-						nlapiLogExecution('DEBUG', 'Count of wo in batch ' + woKey, woIds.length.toString());
-						
-						for (var int2 = 0; int2 < woIds.length; int2++) 
-						{
-							var woRecord = nlapiLoadRecord('workorder', woIds[int2]);
-							woRecord.setFieldValue('custbody_bbs_wo_batch', prodBatchId);
-							nlapiSubmitRecord(woRecord, false, true);
-							
-							var remaining = nlapiGetContext().getRemainingUsage();
-							nlapiLogExecution('DEBUG', 'Usage left after wo update', remaining.toString());
-							
-						}
-						*/
 					}
 					
 					var scheduleParams = {custscript_wo_array: JSON.stringify(woToProcessArray)};
@@ -896,8 +904,6 @@ function productionBatchSuitelet(request, response)
 					params['solink'] = soLink;
 					
 					response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
-					
-					//response.sendRedirect('RECORD', 'customrecord_bbs_assembly_batch', prodBatchId, true, null);
 					
 					break;
 				}
@@ -925,10 +931,20 @@ function productionBatchSuitelet(request, response)
 				
 				var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
 				
-				//Start the xml off with the basic header info & the start of a pdfset
+				//
+				//=====================================================================
+				// Start the xml off with the basic header info & the start of a pdfset
+				//=====================================================================
 				//
 				var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
 				xml += "<pdfset>";
+				
+				
+				//
+				//=====================================================================
+				// Produce the batch picking list
+				//=====================================================================
+				//
 				
 				//Loop through the batch data
 				//
@@ -943,62 +959,83 @@ function productionBatchSuitelet(request, response)
 					//Find the works orders associated with this batch
 					//
 					var filterArray = [
-					                   ["mainline","is","T"], 
-					                   "AND", 
+					                   //["mainline","is","T"], 
+					                   //"AND", 
 					                   ["type","anyof","WorkOrd"], 
 					                   "AND", 
 					                   ["custbody_bbs_wo_batch","anyof",batchId]
 					                   
 					                ];
 					
-					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
+					var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
 							[
 							   new nlobjSearchColumn("tranid",null,null).setSort(false), 
 							   new nlobjSearchColumn("entity",null,null), 
 							   new nlobjSearchColumn("item",null,null), 
 							   new nlobjSearchColumn("quantity",null,null),
-							   //new nlobjSearchColumn("binnumber","item",null),
 							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
 							   new nlobjSearchColumn("item",null,null),
+							   new nlobjSearchColumn("type","item",null),
 							   new nlobjSearchColumn("description","item",null),
-							   new nlobjSearchColumn("mainline",null,null)
-							   
+							   new nlobjSearchColumn("mainline",null,null),
+							   new nlobjSearchColumn("custitem_bbs_item_instructions","item",null),
+							   new nlobjSearchColumn("quantitycommitted",null,null),
+							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
+							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null)
 							]
 							);
 
+					var searchResult = transactionSearch.runSearch();
+					
+					//Get the initial set of results
+					//
+					var start = 0;
+					var end = 1000;
+					var searchResultSet = searchResult.getResults(start, end);
+					var resultlen = searchResultSet.length;
+
+					//If there is more than 1000 results, page through them
+					//
+					while (resultlen == 1000) 
+						{
+								start += 1000;
+								end += 1000;
+
+								var moreSearchResultSet = searchResult.getResults(start, end);
+								resultlen = moreSearchResultSet.length;
+
+								searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						}
+					
 					//Work out the customer sub group
 					//
 					var subGroup = '';
+					var thisEntity = '';
 					
 					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+					//
 					if(solink == 'T')
 						{
-							if(searchResultSet.length > 0)
+							if(searchResultSet != null && searchResultSet.length > 0)
 								{
-									var thisEntity = searchResultSet[0].getValue("entity");
-									if(thisEntity !=  null && thisEntity != '')
-										{
-											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
-											subGroup = (subGroup == null ? '' : subGroup);
-										}
-									
+									thisEntity = searchResultSet[0].getValue("entity");
 								}
 						}
 					else
 						{	
 							//If not linked to sales orders, we will need to use the assembly item belongs to instead
 							//
-							if(searchResultSet.length > 0)
+							if(searchResultSet != null && searchResultSet.length > 0)
 								{
-									var thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
-									if(thisEntity !=  null && thisEntity != '')
-										{
-											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
-											subGroup = (subGroup == null ? '' : subGroup);
-										}
+									thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
 								}
 						}
 					
+					if(thisEntity !=  null && thisEntity != '')
+					{
+						subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
+						subGroup = (subGroup == null ? '' : subGroup);
+					}
 					
 					//Header & style sheet
 					//
@@ -1014,13 +1051,13 @@ function productionBatchSuitelet(request, response)
 			        xml += "table.body td {padding-top: 0px;}";
 			        xml += "table.total {page-break-inside: avoid;}";
 			        xml += "table.message{border: 1px solid #dddddd;}";
-			        xml += "tr.totalrow {line-height: 200%;}";
+			        xml += "tr.totalrow {line-height: 300%;}";
 			        xml += "tr.messagerow{font-size: 6pt;}";
 			        xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
 			        xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
 			        xml += "td.address {padding-top: 0;font-size: 10pt;}";
 			        xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-			        xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
 			        xml += "td.message{font-size: 8pt;}";
 			        xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
 			        xml += "span.title {font-size: 28pt;}";
@@ -1033,15 +1070,10 @@ function productionBatchSuitelet(request, response)
 			        //
 					xml += "<macrolist>";
 					xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
-					xml += "</macrolist>";
-					xml += "</head>";
 					
-					//Body
-					//
-					xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-
 					//Header data
 					//
+					xml += "<macro id=\"nlheader\">";
 					xml += "<table style=\"width: 100%\">";
 					xml += "<tr>";
 					xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
@@ -1071,165 +1103,147 @@ function productionBatchSuitelet(request, response)
 					xml += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xml += "</tr>";
 					
-					xml += "</table>\n";
-					xml += "<p></p>";
+					xml += "</table></macro>";
+
+					xml += "</macrolist>";
+					xml += "</head>";
 					
-					//Item data
+					//Body
 					//
-					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xml += "<thead >";
-					xml += "<tr >";
-					xml += "<th colspan=\"2\">Works Order</th>";
-					xml += "<th align=\"left\" colspan=\"12\">Component</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Required Qty</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Picking Bin</th>";
-
-					xml += "</tr>";
-					xml += "</thead>";
-
+					xml += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					
+					//Init some variables
+					//
+					var firstTime = true;
+					var baseItems = {};
 					
 					//Loop through the works orders on the batch
 					//
-					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
-					{
-						var woId = searchResultSet[int3].getId();
-						var woAssemblyItem = searchResultSet[int3].getText('item');
-						var woAssemblyItemDesc = searchResultSet[int3].getValue('description','item');
-						var woAssemblyItemQty = searchResultSet[int3].getValue('quantity');
-						var woMainline = searchResultSet[int3].getValue('mainline');
-						
-						/*
-						xml += "<tr>";
-						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-						*/
-						
-						//xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						//xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						//xml += "</tr>";
-						
-						var firstLine = true;
-						
-						//Read the works order so we can get the components
-						//
-						var woRecord = nlapiLoadRecord('workorder', woId);
-						
-						if (woRecord)
+					if(searchResultSet != null)
+						{
+							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 							{
-								var woLocation = woRecord.getFieldValue('location');
-								var componentsCount = woRecord.getLineItemCount('item');
+								var woId = searchResultSet[int3].getId();
+								var woAssemblyItemId = searchResultSet[int3].getValue('item');
+								var woAssemblyItem = searchResultSet[int3].getText('item');
+								var woAssemblyItemDesc = searchResultSet[int3].getValue('description','item');
+								var woAssemblyItemQty = (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
+								var woAssemblyItemCommitted = (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
+								var woMainline = searchResultSet[int3].getValue('mainline');
+								var woSpecInst = searchResultSet[int3].getValue("custitem_bbs_item_instructions","item");
+								var woItemType = searchResultSet[int3].getValue("type","item");
+								var woCommitStatus = searchResultSet[int3].getText("custbody_bbs_commitment_status");
+								var woAssemblyItemSequence = searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
 								
-								for (var int4 = 1; int4 <= componentsCount; int4++) 
-								{
-									var itemType = woRecord.getLineItemValue('item', 'itemtype', int4);
-									
-									if(itemType == 'InvtPart' || itemType == 'NonInvtPart')
-										{
-											var committedQty = Number(woRecord.getLineItemValue('item', 'quantitycommitted', int4));
-											var componentText = woRecord.getLineItemText('item', 'item', int4);
-											var componentId = woRecord.getLineItemValue('item', 'item', int4);
-											
-											//Find the default bin 
-											//
-											var componentBin = '';
-											var componentDescription = '';
-											var componentSpecInst = '';
-											
-											
-											var componentRecord = nlapiLoadRecord(getItemRecType(itemType), componentId);
-											var componentDescription = componentRecord.getFieldValue('salesdescription');
-											var componentSpecInst = componentRecord.getFieldValue('custitem_bbs_item_instructions');
-											
-											componentSpecInst = (componentSpecInst == null ? "" : componentSpecInst);
-											
-											var binCount = componentRecord.getLineItemCount('binnumber');
-											
-											for (var int5 = 1; int5 <= binCount; int5++) 
+								if(woMainline == '*')
+									{	
+										if(firstTime)
 											{
-												var binPreferred = componentRecord.getLineItemValue('binnumber', 'preferredbin', int5);
-												var binLocation = componentRecord.getLineItemValue('binnumber', 'location', int5);
-												
-												if(binPreferred == 'T' && binLocation == woLocation)
+												firstTime = false;
+											}
+										else
+											{
+												xml += "</table>";
+											}
+										
+										xml += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
+										xml += "<thead >";
+										xml += "<tr >";
+										xml += "<th colspan=\"2\">Works Order</th>";
+										xml += "<th align=\"left\" colspan=\"12\">Component</th>";
+										xml += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+										xml += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
+		
+										xml += "</tr>";
+										xml += "</thead>";
+										
+									
+										//xml += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
+									
+										xml += "<tr>";
+										xml += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+										xml += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
+										xml += "<td  style=\"border-top: 1px; border-top-color: black; padding-right: 5px;\" align=\"right\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
+										xml += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
+										xml += "</tr>";
+															
+										xml += "<tr>";
+										xml += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
+										xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+										xml += "</tr>";
+															
+										xml += "<tr>";
+										xml += "<td colspan=\"2\">&nbsp;</td>";
+										xml += "</tr>";
+									}
+								else
+									{
+										//Collate all of the base items together
+										//
+										if(woItemType == 'InvtPart')
+											{
+												if(!baseItems[woAssemblyItemSequence])
 													{
-														componentBin = componentRecord.getLineItemText('binnumber', 'binnumber', int5);
+														baseItems[woAssemblyItemSequence] = [woAssemblyItem,woAssemblyItemQty,woAssemblyItemCommitted,woAssemblyItemDesc,woSpecInst]; //Item Description, Quantity, Committed Qty, Description, Special Instr
+													}
+												else
+													{
+														baseItems[woAssemblyItemSequence][1] += woAssemblyItemQty;
+														baseItems[woAssemblyItemSequence][2] += woAssemblyItemCommitted;
 													}
 											}
-
-										if(firstLine)
-												{
-													firstLine = false;
-													
-													xml += "<tr>";
-													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-													xml += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
-													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
-													xml += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
-													xml += "</tr>";
-													
-													xml += "<tr>";
-													xml += "<td colspan=\"2\">&nbsp;</td>";
-													xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-													xml += "</tr>";
-													
-													xml += "<tr>";
-													xml += "<td colspan=\"2\">&nbsp;</td>";
-													xml += "</tr>";
-												}
-											
-											xml += "<tr>";
-											xml += "<td colspan=\"4\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"10\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(componentText) + "</b></td>";
-											xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
-											xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
-											xml += "</tr>";
-											
-											xml += "<tr>";
-											xml += "<td colspan=\"4\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(componentDescription) + "</td>";
-											xml += "</tr>";
-											
-											xml += "<tr>";
-											xml += "<td colspan=\"4\">&nbsp;</td>";
-											xml += "<td align=\"left\" colspan=\"10\"><b>" + nlapiEscapeXML(componentSpecInst) + "</b></td>";
-											xml += "</tr>";
-											
-											
-											
-											/*
-											if(firstLine)
-												{
-													firstLine = false;
-													xml += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(componentText) + "</b><br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) + "</td>";
-													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
-													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
-													xml += "</tr>";
-												}
-											else
-												{
-													xml += "<tr>";
-													xml += "<td colspan=\"2\">&nbsp;</td>";
-													xml += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(componentText) + "</b><br/>" + nlapiEscapeXML(componentDescription) + "<br />" + nlapiEscapeXML(componentSpecInst) +  "</td>";
-													xml += "<td align=\"left\" colspan=\"2\">" + committedQty + "</td>";
-													xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(componentBin) + "</td>";
-													xml += "</tr>";
-												}
-											*/
-											
-											xml += "<tr>";
-											xml += "<td colspan=\"18\">&nbsp;</td>";
-											xml += "</tr>";
-											
-										}
-								}
-							}
+										
+										
+										//Only print out non-assembly items
+										//
+										if(woItemType != 'Assembly')
+											{
+												xml += "<tr>";
+												xml += "<td colspan=\"4\">&nbsp;</td>";
+												xml += "<td align=\"left\" colspan=\"10\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
+												xml += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + woAssemblyItemQty + "</td>";
+												xml += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
+												xml += "</tr>";
+																	
+												xml += "<tr>";
+												xml += "<td colspan=\"4\">&nbsp;</td>";
+												xml += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+												xml += "</tr>";
+																	
+												xml += "<tr>";
+												xml += "<td colspan=\"4\">&nbsp;</td>";
+												xml += "<td align=\"left\" colspan=\"10\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
+												xml += "</tr>";
 						
-						xml += "<tr>";
-						xml += "<td colspan=\"18\">&nbsp;</td>";
-						xml += "</tr>";
-					}
+																	
+												xml += "<tr>";
+												xml += "<td colspan=\"18\">&nbsp;</td>";
+												xml += "</tr>";
+						
+												xml += "<tr>";
+												xml += "<td colspan=\"18\">&nbsp;</td>";
+												xml += "</tr>";
+											}
+									}
+							}
+							
+							//Finish the item table
+							//
+							xml += "</table>";
+							
+						}
 					
-					//Finish the item table
+					//Add in the operator signature boxes
 					//
+					xml += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
+					xml += "<tr class=\"totalrow\">";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+					xml += "</tr>";
+					xml += "<tr class=\"totalrow\">";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+					xml += "</tr>";
 					xml += "</table>";
 					
 					//Finish the body
@@ -1239,72 +1253,12 @@ function productionBatchSuitelet(request, response)
 					//Finish the pdf
 					//
 					xml += "</pdf>";
-	
-				
-					//
-					//Produce the batch putaway documents
-					//
-					/*
-					var batchId = batchResults[int2].getId();
-					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
 
-					//Find the works orders associated with this batch
 					//
-					var filterArray = [
-					                   ["mainline","is","T"], 
-					                   "AND", 
-					                   ["type","anyof","WorkOrd"], 
-					                   "AND", 
-					                   ["custbody_bbs_wo_batch","anyof",batchId]
-					                   
-					                ];
-					
-					var searchResultSet = nlapiSearchRecord("transaction", null, filterArray, 
-							[
-							   new nlobjSearchColumn("tranid",null,null), 
-							   new nlobjSearchColumn("entity",null,null), 
-							   new nlobjSearchColumn("item",null,null), 
-							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("location",null,null),
-							   //new nlobjSearchColumn("binnumber","item",null),
-							   new nlobjSearchColumn("salesdescription","item",null),
-							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null)
-							]
-							);
-
-					//Work out the customer sub group
+					//=====================================================================
+					// Produce the summary of the base items
+					//=====================================================================
 					//
-					var subGroup = '';
-					
-					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
-					if(solink == 'T')
-						{
-							if(searchResultSet.length > 0)
-								{
-									var thisEntity = searchResultSet[0].getValue("entity");
-									if(thisEntity !=  null && thisEntity != '')
-										{
-											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
-											subGroup = (subGroup == null ? '' : subGroup);
-										}
-									
-								}
-						}
-					else
-						{	
-							//If not linked to sales orders, we will need to use the assembly item belongs to instead
-							//
-							if(searchResultSet.length > 0)
-								{
-									var thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
-									if(thisEntity !=  null && thisEntity != '')
-										{
-											subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);
-											subGroup = (subGroup == null ? '' : subGroup);
-										}
-								}
-						}
-					
 					
 					//Header & style sheet
 					//
@@ -1320,13 +1274,13 @@ function productionBatchSuitelet(request, response)
 			        xml += "table.body td {padding-top: 0px;}";
 			        xml += "table.total {page-break-inside: avoid;}";
 			        xml += "table.message{border: 1px solid #dddddd;}";
-			        xml += "tr.totalrow {line-height: 200%;}";
+			        xml += "tr.totalrow {line-height: 300%;}";
 			        xml += "tr.messagerow{font-size: 6pt;}";
 			        xml += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
 			        xml += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
 			        xml += "td.address {padding-top: 0;font-size: 10pt;}";
 			        xml += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-			        xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
+			        xml += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
 			        xml += "td.message{font-size: 8pt;}";
 			        xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
 			        xml += "span.title {font-size: 28pt;}";
@@ -1339,22 +1293,16 @@ function productionBatchSuitelet(request, response)
 			        //
 					xml += "<macrolist>";
 					xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
-					xml += "</macrolist>";
-					xml += "</head>";
 					
-					//Body
-					//
-					xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-
 					//Header data
 					//
+					xml += "<macro id=\"nlheader\">";
 					xml += "<table style=\"width: 100%\">";
 					xml += "<tr>";
 					xml += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-					xml += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Putaway</b></td>";
-					xml += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">" + nlapiEscapeXML(subGroup) + "</td>";
+					xml += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Base Items Summary Picking List</b></td>";
+					xml += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">&nbsp;</td>";
 					xml += "</tr>";
-					
 					
 					xml += "<tr>";
 					xml += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
@@ -1373,72 +1321,80 @@ function productionBatchSuitelet(request, response)
 					
 					xml += "<tr>";
 					xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
-					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"true\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+					xml += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
 					xml += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xml += "</tr>";
 					
-					xml += "</table>\n";
-					xml += "<p></p>";
+					xml += "</table></macro>";
+
+					xml += "</macrolist>";
+					xml += "</head>";
 					
-					//Item data
+					//Body
 					//
+					xml += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					
 					xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xml += "<thead >";
 					xml += "<tr >";
-					xml += "<th colspan=\"2\">Works Order</th>";
-					xml += "<th align=\"left\" colspan=\"12\">Finished Item</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Finished Qty</th>";
-					xml += "<th align=\"left\" colspan=\"2\">Putaway Bin</th>";
+					xml += "<th align=\"left\" colspan=\"14\">Base Item</th>";
+					xml += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+					xml += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
 
 					xml += "</tr>";
 					xml += "</thead>";
-
 					
-					//Loop through the works orders on the batch
+					
+					
+					
+					//Sort the sales orders
 					//
-					for (var int3 = 0; int3 < searchResultSet.length; int3++) 
-					{
-						var woLocation = searchResultSet[int3].getValue('location');
-						var assemblyItemId = searchResultSet[int3].getValue('item');
-						
-						//Find the default bin 
-						//
-						var assemblyBin = '';
-						
-						
-						var assemblyRecord = nlapiLoadRecord('assemblyitem', assemblyItemId);
-						var binCount = assemblyRecord.getLineItemCount('binnumber');
-						
-						for (var int5 = 1; int5 <= binCount; int5++) 
+					const orderedBaseItems = {};
+					Object.keys(baseItems).sort().forEach(function(key) {
+						orderedBaseItems[key] = baseItems[key];
+					});
+					
+					
+					
+					//Loop through the base items
+					//
+					for (var baseItem in orderedBaseItems) 
 						{
-							var binPreferred = assemblyRecord.getLineItemValue('binnumber', 'preferredbin', int5);
-							var binLocation = assemblyRecord.getLineItemValue('binnumber', 'location', int5);
-							
-							if(binPreferred == 'T' && binLocation == woLocation)
-								{
-									assemblyBin = assemblyRecord.getLineItemText('binnumber', 'binnumber', int5);
-								}
+							xml += "<tr>";
+							xml += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(orderedBaseItems[baseItem][0]) + "</b></td>";
+							xml += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedBaseItems[baseItem][1] + "</td>";
+							xml += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][2]) + "</td>";
+							xml += "</tr>";
+												
+							xml += "<tr>";
+							xml += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(orderedBaseItems[baseItem][3]) + "</td>";
+							xml += "</tr>";
+												
+							xml += "<tr>";
+							xml += "<td align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(orderedBaseItems[baseItem][4]) + "</b></td>";
+							xml += "</tr>";
+												
+							xml += "<tr>";
+							xml += "<td colspan=\"18\">&nbsp;</td>";
+							xml += "</tr>";
 						}
-						
-						
-						xml += "<tr>";
-						xml += "<td colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(searchResultSet[int3].getText('item')) + "<br/>" + nlapiEscapeXML(searchResultSet[int3].getValue('salesdescription','item')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + searchResultSet[int3].getValue('quantity') + "</td>";
-						//xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('binnumber','item')) + "</td>";
-						xml += "<td align=\"left\" colspan=\"2\">" + nlapiEscapeXML(assemblyBin) + "</td>";
-						xml += "</tr>";
-						
-						xml += "<tr>";
-						xml += "<td colspan=\"2\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "<td align=\"left\" colspan=\"2\">&nbsp;</td>";
-						xml += "</tr>";
-					}
 					
 					//Finish the item table
 					//
+					xml += "</table>";
+					
+					//Add in the operator signature boxes
+					//
+					xml += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
+					xml += "<tr class=\"totalrow\">";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+					xml += "</tr>";
+					xml += "<tr class=\"totalrow\">";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
+					xml += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+					xml += "</tr>";
 					xml += "</table>";
 					
 					//Finish the body
@@ -1449,14 +1405,27 @@ function productionBatchSuitelet(request, response)
 					//
 					xml += "</pdf>";
 					
-					*/
+					//
+					//=====================================================================
+					// End of summary picking list
+					//=====================================================================
+					//
 					
 				}
-
 				//
+				//End of loop through data
+				//
+
+				
 				//Finish the pdfset
 				//
 				xml += "</pdfset>";
+				
+				//
+				//=====================================================================
+				// End of pdf generation
+				//=====================================================================
+				//
 				
 				//Convert to pdf using the BFO library
 				//
@@ -1495,6 +1464,10 @@ function productionBatchSuitelet(request, response)
 	}
 }
 
+//=====================================================================
+//Functions
+//=====================================================================
+//
 function getItemRecType(ItemType)
 {
 	var itemType = '';

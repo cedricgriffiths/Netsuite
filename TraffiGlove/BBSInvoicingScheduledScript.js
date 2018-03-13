@@ -32,7 +32,7 @@ function invoicingScheduled(type)
 	var periodParam = parameterObject['period'];
 	var ffidsParam = parameterObject['ffids'];
 	
-	var emailMessage = '';
+	var emailMessage = 'The following invoice have been created;\n';
 	
 	for (var int = 0; int < ffidsParam.length; int++) 
 		{
@@ -79,7 +79,8 @@ function invoicingScheduled(type)
 								{
 									invoiceRecord.setFieldValue('trandate', dateParam);
 									invoiceRecord.setFieldValue('postingperiod', periodParam);
-								
+									invoiceRecord.setFieldValue('custbody_bbs_created_from_fulfillment',ffidsParam[int]);
+									
 									//Loop through the invoice lines setting the quantities to zero
 									//
 									var invLines = invoiceRecord.getLineItemCount('item');
@@ -112,7 +113,43 @@ function invoicingScheduled(type)
 												}
 										}
 									
-									nlapiSubmitRecord(invoiceRecord, false, true);  //(20 GU's)
+									//Loop through the invoice lines removing any zero quantity lines
+									//
+									var invLines = invoiceRecord.getLineItemCount('item');
+									
+									for (var int2 = invLines; int2 >= 1; int2--) 
+										{
+											var invoiceQty = Number(invoiceRecord.getLineItemValue('item', 'quantity', int2));
+											
+											if(invoiceQty == 0)
+												{
+													invoiceRecord.removeLineItem('item', int2, false);
+												}
+										}
+									
+									var invoiceId = null;
+									
+									try
+										{
+											invoiceId = nlapiSubmitRecord(invoiceRecord, false, true);  //(20 GU's)
+										}
+									catch(err)
+										{
+											invoiceId = null;
+										}
+									
+									//Update the fulfilment with the related invoice
+									//
+									if(invoiceId != null && invoiceId != '')
+										{
+											fulfilmentRecord.setFieldValue('custbody_bbs_related_invoice', invoiceId);
+											nlapiSubmitRecord(fulfilmentRecord, false, true);
+											
+											var invoiceNumber = nlapiLookupField('invoice', invoiceId, 'tranid');
+											
+											var invoiceUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'invoice', invoiceId, 'view');
+											emailMessage += 'Invoice ' + invoiceNumber.toString() + ' ' + invoiceUrl + '\n';
+										}
 								}
 						}
 				}
@@ -122,8 +159,8 @@ function invoicingScheduled(type)
 	//Send the email to the user to say that we have finished
 	//
 	emailMessage += '\n';
-	emailMessage += 'Invoice generation from fulfilemnts has completed\n';
-	nlapiSendEmail(usersEmail, usersEmail, 'Invoicve Generation', emailMessage);
+	emailMessage += 'Invoice generation from fulfilments has completed\n';
+	nlapiSendEmail(usersEmail, usersEmail, 'Invoice Generation', emailMessage);
 }
 
 //=============================================================================================

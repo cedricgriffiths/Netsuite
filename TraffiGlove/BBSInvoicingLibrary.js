@@ -81,21 +81,31 @@ function libGetCustomers(subsidiaryId)
 {
 	var results = {};
 	
-	var itemfulfillmentSearch = nlapiSearchRecord("itemfulfillment",null,
+	var filterArray = [
+	                   ["custbody_bbs_related_invoice","anyof","@NONE@"],	//Not already been through this process
+	                   "AND",
+	                   ["type","anyof","ItemShip"],							//Fulfillments
+	                   "AND",
+	                   ["mainline","is","T"],								//Main line 
+	                   "AND", 
+	                   ["status","anyof","ItemShip:C"],						//Fulfilment status is "Shipped"
+	                   "AND", 
+	                   ["createdfrom","noneof","@NONE@"], 					//Created from is filled in
+	                   "AND", 
+	                   ["createdfrom.status","noneof","SalesOrd:G","SalesOrd:C","SalesOrd:H","SalesOrd:A"]			//Sales order not at "Billed","Cancelled","Closed","Pending Approval" status
+	                   ];
+	
+	if(subsidiaryId != null && subsidiaryId != '')
+		{
+			filterArray.push("AND",["subsidiary","anyof",subsidiaryId]);
+		}
+		
+	var itemfulfillmentSearch = nlapiSearchRecord("itemfulfillment",null,filterArray,
 			[
-			   ["type","anyof","ItemShip"], 
-			   "AND", 
-			   ["mainline","is","T"], 
-			   "AND", 
-			   ["status","anyof","ItemShip:C"], 
-			   "AND", 
-			   ["subsidiary","anyof",subsidiaryId]
-			], 
-			[
-			   new nlobjSearchColumn("entity",null,"GROUP").setSort(false)
+			 	new nlobjSearchColumn("entity",null,"GROUP").setSort(false)
 			]
 			);
-	
+			
 	if(itemfulfillmentSearch && itemfulfillmentSearch.length > 0)
 		{
 			for (var int = 0; int < itemfulfillmentSearch.length; int++) 
@@ -103,9 +113,18 @@ function libGetCustomers(subsidiaryId)
 				var customerId = itemfulfillmentSearch[int].getValue("entity",null,"GROUP");
 				var customerText = itemfulfillmentSearch[int].getText("entity",null,"GROUP");
 				
-				results[customerId] = customerText;
+				results[customerText] = customerId;
 			}
 		}
+		
 	
-	return results;
+	//Sort the output
+	//
+	const orderedResults = {};
+	Object.keys(results).sort().forEach(function(key) {
+		orderedResults[key] = results[key];
+	});
+	
+	
+	return orderedResults;
 }
