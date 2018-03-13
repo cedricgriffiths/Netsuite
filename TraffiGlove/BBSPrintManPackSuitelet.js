@@ -122,7 +122,9 @@ function buildOutput(salesOrderNumber)
 			   "AND", 
 			   ["custcol_bbs_sales_line_contact","noneof","@NONE@"], 
 			   "AND", 
-			   ["numbertext","is",salesOrderNumber]
+			   ["numbertext","is",salesOrderNumber],
+			   "AND",
+			   ["quantitycommitted","greaterthan","0"]
 			], 
 			[
 			   new nlobjSearchColumn("tranid",null,null), 
@@ -135,7 +137,7 @@ function buildOutput(salesOrderNumber)
 			   new nlobjSearchColumn("entityid","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("shipaddress",null,null),
-			   new nlobjSearchColumn("memo",null,null),
+			   new nlobjSearchColumn("custbody_sw_order_notes",null,null),
 			   new nlobjSearchColumn("custbody_sw_on_manpack",null,null)
 			]
 			);
@@ -168,7 +170,7 @@ function buildOutput(salesOrderNumber)
 					var salesEntityId = salesorderSearch[int].getValue('entity');
 					var salesOrder = salesorderSearch[int].getValue('tranid');
 					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
-					var notes = salesorderSearch[int].getValue('memo');
+					var notes = salesorderSearch[int].getValue('custbody_sw_order_notes');
 					var printNotes = salesorderSearch[int].getValue('custbody_sw_on_manpack');
 					
 					var entityRecord = nlapiLoadRecord('customer', salesEntityId);
@@ -328,7 +330,8 @@ function buildOutput(salesOrderNumber)
 							xml += "<tr >";
 							xml += "<th style=\"font-size:12px;\" colspan=\"6\">Item Code</th>";
 							xml += "<th style=\"font-size:12px;\" align=\"left\" colspan=\"12\">Item Description</th>";
-							xml += "<th style=\"font-size:12px;\" align=\"left\" colspan=\"2\">Qty Packed</th>";
+							xml += "<th style=\"font-size:12px;\" align=\"center\" colspan=\"2\">&nbsp;&nbsp;Qty<br/>Packed</th>";
+							xml += "<th style=\"font-size:12px;\" align=\"center\" >Tick</th>";
 							xml += "</tr>";
 							xml += "</thead>";
 						}
@@ -337,8 +340,9 @@ function buildOutput(salesOrderNumber)
 					//
 					xml += "<tr>";
 					xml += "<td style=\"font-size:12px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
-					xml += "<td style=\"font-size:12px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
-					xml += "<td style=\"font-size:12px;\" align=\"left\" colspan=\"2\">" + salesQtyShip + "</td>";
+					xml += "<td style=\"font-size:12px; padding-right: 5px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
+					xml += "<td style=\"font-size:12px;\" align=\"center\" colspan=\"2\">" + salesQtyShip + "</td>";
+					xml += "<td style=\"font-size:12px; border: 1px solid black;\" height=\"5px\" width=\"3px\" align=\"center\">&nbsp;<br/>&nbsp;</td>";
 					xml += "</tr>";
 					
 					xml += "<tr>";
