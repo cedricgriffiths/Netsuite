@@ -17,11 +17,11 @@
 <div style="position: relative;font-family: Helvetica,sans-serif;top: 0pt;height: 280pt;width: 612pt;page-break-inside: avoid;font-size: 8pt;">
 
 
-<table style="position: absolute;overflow: hidden;left: -8pt;top: 82pt;height: 18pt;width: 108pt;"><tr>
+<table style="position: absolute;overflow: hidden;left: -4pt;top: 120pt;height: 18pt;width: 108pt;"><tr>
 	<td>${check.trandate}</td>
 	</tr></table>
 
-<table style="position: absolute;overflow: hidden;left: 60pt;top: 82pt;height: 18pt;width: 393pt;"><tr>
+<table style="position: absolute;overflow: hidden;left: 53pt;top: 120pt;height: 18pt;width: 393pt;"><tr>
 	<td>${check.entity.altname}</td>
 	</tr></table>
 
@@ -37,47 +37,47 @@
 <#assign pence = totalValue[dotPos3..]>
   
   
-<table style="position: absolute;overflow: hidden;left: 434pt;top: 100pt;height: 18pt;width: 111pt;"><tr>
+<table style="position: absolute;overflow: hidden;left: 444pt;top: 140pt;height: 18pt;width: 111pt;"><tr>
 	<td>${totalValue?replace("£","")}</td>
 	</tr></table>
   
-<table style="position: absolute;overflow: hidden;left: 50pt;top: 120pt;height: 18pt;width: 30pt;">
+<table style="position: absolute;overflow: hidden;left: -4pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordHundredThousands?upper_case}</td>
 </tr>
 </table>
   
-<table style="position: absolute;overflow: hidden;left: 102pt;top: 120pt;height: 18pt;width: 30pt;">
+<table style="position: absolute;overflow: hidden;left: 53pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordTenThousands?upper_case}</td>
 </tr>
 </table>
   
-<table style="position: absolute;overflow: hidden;left: 150pt;top: 120pt;height: 18pt;width: 30pt;">
+<table style="position: absolute;overflow: hidden;left: 104pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordThousands?upper_case}</td>
 </tr>
 </table>
   
-<table style="position: absolute;overflow: hidden;left: 197pt;top: 120pt;height: 18pt;width: 30pt;">
+<table style="position: absolute;overflow: hidden;left: 154pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordHundreds?upper_case}</td>
 </tr>
 </table>
   
-  <table style="position: absolute;overflow: hidden;left: 247pt;top: 120pt;height: 18pt;width: 30pt;">
+  <table style="position: absolute;overflow: hidden;left: 205pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordTens?upper_case}</td>
 </tr>
 </table>
   
-  <table style="position: absolute;overflow: hidden;left: 292pt;top: 120pt;height: 18pt;width: 30pt;">
+  <table style="position: absolute;overflow: hidden;left: 257pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${check.wordOnes?upper_case}</td>
 </tr>
 </table>
 
-<table style="position: absolute;overflow: hidden;left: 357pt;top: 120pt;height: 18pt;width: 30pt;">
+<table style="position: absolute;overflow: hidden;left: 314pt;top: 176pt;height: 18pt;width: 30pt;">
 <tr>
 	<td>${pence}</td>
 </tr>
