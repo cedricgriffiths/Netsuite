@@ -68,3 +68,30 @@ function invoicingFieldChanged(type, name, linenum)
 				}
 		}
 }	
+
+function clientSaveRecord()
+{
+	var returnStatus = false;
+	var message = '';
+
+	var count = nlapiGetLineItemCount('custpage_sublist_fulfils');
+	message = 'Please select one or more fulfilments to continue';
+				
+	for (var int = 1; int <= count; int++) 
+		{
+			var tick = nlapiGetLineItemValue('custpage_sublist_fulfils', 'custpage_sublist_tick', int);
+						
+			if(tick == 'T')
+				{
+					returnStatus = true;
+					break;
+				}
+		}
+
+	if(!returnStatus)
+		{	
+			alert(message);
+		}
+	
+    return returnStatus;
+}

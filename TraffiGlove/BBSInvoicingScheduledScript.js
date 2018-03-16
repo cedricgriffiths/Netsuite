@@ -26,13 +26,13 @@ function invoicingScheduled(type)
 	var usersEmail = context.getUser();
 	var parameterObject = JSON.parse(parameters);
 	
-	nlapiLogExecution('DEBUG', 'Parameters', parameters);
+	//nlapiLogExecution('DEBUG', 'Parameters', parameters);
 	
 	var dateParam = parameterObject['date'];
 	var periodParam = parameterObject['period'];
 	var ffidsParam = parameterObject['ffids'];
 	
-	var emailMessage = 'The following invoice have been created;\n';
+	var emailMessage = 'The following invoices have been created;\n';
 	
 	for (var int = 0; int < ffidsParam.length; int++) 
 		{
@@ -87,7 +87,8 @@ function invoicingScheduled(type)
 									
 									for (var int2 = 1; int2 <= invLines; int2++) 
 										{
-											invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
+											//invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
+											invoiceRecord.setLineItemValue('item', 'quantity', int2, 0);
 										}
 									
 									//Loop through the fulfilment lines looking for the corresponding lines on the invoice

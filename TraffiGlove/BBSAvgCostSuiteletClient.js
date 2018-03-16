@@ -42,7 +42,7 @@ function avgcostFieldChanged(type, name, linenum)
 			
 			//Add a blank selection
 			//
-			//nlapiInsertSelectOption('custpage_location_select', 0, '', true);
+			nlapiInsertSelectOption('custpage_location_select', 0, '', true);
 			
 			//Add in the finish items into the select list
 			//

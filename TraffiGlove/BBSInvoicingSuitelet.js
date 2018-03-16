@@ -38,8 +38,8 @@ function invoicingSuitelet(request, response)
 		// Form creation
 		//=====================================================================
 		//
-		var form = nlapiCreateForm('Generate Invoice From Fulfilments', false);
-		form.setTitle('Generate Invoice From Fulfilments');
+		var form = nlapiCreateForm('Generate Invoices From Fulfilments', false);
+		form.setTitle('Generate Invoices From Fulfilments');
 		form.setScript('customscript_bbs_invoicing_client');
 		
 		

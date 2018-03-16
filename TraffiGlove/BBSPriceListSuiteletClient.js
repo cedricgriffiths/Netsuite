@@ -38,7 +38,7 @@ function priceListFieldChanged(type, name, linenum)
 			
 			libSetSessionData(session, filtersString);
 		}
-	
+	/*
 	if(type == 'custpage_sublist_customer' && name == 'custpage_sublist_customer_tick')
 		{
 			var ticked = nlapiGetLineItemValue(type, name, linenum);
@@ -61,4 +61,5 @@ function priceListFieldChanged(type, name, linenum)
 				}
 			
 		}
+		*/
 }	
