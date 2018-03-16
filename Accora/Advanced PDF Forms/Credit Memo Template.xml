@@ -1,0 +1,251 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+        <#if subsidiary=="4">
+              <#assign regInfo>Company Registration No: 99999999. Registered Office: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, United Kingdom.</#assign>
+              <#assign emailInfo>sales@XXXXXXXXXX.co.uk</#assign>
+              <#assign telInfo>999999999999</#assign>
+              <#assign vatInfo>GB 999 999 999</#assign>
+              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=600&amp;c=4810497&amp;h=7cff3197e0d67148de3d</#assign>
+        </#if>
+  
+
+  
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    <tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    </tr>
+    <!--<tr><td>&nbsp;</td></tr>-->
+    <tr>
+	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+          </table>
+    <table class="header" style="width: 100%;">
+
+	<tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
+	<td align="right" style="font-size:10pt"></td>
+      
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	</tr>
+          </table>
+        </macro>
+
+        <macro id="nlfooter">
+       <table style="width: 100%;">
+          <tr class="messagerow">
+              <td align="left" class="message">${regInfo}</td>
+		  </tr>
+        </table>
+
+		<table class="footer" style="width: 100%;">
+          <tr>
+			<td align="right"><pagenumber/> of <totalpages/></td>
+		</tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="1%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Your Po #</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+  </table>
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead >
+	<tr >
+	<th colspan="12">Description</th>
+    <th align="center" colspan="2"><br/>Quantity</th>
+	<th align="right" colspan="2">Unit<br/>Price</th>
+    <th align="right" colspan="3">Net<br/>Amount</th>
+    <th align="center" colspan="3">VAT<br/>Code</th>
+    <th align="right" colspan="3">VAT<br/>Amount</th>
+	<th align="right" colspan="3">Gross<br/>Amount</th>
+	</tr>
+</thead>
+</#if>
+
+  <tr>
+	<td colspan="12">${item.description}</td>
+    <td align="center" colspan="2">${item.quantity}</td>
+	<td align="right" colspan="2">${item.rate}</td>
+    <td align="right" colspan="3">${item.amount}</td>
+    <td align="center" colspan="3">${item.taxcode}</td>
+	<td align="right" colspan="3">${item.tax1amt}</td>
+	<td align="right" colspan="3">${item.grossamt}</td>
+	</tr>
+	</#list><!-- end items --></table>
+</#if>
+
+<hr />
+<table class="total" style="width: 100%;"><tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td class="totalcell" align="right"><b>Net Total</b></td>
+	<td class="totalcell" align="right">${record.subtotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+    <td class="totalcell" align="right"><b>VAT Total</b></td>
+	<td class="totalcell" align="right">${record.taxtotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td class="totalcell" align="right"><b>Gross Total</b></td>
+	<td class="totalcell" align="right">${record.total}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	</tr></table>
+</body>
+</pdf>
