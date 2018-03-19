@@ -47,6 +47,9 @@ function clientSaveRecord()
 				
 			case 2:
 				var count = nlapiGetLineItemCount('custpage_sublist_items');
+				var mode = nlapiGetFieldValue('custpage_mode');
+				var soLink = nlapiGetFieldValue('custpage_solink');
+				
 				message = 'Please select one or more works orders to continue';
 				
 				for (var int = 1; int <= count; int++) 
@@ -57,6 +60,63 @@ function clientSaveRecord()
 							{
 								returnStatus = true;
 								break;
+							}
+					}
+				
+				//If we have passed the test to make sure we have selected some works orders, then check the number of batches we are going to create
+				//
+				if(returnStatus && mode == 'C')
+					{
+						var woArray = {};
+						var now = new Date();
+						var nowFormatted = new Date(now.getTime() + (now.getTimezoneOffset() * 60000)).format('Ymd:Hi');
+						var batchesCreated = [];
+						
+						//Loop round the sublist to find rows that are ticked
+						//
+						for (var int = 1; int <= count; int++) 
+						{
+							var ticked = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+							
+							if (ticked == 'T')
+								{
+									var woId = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
+									var belongsTo = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_belongs', int);
+									var finish = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_finish_type', int);
+									var soTranId = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_so_tranid', int);
+									var custEntityId = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_cust_entityid', int);
+									var custEntity = nlapiGetLineItemValue('custpage_sublist_items', 'custpage_sublist_customer', int);
+									
+									//Build the batch key (which is used as the batch description)
+									//
+									var key = '';
+									
+									if (soLink == 'T')
+										{
+										 	key = custEntity + ':' + soTranId + ':' + finish;
+										}
+									else
+										{
+											key = belongsTo + ':' + finish + ':' + nowFormatted;
+										}
+									
+									if(!woArray[key])
+										{
+											woArray[key] = [woId];
+										}
+									else
+										{
+											woArray[key].push(woId);
+										}
+								}
+						}
+				
+						var countOfBatches = Object.keys(woArray).length;
+					
+						if(countOfBatches > 40)
+							{
+								message = 'Production batch count of ' + countOfBatches.toString() + ' is greater than the maximum of 40, only the first 40 will be processed';
+								returnStatus = true;
 							}
 					}
 				

@@ -26,7 +26,7 @@ function invoicingScheduled(type)
 	var usersEmail = context.getUser();
 	var parameterObject = JSON.parse(parameters);
 	
-	//nlapiLogExecution('DEBUG', 'Parameters', parameters);
+	nlapiLogExecution('DEBUG', 'Parameters', parameters);
 	
 	var dateParam = parameterObject['date'];
 	var periodParam = parameterObject['period'];
@@ -137,6 +137,7 @@ function invoicingScheduled(type)
 									catch(err)
 										{
 											invoiceId = null;
+											emailMessage += "An error occured - " + err.message + '\n';
 										}
 									
 									//Update the fulfilment with the related invoice
