@@ -289,6 +289,10 @@ function getItemRecType(ItemType)
 		case 'NonInvtPart':
 			itemType = 'noninventoryitem';
 			break;
+			
+		case 'OthCharge':
+			itemType = 'otherchargeitem';
+			break;
 	}
 
 	return itemType;

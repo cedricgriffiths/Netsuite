@@ -1587,15 +1587,14 @@ function productionBatchSuitelet(request, response)
 					//
 					xmlCf += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 
-					xmlCf += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xmlCf += "<thead >";
-					xmlCf += "<tr >";
-					xmlCf += "<th align=\"left\" colspan=\"14\">Finished Item</th>";
-					xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
-					xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
-					
-					xmlCf += "</tr>";
-					xmlCf += "</thead>";
+					//xmlCf += "<table class=\"itemtable\" style=\"width: 100%;\">";
+					//xmlCf += "<thead >";
+					//xmlCf += "<tr >";
+					//xmlCf += "<th align=\"left\" colspan=\"14\">Finished Item</th>";
+					//xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+					//xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
+					//xmlCf += "</tr>";
+					//xmlCf += "</thead>";
 
 					//Sort the finished items
 					//
@@ -1609,10 +1608,19 @@ function productionBatchSuitelet(request, response)
 						orderedfinishedItems[key] = finishedItems[key];
 					});
 					
-					//Loop through the base items
+					//Loop through the finished items
 					//
 					for (var finishedItem in orderedfinishedItems) 
 						{
+							xmlCf += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
+							xmlCf += "<thead >";
+							xmlCf += "<tr >";
+							xmlCf += "<th align=\"left\" colspan=\"14\">Finished Item</th>";
+							xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+							xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
+							xmlCf += "</tr>";
+							xmlCf += "</thead>";
+
 							xmlCf += "<tr>";
 							xmlCf += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(orderedfinishedItems[finishedItem][0]) + "</b></td>";
 							xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedfinishedItems[finishedItem][1] + "</td>";
@@ -1662,11 +1670,15 @@ function productionBatchSuitelet(request, response)
 									xmlCf += "</tr>";
 								}
 							
+							//Finish the item table
+							//
+							xmlCf += "</table>";
+							
 						}
 					
 					//Finish the item table
 					//
-					xmlCf += "</table>";
+					//xmlCf += "</table>";
 					
 					//Add in the operator signature boxes
 					//
