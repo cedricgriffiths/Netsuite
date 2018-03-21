@@ -35,6 +35,8 @@ function clientFieldChanged(type, name, linenum)
 
 function clientSaveRecord()
 {
+	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
+
 	var stage = nlapiGetFieldValue('custpage_stage');
 	var returnStatus = false;
 	var message = '';
@@ -62,6 +64,11 @@ function clientSaveRecord()
 								break;
 							}
 					}
+				
+				if(!returnStatus)
+				{	
+					alert(message);
+				}
 				
 				//If we have passed the test to make sure we have selected some works orders, then check the number of batches we are going to create
 				//
@@ -113,9 +120,11 @@ function clientSaveRecord()
 				
 						var countOfBatches = Object.keys(woArray).length;
 					
-						if(countOfBatches > 40)
+						if(countOfBatches > MAX_BATCH_SIZE)
 							{
-								message = 'Production batch count of ' + countOfBatches.toString() + ' is greater than the maximum of 40, only the first 40 will be processed';
+								message = 'Production batch count of ' + countOfBatches.toString() + ' is greater than the maximum of ' + MAX_BATCH_SIZE.toString() +', only the first ' + MAX_BATCH_SIZE.toString() +' will be processed';
+								alert(message);
+								
 								returnStatus = true;
 							}
 					}
@@ -134,6 +143,7 @@ function clientSaveRecord()
 						if(tick == 'F')
 							{
 								returnStatus = false;
+								alert(message);
 								break;
 							}
 					}
@@ -141,10 +151,7 @@ function clientSaveRecord()
 				break;
 		}
 	
-	if(!returnStatus)
-		{	
-			alert(message);
-		}
+	
 	
     return returnStatus;
 }

@@ -11,9 +11,6 @@
 //Configuration
 //=============================================================================================
 //	
-var PRINT_PRODUCTION_BATCH = false;
-var PRINT_CONSOLIDATED_BASE_ITEMS = true;
-var PRINT_CONSOLIDATED_FINISHED_ITEMS = true;
 
 	
 /**
@@ -213,6 +210,13 @@ function productionBatchSuitelet(request, response)
 	//Start of main code
 	//=============================================================================================
 	//
+	
+	var PRINT_PRODUCTION_BATCH = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_detail') == 'T' ? true : false);
+	var PRINT_CONSOLIDATED_BASE_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_base') == 'T' ? true : false);
+	var PRINT_CONSOLIDATED_FINISHED_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_finish') == 'T' ? true : false);
+	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
+
+	
 	
 	if (request.getMethod() == 'GET') 
 	{
@@ -872,7 +876,7 @@ function productionBatchSuitelet(request, response)
 									}
 							}
 					
-						//Limit the qty of batches to be a maximum of 40
+						//Limit the qty of batches to be a maximum of 30
 						//
 						var batchCount = Number(Object.keys(woArray).length);
 						
@@ -882,7 +886,7 @@ function productionBatchSuitelet(request, response)
 							{
 								count++;
 									
-								if(count > 40)
+								if(count > 30)
 									{
 										delete woArray[wo];
 									}
@@ -943,6 +947,8 @@ function productionBatchSuitelet(request, response)
 				var today = new Date();
 				var now = today.toUTCString();
 				
+				var remaining = nlapiGetContext().getRemainingUsage();
+				
 				//Get the batches data
 				//
 				var batches = request.getParameter('custpage_batches');
@@ -959,6 +965,7 @@ function productionBatchSuitelet(request, response)
 				columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
 				
 				var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);  // 10GU's
+				
 				
 				//
 				//=====================================================================
@@ -1023,7 +1030,7 @@ function productionBatchSuitelet(request, response)
 					//
 					var start = 0;
 					var end = 1000;
-					var searchResultSet = searchResult.getResults(start, end);
+					var searchResultSet = searchResult.getResults(start, end); // 10GU's
 					var resultlen = searchResultSet.length;
 
 					//If there is more than 1000 results, page through them
@@ -1038,6 +1045,7 @@ function productionBatchSuitelet(request, response)
 
 								searchResultSet = searchResultSet.concat(moreSearchResultSet);
 						}
+					
 					
 					//Work out the customer sub group
 					//
@@ -1069,6 +1077,8 @@ function productionBatchSuitelet(request, response)
 						subGroup = (subGroup == null ? '' : subGroup);
 					}
 					
+					
+					
 					for ( var baseItem in baseItems) 
 						{
 							delete baseItems[baseItem];
@@ -1079,6 +1089,8 @@ function productionBatchSuitelet(request, response)
 							delete finishedItems[finishedItem];
 						}
 				
+					var remaining = nlapiGetContext().getRemainingUsage();
+					
 					//Header & style sheet
 					//
 					xmlPb += "<pdf>"
@@ -1088,7 +1100,7 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
 					xmlPb += "b {font-weight: bold;color: #333333;}";
 					xmlPb += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlPb += "table.footer td {padding: 0;font-size: 6pt;}";
+					xmlPb += "table.footer td {padding: 0;font-size: 10pt;}";
 					xmlPb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
 					xmlPb += "table.body td {padding-top: 0px;}";
 					xmlPb += "table.total {page-break-inside: avoid;}";
@@ -1211,8 +1223,8 @@ function productionBatchSuitelet(request, response)
 										xmlPb += "<thead >";
 										xmlPb += "<tr >";
 										xmlPb += "<th colspan=\"2\">Works Order</th>";
-										xmlPb += "<th align=\"left\" colspan=\"12\">Component</th>";
-										xmlPb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+										xmlPb += "<th align=\"left\" colspan=\"14\">Component</th>";
+										//xmlPb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
 										xmlPb += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
 		
 										xmlPb += "</tr>";
@@ -1223,8 +1235,8 @@ function productionBatchSuitelet(request, response)
 									
 										xmlPb += "<tr>";
 										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
-										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; padding-right: 5px;\" align=\"right\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
+										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+										//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; padding-right: 5px;\" align=\"right\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
 										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
 										xmlPb += "</tr>";
 															
@@ -1277,19 +1289,19 @@ function productionBatchSuitelet(request, response)
 												
 												xmlPb += "<tr>";
 												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(woAssemblyItem) + "</b></td>";
-												xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + woAssemblyItemQty + "</td>";
+												xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size: 12pt;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+												//xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + woAssemblyItemQty + "</td>";
 												xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
 												xmlPb += "</tr>";
 																	
 												xmlPb += "<tr>";
 												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+												xmlPb += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
 												xmlPb += "</tr>";
 																	
 												xmlPb += "<tr>";
 												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"10\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
+												xmlPb += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
 												xmlPb += "</tr>";
 									
 												xmlPb += "<tr>";
@@ -1352,7 +1364,7 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
 					xmlCb += "b {font-weight: bold;color: #333333;}";
 					xmlCb += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlCb += "table.footer td {padding: 0;font-size: 6pt;}";
+					xmlCb += "table.footer td {padding: 0;font-size: 10pt;}";
 					xmlCb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
 					xmlCb += "table.body td {padding-top: 0px;}";
 					xmlCb += "table.total {page-break-inside: avoid;}";
@@ -1423,8 +1435,8 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<table class=\"itemtable\" style=\"width: 100%;\">";
 					xmlCb += "<thead >";
 					xmlCb += "<tr >";
-					xmlCb += "<th align=\"left\" colspan=\"14\">Base Item</th>";
-					xmlCb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+					xmlCb += "<th align=\"left\" colspan=\"16\">Base Item</th>";
+					//xmlCb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
 					xmlCb += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
 
 					xmlCb += "</tr>";
@@ -1447,8 +1459,8 @@ function productionBatchSuitelet(request, response)
 					for (var baseItem in orderedBaseItems) 
 						{
 							xmlCb += "<tr>";
-							xmlCb += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(orderedBaseItems[baseItem][0]) + "</b></td>";
-							xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedBaseItems[baseItem][1] + "</td>";
+							xmlCb += "<td align=\"left\" colspan=\"16\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(orderedBaseItems[baseItem][0])) + "</b></td>";
+							//xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedBaseItems[baseItem][1] + "</td>";
 							xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][2]) + "</td>";
 							xmlCb += "</tr>";
 												
@@ -1519,7 +1531,7 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "td {padding: 0px;vertical-align: top;font-size:10px;}";
 					xmlCf += "b {font-weight: bold;color: #333333;}";
 					xmlCf += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlCf += "table.footer td {padding: 0;font-size: 6pt;}";
+					xmlCf += "table.footer td {padding: 0;font-size: 10pt;}";
 					xmlCf += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
 					xmlCf += "table.body td {padding-top: 0px;}";
 					xmlCf += "table.total {page-break-inside: avoid;}";
@@ -1552,7 +1564,7 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "<table style=\"width: 100%\">";
 					xmlCf += "<tr>";
 					xmlCf += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-					xmlCf += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Consolidated Finished Items Picking List</b></td>";
+					xmlCf += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Consolidated Finished Items Production List</b></td>";
 					xmlCf += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">&nbsp;</td>";
 					xmlCf += "</tr>";
 					
@@ -1615,19 +1627,19 @@ function productionBatchSuitelet(request, response)
 							xmlCf += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
 							xmlCf += "<thead >";
 							xmlCf += "<tr >";
-							xmlCf += "<th align=\"left\" colspan=\"14\">Finished Item</th>";
-							xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
+							xmlCf += "<th align=\"left\" colspan=\"16\">Finished Item</th>";
+							//xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
 							xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
 							xmlCf += "</tr>";
 							xmlCf += "</thead>";
 
 							xmlCf += "<tr>";
-							xmlCf += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(orderedfinishedItems[finishedItem][0]) + "</b></td>";
-							xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedfinishedItems[finishedItem][1] + "</td>";
+							xmlCf += "<td align=\"left\" colspan=\"16\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(orderedfinishedItems[finishedItem][0])) + "</b></td>";
+							//xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedfinishedItems[finishedItem][1] + "</td>";
 							xmlCf += "</tr>";
 												
 							xmlCf += "<tr>";
-							xmlCf += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(orderedfinishedItems[finishedItem][2]) + "</td>";
+							xmlCf += "<td align=\"left\" colspan=\"16\">" + nlapiEscapeXML(orderedfinishedItems[finishedItem][2]) + "</td>";
 							xmlCf += "</tr>";
 																	
 							xmlCf += "<tr>";
@@ -1650,19 +1662,19 @@ function productionBatchSuitelet(request, response)
 								{
 									xmlCf += "<tr>";
 									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"10\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(theComponents[theComponent][0]) + "</b></td>";
-									xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][3]) + "</td>";
+									xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(theComponents[theComponent][0])) + "</b></td>";
+									//xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][3]) + "</td>";
 									xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][4]) + "</td>";
 									xmlCf += "</tr>";
 														
 									xmlCf += "<tr>";
 									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(theComponents[theComponent][1]) + "</td>";
+									xmlCf += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(theComponents[theComponent][1]) + "</td>";
 									xmlCf += "</tr>";
 														
 									xmlCf += "<tr>";
 									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"10\"><b>" + nlapiEscapeXML(theComponents[theComponent][2]) + "</b></td>";
+									xmlCf += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(theComponents[theComponent][2]) + "</b></td>";
 									xmlCf += "</tr>";
 
 									xmlCf += "<tr>";
@@ -1748,13 +1760,15 @@ function productionBatchSuitelet(request, response)
 				//
 			    var fileId = nlapiSubmitFile(pdfFileObject);
 			 
+			    var remaining = nlapiGetContext().getRemainingUsage();
+				
 			    //Attach file to the batches
 			    //
 			    for (var int6 = 0; int6 < batchesArray.length; int6++) 
 			    {
 					var batchId = batchesArray[int6];
 					
-					nlapiAttachRecord("file", fileId, "customrecord_bbs_assembly_batch", batchId);
+					nlapiAttachRecord("file", fileId, "customrecord_bbs_assembly_batch", batchId); // 10GU's
 				}
 			    
 				//Send back the output in the response message
@@ -1792,3 +1806,24 @@ function getItemRecType(ItemType)
 
 	return itemType;
 }
+
+function removePrefix(fullString)
+{
+	var returnString = fullString;
+	
+	var colon = fullString.indexOf(' : ');
+	
+	if(colon > -1)
+		{
+			returnString = fullString.substr(colon + 2);
+		}
+	
+	return returnString;
+}
+
+
+
+
+
+
+

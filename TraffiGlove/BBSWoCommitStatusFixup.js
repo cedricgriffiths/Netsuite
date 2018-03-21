@@ -14,15 +14,17 @@ function scheduled(type)
 {
 	var salesOrders = {};
 	
-	var workorderSearch = nlapiSearchRecord("workorder",null,
+	var woSearch = nlapiCreateSearch("workorder",
 			[
 			   ["type","anyof","WorkOrd"], 
-			   "AND", 
-			   ["custbody_bbs_commitment_status","anyof","@NONE@"], 
+			   //"AND", 
+			   //["custbody_bbs_commitment_status","anyof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"], 
 			   "AND", 
-			   ["status","anyof","WorkOrd:B","WorkOrd:A"]
+			   ["status","anyof","WorkOrd:B","WorkOrd:A"],
+			   //"AND", 
+			   //["custbody_bbs_commitment_status","noneof","2"]
 			], 
 			[
 			   new nlobjSearchColumn("trandate",null,null).setSort(false), 
@@ -33,28 +35,49 @@ function scheduled(type)
 			]
 			);
 	
+	var searchResult = woSearch.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var workorderSearch = searchResult.getResults(start, end);
+	var resultlen = workorderSearch.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				workorderSearch = workorderSearch.concat(moreSearchResultSet);
+		}
+	
+	
+	
 	if(workorderSearch)
 		{
-			nlapiLogExecution('DEBUG', 'W/O count', workorderSearch.length);
+			nlapiLogExecution('DEBUG', 'W/O to process', workorderSearch.length);
 			
-			for (var int = 0; int < workorderSearch.length; int++) 
+			for (var int2 = 0; int2 < workorderSearch.length; int2++) 
 				{
-					var woSearchId = workorderSearch[int].getId();
+					var woSearchId = workorderSearch[int2].getId();
 					
 					checkResources();
 					
-					nlapiLogExecution('DEBUG', 'W/O to process', woSearchId);
-					nlapiLogExecution('DEBUG', 'W/O count', int);
+					//nlapiLogExecution('DEBUG', 'W/O id to process', woSearchId);
+					//nlapiLogExecution('DEBUG', 'W/O count', int2);
 					
 					//Get the new record & also its status
 					//
 					var newRecord = nlapiLoadRecord('workorder', woSearchId );
 					var newStatus = newRecord.getFieldValue('status');
 					
-					//If the status is release, then we need to work out the commitment status
-					//
-					if(newStatus == 'Released' || newStatus == 'Built')
-					{
+
 						var itemCount = newRecord.getLineItemCount('item');
 						var linesToCommit = Number(0);
 						var linesFullyCommitted = Number(0);
@@ -170,14 +193,19 @@ function scheduled(type)
 						
 						if(originalCommitmentStatus != newCommitmentStatus)
 								{
-									nlapiSubmitRecord(newRecord, false, true);
 									
 									var newCreatedFrom = newRecord.getFieldValue('createdfrom');
 									
-									salesOrders[newCreatedFrom] = newCreatedFrom;
+									if(newCreatedFrom != null && newCreatedFrom != '')
+										{
+											salesOrders[newCreatedFrom] = newCreatedFrom;
+										}
 								}
 						
-					}
+						nlapiSubmitRecord(newRecord, false, true);
+						
+						
+					
 				}
 		}
 	
@@ -187,127 +215,116 @@ function scheduled(type)
 	//Code to check status of associated sales order
 	//=============================================================================================
 	//
-	nlapiLogExecution('DEBUG', 'S/O to process', JSON.stringify(SalesOrders));
+	//nlapiLogExecution('DEBUG', 'S/O to process', Object.keys(salesOrders).length);
+	nlapiLogExecution('DEBUG', 'S/O to process', JSON.stringify(salesOrders));
+	var counter = Number(0);
 	
-	for ( var newCreatedFrom in SalesOrders) 
-	{
-						//Have we got a created from?
-						//
-						if(newCreatedFrom != null && newCreatedFrom != '')
-							{
-								var salesOrderRecord = null;
+	for ( var newCreatedFrom in salesOrders) 
+		{
+			counter++;
+	
+			//Have we got a created from?
+			//
+			if(newCreatedFrom != null && newCreatedFrom != '')
+				{
+					var salesOrderRecord = null;
 								
-								nlapiLogExecution('DEBUG', 'S/O processing', newCreatedFrom);
-								
-								checkResources();
-								
-								try
+					//nlapiLogExecution('DEBUG', 'S/O id processing', newCreatedFrom);
+					//nlapiLogExecution('DEBUG', 'S/O count', counter);
+									
+					checkResources();
+									
+					try
+						{
+							salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
+						}
+					catch(error)
+						{
+							salesOrderRecord = null;
+						}
+									
+					if(salesOrderRecord)
+						{
+							//We need to check the other works orders
+							//
+							var workorderSearch = nlapiCreateSearch("workorder",
+									[
+									   ["mainline","is","T"], 
+									   "AND", 
+									   ["type","anyof","WorkOrd"], 
+									   "AND", 
+									   ["createdfrom","anyof",newCreatedFrom]
+									], 
+									[
+									   new nlobjSearchColumn("createdfrom",null,null), 
+									   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null)
+									]
+									);
+													
+							if(workorderSearch)
 								{
-									salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
-								}
-								catch(error)
-								{
-									salesOrderRecord = null;
-								}
-								
-								//Was the wo created from a sales order?
-								//
-								if(salesOrderRecord)
-									{
-										//Get the sales order commitment status & the current works order committment status
-										//
-										var salesOrderCommittmentStatus = salesOrderRecord.getFieldValue('custbody_bbs_commitment_status');
-										var newWorksOrderStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
-										
-										//Work out if we need to check the other works orders or not
-										//if s/o status is 'not fully committed' & the new w/o status is 'fully committed' OR if the s/o status is unset & the new w/o status is 'fully committed'
-										//we need to check the other works orders that may link to the s/o
-										//
-										if((salesOrderCommittmentStatus == 1 && newWorksOrderStatus == 2) || (salesOrderCommittmentStatus == null && newWorksOrderStatus == 2))
-											{
-												//We need to check the other works orders
-												//
-												var workorderSearch = nlapiCreateSearch("workorder",
-														[
-														   ["mainline","is","T"], 
-														   "AND", 
-														   ["type","anyof","WorkOrd"], 
-														   "AND", 
-														   ["createdfrom","anyof",newCreatedFrom]
-														], 
-														[
-														   new nlobjSearchColumn("createdfrom",null,null), 
-														   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null)
-														]
-														);
-												
-												if(workorderSearch)
-													{
-														var searchResult = workorderSearch.runSearch();
-														
-														//Get the initial set of results
-														//
-														var start = 0;
-														var end = 1000;
-														var searchResultSet = searchResult.getResults(start, end);
-														var resultlen = searchResultSet.length;
-												
-														//If there is more than 1000 results, page through them
-														//
-														while (resultlen == 1000) 
-															{
-																start += 1000;
-																end += 1000;
-												
-																var moreSearchResultSet = searchResult.getResults(start, end);
-																resultlen = moreSearchResultSet.length;
-												
-																searchResultSet = searchResultSet.concat(moreSearchResultSet);
-															}
-														
-														var committedWorksOrders = Number(0);
-														
-														for (var int = 0; int < searchResultSet.length; int++) 
-														{
-															var woCommittmentStatus = searchResultSet[int].getValue('custbody_bbs_commitment_status');
+									var searchResult = workorderSearch.runSearch();
 															
-															if(woCommittmentStatus == 2)
-																{
-																	committedWorksOrders++;
-																}
-														}
-														
-														var allWorksOrdersCommitted = (searchResultSet.length == committedWorksOrders ? true : false);
-														
-														switch(allWorksOrdersCommitted)
-														{
-														case true:
-															salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 2);
-															break;
+									//Get the initial set of results
+									//
+									var start = 0;
+									var end = 1000;
+									var searchResultSet = searchResult.getResults(start, end);
+									var resultlen = searchResultSet.length;
+													
+									//If there is more than 1000 results, page through them
+									//
+									while (resultlen == 1000) 
+										{
+											start += 1000;
+											end += 1000;
+													
+											var moreSearchResultSet = searchResult.getResults(start, end);
+											resultlen = moreSearchResultSet.length;
+													
+											searchResultSet = searchResultSet.concat(moreSearchResultSet);
+										}
 															
-														case false:
-															salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 1);
-															break;
-														}
-														
-														nlapiSubmitRecord(salesOrderRecord, false, true);
-													}
-											}
-										else
-											//
-											//if s/o status is 'fully committed' & the new w/o status is 'not fully committed' OR if the s/o status is unset & the new w/o status is 'not fully committed'
-											//then we can set the s/o to be 'not fully committed'
-											//
-											if((salesOrderCommittmentStatus == 2 && newWorksOrderStatus == 1) || (salesOrderCommittmentStatus == null && newWorksOrderStatus == 1))
+									var committedWorksOrders = Number(0);
+															
+									for (var int = 0; int < searchResultSet.length; int++) 
+										{
+											var woCommittmentStatus = searchResultSet[int].getValue('custbody_bbs_commitment_status');
+																
+											if(woCommittmentStatus == 2)
 												{
-													//We need to set the sales order status to be not fully committed
-													//
-													salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 1);
-													nlapiSubmitRecord(salesOrderRecord, false, true);
+													committedWorksOrders++;
 												}
-									}
-							}
-	}
+										}
+															
+									var allWorksOrdersCommitted = (searchResultSet.length == committedWorksOrders ? true : false);
+															
+									switch(allWorksOrdersCommitted)
+										{
+											case true:
+												//salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 2);
+												nlapiSubmitField('salesorder', newCreatedFrom, 'custbody_bbs_commitment_status', 2, false);
+												break;
+																
+											case false:
+												if(committedWorksOrders == 0)
+													{
+														//salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 3);
+														nlapiSubmitField('salesorder', newCreatedFrom, 'custbody_bbs_commitment_status', 3, false);
+													}
+												else
+													{
+														//salesOrderRecord.setFieldValue('custbody_bbs_commitment_status', 1);
+														nlapiSubmitField('salesorder', newCreatedFrom, 'custbody_bbs_commitment_status', 1, false);
+													}
+												break;
+										}
+															
+									//nlapiSubmitRecord(salesOrderRecord, false, true);
+								}			
+						}
+				}
+		}
 }
 
 

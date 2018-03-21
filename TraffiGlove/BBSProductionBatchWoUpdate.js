@@ -24,19 +24,39 @@ function woBatchUpdate(type)
 			
 			for (var int2 = 0; int2 < woIds.length; int2++) 
 				{
-					var woRecord = nlapiLoadRecord('workorder', woIds[int2]);
+					checkResources();
+					
+					var woRecord = nlapiLoadRecord('workorder', woIds[int2]); //10GU's
 					
 					woRecord.setFieldValue('custbody_bbs_wo_batch', woKey);
 					
-					nlapiSubmitRecord(woRecord, false, true);
+					nlapiSubmitRecord(woRecord, false, true); //20GU's
 				}
 			
-			var batchRecord = nlapiLoadRecord('customrecord_bbs_assembly_batch', woKey);
+			var batchRecord = nlapiLoadRecord('customrecord_bbs_assembly_batch', woKey); //2GU;s
 			
 			if(batchRecord)
 				{
+					checkResources();
+					
 					batchRecord.setFieldValue('custrecord_bbs_wo_updated', 'T');
-					nlapiSubmitRecord(batchRecord, false, true);
+					nlapiSubmitRecord(batchRecord, false, true); //2GU's
 				}
+		}
+}
+
+//=============================================================================================
+//=============================================================================================
+//Functions
+//=============================================================================================
+//=============================================================================================
+//
+function checkResources()
+{
+	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+	
+	if(remaining < 50)
+		{
+			nlapiYieldScript();
 		}
 }

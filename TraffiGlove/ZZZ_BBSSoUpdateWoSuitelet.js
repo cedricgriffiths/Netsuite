@@ -40,7 +40,7 @@ function soUpdateWoSuitelet(request, response)
 		//
 		var form = nlapiCreateForm('Update Works Orders on a Sales Order', false);
 		form.setTitle('Update Works Orders on a Sales Order');
-	
+		form.setScript(script);
 		
 		//=====================================================================
 		// Hidden fields to pass data to the POST section
