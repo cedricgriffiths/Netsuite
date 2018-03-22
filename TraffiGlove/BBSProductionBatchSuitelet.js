@@ -216,7 +216,12 @@ function productionBatchSuitelet(request, response)
 	var PRINT_CONSOLIDATED_FINISHED_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_finish') == 'T' ? true : false);
 	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
 
+	nlapiLogExecution('DEBUG', 'Max Batch Size', MAX_BATCH_SIZE);
 	
+	if(isNaN(MAX_BATCH_SIZE) || MAX_BATCH_SIZE > 30 || MAX_BATCH_SIZE == 0)
+		{
+			MAX_BATCH_SIZE = Number(30);
+		}
 	
 	if (request.getMethod() == 'GET') 
 	{
@@ -497,6 +502,10 @@ function productionBatchSuitelet(request, response)
 					woCommitStatusField.setDisplayType('disabled');
 					woCommitStatusField.setDefaultValue(woCommitStatusText);
 				}
+				
+				var maxBatchField = form.addField('custpage_max_batch', 'inlinehtml', '', null, 'custpage_grp2');
+				maxBatchField.setLayoutType('outsidebelow', 'startrow');
+				maxBatchField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Maximum Batch Count Allowed = ' + MAX_BATCH_SIZE.toString() + '</p>');
 				
 				var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
 				tab.setLabel('Works Orders To Select');
@@ -886,7 +895,7 @@ function productionBatchSuitelet(request, response)
 							{
 								count++;
 									
-								if(count > 30)
+								if(count > MAX_BATCH_SIZE)
 									{
 										delete woArray[wo];
 									}
@@ -895,7 +904,7 @@ function productionBatchSuitelet(request, response)
 						var prodBatchId = '';
 						
 						var remaining = nlapiGetContext().getRemainingUsage();
-						nlapiLogExecution('DEBUG', 'Usage left before batch/wo update', remaining.toString());
+						//nlapiLogExecution('DEBUG', 'Usage left before batch/wo update', remaining.toString());
 						nlapiLogExecution('DEBUG', 'Count of prod batches', (Object.keys(woArray).length).toString());
 						
 						var woToProcessArray = {};

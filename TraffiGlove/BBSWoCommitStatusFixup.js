@@ -17,14 +17,12 @@ function scheduled(type)
 	var woSearch = nlapiCreateSearch("workorder",
 			[
 			   ["type","anyof","WorkOrd"], 
-			   //"AND", 
-			   //["custbody_bbs_commitment_status","anyof","@NONE@"], 
 			   "AND", 
 			   ["mainline","is","T"], 
 			   "AND", 
-			   ["status","anyof","WorkOrd:B","WorkOrd:A"],
-			   //"AND", 
-			   //["custbody_bbs_commitment_status","noneof","2"]
+			   ["status","anyof","WorkOrd:B","WorkOrd:A","WorkOrd:D"],
+			   "AND", 
+			   ["custbody_bbs_commitment_status","noneof","2"]
 			], 
 			[
 			   new nlobjSearchColumn("trandate",null,null).setSort(false), 
@@ -92,10 +90,12 @@ function scheduled(type)
 							var lineItemSource = newRecord.getLineItemValue('item', 'itemsource', int);
 							var lineItemQuantity = Number(newRecord.getLineItemValue('item', 'quantity', int));
 							var lineItemCommitted = Number(newRecord.getLineItemValue('item', 'quantitycommitted', int));
+							var lineItemUsedInBuild = Number(newRecord.getLineItemValue('item', 'quantityfulfilled', int));
 							var lineItemItemId = newRecord.getLineItemValue('item', 'item', int);
 							var lineItemType = newRecord.getLineItemValue('item', 'itemtype', int);
 							
 							lineItemCommitted = (lineItemCommitted == null ? Number(0) : lineItemCommitted);
+							lineItemUsedInBuild = (lineItemUsedInBuild == null ? Number(0) : lineItemUsedInBuild);
 							
 							//Get the process type from the item record
 							//
@@ -148,7 +148,7 @@ function scheduled(type)
 									
 									//Increment the number of lines that are actually committed
 									//
-									if(lineItemQuantity == lineItemCommitted || newStatus == 'Built')
+									if(lineItemQuantity == (lineItemCommitted + lineItemUsedInBuild) || newStatus == 'Built')
 										{
 											linesFullyCommitted++;
 										}

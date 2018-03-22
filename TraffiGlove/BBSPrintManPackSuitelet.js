@@ -68,7 +68,7 @@ function printManPackSuitelet(request, response)
 					salesOrderField.setMandatory(true);
 							
 					form.addSubmitButton('Print Man Pack Documents');
-							
+					
 					//Write the response
 					//
 					response.writePage(form);
@@ -366,6 +366,16 @@ function buildOutput(salesOrderNumber)
 			//Finish the pdfset
 			//
 			xml += "</pdfset>";
+		}
+	else
+		{
+			xml += "<pdf>"
+			xml += "<head>";
+			xml += "</head>";
+			xml += "<body padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+			xml += "<p>No Data To Print</p>";
+			xml += "</body>";
+			xml += "</pdf>";
 		}
 	
 	//Convert to pdf using the BFO library

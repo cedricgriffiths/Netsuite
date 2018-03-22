@@ -16,6 +16,8 @@ function woBatchUpdate(type)
 	//
 	var context = nlapiGetContext();
 	var woArrayString = context.getSetting('SCRIPT', 'custscript_wo_array');
+	nlapiLogExecution('DEBUG', 'W/O JSON String', woArrayString);
+	
 	var woArray = JSON.parse(woArrayString);
 
 	for (var woKey in woArray) 

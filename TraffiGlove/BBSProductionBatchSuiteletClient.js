@@ -36,7 +36,9 @@ function clientFieldChanged(type, name, linenum)
 function clientSaveRecord()
 {
 	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
-
+	
+	nlapiLogExecution('DEBUG', 'Batch Size', MAX_BATCH_SIZE);
+	
 	var stage = nlapiGetFieldValue('custpage_stage');
 	var returnStatus = false;
 	var message = '';
