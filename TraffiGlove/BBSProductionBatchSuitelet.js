@@ -1029,7 +1029,8 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("custitem_bbs_item_instructions","item",null),
 							   new nlobjSearchColumn("quantitycommitted",null,null),
 							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
-							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null)
+							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
+							   new nlobjSearchColumn("custitemfinish_type","item",null)
 							]
 							);
 
@@ -1200,10 +1201,11 @@ function productionBatchSuitelet(request, response)
 								var woItemType = searchResultSet[int3].getValue("type","item");
 								var woCommitStatus = searchResultSet[int3].getText("custbody_bbs_commitment_status");
 								var woAssemblyItemSequence = searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
+								var woAssemblyFinishType = searchResultSet[int3].getText("custitemfinish_type","item");
 								
 								if(woMainline == '*')
 									{	
-										thisFinishedItem = woAssemblyItemSequence;
+										thisFinishedItem = woAssemblyItemSequence + woAssemblyFinishType;
 										
 										if(firstTime)
 											{
