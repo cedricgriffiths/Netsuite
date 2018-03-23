@@ -5,6 +5,25 @@
  * 1.00       09 Feb 2017     cedricgriffiths
  *
  */
+function LibPrintProject()
+{
+	// Get the relative url of the suitelet 
+	//
+	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_project_print', 'customdeploy_bbs_project_print');
+
+	// Get the id of the current record
+	//
+	var recordId = nlapiGetRecordId();
+
+	// Add the id as a query param to the url
+	//
+	url += '&salesorderid=' + recordId;
+
+	// Open the print in a new window
+	//
+	window.open(url, '_blank', 'Project Print', 'toolbar=no, scrollbars=no, resizable=no');
+}
+
 function LibCloneQuote() {
 	
 	//Variable definitions
@@ -267,7 +286,6 @@ function LibProcessFieldChanges(type, name, linenum, unitCostField, soFlag)
 		}
 	}
 }
-
 
 function LibGetCurrencyRate(baseCurrency, transactionCurrency) 
 {

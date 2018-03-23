@@ -5,7 +5,12 @@
  * 1.00       09 Feb 2017     cedricgriffiths
  *
  */
-function GlbCloneQuote() {
-	
+function GlbCloneQuote() 
+{
 	LibCloneQuote();
-;}
+}
+
+function GlbPrintProject() 
+{
+	LibPrintProject();
+}
