@@ -138,7 +138,8 @@ function buildOutput(salesOrderNumber)
 			   new nlobjSearchColumn("custentity_bbs_contact_employee_number","custcol_bbs_sales_line_contact",null),
 			   new nlobjSearchColumn("shipaddress",null,null),
 			   new nlobjSearchColumn("custbody_sw_order_notes",null,null),
-			   new nlobjSearchColumn("custbody_sw_on_manpack",null,null)
+			   new nlobjSearchColumn("custbody_sw_on_manpack",null,null),
+			   new nlobjSearchColumn("companyname","customer",null)
 			]
 			);
 
@@ -172,11 +173,12 @@ function buildOutput(salesOrderNumber)
 					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
 					var notes = salesorderSearch[int].getValue('custbody_sw_order_notes');
 					var printNotes = salesorderSearch[int].getValue('custbody_sw_on_manpack');
+					var salesEntityName = salesorderSearch[int].getValue("companyname","customer");
 					
-					var entityRecord = nlapiLoadRecord('customer', salesEntityId);
+					//var entityRecord = nlapiLoadRecord('customer', salesEntityId);
 					
-					var salesEntityName = entityRecord.getFieldValue('altname');
-					var notesText = '';
+					//var salesEntityName = entityRecord.getFieldValue('altname');
+					//var notesText = '';
 					
 					var colon = salesItem.indexOf(' : ');
 					
@@ -186,17 +188,22 @@ function buildOutput(salesOrderNumber)
 						}
 					
 					if (printNotes == 'T')
-					{
-						if(salesOrderRecord == null)
-							{
-								salesOrderRecord = nlapiLoadRecord('salesorder', salesId);
-							}
-						
-						notes = salesOrderRecord.getFieldValue('memo');
-						notes = (notes == null ? '' : notes);
-						notes = nlapiEscapeXML(notes);
-						notesText = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-					}
+						{
+							//if(salesOrderRecord == null)
+							//	{
+							//		salesOrderRecord = nlapiLoadRecord('salesorder', salesId);
+							//	}
+							
+							//notes = salesOrderRecord.getFieldValue('memo');
+							notes = (notes == null ? '' : notes);
+							notes = nlapiEscapeXML(notes);
+							//notesText = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+							notes = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+						}
+					else
+						{
+							notes = '';
+						}
 					
 					if (salesShipAddress)
 					{
@@ -263,13 +270,9 @@ function buildOutput(salesOrderNumber)
 					        //
 							xml += "<macrolist>";
 							xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
-							xml += "</macrolist>";
-							xml += "</head>";
 							
-							//Body
-							//
-							xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-					
+							xml += "<macro id=\"nlheader\">";
+							
 							//Manpack header data
 							//
 							xml += "<table style=\"width: 100%\">";
@@ -317,11 +320,22 @@ function buildOutput(salesOrderNumber)
 							xml += "<table style=\"width: 100%\">";
 							xml += "<tr>";
 							xml += "<td align=\"left\" style=\"font-size:16px;\">Notes</td>";
-							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:12px;\">" + notesText + "</td>";
+							//xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:12px;\">" + notesText + "</td>";
+							xml += "<td colspan=\"5\" align=\"left\" style=\"font-size:12px;\">" + notes + "</td>";
 							xml += "</tr>";
 							xml += "</table>";
-							
 							xml += "<hr/>";
+							
+							
+							xml += "</macro>";
+							xml += "</macrolist>";
+							xml += "</head>";
+							
+							//Body
+							//
+							xml += "<body header=\"nlheader\" header-height=\"320px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+					
+							
 							
 							//Item data
 							//

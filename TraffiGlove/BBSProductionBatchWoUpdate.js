@@ -32,7 +32,14 @@ function woBatchUpdate(type)
 					
 					woRecord.setFieldValue('custbody_bbs_wo_batch', woKey);
 					
-					nlapiSubmitRecord(woRecord, false, true); //20GU's
+					try
+						{
+							nlapiSubmitRecord(woRecord, false, true); //20GU's
+						}
+					catch(err)
+						{
+							nlapiLogExecution('DEBUG', 'Error updating works order - ' + err.message, woIds[int2]);
+						}
 				}
 			
 			var batchRecord = nlapiLoadRecord('customrecord_bbs_assembly_batch', woKey); //2GU;s
@@ -42,7 +49,15 @@ function woBatchUpdate(type)
 					checkResources();
 					
 					batchRecord.setFieldValue('custrecord_bbs_wo_updated', 'T');
-					nlapiSubmitRecord(batchRecord, false, true); //2GU's
+					
+					try
+						{
+							nlapiSubmitRecord(batchRecord, false, true); //2GU's
+						}
+					catch(err)
+						{
+							nlapiLogExecution('DEBUG', 'Error updating production batch - ' + err.message, woKey);
+						}
 				}
 		}
 }
@@ -57,7 +72,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 50)
+	if(remaining < 100)
 		{
 			nlapiYieldScript();
 		}
