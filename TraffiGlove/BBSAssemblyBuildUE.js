@@ -25,6 +25,27 @@ function assemblyBuildAS(type)
 			var newId = newRecord.getId();
 			var newType = newRecord.getRecordType();
 			
+			if(type == 'create')
+				{
+					var createdFrom = newRecord.getFieldValue('createdfrom');
+					
+					if(createdFrom != null && createdFrom != '')
+						{
+							var woRecord = nlapiLoadRecord('workorder', createdFrom);
+							
+							if(woRecord)
+								{
+									woStatus = woRecord.getFieldValue('orderstatus');
+									
+									if(woStatus == 'D')
+										{
+											woRecord.setFieldValue('custbody_bbs_wo_batch', null);
+											nlapiSubmitRecord(woRecord, false, true);
+										}
+								}
+						}
+				}
+			
 			var invDetail = newRecord.viewSubrecord('inventorydetail');
 			
 			if(invDetail == null)
