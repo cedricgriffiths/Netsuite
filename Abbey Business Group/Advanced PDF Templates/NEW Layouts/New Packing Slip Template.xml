@@ -82,19 +82,26 @@
     <macro id="nlfooter">
 
 	<table style="width: 100%;">
+    <tr style="padding-bottom: 5pt; line-height: 100%;">
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Delivery Instructions:</td>
+	<td align="left" colspan="10" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_dely_instructions}</td>
+	</tr>
+	</table>
+	
+	<table style="width: 100%;">
     <tr style="padding-bottom: 5pt; line-height: 300%;">
-	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Signature:</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Signature:</td>
+	<td align="left" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">&nbsp;</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Print Name In Full:</td>
 	<td align="left" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">&nbsp;</td>
 	</tr>
+
     <tr style="padding-bottom: 5pt; line-height: 300%;">
-	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Print Name In Full:</td>
-	<td align="left" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">&nbsp;</td>
-	</tr>
-    <tr style="padding-bottom: 5pt; line-height: 300%;">
-	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Date:</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Date:</td>
 	<td align="left" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">&nbsp;</td>
 	</tr>
     </table>
+
 
     <table style="width: 100%;">
 	<tr class="messagerow">

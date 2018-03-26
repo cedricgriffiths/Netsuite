@@ -67,7 +67,7 @@ function printProjectSuitelet(request, response)
 					var salesOrderField = form.addField('custpage_salesorder_select', 'text', 'Sales Order', null, 'custpage_grp_header');
 					salesOrderField.setMandatory(true);
 							
-					form.addSubmitButton('Print Man Pack Documents');
+					form.addSubmitButton('Print Project Documents');
 					
 					//Write the response
 					//
@@ -118,17 +118,19 @@ function buildOutput(salesOrderNumber)
 			var today = new Date();
 			var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
 			
-			var salesEntity = salesOrderRecord.getFieldText('entity');
+			var salesEntity = nlapiEscapeXML(salesOrderRecord.getFieldText('entity'));
 			var salesEntityId = salesOrderRecord.getFieldValue('entity');
 			var salesShipAddress = salesOrderRecord.getFieldValue('shipaddress');
-			var salesSalesRep = salesOrderRecord.getFieldText('salesrep');
-			var salesProjectNo = salesOrderRecord.getFieldValue('custbody_cseg_bbs_project_no');
-			var salesProjectTitle = salesOrderRecord.getFieldValue('custbody_bbs_so_project_text');
-			var salesCustOrderNo = salesOrderRecord.getFieldValue('otherrefnum');
+			var salesSalesRep = nlapiEscapeXML(salesOrderRecord.getFieldText('salesrep'));
+			var salesProjectNo = nlapiEscapeXML(salesOrderRecord.getFieldText('custbody_cseg_bbs_project_no'))
+			var salesProjectTitle = nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_so_project_text'));
+			var salesCustOrderNo = nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum'));
 			var salesOrderDate = salesOrderRecord.getFieldValue('trandate');
 			var salesShipDate = salesOrderRecord.getFieldValue('shipdate');
+			var salesShipInstr = nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_dely_instructions'));
 			var salesNotes = salesOrderRecord.getFieldValue('memo');
-					
+			var salesPhone = salesOrderRecord.getFieldValue('custbody_bbs_so_order_phone');
+			
 			var entityRecord = nlapiLoadRecord('customer', salesEntityId);
 					
 		
@@ -169,29 +171,73 @@ function buildOutput(salesOrderNumber)
 			xml += "span.itemname {font-weight: bold;line-height: 150%;}";
 			xml += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
 			xml += "</style>";
-					
+			
+			
 			//Macros
 			//
 			xml += "<macrolist>";
 			xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"><tr><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr></table></macro>";
+			xml += "<macro id=\"nlheader\">";
+			xml += "<table style=\"width: 100%;\">";
+			xml += "<tr>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:12px; background-color:#d6d6d7; color:#000000; border: 1px solid black; padding: 2px;\"><b>Date:&nbsp;" + salesOrderDate +"</b></td>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:12px; background-color:#d6d6d7; color:#000000; border: 1px solid black; padding: 2px;\"><b>Estimator:&nbsp;" + salesSalesRep + "</b></td>";
+			xml += "<td align=\"right\" colspan=\"2\" style=\"font-size:12px; background-color:#d6d6d7; color:#000000; border: 1px solid black; padding: 2px;\"><b>Project Sheet No:&nbsp;" + salesProjectNo + "</b></td>";
+			xml += "</tr>";
+			xml += "</table>";
+			xml += "</macro>";
 			xml += "</macrolist>";
 			xml += "</head>";
 							
 			//Body
 			//
-			xml += "<body footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+			xml += "<body header=\"nlheader\" header-height=\"40px\"  footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 			//Project header data
 			//
-			xml += "<table style=\"width: 100%\">";
-			xml += "<tr>";
-			xml += "<td align=\"left\" style=\"font-size:16px;\"><b>Date:&nbsp;01/01/2018</b></td>";
-			xml += "<td align=\"left\" style=\"font-size:16px;\"><b></b></td>";
-			xml += "<td align=\"left\" style=\"font-size:16px;\">&nbsp;</td>";
-			xml += "</tr>";
-			xml += "</table>";
 						
-
+			xml += "<table style=\"width: 100%;\">";
+			xml += "<tr>";
+			xml += "<td align=\"left\" rowspan=\"2\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Job Name:</b>&nbsp;" + salesProjectTitle + "</td>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Designer/QS:</b>&nbsp;" + salesEntity + "</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Invoice:</b>&nbsp;" + salesEntity + "</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" rowspan=\"5\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Delivery Address:</b><br/>" + salesShipAddress + "</td>";
+			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Delivery Date:</b></td>";
+			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>" + salesShipDate + "</b></td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Delivery Via:</td>";
+			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + salesShipInstr + "</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Special Instructions:</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + salesNotes + "</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Status:&nbsp;</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Cust Order No:&nbsp;</td>";
+			xml += "</tr>";
+			
+			xml += "<tr>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Telephone:</b>&nbsp;" + salesPhone + "</td>";
+			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Terms:&nbsp;</td>";
+			xml += "</tr>";
+			
+			
+			xml += "</table>";
+			
 			
 			//Finish the body
 			//
