@@ -251,6 +251,23 @@ function filteredItemSearchSuitelet(request, response){
 				var finishField = form.addField('custpage_finish_select', 'select', 'Finish', 'customlist_bbs_item_finish_ref', 'custpage_grp3');
 				finishField.setDisplaySize(100);
 				finishField.setBreakType('startcol');
+				finishField.setDisplayType('hidden');
+				
+				//Add the finish item field (NEW)
+				//
+				var finishItemField = form.addField('custpage_finish_item_select', 'select', 'Finish Item', null, 'custpage_grp3');
+				//finishItemField.setDisplaySize(100);
+				
+				var finishesList = getFinishes(customerId);
+				
+				finishItemField.addSelectOption(0, '', true);
+				
+				for (var finishes in finishesList) 
+				{
+					var tempData = finishesList[finishes];
+					finishItemField.addSelectOption(tempData[0], tempData[1], false);
+				}
+				
 				
 				//Add a submit button to the form
 				//
@@ -641,4 +658,127 @@ function filteredItemSearchSuitelet(request, response){
 				break;
 		}
 	}
+}
+
+function getFinishes(customerId)
+{
+	var finishList = {};
+	
+	if (customerId != null && customerId != '')
+		{
+			var search = nlapiCreateSearch("assemblyitem",
+					[
+					   ["type","anyof","Assembly"], 
+					   "AND", 
+					   ["isphantom","is","T"], 
+					   "AND", 
+					   ["custitem_bbs_item_customer","anyof",customerId],
+					   "AND", 
+					   ["isinactive","is","F"]
+					], 
+					[
+					   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+					   new nlobjSearchColumn("description",null,null), 
+					   new nlobjSearchColumn("description","memberItem",null)
+					]
+					);
+			
+			assemblyitemSearch = getResults(search);
+			
+			var lastId = '';
+			var accumulatedDescription = '';
+			
+			if(assemblyitemSearch)
+				{
+					for (var int = 0; int < assemblyitemSearch.length; int++) 
+						{
+							var thisId = assemblyitemSearch[int].getId();
+								
+							if(lastId != thisId)
+								{
+									if(lastId != '')
+									{
+										accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+										accumulatedDescription += ')';
+											
+										//add the previous finish to the select list
+										//
+										//nlapiInsertSelectOption('custpage_finish_item_select', lastId, accumulatedDescription, false);
+										var posHyphen = accumulatedDescription.indexOf('-') + 2;
+										var posColon = accumulatedDescription.indexOf(' :');
+										var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+										var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
+										var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+										indexer = indexer + prefixValue;
+										
+										finishList[indexer] = [lastId,accumulatedDescription];
+									}
+										
+									lastId = thisId;
+										
+									accumulatedDescription = assemblyitemSearch[int].getValue('itemid') + ' : ' + '(' + assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+								}
+							else
+								{
+									accumulatedDescription += assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+								}
+								
+						}
+		
+					if(lastId != '')
+						{
+							accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+							accumulatedDescription += ')';
+									
+							//add the last finish to the select list
+							//
+							//nlapiInsertSelectOption('custpage_finish_item_select', thisId, accumulatedDescription, false);
+							
+							var posHyphen = accumulatedDescription.indexOf('-') + 2;
+							var posColon = accumulatedDescription.indexOf(' :');
+							var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+							var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
+							var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+							indexer = indexer + prefixValue;
+							
+							finishList[indexer] = [thisId,accumulatedDescription];
+						}
+				}
+		}
+	
+	//Sort the list of finishes
+	//
+	const orderedTemp = {};
+	Object.keys(finishList).sort().forEach(function(key) {
+		orderedTemp[key] = finishList[key];
+	});
+	
+	return orderedTemp;
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
 }

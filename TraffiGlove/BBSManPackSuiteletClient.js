@@ -17,6 +17,48 @@
  */
 function clientFieldChanged(type, name, linenum)
 {
+	if (name == 'custpage_finish_item_select')
+	{
+		var finishId = nlapiGetFieldValue('custpage_finish_item_select');
+		var finishText = nlapiGetFieldText('custpage_finish_item_select');
+		
+		//Find the actual lookup id relating to the finish suffix
+		//
+		var dash = finishText.indexOf('-');
+		var colon = finishText.indexOf(' : ');
+		var impliedFinishRef = finishText.substr(dash + 1, colon - dash - 1);
+		
+		//Search the custom list of finishes
+		//
+		var finishRefSearch = nlapiCreateSearch("customlist_bbs_item_finish_ref",
+				[
+				], 
+				[
+				   new nlobjSearchColumn("name",null,null)
+				]
+				);
+		
+		var searchResultSet = getResults(finishRefSearch);
+		
+		if(searchResultSet != null)
+			{
+				for (var int = 0; int < searchResultSet.length; int++) 
+					{
+						var finishRefId = searchResultSet[int].getId();
+						var finishRefName = searchResultSet[int].getValue('name');
+	
+						if(finishRefName == impliedFinishRef)
+							{
+								nlapiSetFieldValue('custpage_finishid', finishRefId, false, true);
+								nlapiSetFieldValue('custpage_finish_name', finishText, false, true);
+								
+								break;
+							}
+					}
+			}
+	}
+	
+	
 	if (name == 'custpage_finish_select')
 	{
 		var finishId = nlapiGetFieldValue('custpage_finish_select');
@@ -151,4 +193,31 @@ function updateItemQuantity()
 				nlapiSetLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int, 'T');
 			}
 	}
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
 }
