@@ -130,9 +130,18 @@ function buildOutput(salesOrderNumber)
 			var salesShipInstr = nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_dely_instructions'));
 			var salesNotes = salesOrderRecord.getFieldValue('memo');
 			var salesPhone = salesOrderRecord.getFieldValue('custbody_bbs_so_order_phone');
+			var salesPaymentStatus = nlapiEscapeXML(salesOrderRecord.getFieldValue('custbody_bbs_proj_pay_status'));
+			var salesPaymentTerms = nlapiEscapeXML(salesOrderRecord.getFieldText('custbody_bbs_proj_pay_terms'));
+			
+			salesPaymentStatus = (salesPaymentStatus == null ? '' : salesPaymentStatus);
+			salesPaymentTerms = (salesPaymentTerms == null ? '' : salesPaymentTerms);
 			
 			var entityRecord = nlapiLoadRecord('customer', salesEntityId);
-					
+			
+			salesShipInstr = (salesShipInstr == null ? '' : salesShipInstr);
+			salesShipInstr = nlapiEscapeXML(salesShipInstr);
+			salesShipInstr = salesShipInstr.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+			
 		
 			salesNotes = (salesNotes == null ? '' : salesNotes);
 			salesNotes = nlapiEscapeXML(salesNotes);
@@ -191,11 +200,10 @@ function buildOutput(salesOrderNumber)
 							
 			//Body
 			//
-			xml += "<body header=\"nlheader\" header-height=\"40px\"  footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+			xml += "<body header=\"nlheader\" header-height=\"40px\"  footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 					
 			//Project header data
-			//
-						
+			//		
 			xml += "<table style=\"width: 100%;\">";
 			xml += "<tr>";
 			xml += "<td align=\"left\" rowspan=\"2\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Job Name:</b>&nbsp;" + salesProjectTitle + "</td>";
@@ -223,18 +231,111 @@ function buildOutput(salesOrderNumber)
 			xml += "</tr>";
 			
 			xml += "<tr>";
-			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Status:&nbsp;</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Status:</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + salesPaymentStatus + "</td>";
 			xml += "</tr>";
 			
 			xml += "<tr>";
-			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Cust Order No:&nbsp;</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Cust Order No:</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + salesCustOrderNo + "</td>";
 			xml += "</tr>";
 			
 			xml += "<tr>";
 			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Telephone:</b>&nbsp;" + salesPhone + "</td>";
-			xml += "<td align=\"left\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Terms:&nbsp;</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Payment Terms:</td>";
+			xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + salesPaymentTerms + "</td>";
+			xml += "</tr>";
+			xml += "<tr>";
+			xml += "<td align=\"left\">&nbsp;</td>";
 			xml += "</tr>";
 			
+			xml += "</table>";
+			
+			xml += "<table style=\"width: 100%;\">";
+			xml += "<thead>";
+	        xml += "<tr>";
+	        xml += "<th align=\"center\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Joinery</b></th>";
+	        xml += "<th align=\"center\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Polishing</b></th>";
+	        xml += "<th align=\"center\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Upholstery</b></th>";
+	        xml += "</tr>";
+			xml += "</thead>";
+            xml += "<tr>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Start Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Finish Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Start Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Finish Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Start Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "<td align=\"center\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">Finish Date<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "</tr>";
+            xml += "<tr>";
+			xml += "<td align=\"left\">&nbsp;</td>";
+			xml += "</tr>";
+			
+			xml += "</table>";
+			
+			xml += "<table style=\"width: 100%;\">";
+			xml += "<thead>";
+	        xml += "<tr>";
+	        xml += "<th align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Special Instructions</b></th>";
+	        xml += "</tr>";
+			xml += "</thead>";
+            xml += "<tr>";
+            xml += "<td align=\"left\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;<br/>&nbsp;</td>";
+            xml += "</tr>";
+            xml += "<tr>";
+			xml += "<td align=\"left\">&nbsp;</td>";
+			xml += "</tr>";
+			
+			xml += "</table>";
+			
+			//Project item data
+			//	
+			xml += "<table style=\"width: 100%;\">";
+			xml += "<thead>";
+	        xml += "<tr>";
+	        xml += "<th align=\"center\" colspan=\"1\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Qty</b></th>";
+	        xml += "<th align=\"center\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Code</b></th>";
+	        xml += "<th align=\"left\" colspan=\"10\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Description</b></th>";
+	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Base Code</b></th>";
+	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Base PO</b></th>";
+	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Top PO</b></th>";
+	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Faabric PO</b></th>";
+	        xml += "</tr>";
+			xml += "</thead>";
+            
+			var itemCount = salesOrderRecord.getLineItemCount('item');
+			
+			for (var int = 1; int < itemCount; int++) 
+				{
+					var itemQuantity = salesOrderRecord.getLineItemValue('item', 'quantity', int);
+					var itemRate = Number(salesOrderRecord.getLineItemValue('item', 'rate', int));
+					var itemCode = '';
+					var itemGenericDescription = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_bbs_sales_generic_desc', int));
+					var itemDescription = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'description', int));
+					var itemBaseCode = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_bbs_proj_base_code', int));
+					var itemBasePo = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_bbs_proj_base_po', int));
+					var itemTopPo = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_bbs_proj_top_po', int));
+					var itemFabricPo = nlapiEscapeXML(salesOrderRecord.getLineItemValue('item', 'custcol_bbs_proj_fabric_po', int));
+					
+					itemBaseCode = (itemBaseCode == null ? '' : itemBaseCode);
+					itemBasePo = (itemBasePo == null ? '' : itemBasePo);
+					itemTopPo = (itemTopPo == null ? '' : itemTopPo);
+					itemFabricPo = (itemFabricPo == null ? '' : itemFabricPo);
+					
+					
+					if(itemRate != 0)
+						{
+							xml += "<tr>";
+							xml += "<td align=\"center\" colspan=\"1\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemQuantity + "</td>";
+							xml += "<td align=\"center\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemCode + "</td>";
+							xml += "<td align=\"left\" colspan=\"10\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemDescription + "</td>";
+							xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemBaseCode + "</td>";
+							xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemBasePo + "</td>";
+							xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemTopPo + "</td>";
+							xml += "<td align=\"left\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\">" + itemFabricPo + "</td>";
+				            xml += "</tr>";
+						}
+				}
 			
 			xml += "</table>";
 			

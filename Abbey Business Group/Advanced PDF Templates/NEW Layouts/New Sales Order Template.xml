@@ -219,7 +219,7 @@
       <#if item_index==0>
         <thead>
             <tr>
-            <th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
+            <th align="center" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
             <th align="center" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_quote_cad@label}</th>
             <th align="left" colspan="3"  style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.units@label}</th>
             <th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.item@label}</th>
