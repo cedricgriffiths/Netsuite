@@ -9,7 +9,7 @@ function LibPrintProject()
 {
 	// Get the relative url of the suitelet 
 	//
-	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_project_print', 'customdeploy_bbs_project_print');
+	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_print_proj_docs', 'customdeploy_bbs_print_proj_docs');
 
 	// Get the id of the current record
 	//
