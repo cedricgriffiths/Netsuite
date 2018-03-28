@@ -444,7 +444,7 @@ function createAssembliesScheduled(type)
 																		{
 																			//This is not a special works order item if we have stock levels
 																			//
-																			newChildRecord.setFieldValue('isspecialworkorderitem', 'F');
+//No longer required														newChildRecord.setFieldValue('isspecialworkorderitem', 'F');
 																			
 																			//Also, now set the safety stock & preferred stock levels
 																			//
@@ -476,7 +476,7 @@ function createAssembliesScheduled(type)
 																		}
 																	else
 																		{
-																			newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
+//No longer required														newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
 																		}
 																	
 																	newChildRecord.setFieldValue('haschildren', 'F');
