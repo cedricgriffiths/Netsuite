@@ -229,7 +229,7 @@
           <tr>
           <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
           <td align="left" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_quote_cad}</td>
-          <td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}<br/>${item.description}</td>
+          <td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.00###"]}</td>
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${item.amount}</td>
           </tr>
