@@ -17,11 +17,18 @@ function scheduled(type)
 	var context = nlapiGetContext();
 	var salesOrderId = context.getSetting('SCRIPT', 'custscript_bbs_so_id');
 	
+	//Load up the sales order record
+	//
 	var salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10GU's
 	var itemLineCount = salesOrderRecord.getLineItemCount('item');
+	
+	//Get the customer and the subsidiary
+	//
 	var salesOrderEntity = salesOrderRecord.getFieldValue('entity');
 	var salesOrderSubsidiary = salesOrderRecord.getFieldValue('subsidiary');
 	
+	//Loop round the item lines
+	//
 	for (var int = 1; int <= itemLineCount; int++) 
 	{
 		var itemType = salesOrderRecord.getLineItemValue('item', 'itemtype', int);
@@ -29,6 +36,8 @@ function scheduled(type)
 		var itemBackorder = Number(salesOrderRecord.getLineItemValue('item', 'quantitybackordered', int));
 		var itemWorksOrder = salesOrderRecord.getLineItemValue('item', 'woid', int);
 	
+		//See if we have any assemblies that are on backorder that do not have a works order assigned to them
+		//
 		if(itemType == 'Assembly' && itemBackorder > 0 && (itemWorksOrder == null || itemWorksOrder == ''))
 			{
 				checkResources();
@@ -41,12 +50,18 @@ function scheduled(type)
 				worksOrderRecord.setFieldValue('assemblyitem', itemId);
 				worksOrderRecord.setFieldValue('quantity', itemBackorder);
 				
+				//Save the works order
+				//
 				var worksOrderId = nlapiSubmitRecord(worksOrderRecord, true, true); //20GU's
 				
+				//Update the order line with the works order id
+				//
 				salesOrderRecord.setLineItemValue('item', 'woid', int, worksOrderId);
 			}
 	}
 	
+	//Save the sales order
+	//
 	nlapiSubmitRecord(salesOrderRecord, false, true); //20GU's
 
 }

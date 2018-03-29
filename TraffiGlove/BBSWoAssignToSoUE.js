@@ -19,13 +19,19 @@
  */
 function assignWoToSoARS(type)
 {
+	//Get the current sales order record
+	//
 	var salesOrderRecord = nlapiGetNewRecord();
 	
+	//Get count of item lines
+	//
 	var itemLineCount = salesOrderRecord.getLineItemCount('item');
 	
 	var woNeeded = false;
 	var woCount = Number(0);
 	
+	//Loop through the items looking for assembly items on backorder with no works order assigned to them
+	//
 	for (var int = 1; int <= itemLineCount; int++) 
 		{
 			var itemType = salesOrderRecord.getLineItemValue('item', 'itemtype', int);
@@ -39,16 +45,27 @@ function assignWoToSoARS(type)
 				}
 		}
 	
+	//Do we need to create any works orders?
+	//
 	if(woNeeded)
 		{
+			//If there are no more than 30 then we can do them interactively
+			//
 			if(woCount <= 30)
 				{
+					//Load up the sales order record
+					//
 					var salesOrderId = salesOrderRecord.getId();
 					salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10GU's
 					itemLineCount = salesOrderRecord.getLineItemCount('item');
+					
+					//Get the customer & the subsidiary
+					//
 					var salesOrderEntity = salesOrderRecord.getFieldValue('entity');
 					var salesOrderSubsidiary = salesOrderRecord.getFieldValue('subsidiary');
 					
+					//Loop through the items
+					//
 					for (var int = 1; int <= itemLineCount; int++) 
 					{
 						var itemType = salesOrderRecord.getLineItemValue('item', 'itemtype', int);
@@ -66,19 +83,26 @@ function assignWoToSoARS(type)
 								worksOrderRecord.setFieldValue('assemblyitem', itemId);
 								worksOrderRecord.setFieldValue('quantity', itemBackorder);
 								
+								//Save the works order
+								//
 								var worksOrderId = nlapiSubmitRecord(worksOrderRecord, true, true); //20GU's
 								
+								//Update the sales order line with the works order
+								//
 								salesOrderRecord.setLineItemValue('item', 'woid', int, worksOrderId);
 							}
 					}
 					
+					//Save the sales order
+					//
 					nlapiSubmitRecord(salesOrderRecord, false, true); //20GU's
 				}
 			else
 				{
+					//If there are more than 30, then we will need to schedule a script to do it
+					//
 					var scheduleParams = {custscript_bbs_so_id: salesOrderId};
 					nlapiScheduleScript('customscript_bbs_assign_wo_so_sched', null, scheduleParams);
-
 				}
 		}
 }
