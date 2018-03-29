@@ -1,0 +1,13 @@
+<customrecordtype scriptid="customrecord_tutorial">
+    <description></description>
+    <recordname>SDF Tutorial</recordname>
+    <customrecordcustomfields>
+        <customrecordcustomfield scriptid="custrecord_tut_memo">
+            <description></description>
+            <displaytype>NORMAL</displaytype>
+            <fieldtype>TEXT</fieldtype>
+            <label>Memo</label>
+            <ismandatory>F</ismandatory>
+        </customrecordcustomfield>
+    </customrecordcustomfields>
+</customrecordtype>
