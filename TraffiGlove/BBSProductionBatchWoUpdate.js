@@ -28,17 +28,30 @@ function woBatchUpdate(type)
 				{
 					checkResources();
 					
-					var woRecord = nlapiLoadRecord('workorder', woIds[int2]); //10GU's
-					
-					woRecord.setFieldValue('custbody_bbs_wo_batch', woKey);
+					var woRecord = null;
 					
 					try
 						{
-							nlapiSubmitRecord(woRecord, false, true); //20GU's
+							woRecord = nlapiLoadRecord('workorder', woIds[int2]); //10GU's
 						}
 					catch(err)
 						{
-							nlapiLogExecution('DEBUG', 'Error updating works order - ' + err.message, woIds[int2]);
+							woRecord = null;
+							nlapiLogExecution('DEBUG', 'Error getting works order - ' + err.message, woIds[int2]);
+						}
+					
+					if(woRecord)
+						{
+							woRecord.setFieldValue('custbody_bbs_wo_batch', woKey);
+							
+							try
+								{
+									nlapiSubmitRecord(woRecord, false, true); //20GU's
+								}
+							catch(err)
+								{
+									nlapiLogExecution('DEBUG', 'Error updating works order - ' + err.message, woIds[int2]);
+								}
 						}
 				}
 			
