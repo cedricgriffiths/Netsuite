@@ -53,6 +53,10 @@ function woBatchUpdate(type)
 									nlapiLogExecution('DEBUG', 'Error updating works order - ' + err.message, woIds[int2]);
 								}
 						}
+					else
+						{
+							nlapiLogExecution('DEBUG', 'No works order found ', woIds[int2]);
+						}
 				}
 			
 			var batchRecord = nlapiLoadRecord('customrecord_bbs_assembly_batch', woKey); //2GU;s
