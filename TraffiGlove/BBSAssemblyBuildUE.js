@@ -81,7 +81,14 @@ function assemblyBuildAS(type)
 										  				{
 										  					salesOrderRecord.setFieldValue('custbody_bbs_manpack_info', manpackInfo);
 										  			
-										  					nlapiSubmitRecord(salesOrderRecord, false, true);
+										  					try
+											  					{
+											  						nlapiSubmitRecord(salesOrderRecord, false, true);
+											  					}
+										  					catch(err)
+											  					{
+										  							nlapiLogExecution('DEBUG', 'Error saving sales order record', err.message);
+											  					}
 										  				}
 										  		}
 										}
@@ -100,7 +107,14 @@ function assemblyBuildAS(type)
 											
 											//Save the works order
 											//
-											nlapiSubmitRecord(woRecord, false, true);
+											try
+							  					{
+													nlapiSubmitRecord(woRecord, false, true);
+							  					}
+						  					catch(err)
+							  					{
+						  							nlapiLogExecution('DEBUG', 'Error saving works order record', err.message);
+							  					}
 										}
 								}
 						}
@@ -153,7 +167,14 @@ function assemblyBuildAS(type)
 							invDetailSubRecord.commitLineItem('inventoryassignment');
 							invDetailSubRecord.commit();
 							
-							nlapiSubmitRecord(buildRecord, false, true);
+							try
+			  					{
+									nlapiSubmitRecord(buildRecord, false, true);
+			  					}
+		  					catch(err)
+			  					{
+		  							nlapiLogExecution('DEBUG', 'Error saving assembly build record', err.message);
+			  					}
 						}
 				}
 		}
