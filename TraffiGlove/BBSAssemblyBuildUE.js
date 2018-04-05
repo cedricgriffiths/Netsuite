@@ -45,9 +45,50 @@ function assemblyBuildAS(type)
 							
 							if(woRecord)
 								{
+									//Get the works order "created from"
+									//
+									var woCreatedFrom = woRecord.getFieldValue('createdfrom');
+									
+									//See if we have a "created from"
+									//
+									if(woCreatedFrom)
+										{
+											var salesOrderRecord = nlapiLoadRecord('salesorder', woCreatedFrom);
+										  	
+										  	if(salesOrderRecord)
+										  		{
+										  			var manpackItemCount = Number(0);
+										  			var manpackPeople = {};
+										  			
+										  			var items = salesOrderRecord.getLineItemCount('item');
+										  			var currentManpackInfo = salesOrderRecord.getFieldValue('custbody_bbs_manpack_info');
+										  			
+										  			for (var int = 1; int <= items; int++) 
+											  			{
+															var manpackPerson = salesOrderRecord.getLineItemValue('item', 'custcol_bbs_sales_line_contact', int);
+															var manpackItemQty = Number(salesOrderRecord.getLineItemValue('item', 'quantitycommitted', int));
+															
+															if(manpackItemQty > 0 && manpackPerson != null && manpackPerson != '')
+																{
+																	manpackItemCount += manpackItemQty;
+																	manpackPeople[manpackPerson] = manpackPerson;
+																}
+														}
+										  			
+										  			var manpackInfo = 'MANPACK ' + (Object.keys(manpackPeople).length).toString() + ' (' + manpackItemCount.toString() + ')';
+										  			
+										  			if(manpackInfo != currentManpackInfo)
+										  				{
+										  					salesOrderRecord.setFieldValue('custbody_bbs_manpack_info', manpackInfo);
+										  			
+										  					nlapiSubmitRecord(salesOrderRecord, false, true);
+										  				}
+										  		}
+										}
+								
 									//Get the works order status
 									//
-									woStatus = woRecord.getFieldValue('orderstatus');
+									var woStatus = woRecord.getFieldValue('orderstatus');
 									
 									//See if the works order is marked as 'In Process'
 									//
