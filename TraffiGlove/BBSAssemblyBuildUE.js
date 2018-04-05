@@ -19,47 +19,76 @@
  */
 function assemblyBuildAS(type)
 {
+	//Check for Create or Edit mode
+	//
 	if(type == 'create' || type == 'edit')
 		{
 			var newRecord = nlapiGetNewRecord();
 			var newId = newRecord.getId();
 			var newType = newRecord.getRecordType();
 			
+			//If we are in create mode, then do the w/o status check
+			//
 			if(type == 'create')
 				{
+					//See where this assembly build record has been created from i.e. the works order
+					//
 					var createdFrom = newRecord.getFieldValue('createdfrom');
 					
+					//Do we have a created from?
+					//
 					if(createdFrom != null && createdFrom != '')
 						{
+							//Read the works order record
+							//
 							var woRecord = nlapiLoadRecord('workorder', createdFrom);
 							
 							if(woRecord)
 								{
+									//Get the works order status
+									//
 									woStatus = woRecord.getFieldValue('orderstatus');
 									
+									//See if the works order is marked as 'In Process'
+									//
 									if(woStatus == 'D')
 										{
+											//Remove the production batch link from the works order
+											//
 											woRecord.setFieldValue('custbody_bbs_wo_batch', null);
+											
+											//Save the works order
+											//
 											nlapiSubmitRecord(woRecord, false, true);
 										}
 								}
 						}
 				}
 			
+			//Get the inventory detail sub-record for the assembly build
+			//
 			var invDetail = newRecord.viewSubrecord('inventorydetail');
 			
+			//If the sub-record is empty, then we need to populate it
+			//
 			if(invDetail == null)
 				{
+					//Load the build record & get the required data from it
+					//
 					var buildRecord = nlapiLoadRecord(newType, newId);
 					var assemblyId = buildRecord.getFieldValue('item');
 					var buildLocation = buildRecord.getFieldValue('location');
 					var buildQuantity = buildRecord.getFieldValue('quantity');
 					
+					//Get the item record relating to the assembly
+					//
 					var itemRecord = nlapiLoadRecord('assemblyitem', assemblyId);
 					var binCount = itemRecord.getLineItemCount('binnumber');
 					
 					var componentBin = '';
 					
+					//Find the preferred bin for the locxation in question
+					//
 					for (var int5 = 1; int5 <= binCount; int5++) 
 					{
 						var binPreferred = itemRecord.getLineItemValue('binnumber', 'preferredbin', int5);
@@ -72,6 +101,8 @@ function assemblyBuildAS(type)
 							}
 					}
 					
+					//If we have found a bin, then create the sub-record
+					//
 					if(componentBin != '')
 						{
 							var invDetailSubRecord = buildRecord.createSubrecord('inventorydetail');
