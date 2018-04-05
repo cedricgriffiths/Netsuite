@@ -95,6 +95,9 @@
 	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
     </tr>
 	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt"><b>The goods and/or services covered by this invoice are subject to the Terms and Conditions of Sale available at www.abbeybusinessgroup.com</b></td>
+	</tr>
+    <tr class="messagerow">
 	<td class="message" align="center" style="font-size: 6pt"><b>ABBEY BUSINESS EQUIPMENT LIMITED RETAINS THE TITLE TO THE GOODS SUPPLIED UNTIL FULL PAYMENT HAS BEEN RECEIVED. HOWEVER RISK PASSES ON DELIVERY TO YOURSELVES</b></td>
 	</tr>
     </table>
@@ -208,7 +211,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="160px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="170px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
 
 <#if record.item?has_content>
   <table class="itemtable" style="width: 100%;"><!-- start items -->
