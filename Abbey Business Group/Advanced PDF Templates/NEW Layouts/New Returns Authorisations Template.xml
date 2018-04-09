@@ -262,10 +262,15 @@
       	<#assign disc = "">
       </#if>
       	
+      <#if item.custcol_bbs_sales_generic_desc?has_content>
+      	<#assign desc = item.custcol_bbs_sales_generic_desc>
+      <#else>
+      	<#assign desc = item.description>
+      </#if>
           <tr>
           <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
           <td align="left"  colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.units}</td>
-          <td align="left"  colspan="13" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
+          <td align="left"  colspan="13" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${desc}</td>
 	      <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_quote_cost}</td>
 		  <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${disc}<br />${item.custcol_bbs_quote_discount_ref}</td>
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${toCurrency(item.rate)}</td>

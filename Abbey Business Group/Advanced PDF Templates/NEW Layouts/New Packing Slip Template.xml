@@ -236,17 +236,29 @@
 </thead>
 <#if record.showAddlItemsPackSlip == 'NONE'><!-- start items --><#list record.item as item><#list salesorder.item as tranline><#if tranline.line==item.orderline>
   <#if tranline.custcol_bbs_sales_print == true>
+  
+  <#if item.custcol_bbs_sales_generic_desc?has_content>
+     <#assign desc = item.custcol_bbs_sales_generic_desc>
+  <#else>
+     <#assign desc = item.description>
+  </#if>
   <tr>
-	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
+	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${desc}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantity}</td>
     <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantitybackordered}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${item.quantity}</td>
 	</tr>
     </#if>
 	</#if></#list></#list><!-- end items --><#elseif record.showAddlItemsPackSlip == 'ALL'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity></#if></#list>
-<#if tranline.custcol_bbs_sales_print == true>	
+<#if tranline.custcol_bbs_sales_print == true>
+
+  <#if tranline.custcol_bbs_sales_generic_desc?has_content>
+     <#assign desc = tranline.custcol_bbs_sales_generic_desc>
+  <#else>
+     <#assign desc = tranline.description>
+  </#if>	
   <tr>
-	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.custcol_bbs_sales_generic_desc}</td>
+	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${desc}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantity}</td>
     <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantitybackordered}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${shipped}</td>
@@ -254,8 +266,14 @@
   </#if>
 	</#list><!-- end sales order items --><#elseif record.showAddlItemsPackSlip == 'UNFULFILLED'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#assign isInList=false><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity><#assign isInList=true></#if></#list><#if isInList || tranline.quantitybackordered != 0>
 	<#if tranline.custcol_bbs_sales_print == true>
+	
+	  <#if tranline.custcol_bbs_sales_generic_desc?has_content>
+     <#assign desc = tranline.custcol_bbs_sales_generic_desc>
+  <#else>
+     <#assign desc = tranline.description>
+  </#if>
   <tr>
-	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.custcol_bbs_sales_generic_desc}</td>
+	<td align="left" line-height="150%" colspan="19" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${desc}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantity}</td>
     <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantitybackordered}</td>
 	<td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${shipped}</td>

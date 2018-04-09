@@ -316,7 +316,7 @@ function buildOutput(salesOrderNumber)
 	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Base Code</b></th>";
 	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Base PO</b></th>";
 	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Top PO</b></th>";
-	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Faabric PO</b></th>";
+	        xml += "<th align=\"center\" colspan=\"4\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Fabric PO</b></th>";
 	        xml += "</tr>";
 			xml += "</thead>";
             
