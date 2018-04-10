@@ -258,7 +258,7 @@ function filteredItemSearchSuitelet(request, response){
 				var finishItemField = form.addField('custpage_finish_item_select', 'select', 'Finish Item', null, 'custpage_grp3');
 				//finishItemField.setDisplaySize(100);
 				
-				var finishesList = getFinishes(customerId);
+				var finishesList = getFinishes(customerId, custParentId);
 				
 				finishItemField.addSelectOption(0, '', true);
 				
@@ -660,29 +660,50 @@ function filteredItemSearchSuitelet(request, response){
 	}
 }
 
-function getFinishes(customerId)
+function getFinishes(customerId, custParentId)
 {
 	var finishList = {};
 	
 	if (customerId != null && customerId != '')
 		{
-			var search = nlapiCreateSearch("assemblyitem",
-					[
-					   ["type","anyof","Assembly"], 
-					   "AND", 
-					   ["isphantom","is","T"], 
-					   "AND", 
-					   ["custitem_bbs_item_customer","anyof",customerId],
-					   "AND", 
-					   ["isinactive","is","F"]
-					], 
-					[
-					   new nlobjSearchColumn("itemid",null,null).setSort(false), 
-					   new nlobjSearchColumn("description",null,null), 
-					   new nlobjSearchColumn("description","memberItem",null)
-					]
-					);
-			
+			if(custParentId != null && custParentId != '')
+				{
+					var search = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   [["custitem_bbs_item_customer","anyof",customerId],"OR",["custitem_bbs_item_customer","anyof",custParentId]],
+							   "AND", 
+							   ["isinactive","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+				}
+			else
+				{
+					var search = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   ["custitem_bbs_item_customer","anyof",customerId],
+							   "AND", 
+							   ["isinactive","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+				}
 			assemblyitemSearch = getResults(search);
 			
 			var lastId = '';

@@ -56,7 +56,7 @@ function assignWoToSoARS(type)
 					//Load up the sales order record
 					//
 					var salesOrderId = salesOrderRecord.getId();
-					salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10GU's
+					//salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10GU's
 					itemLineCount = salesOrderRecord.getLineItemCount('item');
 					
 					//Get the customer & the subsidiary
@@ -72,12 +72,16 @@ function assignWoToSoARS(type)
 						var itemId = salesOrderRecord.getLineItemValue('item', 'item', int);
 						var itemBackorder = Number(salesOrderRecord.getLineItemValue('item', 'quantitybackordered', int));
 						var itemWorksOrder = salesOrderRecord.getLineItemValue('item', 'woid', int);
-					
+						var itemLine = salesOrderRecord.getLineItemValue('item', 'line', int);
+						
 						if(itemType == 'Assembly' && itemBackorder > 0 && (itemWorksOrder == null || itemWorksOrder == ''))
 							{
 								//Create a works order 
 								//
-								var worksOrderRecord = nlapiCreateRecord('workorder', {recordmode: 'dynamic'}); //10GU's
+								var worksOrderRecord = nlapiCreateRecord('workorder', {recordmode: 'dynamic', specialorder: 'T'}); //10GU's
+								worksOrderRecord.setFieldValue('sourcetransactionid', salesOrderId);
+								worksOrderRecord.setFieldValue('sourcetransactionline', itemLine);
+								worksOrderRecord.setFieldValue('specialorder', 'T');
 								worksOrderRecord.setFieldValue('subsidiary', salesOrderSubsidiary);
 								worksOrderRecord.setFieldValue('entity', salesOrderEntity);
 								worksOrderRecord.setFieldValue('assemblyitem', itemId);
@@ -89,13 +93,15 @@ function assignWoToSoARS(type)
 								
 								//Update the sales order line with the works order
 								//
-								salesOrderRecord.setLineItemValue('item', 'woid', int, worksOrderId);
+								//salesOrderRecord.setLineItemValue('item', 'createwo', int, 'T');
+								//salesOrderRecord.setLineItemValue('item', 'woid', int, worksOrderId);
+								
 							}
 					}
 					
 					//Save the sales order
 					//
-					nlapiSubmitRecord(salesOrderRecord, false, true); //20GU's
+					//nlapiSubmitRecord(salesOrderRecord, false, true); //20GU's
 				}
 			else
 				{
