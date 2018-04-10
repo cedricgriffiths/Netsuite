@@ -1032,7 +1032,7 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("type","item",null),
 							   new nlobjSearchColumn("description","item",null),
 							   new nlobjSearchColumn("mainline",null,null),
-							   new nlobjSearchColumn("custitem_bbs_item_instructions","item",null),
+//SMI							   new nlobjSearchColumn("custitem_bbs_item_instructions","item",null),
 							   new nlobjSearchColumn("quantitycommitted",null,null),
 							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
 							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
@@ -1089,7 +1089,7 @@ function productionBatchSuitelet(request, response)
 					
 					if(thisEntity !=  null && thisEntity != '')
 					{
-						subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
+//SMI					subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
 						subGroup = (subGroup == null ? '' : subGroup);
 					}
 					
@@ -1193,7 +1193,8 @@ function productionBatchSuitelet(request, response)
 					if(searchResultSet != null)
 						{
 							var thisFinishedItem = '';
-						
+							var woSpecInst = '';
+							
 							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 							{
 								var woId = searchResultSet[int3].getId();
@@ -1203,7 +1204,7 @@ function productionBatchSuitelet(request, response)
 								var woAssemblyItemQty = (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
 								var woAssemblyItemCommitted = (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
 								var woMainline = searchResultSet[int3].getValue('mainline');
-								var woSpecInst = searchResultSet[int3].getValue("custitem_bbs_item_instructions","item");
+//SMI							var woSpecInst = searchResultSet[int3].getValue("custitem_bbs_item_instructions","item");
 								var woItemType = searchResultSet[int3].getValue("type","item");
 								var woCommitStatus = searchResultSet[int3].getText("custbody_bbs_commitment_status");
 								var woAssemblyItemSequence = searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");

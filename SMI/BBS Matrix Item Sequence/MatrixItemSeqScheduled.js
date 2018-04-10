@@ -16,6 +16,8 @@ function scheduled(type)
 			[
 			   ["matrixchild","is","T"], 
 			   "AND", 
+			   ["isinactive","is","F"], 
+			   "AND", 
 			   ["custitem_bbs_matrix_item_seq","isempty",""]
 			], 
 			[
@@ -182,12 +184,19 @@ function resequence(recType, recId)
 	//Update the item record with the full sequence number
 	//
 	itemRecord.setFieldValue('custitem_bbs_matrix_item_seq', fullSequence);
-	
+
 	//Submit the item record for update
 	//
-	nlapiSubmitRecord(itemRecord, false, true);
+	try
+		{
+			nlapiSubmitRecord(itemRecord, false, true);
+		}
+	catch(err)
+		{
+			nlapiLogExecution('DEBUG', 'Item Update Failed', itemRecord.getId() + ' ' + err.message);
+		}
 	
-	nlapiLogExecution('DEBUG', 'Item Updated', itemRecord.getId());
+	//nlapiLogExecution('DEBUG', 'Item Updated', itemRecord.getId());
 }
 
 
