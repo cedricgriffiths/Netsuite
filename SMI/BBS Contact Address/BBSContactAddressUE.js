@@ -20,14 +20,22 @@ function contactAddressBRL(type, form, request)
 	if(type == 'edit' || type == 'view')
 		{
 			var addresssText = '';
+			var addresssDepotText = '';
+		
 			var fieldGroup = form.addFieldGroup('custpage_cust_address', 'Office Address', 'main');
+			var fieldGroup = form.addFieldGroup('custpage_cust_depot_address', 'Depot Address', 'main');
 			
 			var companyAddressField = form.addField('custpage_bbs_comp_address', 'textarea', 'Office Address', null, 'custpage_cust_address');
 			companyAddressField.setDisplayType('readonly');
 			
+			var depotAddressField = form.addField('custpage_bbs_depot_address', 'textarea', 'Depot Address', null, 'custpage_cust_depot_address');
+			depotAddressField.setDisplayType('readonly');
 			
 			var companyId = nlapiGetFieldValue('company');
+			var depotId = nlapiGetFieldValue('custentity1');
 			
+			//Company address sourcing
+			//
 			if(companyId != null && companyId != '')
 				{
 					var companyRecord = nlapiLoadRecord('customer', companyId);
@@ -56,5 +64,36 @@ function contactAddressBRL(type, form, request)
 								}
 						}
 				}
+			
+			//Depot address sourcing
+			//
+			if(depotId != null && depotId != '' && companyId != null && companyId != '')
+			{
+				var companyRecord = nlapiLoadRecord('customer', companyId);
+				
+				if(companyRecord)
+					{
+						var addressLines = companyRecord.getLineItemCount('addressbook');
+						
+						for (var int = 1; int <= addressLines; int++) 
+							{
+								var addressId = companyRecord.getLineItemValue('addressbook', 'addressid', int);
+								
+								if(addressId == depotId)
+									{
+										addresssDepotText = companyRecord.getLineItemValue('addressbook', 'addressbookaddress_text', int);
+										
+										if(type == 'view')
+											{
+												addresssDepotText = addresssDepotText.replace(/\r\n/g, "<br/>");
+											}
+										
+										depotAddressField.setDefaultValue(addresssDepotText);
+										
+										break;
+									}
+							}
+					}
+			}
 		}
 }
