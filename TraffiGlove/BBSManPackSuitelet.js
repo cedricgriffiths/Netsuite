@@ -170,32 +170,32 @@ function filteredItemSearchSuitelet(request, response){
 		case 1:	
 				//Add a select field to pick the department from
 				//
-				var deptField = form.addField('custpage_dept_select', 'select', 'Department', null, 'custpage_grp2');
-				
-				//And add the departments to the select list 
-				//
-				var departments = null;
-				
-				var deptFilters = new Array();
-				deptFilters[0] = new nlobjSearchFilter( 'custrecord_bbs_department_customer', null, 'anyof', customerId);
-				
-				var deptColumns = new Array();
-				deptColumns[0] = new nlobjSearchColumn( 'name' );
-				
-				departments = nlapiSearchRecord('customrecord_bbs_customer_department', null, deptFilters, deptColumns);
-				
-				deptField.addSelectOption(0, '');
-			
-				if(departments)
-				{
-					for (var int = 0; int < departments.length; int++) 
-					{
-						var deptName = departments[int].getValue('name');
-						var deptId = departments[int].getId();
-						
-						deptField.addSelectOption(deptId, deptName);
-					}
-				}
+//				var deptField = form.addField('custpage_dept_select', 'select', 'Department', null, 'custpage_grp2');
+//				
+//				//And add the departments to the select list 
+//				//
+//				var departments = null;
+//				
+//				var deptFilters = new Array();
+//				deptFilters[0] = new nlobjSearchFilter( 'custrecord_bbs_department_customer', null, 'anyof', customerId);
+//				
+//				var deptColumns = new Array();
+//				deptColumns[0] = new nlobjSearchColumn( 'name' );
+//				
+//				departments = nlapiSearchRecord('customrecord_bbs_customer_department', null, deptFilters, deptColumns);
+//				
+//				deptField.addSelectOption(0, '');
+//			
+//				if(departments)
+//				{
+//					for (var int = 0; int < departments.length; int++) 
+//					{
+//						var deptName = departments[int].getValue('name');
+//						var deptId = departments[int].getId();
+//						
+//						deptField.addSelectOption(deptId, deptName);
+//					}
+//				}
 				
 			
 				//Add a select field to pick the employee from
@@ -206,16 +206,18 @@ function filteredItemSearchSuitelet(request, response){
 				//
 				var contacts = null;
 				
-				if(depotId != null && depotId != '')
-					{
+//				if(depotId != null && depotId != '')
+//					{
 						var contactFilters = new Array();
-						contactFilters[0] = new nlobjSearchFilter( 'custentity_bbs_contact_depot', null, 'anyof', depotId);
+//						contactFilters[0] = new nlobjSearchFilter( 'custentity_bbs_contact_depot', null, 'anyof', depotId);
+						contactFilters[0] = new nlobjSearchFilter( 'isinactive', null, 'is', 'F');
+						contactFilters[1] = new nlobjSearchFilter( 'company', null, 'anyof', customerId);
 						
 						var contactColumns = new Array();
 						contactColumns[0] = new nlobjSearchColumn( 'entityid' );
 						
 						contacts = nlapiSearchRecord('contact', null, contactFilters, contactColumns);
-					}
+//					}
 				
 				contactField.addSelectOption(0, '');
 				
@@ -278,9 +280,9 @@ function filteredItemSearchSuitelet(request, response){
 		case 2:	
 				//Filter the items to display based on the criteria chosen in stage 1
 				//
-				var deptField = form.addField('custpage_department_select', 'text', 'Department', null, 'custpage_grp2');
-				deptField.setDisplayType('disabled');
-				deptField.setDefaultValue(deptName);
+//				var deptField = form.addField('custpage_department_select', 'text', 'Department', null, 'custpage_grp2');
+//				deptField.setDisplayType('disabled');
+//				deptField.setDefaultValue(deptName);
 		
 				var contactField = form.addField('custpage_contact_select', 'text', 'Employee', null, 'custpage_grp2');
 				contactField.setDisplayType('disabled');
