@@ -329,17 +329,21 @@ function createAssembliesSuitelet(request, response){
 							var sublistFieldCost = sublist.addField(sublistId + '_cost', 'currency', 'Cost', null);
 							var sublistFieldSales = sublist.addField(sublistId + '_sales', 'currency', 'Sales Price', null);
 							var sublistFieldMargin = sublist.addField(sublistId + '_margin', 'text', 'Margin', null);
-							var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
-							var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
-							var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Web Product', null);
+//SMI						var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
+//SMI						var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
+//SMI						var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Web Product', null);
+							
+/*SMI*/						var sublistFieldOpt2Id = sublist.addField(sublistId + '_opt2_id', 'text', 'Colour Id', null);
+							
 							
 							//Set entry fields
 							//
 							sublistFieldSales.setDisplayType('entry');
 							sublistFieldSales.setMandatory(true);
 							sublistFieldMargin.setDisplayType('entry');
-							sublistFieldMin.setDisplayType('entry');
-							sublistFieldMax.setDisplayType('entry');
+//SMI						sublistFieldMin.setDisplayType('entry');
+//SMI						sublistFieldMax.setDisplayType('entry');
+/*SMI*/						sublistFieldOpt2Id.setDisplayType('hidden');
 							
 							//Hide the id field
 							//
@@ -458,7 +462,7 @@ function createAssembliesSuitelet(request, response){
 													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
 													var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
 													
-													//Build up the list of available coulours & sizes
+													//Build up the list of available colours & sizes
 													//
 													matrixColours[matrixOpt2Id] = matrixOpt2;
 													matrixSize1s[matrixOpt3Id] = matrixOpt3;
@@ -475,6 +479,8 @@ function createAssembliesSuitelet(request, response){
 													sublist.setLineItemValue(sublistId + '_opt3', sublistLine, matrixOpt3);
 													sublist.setLineItemValue(sublistId + '_opt4', sublistLine, matrixOpt4);
 													sublist.setLineItemValue(sublistId + '_cost', sublistLine, matrixCost);
+													sublist.setLineItemValue(sublistId + '_opt2_id', sublistLine, matrixOpt2Id);
+													
 												}
 										}
 									
@@ -625,11 +631,13 @@ function createAssembliesSuitelet(request, response){
 							{
 								var item = request.getLineItemValue(sublistId, sublistId + '_id', int);
 								var salesPrice = request.getLineItemValue(sublistId, sublistId + '_sales', int);
-								var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
-								var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
-								var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
+//SMI							var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
+//SMI							var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
+//SMI							var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
+/*SMI*/							var colourId = request.getLineItemValue(sublistId, sublistId + '_opt2_id', int);
 								
-								var data = [item,salesPrice,minStock,maxStock,webProduct];
+//SMI							var data = [item,salesPrice,minStock,maxStock,webProduct];
+								var data = [item,salesPrice,colourId];
 								
 								//Build up the parent & child object
 								//

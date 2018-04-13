@@ -513,9 +513,14 @@ function updateSalesPrice(baseParentId)
 				{
 					sales = Number(sales);
 					cost = Number(cost);
-							
-					var margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
 						
+					var margin = null;
+					
+					if(sales != null && sales != '' && sales != 0)
+						{
+							margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
+						}
+					
 					nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
 				}
 		}
