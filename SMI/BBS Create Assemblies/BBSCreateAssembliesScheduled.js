@@ -31,6 +31,8 @@ function createAssembliesScheduled(type)
 	nlapiLogExecution('DEBUG', 'finishId', finishId);
 	nlapiLogExecution('DEBUG', 'finishrefId', finishrefId);
 	
+	
+	
 	//Read the finish ref textual name
 	//
 	var finishrefText = nlapiLookupField('customlist_bbs_item_finish_ref', finishrefId, 'name');
@@ -102,7 +104,7 @@ function createAssembliesScheduled(type)
 
 									//Get data from the customer record
 									//
-									var customerRef = customerRecord.getFieldValue('entityid');
+									var customerRef = customerRecord.getFieldValue('custentity_bbs_legacy_accnumber');
 									var customerSubsidiary = customerRecord.getFieldValue('subsidiary');
 									var customerParent = customerRecord.getFieldValue('parent');
 									customerPriceLevel = customerRecord.getFieldValue('pricelevel');
@@ -118,9 +120,11 @@ function createAssembliesScheduled(type)
 									
 									//Get data from the subsidiary record
 									//
-									var subsidiaryReocrd = nlapiLoadRecord('subsidiary', customerSubsidiary);
-									var subsidiaryDefaultLocation = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location');
-									var subsidiaryDefaultBin = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location_bin');
+//SMI								var subsidiaryReocrd = nlapiLoadRecord('subsidiary', customerSubsidiary);
+//SMI								var subsidiaryDefaultLocation = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location');
+//SMI								var subsidiaryDefaultBin = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location_bin');
+
+									var subsidiaryDefaultLocation = '1';
 									
 									//Get data from the base parent record
 									//
@@ -134,7 +138,7 @@ function createAssembliesScheduled(type)
 									//Get data from the finish item
 									//
 									var finishItemDescription = finishRecord.getFieldValue('description');
-									var newParentDescription = parentSalesDescription + ' with ' + finishItemDescription;
+									var newParentDescription = parentSalesDescription + ' WITH ' + finishItemDescription;
 									
 									//Initialise the new parent id
 									//
@@ -190,16 +194,18 @@ function createAssembliesScheduled(type)
 													newParentRecord.setFieldValue('costingmethod', 'FIFO');
 													newParentRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
 													newParentRecord.setFieldValue('matrixitemnametemplate', template);
-													newParentRecord.setFieldValue('unitstype', 1);
-													newParentRecord.setFieldValue('saleunit', 1);
-													newParentRecord.setFieldValue('stockunit', 1);
-													newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
-													newParentRecord.setFieldValue('taxschedule', 1);
-													newParentRecord.setFieldValue('usebins', 'T');
+//SMI												newParentRecord.setFieldValue('unitstype', 1);
+//SMI												newParentRecord.setFieldValue('saleunit', 1);
+//SMI												newParentRecord.setFieldValue('stockunit', 1);
+//SMI												newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
+//SMI												newParentRecord.setFieldValue('taxschedule', 1);
+//SMI												newParentRecord.setFieldValue('usebins', 'T');
+/*SMI*/												newParentRecord.setFieldValue('usebins', 'F');
+/*SMI*/												newParentRecord.setFieldValue('salestaxcode', 6);
 													newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
 													newParentRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
 													newParentRecord.setFieldValue('matchbilltoreceipt', 'T');
-													newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
+//SMI												newParentRecord.setFieldValue('custitem_sw_base_parent', parent);
 													newParentRecord.setFieldValue('description', newParentDescription);
 						
 													//Copy in the custom fields
@@ -227,10 +233,10 @@ function createAssembliesScheduled(type)
 													
 													//Add a bin number to the assembly
 													//
-													newParentRecord.selectNewLineItem('binnumber');
-													newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-													newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-													newParentRecord.commitLineItem('binnumber', false);					
+//SMI												newParentRecord.selectNewLineItem('binnumber');
+//SMI												newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+//SMI												newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+//SMI												newParentRecord.commitLineItem('binnumber', false);					
 													
 													//Now save the assembly
 													//
@@ -296,7 +302,7 @@ function createAssembliesScheduled(type)
 																			//Get data from the child record
 																			//
 																			var childSalesDescription = childRecord.getFieldValue('salesdescription');
-																			var newChildDescription = childSalesDescription + ' with ' + finishItemDescription;
+																			var newChildDescription = childSalesDescription + ' WITH ' + finishItemDescription;
 																				
 																			var childName = childRecord.getFieldValue('itemid');
 																			var newChildName = customerRef + ' ' + childName + ' ' + finishrefText;
@@ -322,16 +328,18 @@ function createAssembliesScheduled(type)
 																					newChildRecord.setFieldValue('costcategory', 4);
 																					newChildRecord.setFieldValue('costingmethod', 'FIFO');
 																					newChildRecord.setFieldValue('effectivebomcontrol', 'EFFECTIVE_DATE');
-																					newChildRecord.setFieldValue('unitstype', 1);
-																					newChildRecord.setFieldValue('saleunit', 1);
-																					newChildRecord.setFieldValue('stockunit', 1);
-																					newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
-																					newChildRecord.setFieldValue('taxschedule', 1);
-																					newChildRecord.setFieldValue('usebins', 'T');
+//SMI																				newChildRecord.setFieldValue('unitstype', 1);
+//SMI																				newChildRecord.setFieldValue('saleunit', 1);
+//SMI																				newChildRecord.setFieldValue('stockunit', 1);
+//SMI																				newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
+//SMI																				newChildRecord.setFieldValue('taxschedule', 1);
+/*SMI*/																				newChildRecord.setFieldValue('usebins', 'F');
+//SMI																				newChildRecord.setFieldValue('usebins', 'T');
+/*SMI*/																				newChildRecord.setFieldValue('salestaxcode', 6);
 																					newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
 																					newChildRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
 																					newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
-																					newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
+//SMI																				newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
 																					newChildRecord.setFieldValue('description', newChildDescription);
 																					
 																					//Copy in the custom fields
@@ -400,10 +408,10 @@ function createAssembliesScheduled(type)
 										
 																					//Add a bin number to the assembly
 																					//
-																					newChildRecord.selectNewLineItem('binnumber');
-																					newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-																					newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-																					newChildRecord.commitLineItem('binnumber', false);
+//SMI																				newChildRecord.selectNewLineItem('binnumber');
+//SMI																				newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+//SMI																				newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+//SMI																				newChildRecord.commitLineItem('binnumber', false);
 																					
 																					//Add components to the assembly
 																					//
