@@ -95,7 +95,7 @@ function matrixOutputSuitelet(request, response)
 				   new nlobjSearchColumn("amount",null,null), 
 				   new nlobjSearchColumn("salesdescription","item",null), 
 				   new nlobjSearchColumn("parent","item",null).setSort(false), 
-				   new nlobjSearchColumn("custitem_bbs_item_colouritem","item",null), 
+				   new nlobjSearchColumn("custitem_bbs_item_colour","item",null), 
 				   new nlobjSearchColumn("custitem_bbs_item_size1","item",null), 
 				   new nlobjSearchColumn("custitem_bbs_item_size2","item",null), 
 				   new nlobjSearchColumn("type","item",null)
@@ -153,7 +153,7 @@ function matrixOutputSuitelet(request, response)
 			var itemId = purchaseorderSearch[int].getValue("item",null,null);
 			var itemQty = Math.abs(Number(purchaseorderSearch[int].getValue("quantity",null,null)));
 			var itemRate = Math.abs(Number(purchaseorderSearch[int].getValue("rate",null,null)));
-			var itemColour = purchaseorderSearch[int].getValue("custitem_bbs_item_colouritem","item",null);
+			var itemColour = purchaseorderSearch[int].getValue("custitem_bbs_item_colour","item",null);
 			var itemSize = purchaseorderSearch[int].getValue("custitem_bbs_item_size1","item",null);
 			var itemLength = purchaseorderSearch[int].getValue("custitem_bbs_item_size2","item",null);
 			
