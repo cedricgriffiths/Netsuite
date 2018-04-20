@@ -16,11 +16,14 @@ function scheduled(type)
 	//
 	var context = nlapiGetContext();
 	var salesOrderId = context.getSetting('SCRIPT', 'custscript_bbs_so_id');
+	nlapiLogExecution('DEBUG', 'S/O Id to process', salesOrderId);
 	
 	//Load up the sales order record
 	//
 	var salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId); //10GU's
 	var itemLineCount = salesOrderRecord.getLineItemCount('item');
+	
+	nlapiLogExecution('DEBUG', 'S/O lines to process', itemLineCount);
 	
 	//Get the customer and the subsidiary
 	//
@@ -35,7 +38,8 @@ function scheduled(type)
 		var itemId = salesOrderRecord.getLineItemValue('item', 'item', int);
 		var itemBackorder = Number(salesOrderRecord.getLineItemValue('item', 'quantitybackordered', int));
 		var itemWorksOrder = salesOrderRecord.getLineItemValue('item', 'woid', int);
-	
+		var itemLine = salesOrderRecord.getLineItemValue('item', 'line', int);
+		
 		//See if we have any assemblies that are on backorder that do not have a works order assigned to them
 		//
 		if(itemType == 'Assembly' && itemBackorder > 0 && (itemWorksOrder == null || itemWorksOrder == ''))
@@ -49,20 +53,16 @@ function scheduled(type)
 				worksOrderRecord.setFieldValue('entity', salesOrderEntity);
 				worksOrderRecord.setFieldValue('assemblyitem', itemId);
 				worksOrderRecord.setFieldValue('quantity', itemBackorder);
+				worksOrderRecord.setFieldValue('soid', salesOrderId);
+				worksOrderRecord.setFieldValue('soline', itemLine);
+				worksOrderRecord.setFieldValue('specord', 'T');
 				
 				//Save the works order
 				//
 				var worksOrderId = nlapiSubmitRecord(worksOrderRecord, true, true); //20GU's
 				
-				//Update the order line with the works order id
-				//
-				salesOrderRecord.setLineItemValue('item', 'woid', int, worksOrderId);
 			}
 	}
-	
-	//Save the sales order
-	//
-	nlapiSubmitRecord(salesOrderRecord, false, true); //20GU's
 
 }
 
@@ -76,7 +76,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 100)
+	if(remaining < 200)
 		{
 			nlapiYieldScript();
 		}

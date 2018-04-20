@@ -1,0 +1,830 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       03 Mar 2017     cedricgriffiths
+ *
+ */
+
+/**
+ * @param {nlobjRequest} request Request object
+ * @param {nlobjResponse} response Response object
+ * @returns {Void} Any output is written via response object
+ */
+function filteredItemSearchSuitelet(request, response){
+
+	if (request.getMethod() == 'GET') 
+	{
+		//Get request - so return a form for the user to process
+		//
+		
+		//Get parameters
+		//
+		var customerId = request.getParameter('customerid');
+		var parentId = request.getParameter('parentid');
+		var contactId = request.getParameter('contactid');
+		var depotId = request.getParameter('depotid');
+		var depotName = request.getParameter('depotname');
+		var employeeName = request.getParameter('employeename');
+		var employeeId = request.getParameter('employeeid');
+		var gradeName = request.getParameter('gradename');
+		var styleName = request.getParameter('stylename');
+		var gradeId = request.getParameter('gradeid');
+		var stage = Number(request.getParameter('stage'));
+		var deptId = request.getParameter('deptid');
+		var deptName = request.getParameter('deptname');
+		var finishId = request.getParameter('finishid');
+		var finishName = request.getParameter('finishname');
+		
+		// Create a form
+		//
+		var form = nlapiCreateForm('Filtered Item Selection Processing', true);
+		form.setScript('customscript_bbs_fis_suitelet_client');
+		
+		//Store the current stage in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var stageField = form.addField('custpage_stage', 'integer', 'stage');
+		stageField.setDisplayType('hidden');
+		stageField.setDefaultValue(stage);
+		
+		var customerRecord = nlapiLoadRecord('customer', customerId);
+		var custParent = customerRecord.getFieldText('parent');
+		var custParentId = customerRecord.getFieldValue('parent');
+		
+		form.setTitle('Filtered Item Selection');
+		
+		//Add a field group for customer/parent
+		//
+		var fieldGroup1 = form.addFieldGroup('custpage_grp1', 'Customer / Parent');
+		fieldGroup1.setSingleColumn(false);
+		
+		//Display the customer name as based on the customer id passed in to the suitelet
+		//
+		var customerField = form.addField('custpage_customer_select', 'text', 'Customer', null,'custpage_grp1');
+		customerField.setDisplayType('disabled');
+		customerField.setDisplaySize(60);
+		var customerName = nlapiLookupField('customer', customerId, 'companyname');
+		customerField.setDefaultValue(customerName);
+
+		//Display the customer's parent name 
+		//
+		var parentField = form.addField('custpage_parent_select', 'text', 'Parent', null,'custpage_grp1');
+		parentField.setDisplayType('disabled');
+		//parentField.setLayoutType('outsidebelow', 'startrow');
+		parentField.setDisplaySize(60);
+		parentField.setDefaultValue(custParent);
+		
+		//Add a field group for style
+		//
+		var fieldGroup3 = form.addFieldGroup('custpage_grp3', 'Subitem Of / Style');
+		fieldGroup3.setSingleColumn(false);
+		
+		//Add a field group for depot/department/employee/grade
+		//
+		var fieldGroup2 = form.addFieldGroup('custpage_grp2', 'Depot / Department / Employee / Grade');
+		fieldGroup2.setSingleColumn(false);
+		
+		var depotField = form.addField('custpage_depot_select', 'text', 'Depot', null,'custpage_grp2');
+		depotField.setDisplayType('disabled');
+		depotField.setDisplaySize(60);
+		depotField.setDefaultValue(depotName);
+
+		
+		//Hold the customer id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var customerIdField = form.addField('custpage_companyid', 'text', 'Company Id', null,'custpage_grp1');
+		customerIdField.setDisplayType('hidden');
+		customerIdField.setDefaultValue(customerId);
+		
+		//Hold the parent id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var parentIdField = form.addField('custpage_parentid', 'text', 'Parent Id', null,'custpage_grp1');
+		parentIdField.setDisplayType('hidden');
+		parentIdField.setDefaultValue(custParentId);
+
+		//Hold the depot id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var depotField = form.addField('custpage_depotid', 'text', 'Depot Id', null,'custpage_grp1');
+		depotField.setDisplayType('hidden');
+		depotField.setDefaultValue(depotId);
+
+		//Hold the depot text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var depotTextField = form.addField('custpage_depot_name', 'text', 'Depot Name', null,'custpage_grp1');
+		depotTextField.setDisplayType('hidden');
+		depotTextField.setDefaultValue(depotName);
+
+		//Hold the finish id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var finishField = form.addField('custpage_finishid', 'text', 'Finish Id', null,'custpage_grp1');
+		finishField.setDisplayType('hidden');
+		finishField.setDefaultValue(finishId);
+
+		//Hold the finish text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var finishTextField = form.addField('custpage_finish_name', 'text', 'Finish Name', null,'custpage_grp1');
+		finishTextField.setDisplayType('hidden');
+		finishTextField.setDefaultValue(finishName);
+
+		//Hold the department id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var deptField = form.addField('custpage_deptid', 'text', 'Department Id', null,'custpage_grp1');
+		deptField.setDisplayType('hidden');
+		deptField.setDefaultValue(deptId);
+
+		//Hold the department text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var deptTextField = form.addField('custpage_dept_name', 'text', 'Department Name', null,'custpage_grp1');
+		deptTextField.setDisplayType('hidden');
+		deptTextField.setDefaultValue(deptName);
+
+		//Hold the employee name text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var employeeTextField = form.addField('custpage_employee_name', 'text', 'Employee Name', null,'custpage_grp1');
+		employeeTextField.setDisplayType('hidden');
+		employeeTextField.setDefaultValue(employeeName);
+
+		//Hold the employee id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var employeeIdField = form.addField('custpage_employee_id', 'text', 'Employee Id', null,'custpage_grp1');
+		employeeIdField.setDisplayType('hidden');
+		employeeIdField.setDefaultValue(employeeId);
+
+		//Hold the grade text in a hidden field so that we can retrieve it later in the POST section
+		//
+		var gradeTextField = form.addField('custpage_grade_name', 'text', 'Grade Name', null,'custpage_grp1');
+		gradeTextField.setDisplayType('hidden');
+		gradeTextField.setDefaultValue(gradeName);
+
+		//Hold the grade id in a hidden field so that we can retrieve it later in the POST section
+		//
+		var gradeIdField = form.addField('custpage_grade_id', 'text', 'Grade Id', null,'custpage_grp1');
+		gradeIdField.setDisplayType('hidden');
+		gradeIdField.setDefaultValue(gradeId);
+
+
+		//Work out what the form layout should look like based on the stage number
+		//
+		switch(stage)
+		{
+		case 1:	
+				//Add a select field to pick the department from
+				//
+//				var deptField = form.addField('custpage_dept_select', 'select', 'Department', null, 'custpage_grp2');
+//				
+//				//And add the departments to the select list 
+//				//
+//				var departments = null;
+//				
+//				var deptFilters = new Array();
+//				deptFilters[0] = new nlobjSearchFilter( 'custrecord_bbs_department_customer', null, 'anyof', customerId);
+//				
+//				var deptColumns = new Array();
+//				deptColumns[0] = new nlobjSearchColumn( 'name' );
+//				
+//				departments = nlapiSearchRecord('customrecord_bbs_customer_department', null, deptFilters, deptColumns);
+//				
+//				deptField.addSelectOption(0, '');
+//			
+//				if(departments)
+//				{
+//					for (var int = 0; int < departments.length; int++) 
+//					{
+//						var deptName = departments[int].getValue('name');
+//						var deptId = departments[int].getId();
+//						
+//						deptField.addSelectOption(deptId, deptName);
+//					}
+//				}
+				
+			
+				//Add a select field to pick the employee from
+				//
+				var contactField = form.addField('custpage_contact_select', 'select', 'Employee', null, 'custpage_grp2');
+				
+				//And add the employees to the select list 
+				//
+				var contacts = null;
+				
+//				if(depotId != null && depotId != '')
+//					{
+						var contactFilters = new Array();
+//						contactFilters[0] = new nlobjSearchFilter( 'custentity_bbs_contact_depot', null, 'anyof', depotId);
+						contactFilters[0] = new nlobjSearchFilter( 'isinactive', null, 'is', 'F');
+						contactFilters[1] = new nlobjSearchFilter( 'company', null, 'anyof', customerId);
+						
+						var contactColumns = new Array();
+						contactColumns[0] = new nlobjSearchColumn( 'entityid' );
+						
+						contacts = nlapiSearchRecord('contact', null, contactFilters, contactColumns);
+//					}
+				
+				contactField.addSelectOption(0, '');
+				
+				if(contacts)
+					{
+						for (var int = 0; int < contacts.length; int++) 
+						{
+							var contactName = contacts[int].getValue('entityid');
+							var contactId = contacts[int].getId();
+							
+							contactField.addSelectOption(contactId, contactName);
+						}
+					}
+				
+				//Add the grade field
+				//
+				var gradeField = form.addField('custpage_grade_select', 'text', 'Employee Grade', null,'custpage_grp2');
+				gradeField.setDisplayType('disabled');
+				gradeField.setDisplaySize(60);
+				
+				//Add the style field
+				//
+				var styleField = form.addField('custpage_style_select', 'text', 'Style', null,'custpage_grp3');
+				styleField.setDisplaySize(60);
+				
+				var warningField = form.addField('custpage_warning', 'inlinehtml', 'Warning', null,'custpage_grp3');
+				warningField.setLayoutType('outsidebelow');
+				
+				warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Warning: Ommitting style when not searching by employee may cause the search to timeout</p>');
+				
+				//Add the finish field
+				//
+				var finishField = form.addField('custpage_finish_select', 'select', 'Finish', 'customlist_bbs_item_finish_ref', 'custpage_grp3');
+				finishField.setDisplaySize(100);
+				finishField.setBreakType('startcol');
+				finishField.setDisplayType('hidden');
+				
+				//Add the finish item field (NEW)
+				//
+				var finishItemField = form.addField('custpage_finish_item_select', 'select', 'Finish Item', null, 'custpage_grp3');
+				//finishItemField.setDisplaySize(100);
+				
+				var finishesList = getFinishes(customerId, custParentId);
+				
+				finishItemField.addSelectOption(0, '', true);
+				
+				for (var finishes in finishesList) 
+				{
+					var tempData = finishesList[finishes];
+					finishItemField.addSelectOption(tempData[0], tempData[1], false);
+				}
+				
+				
+				//Add a submit button to the form
+				//
+				form.addSubmitButton('Select Items');
+
+				break;
+		
+		case 2:	
+				//Filter the items to display based on the criteria chosen in stage 1
+				//
+//				var deptField = form.addField('custpage_department_select', 'text', 'Department', null, 'custpage_grp2');
+//				deptField.setDisplayType('disabled');
+//				deptField.setDefaultValue(deptName);
+		
+				var contactField = form.addField('custpage_contact_select', 'text', 'Employee', null, 'custpage_grp2');
+				contactField.setDisplayType('disabled');
+				contactField.setDefaultValue(employeeName);
+			
+				var gradeField = form.addField('custpage_grade_select', 'text', 'Employee Grade', null, 'custpage_grp2');
+				gradeField.setDisplayType('disabled');
+				gradeField.setDefaultValue(gradeName);
+			
+				//Add the style field
+				//
+				var styleField = form.addField('custpage_style_select', 'text', 'Style', null,'custpage_grp3');
+				styleField.setDisplayType('disabled');
+				styleField.setDefaultValue(styleName);
+				
+				//Add the finish field
+				//
+				var finishField = form.addField('custpage_finish_select', 'text', 'Finish', null, 'custpage_grp3');
+				finishField.setDisplayType('disabled');
+				finishField.setDefaultValue(finishName);
+		
+				var tab = form.addTab('custpage_tab_items', 'Items To Select');
+				tab.setLabel('Items To Select');
+				
+				var tab2 = form.addTab('custpage_tab_items2', '');
+				
+				form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+				
+				form.addField('custpage_update_qty', 'integer', 'Quantity', null, 'custpage_tab_items');
+				
+				var subList = form.addSubList('custpage_sublist_items', 'list', 'Items To Select', 'custpage_tab_items');
+				
+				subList.addButton('custpage_update_all', 'Update All Quantities', 'updateItemQuantity()');
+				
+				subList.setLabel('Items To Select');
+				
+				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
+				var listItem = subList.addField('custpage_sublist_item', 'text', 'Item', null);
+				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
+				var listDescription = subList.addField('custpage_sublist_desc', 'text', 'Description', null);
+				
+				var listSize1 = subList.addField('custpage_sublist_size1', 'text', 'Size 1', null);
+				var listSize2 = subList.addField('custpage_sublist_size2', 'text', 'Size 2', null);
+				var listColour = subList.addField('custpage_sublist_colour', 'text', 'Colour', null);
+				
+				
+				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Belongs To', null);
+				var listId = subList.addField('custpage_sublist_id', 'integer', 'Id', null);
+				var listParent = subList.addField('custpage_sublist_parent', 'text', 'Parent/Style', null);
+				var listFinish = subList.addField('custpage_sublist_finish', 'text', 'Finish', null);
+				
+				listQty.setDisplayType('entry');
+				listId.setDisplayType('hidden');
+				
+				var itemSearch = null;
+				var filterArray = [];
+				var hasWebCat = false;
+				var usingWebCat = false;
+				var userMessage = '';
+				
+				//See if the customer has a web catalogue
+				//
+				
+				/*
+				var webProductSearch = nlapiSearchRecord("customrecord_bbs_customer_web_product",null,
+						[
+						   ["custrecord_bbs_web_product_customer","anyof",customerId]
+						], 
+						[
+						   new nlobjSearchColumn("id",null,null)
+						]
+						);
+				
+				
+				if (webProductSearch != null && webProductSearch.length > 0)
+					{
+						hasWebCat = true;
+					}
+					
+				*/
+				
+				//Are we searching for a Man Pack - this take prescidence
+				//
+				if(gradeId != null && gradeId != '')
+				{
+					var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
+					//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Employee Grade To Display Available Data');
+					userMessage = '<p style="font-size:16px; color:DarkRed;">Using Employee Grade To Display Available Data';
+					
+					//Get available items from the item table based on the chosen grade
+					//
+					filterArray =	[
+					              	 ["isinactive","is","F"], 
+					              	 "AND", 
+					              	 ["type","anyof","InvtPart","Assembly"], 
+					              	 "AND", 
+					              	 ["custrecord_bbs_grade_item.custrecord_bbs_grade_item_grade","anyof",gradeId]
+					              	];
+					
+					itemSearch = nlapiCreateSearch("item", filterArray, 
+							[
+							new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							new nlobjSearchColumn("displayname",null,null), 
+							new nlobjSearchColumn("salesdescription",null,null), 
+							new nlobjSearchColumn("type",null,null), 
+							new nlobjSearchColumn("baseprice",null,null), 
+							new nlobjSearchColumn("custitem_bbs_item_customer",null,null), 
+							new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
+							new nlobjSearchColumn("incomeaccount",null,null),
+							new nlobjSearchColumn("parent",null,null),
+							new nlobjSearchColumn("custitemfinish_type",null,null),
+							new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
+							new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
+							new nlobjSearchColumn("custitem_bbs_item_size2",null,null) 
+							]
+							);
+				}
+				else
+				{	
+					//Does the customer have a web catalogue, if so we must use this
+					//
+					if (hasWebCat)
+					{
+						var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
+						//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Web Catalogue To Display Available Data');
+						userMessage = '<p style="font-size:16px; color:DarkRed;">Using Web Catalogue To Display Available Data';
+						
+						usingWebCat = true;
+						
+						itemSearch = nlapiCreateSearch("customrecord_bbs_customer_web_product",
+								[
+								   ["custrecord_bbs_web_product_customer","anyof",customerId]
+								], 
+								[
+								   new nlobjSearchColumn("id",null,null), 
+								   new nlobjSearchColumn("custrecord_bbs_web_product_item",null,null), 
+								   new nlobjSearchColumn("itemid","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("baseprice","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_customer","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_finish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("incomeaccount","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("salesdescription","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null),
+								   new nlobjSearchColumn("parent","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null),
+								   new nlobjSearchColumn("custitemfinish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null),
+								   new nlobjSearchColumn("custitem_bbs_item_colour","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_size1","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								   new nlobjSearchColumn("custitem_bbs_item_size2","CUSTRECORD_BBS_WEB_PRODUCT_ITEM",null), 
+								]
+								);
+					}
+					else
+					{
+						//If the customer does not have a web catalogue then we default to the standard search
+						//
+						if(parentId != null && parentId != '')
+						{
+							var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
+							//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Customer & Parent To Display Available Data');
+							userMessage = '<p style="font-size:16px; color:DarkRed;">Using Customer & Parent To Display Available Data';
+							
+							filterArray = [
+							               ["isinactive","is","F"], 
+							               "AND",
+							               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
+								           "AND", 
+							               [[["custitem_bbs_item_customer","anyof","@NONE@"],"OR",["custitem_bbs_item_customer","anyof",customerId]],"OR",[["custitem_bbs_item_customer","anyof",parentId],"AND",["custitem_bbs_item_finish_type","anyof","1"]]]
+							               ];
+						}
+						else
+						{
+							var webCatMsg = form.addField('custpage_webcat_message', 'inlinehtml','', null,'custpage_tab_items').setLayoutType('outsidebelow', 'startrow');
+							//webCatMsg.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Using Customer To Display Available Data');
+							userMessage = '<p style="font-size:16px; color:DarkRed;">Using Customer To Display Available Data';
+							
+							filterArray = [
+						               ["isinactive","is","F"], 
+						               "AND",
+						               [["type","anyof","InvtPart"],"OR",[["type","anyof","Assembly"],"AND",["parent","noneof","@NONE@"],"AND",["isphantom","is","F"]]],
+						               "AND", 
+						               [["custitem_bbs_item_customer","anyof","@NONE@"],"OR",["custitem_bbs_item_customer","anyof",customerId]]
+						               ];
+						}
+						
+						//Filter by style if needed
+						//
+						if(styleName != '')
+							{
+							filterArray.push("AND",["parent.name","contains",styleName]);
+							}
+						
+						//Filter by finish if needed
+						//
+						if(finishId != '')
+							{
+							filterArray.push("AND",["custitemfinish_type","anyof",finishId]);
+							}
+						
+						
+						itemSearch = nlapiCreateSearch("item", filterArray, 
+								[
+								new nlobjSearchColumn("itemid",null,null), 
+								new nlobjSearchColumn("displayname",null,null), 
+								new nlobjSearchColumn("salesdescription",null,null), 
+								new nlobjSearchColumn("type",null,null), 
+								new nlobjSearchColumn("baseprice",null,null), 
+								new nlobjSearchColumn("custitem_bbs_item_customer",null,null), 
+								new nlobjSearchColumn("custitem_bbs_item_finish_type",null,null),
+								new nlobjSearchColumn("incomeaccount",null,null),
+								new nlobjSearchColumn("parent",null,null),
+								new nlobjSearchColumn("custitemfinish_type",null,null).setSort(true),
+								new nlobjSearchColumn("custitem_bbs_matrix_item_seq",null,null).setSort(false),
+								new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
+								new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
+								new nlobjSearchColumn("custitem_bbs_item_size2",null,null)
+								]
+								);
+					}
+				}
+				
+				var searchResult = itemSearch.runSearch();
+				
+				//Get the initial set of results
+				//
+				var start = 0;
+				var end = 1000;
+				var searchResultSet = searchResult.getResults(start, end);
+				var resultlen = searchResultSet.length;
+		
+				//If there is more than 1000 results, page through them
+				//
+				while (resultlen == 1000) 
+					{
+							start += 1000;
+							end += 1000;
+		
+							var moreSearchResultSet = searchResult.getResults(start, end);
+							resultlen = moreSearchResultSet.length;
+		
+							searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					}
+					
+				
+				//Copy the results to the sublist
+				//
+				var line = 1;
+				
+				for (var int = 0; int < searchResultSet.length; int++) 
+				{
+					if (usingWebCat)
+						{
+							var account = searchResultSet[int].getValue("incomeaccount","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
+							var style = searchResultSet[int].getText("parent","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
+							var finish = searchResultSet[int].getText("custitemfinish_type","CUSTRECORD_BBS_WEB_PRODUCT_ITEM");
+							
+							if ((account != null && account != '') && (styleName == '' || (styleName != '' && style.indexOf(styleName) != -1)))
+								{
+									subList.setLineItemValue('custpage_sublist_item', line, searchResultSet[int].getValue("itemid","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									subList.setLineItemValue('custpage_sublist_desc', line, searchResultSet[int].getValue("salesdescription","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getValue("custrecord_bbs_web_product_item"));
+									subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText("custitem_bbs_item_customer","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									subList.setLineItemValue('custpage_sublist_parent', line, style);
+									subList.setLineItemValue('custpage_sublist_finish', line, finish);
+									
+									subList.setLineItemValue('custpage_sublist_size1', line, searchResultSet[int].getText("custitem_bbs_item_size1","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									subList.setLineItemValue('custpage_sublist_size2', line, searchResultSet[int].getText("custitem_bbs_item_size2","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									subList.setLineItemValue('custpage_sublist_colour', line, searchResultSet[int].getText("custitem_bbs_item_colour","CUSTRECORD_BBS_WEB_PRODUCT_ITEM"));
+									
+									line++;
+								}
+						}
+					else
+						{
+							var account = searchResultSet[int].getValue('incomeaccount');
+							//var style = searchResultSet[int].getText("parent");
+							
+							//if ((account != null && account != '') && (styleName == '' || (styleName != '' && style.indexOf(styleName) != -1)))
+							if (account != null && account != '')
+								{
+									subList.setLineItemValue('custpage_sublist_item', line, searchResultSet[int].getValue('itemid'));
+									subList.setLineItemValue('custpage_sublist_desc', line, searchResultSet[int].getValue('salesdescription'));
+									subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
+									subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer'));
+									//subList.setLineItemValue('custpage_sublist_parent', line, style);
+									subList.setLineItemValue('custpage_sublist_parent', line, searchResultSet[int].getText("parent"));
+									subList.setLineItemValue('custpage_sublist_finish', line, searchResultSet[int].getText("custitemfinish_type"));
+									
+									subList.setLineItemValue('custpage_sublist_size1', line, searchResultSet[int].getText("custitem_bbs_item_size1"));
+									subList.setLineItemValue('custpage_sublist_size2', line, searchResultSet[int].getText("custitem_bbs_item_size2"));
+									subList.setLineItemValue('custpage_sublist_colour', line, searchResultSet[int].getText("custitem_bbs_item_colour"));
+									
+									line++;
+								}
+						}
+				}
+				
+				webCatMsg.setDefaultValue(userMessage + ' (' + (line - 1).toString() + ')');
+				
+				//Add a mark/unmark button
+				//
+				subList.addMarkAllButtons();
+		
+				form.addSubmitButton('Finish');
+				
+				break;
+			}
+		
+		//Write the response
+		//
+		response.writePage(form);
+	}
+	else
+	{
+		//Post request - so process the returned form
+		//
+		
+		//Get the stage of the manpack processing we are at
+		//
+		var stage = Number(request.getParameter('custpage_stage'));
+		
+		switch(stage)
+		{
+			case 1:
+				//Selected contact/employee
+				//
+				var contactId = request.getParameter('custpage_contact_select');
+				var customerId = request.getParameter('custpage_companyid');
+				var parentId = request.getParameter('custpage_parentid');
+				var depotId = request.getParameter('custpage_depotid');
+				var depotName = request.getParameter('custpage_depot_name');
+				var gradeName = request.getParameter('custpage_grade_name');
+				var gradeId = request.getParameter('custpage_grade_id');
+				var employeeName = request.getParameter('custpage_employee_name');
+				var employeeId = request.getParameter('custpage_employee_id');
+				var deptId = request.getParameter('custpage_deptid');
+				var deptName = request.getParameter('custpage_dept_name');
+				var styleName = request.getParameter('custpage_style_select');
+				var finishId = request.getParameter('custpage_finishid');
+				var finishName = request.getParameter('custpage_finish_name');
+				
+				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
+				//
+				var params = new Array();
+				params['customerid'] = customerId;
+				params['parentid'] = parentId;
+				params['contactid'] = contactId;
+				params['depotid'] = depotId;
+				params['depotname'] = depotName;
+				params['deptid'] = deptId;
+				params['deptname'] = deptName;
+				params['finishid'] = finishId;
+				params['finishname'] = finishName;
+				params['stylename'] = styleName;
+				params['employeename'] = employeeName;
+				params['employeeid'] = employeeId;
+				params['gradename'] = gradeName;
+				params['gradeid'] = gradeId;
+				params['stage'] = '2';
+				
+				response.sendRedirect('SUITELET','customscript_bbs_filtered_item_suitelet', 'customdeploy_bbs_filtered_item_suitelet', null, params);
+				
+				break;
+				
+			case 2:
+				//Selected items to add to sales order
+				//
+				var data = new Array();
+				
+				var lineCount = request.getLineItemCount('custpage_sublist_items');
+				var employeeId = request.getParameter('custpage_employee_id');
+				
+				//Find all the ticked items & their quantities
+				//
+				for (var int = 1; int <= lineCount; int++) 
+				{
+					var ticked = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_tick', int);
+					
+					if (ticked == 'T')
+						{
+							var item = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_item', int).replace('"', '');
+							var qty = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_qty', int);
+							var id = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_id', int);
+							
+							if (qty > 0)
+								{
+									var line = [item,qty,id,employeeId];
+									data.push(line);
+								}
+						}
+				}
+				
+				//Convert the array of items to a JSON string & return it back to the sales order form callback routine
+				//
+				var dataString = JSON.stringify(data);
+				var xml = "<html><body><script>window.opener.manpackCallback('" + dataString + "'); window.close();</script></body></html>";
+				response.write(xml);
+				
+				break;
+		}
+	}
+}
+
+function getFinishes(customerId, custParentId)
+{
+	var finishList = {};
+	
+	if (customerId != null && customerId != '')
+		{
+			if(custParentId != null && custParentId != '')
+				{
+					var search = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   [["custitem_bbs_item_customer","anyof",customerId],"OR",["custitem_bbs_item_customer","anyof",custParentId]],
+							   "AND", 
+							   ["isinactive","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+				}
+			else
+				{
+					var search = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["isphantom","is","T"], 
+							   "AND", 
+							   ["custitem_bbs_item_customer","anyof",customerId],
+							   "AND", 
+							   ["isinactive","is","F"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid",null,null).setSort(false), 
+							   new nlobjSearchColumn("description",null,null), 
+							   new nlobjSearchColumn("description","memberItem",null)
+							]
+							);
+				}
+			assemblyitemSearch = getResults(search);
+			
+			var lastId = '';
+			var accumulatedDescription = '';
+			
+			if(assemblyitemSearch)
+				{
+					for (var int = 0; int < assemblyitemSearch.length; int++) 
+						{
+							var thisId = assemblyitemSearch[int].getId();
+								
+							if(lastId != thisId)
+								{
+									if(lastId != '')
+									{
+										accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+										accumulatedDescription += ')';
+											
+										//add the previous finish to the select list
+										//
+										//nlapiInsertSelectOption('custpage_finish_item_select', lastId, accumulatedDescription, false);
+										var posHyphen = accumulatedDescription.indexOf('-') + 2;
+										var posColon = accumulatedDescription.indexOf(' :');
+										var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+										var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
+										var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+										indexer = indexer + prefixValue;
+										
+										finishList[indexer] = [lastId,accumulatedDescription];
+									}
+										
+									lastId = thisId;
+										
+									accumulatedDescription = assemblyitemSearch[int].getValue('itemid') + ' : ' + '(' + assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+								}
+							else
+								{
+									accumulatedDescription += assemblyitemSearch[int].getValue('description', 'memberitem') + ' + ';
+								}
+								
+						}
+		
+					if(lastId != '')
+						{
+							accumulatedDescription = accumulatedDescription.slice(0, accumulatedDescription.length - 3);
+							accumulatedDescription += ')';
+									
+							//add the last finish to the select list
+							//
+							//nlapiInsertSelectOption('custpage_finish_item_select', thisId, accumulatedDescription, false);
+							
+							var posHyphen = accumulatedDescription.indexOf('-') + 2;
+							var posColon = accumulatedDescription.indexOf(' :');
+							var prefix = accumulatedDescription.substring(posHyphen - 1,posColon - 1);
+							var prefixValue = Number(prefix.charCodeAt(0)) * 1000;
+							var indexer = Number(accumulatedDescription.substring(posHyphen,posColon));
+							indexer = indexer + prefixValue;
+							
+							finishList[indexer] = [thisId,accumulatedDescription];
+						}
+				}
+		}
+	
+	//Sort the list of finishes
+	//
+	const orderedTemp = {};
+	Object.keys(finishList).sort().forEach(function(key) {
+		orderedTemp[key] = finishList[key];
+	});
+	
+	return orderedTemp;
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
+}
