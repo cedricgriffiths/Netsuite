@@ -22,7 +22,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 			   new nlobjSearchColumn("name").setSort(false), 
 			   new nlobjSearchColumn("custrecord_bbs_custom_gl_to_acc"), 
 			   new nlobjSearchColumn("custrecord_bbs_custom_gl_from_acc"), 
-			   new nlobjSearchColumn("custrecord_bbs_custom_gl_disc_item")
+			   new nlobjSearchColumn("custrecord_bbs_custom_gl_disc_item"),
+			   new nlobjSearchColumn("custrecord_bbs_custom_gl_ship_charge")
 			]
 			);
 	
@@ -36,6 +37,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 				{
 					//Get the config values
 					//
+					var configShippingId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_ship_charge');
 					var configDiscountId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_disc_item');
 					var configFromAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_from_acc');
 					var configToAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_to_acc');
@@ -59,54 +61,62 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 									//
 									var soRecord = nlapiLoadRecord('salesorder', createdfrom);
 									var lines = soRecord.getLineItemCount('item');
+									var soDiscount = soRecord.getFieldValue('discountitem');
 									
-									var shippingCost = Number(0);
-									
-									//Find the shipping cost on the sales order lines
+									//Only procede if the sale order has the correct discount on it
 									//
-									for (var int = 1; int <= lines; int++) 
+									if(soDiscount == configDiscountId)
 										{
-											var itemType = soRecord.getLineItemValue('item', 'itemtype', int);
-											var itemId = soRecord.getLineItemValue('item', 'item', int);
-										
-											if(itemType == 'OthCharge' && itemId == configDiscountId)
-												{
-													shippingCost = Number(soRecord.getLineItemValue('item', 'amount', int));
-												}
-										}
-									
-									//Loop through the standard GL lines
-									//
-									for (var i=0; i<linecount; i++) 
-										{
-											//Get the line object
-											//
-											var line =  standardLines.getLine(i);
+											var shippingCost = Number(0);
 											
-											//Ignore the summary line or any non-posting lines
+											//Find the shipping cost on the sales order lines
 											//
-											if(line.isPosting() && line.getId() != 0)
+											for (var int = 1; int <= lines; int++) 
 												{
-													var account = line.getAccountId();
-													var debit = line.getDebitAmount();
-													var credit = line.getCreditAmount();
-													
-													//Find the relevant posting line by looking at the account id
-													//
-													if(account == '1234')
+													var itemType = soRecord.getLineItemValue('item', 'itemtype', int);
+													var itemId = soRecord.getLineItemValue('item', 'item', int);
+												
+													if(itemType == 'OthCharge' && itemId == configShippingId)
 														{
-															//Add new posting lines here
+															shippingCost = Number(soRecord.getLineItemValue('item', 'amount', int));
+														}
+												}
+											
+											//Loop through the standard GL lines
+											//
+											for (var i=0; i<linecount; i++) 
+												{
+													//Get the line object
+													//
+													var line =  standardLines.getLine(i);
+													
+													//Ignore the summary line or any non-posting lines
+													//
+													if(line.isPosting() && line.getId() != 0)
+														{
+															var account = line.getAccountId();
+															var debit = Number(line.getDebitAmount());
+															var location = line.getLocationId();
+															
+															//Find the relevant posting line by looking at the account id
 															//
-															var newLine = customLines.addNewLine();
-															newLine.setAccountId(parseInt(from_acc));
-															newLine.setDebitAmount(????);
-															newLine.setMemo('Warranty adjustment');
-															
-															var newLine = customLines.addNewLine();
-															newLine.setAccountId(parseInt(from_acc));
-															newLine.setCreditAmount(????);
-															newLine.setMemo('Warranty adjustment');
-															
+															if(account == configFromAccId)
+																{
+																	//Add new posting lines here
+																	//
+																	var newLine = customLines.addNewLine();
+																	newLine.setAccountId(parseInt(configFromAccId));
+																	newLine.setCreditAmount(debit + shippingCost);
+																	newLine.setLocationId(location);
+																	newLine.setMemo('Warranty adjustment');
+																	
+																	var newLine = customLines.addNewLine();
+																	newLine.setAccountId(parseInt(configToAccId));
+																	newLine.setDebitAmount(debit + shippingCost);
+																	newLine.setLocationId(location);
+																	newLine.setMemo('Warranty adjustment');
+																	
+																}
 														}
 												}
 										}
