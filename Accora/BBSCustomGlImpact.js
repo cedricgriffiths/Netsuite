@@ -108,13 +108,13 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	newLine.setAccountId(parseInt(configFromAccId));
 																	newLine.setCreditAmount(debit + shippingCost);
 																	newLine.setLocationId(location);
-																	newLine.setMemo('Warranty adjustment');
+																	newLine.setMemo('Cost Of Warranty');
 																	
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(configToAccId));
 																	newLine.setDebitAmount(debit + shippingCost);
 																	newLine.setLocationId(location);
-																	newLine.setMemo('Warranty adjustment');
+																	newLine.setMemo('Cost Of Warranty');
 																	
 																}
 														}
