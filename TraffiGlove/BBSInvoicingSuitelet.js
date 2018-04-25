@@ -177,8 +177,8 @@ function invoicingSuitelet(request, response)
 				var today = new Date();
 				var todayString = nlapiDateToString(today);
 				
-				var shipDateFieldStart = form.addField('custpage_ship_start', 'date', 'Sales Order Ship Date Start', null, 'custpage_grp_filters');
-				var shipDateFieldEnd = form.addField('custpage_ship_end', 'date', 'Sales Order Ship Date End', null, 'custpage_grp_filters');
+				var shipDateFieldStart = form.addField('custpage_ship_start', 'date', 'Fulfilment Date Start', null, 'custpage_grp_filters');
+				var shipDateFieldEnd = form.addField('custpage_ship_end', 'date', 'Fulfilment Date End', null, 'custpage_grp_filters');
 				
 				shipDateFieldStart.setDefaultValue(todayString);
 				shipDateFieldEnd.setDefaultValue(todayString);
@@ -210,7 +210,7 @@ function invoicingSuitelet(request, response)
 				var sublistFieldFulfilSoStatus = sublist.addField('custpage_sublist_so_status', 'text', 'SO Status', null);
 				var sublistFieldFulfilSoShip = sublist.addField('custpage_sublist_so_shipdate', 'date', 'SO Ship Date', null);
 				var sublistFieldFulfilNo = sublist.addField('custpage_sublist_fulfil_no', 'text', 'Fulfilment No', null);
-				var sublistFieldFulfilDate = sublist.addField('custpage_sublist_fulfil_date', 'date', 'Date', null);
+				var sublistFieldFulfilDate = sublist.addField('custpage_sublist_fulfil_date', 'date', 'Fulfilment Date', null);
 				var sublistFieldFulfilMemo = sublist.addField('custpage_sublist_fulfil_memo', 'text', 'Memo', null);
 				var sublistFieldFulfilCurrency = sublist.addField('custpage_sublist_fulfil_currency', 'text', 'Currency', null);
 				var sublistFieldFulfilId = sublist.addField('custpage_sublist_fulfil_id', 'text', 'Id', null);
@@ -253,7 +253,7 @@ function invoicingSuitelet(request, response)
 					
 						if(filters['shipdatestart'] != '' && filters['shipdateend'] != '')
 						{
-							filterArray.push("AND",["createdfrom.shipdate","within",filters['shipdatestart'],filters['shipdateend']]);
+							filterArray.push("AND",["trandate","within",filters['shipdatestart'],filters['shipdateend']]);
 						}
 					
 						if(filters['customer'] != '' && filters['customer'] != '0')
@@ -325,6 +325,7 @@ function invoicingSuitelet(request, response)
 								sublist.setLineItemValue('custpage_sublist_fulfil_currency', sublistLine, ffCurrency);
 								sublist.setLineItemValue('custpage_sublist_so_status', sublistLine, ffSoStatus);
 								sublist.setLineItemValue('custpage_sublist_so_shipdate', sublistLine, ffSoShipdate);
+								
 							}
 					}
 
