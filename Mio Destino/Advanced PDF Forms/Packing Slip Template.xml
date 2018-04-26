@@ -2,6 +2,8 @@
 <pdf>
 <head>
 
+
+  
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%; font-size: 10pt;">
@@ -9,14 +11,16 @@
               <tr><td>&nbsp;</td></tr>
               <tr>
 	<td rowspan="3"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; width:250px; height:75px;"/> </#if></td>
-	<td>&nbsp;</td><td class="addressheader" style="font-size: 12pt; margin-left: 10px;" align="left" colspan="2"><b>${salesorder.shipaddress@label}</b></td>
+	<td>&nbsp;</td>
+	</tr>
+    <tr>
+    <td>&nbsp;</td>
+    <td class="addressheader" style="font-size: 12pt; margin-left: 10px;" align="left" colspan="2"><b>${salesorder.shipaddress@label}</b></td>
 	</tr>
 	<tr>
     <td>&nbsp;</td><td class="address" style="font-size: 12pt; margin-left: 10px;" align="left" colspan="2">${record.shipaddress}</td>
 	</tr>
-	<tr>
-    <td>&nbsp;</td>
-	</tr>
+
 	<tr>
     <td align="left" colspan="3"><span class="title">${record@title}</span></td>
 	</tr>
@@ -151,15 +155,15 @@
 
 <table class="body" style="width: 100%; margin-top: 10px;"><tr>
 	<th>${record.trandate@label}</th>
-	<th>${salesorder.linkedtrackingnumbers@label}</th>
+	<th>${salesorder.custbody_bbs_box@label}</th>
 	<th>${record.shipmethod@label}</th>
-	<th>${record.shipphone@label}</th>
+	<th>${salesorder.custbodybbs_tracked@label}</th>
 	</tr>
 	<tr>
 	<td>${record.trandate}</td>
-	<td>${salesorder.linkedtrackingnumbers}</td>
+	<td>${salesorder.custbody_bbs_box}</td>
 	<td>${record.shipmethod}</td>
-	<td>${record.shipphone}</td>
+	<td>${salesorder.custbodybbs_tracked}</td>
 	</tr></table>
 <#if record.item?has_content>
 
