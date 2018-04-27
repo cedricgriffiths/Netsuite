@@ -8,10 +8,10 @@
 	//=============================================================================
 	//
 	const OPPORTUNITY_RESULTSET_ENTITY = 'item';
-	const OPPORTUNITY_RESULTSET_SEARCH = 'customsearch136';
+	const OPPORTUNITY_RESULTSET_SEARCH = 'custscript_opportunity_saved_search_id';
 
 	const SALES_RESULTSET_ENTITY = 'item';
-	const SALES_RESULTSET_SEARCH = 'customsearch135';
+	const SALES_RESULTSET_SEARCH = 'custscript_sales_saved_search_id';
 
 	const RESULT_COL_ITEM = Number(0);
 	const RESULT_COL_MONTH_1 = Number(1);
@@ -26,6 +26,7 @@
 	const RESULT_COL_MONTH_10 = Number(10);
 	const RESULT_COL_MONTH_11 = Number(11);
 	const RESULT_COL_MONTH_12 = Number(12);
+	const RESULT_COL_ITEM_TEXT = Number(13);
 	
 	const DEMAND_SUBSIDIARY = 1;
 	const DEMAND_LOCATION = 1;
@@ -229,21 +230,126 @@ function createDemandPlanScheduled(type)
 	var opportunityColumns = null;
 	var salesColumns = null;
 	var combinedResults = {};
+	var context = nlapiGetContext();
+	var opportunity_search_id = context.getSetting('SCRIPT', OPPORTUNITY_RESULTSET_SEARCH);
+	var sales_search_id = context.getSetting('SCRIPT', SALES_RESULTSET_SEARCH);
+	var opportunity_percent = Number(context.getSetting('SCRIPT', 'custscript_bbs_opportunity_percent'));
+	var sales_percent = Number(context.getSetting('SCRIPT', 'custscript_bbs_sales_percent'));
+	var searchStartDate = nlapiStringToDate(context.getSetting('SCRIPT', 'custscript_bbs_start_date'));
+	var fileContents = '';
+
 	
+	nlapiLogExecution('DEBUG', 'Sales percent', sales_percent);
+	nlapiLogExecution('DEBUG', 'Opportunity percent', opportunity_percent);
+	nlapiLogExecution('DEBUG', 'Start Date', searchStartDate);
 	
 	//=============================================================================
 	// Get the opportunity & sales results
 	//=============================================================================
 	//
-	var opportunityResults = getFullResults(OPPORTUNITY_RESULTSET_ENTITY, OPPORTUNITY_RESULTSET_SEARCH);
-	var salesResults = getFullResults(SALES_RESULTSET_ENTITY, SALES_RESULTSET_SEARCH);
+	//var opportunityResults = getFullResults(OPPORTUNITY_RESULTSET_ENTITY, opportunity_search_id);
+	//var salesResults = getFullResults(SALES_RESULTSET_ENTITY, sales_search_id);
 	
+	//var searchStartDate = new Date();
+	
+	var searchStartDay = '01';
+	var searchStartDateString = searchStartDay + '/' + searchStartDate.format('m') + '/' + searchStartDate.format('Y');
+
+	var opportunitySearch = nlapiCreateSearch("transaction",
+			[
+			   ["type","anyof","Opprtnty"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["cogs","is","F"], 
+			   "AND", 
+			   ["item.supplyreplenishmentmethod","anyof","TIME_PHASED"], 
+			   "AND", 
+			   ["formulanumeric: CASE WHEN {entitystatus} = 'Purchasing' THEN 1 WHEN {entitystatus} = 'Renewal' THEN 1 WHEN {entitystatus} = 'Closed Won' THEN 1 ELSE 0 END","equalto","1"]
+			], 
+			[
+			   new nlobjSearchColumn("internalid","item","GROUP").setSort(false), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 0), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 0)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 1), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 1)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 2), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 2)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 3), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 3)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 4), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 4)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 5), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 5)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 6), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 6)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 7), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 7)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 8), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 8)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 9), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 9)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 10), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 10)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 11), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 110)) then {quantity} else 0 END"),
+			   new nlobjSearchColumn("itemid","item","GROUP")
+			]
+			);
+	
+	var opportunityResults = getResults(opportunitySearch);
+	
+	var salesorderSearch = nlapiCreateSearch("salesorder",
+			[
+			   ["type","anyof","SalesOrd"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["cogs","is","F"], 
+			   "AND", 
+			   ["item.supplyreplenishmentmethod","anyof","TIME_PHASED"]
+			], 
+			[
+			   new nlobjSearchColumn("internalid","item","GROUP").setSort(false), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -12), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -12)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -11), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -11)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -10), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -10)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -9), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -9)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -8), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -8)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -7), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -7)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -6), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -6)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -5), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -5)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -4), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -4)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -3), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -3)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -2), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -2)) then {quantity} else 0 END"), 
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Sales Order' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -1), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), -1)) then {quantity} else 0 END"),
+			   new nlobjSearchColumn("itemid","item","GROUP")
+			   ]
+			);
+	
+	var salesResults = getResults(salesorderSearch);
 	
 	//=============================================================================
 	// Process the opportunity results
 	//=============================================================================
 	//
 	checkResources();
+	
+	fileContents += '"Start Date","' + searchStartDateString + '"\n';
+	fileContents += '"Opportunity %","' + opportunity_percent.toString() + '"\n';
+	fileContents += '"Sales %","' + sales_percent.toString() + '"\n';
+	fileContents += '\n';
+	fileContents += '"Type","Item",';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')), 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 1, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 2, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 3, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 4, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 5, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 6, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 7, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 8, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 9, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 10, 0)).format('M') + ',';
+	fileContents += (new Date(Number(searchStartDate.format('Y')), Number(searchStartDate.format('m')) + 11, 0)).format('M') + '\n';
+	
+	
 	
 	for (var int = 0; int < opportunityResults.length; int++) 
 		{
@@ -253,20 +359,35 @@ function createDemandPlanScheduled(type)
 				}
 			
 			var opportunityItem = opportunityResults[int].getValue(opportunityColumns[RESULT_COL_ITEM]);
-			var opportunityMonth1 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_1]));
-			var opportunityMonth2 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_2]));
-			var opportunityMonth3 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_3]));
-			var opportunityMonth4 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_4]));
-			var opportunityMonth5 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_5]));
-			var opportunityMonth6 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_6]));
-			var opportunityMonth7 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_7]));
-			var opportunityMonth8 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_8]));
-			var opportunityMonth9 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_9]));
-			var opportunityMonth10 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_10]));
-			var opportunityMonth11 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_11]));
-			var opportunityMonth12 = Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_12]));
+			var opportunityMonth1 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_1])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth2 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_2])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth3 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_3])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth4 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_4])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth5 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_5])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth6 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_6])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth7 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_7])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth8 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_8])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth9 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_9])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth10 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_10])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth11 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_11])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth12 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_12])) / 100.0 ) * opportunity_percent;
+			var opportunityItemText = opportunityResults[int].getValue(opportunityColumns[RESULT_COL_ITEM_TEXT]);
 			
-			combinedResults[opportunityItem] = [opportunityMonth1,opportunityMonth2,opportunityMonth3,opportunityMonth4,opportunityMonth5,opportunityMonth6,opportunityMonth7,opportunityMonth8,opportunityMonth9,opportunityMonth10,opportunityMonth11,opportunityMonth12];
+			combinedResults[opportunityItem] = [opportunityMonth1,opportunityMonth2,opportunityMonth3,opportunityMonth4,opportunityMonth5,opportunityMonth6,opportunityMonth7,opportunityMonth8,opportunityMonth9,opportunityMonth10,opportunityMonth11,opportunityMonth12,opportunityItemText];
+			
+			fileContents += '"Opportunity",' + opportunityItemText + ',';
+			fileContents += opportunityMonth1 + ',';
+			fileContents += opportunityMonth2 + ',';
+			fileContents += opportunityMonth3 + ',';
+			fileContents += opportunityMonth4 + ',';
+			fileContents += opportunityMonth5 + ',';
+			fileContents += opportunityMonth6 + ',';
+			fileContents += opportunityMonth7 + ',';
+			fileContents += opportunityMonth8 + ',';
+			fileContents += opportunityMonth9 + ',';
+			fileContents += opportunityMonth10 + ',';
+			fileContents += opportunityMonth11 + ',';
+			fileContents += opportunityMonth12 + '\n';
 			
 		}
 	
@@ -277,6 +398,8 @@ function createDemandPlanScheduled(type)
 	//
 	checkResources();
 	
+	fileContents += '\n';
+	
 	for (var int = 0; int < salesResults.length; int++) 
 		{
 			if(int == 0)
@@ -285,24 +408,25 @@ function createDemandPlanScheduled(type)
 				}
 			
 			var salesItem = salesResults[int].getValue(salesColumns[RESULT_COL_ITEM]);
-			var salesMonth1 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_1]));
-			var salesMonth2 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_2]));
-			var salesMonth3 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_3]));
-			var salesMonth4 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_4]));
-			var salesMonth5 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_5]));
-			var salesMonth6 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_6]));
-			var salesMonth7 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_7]));
-			var salesMonth8 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_8]));
-			var salesMonth9 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_9]));
-			var salesMonth10 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_10]));
-			var salesMonth11 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_11]));
-			var salesMonth12 = Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_12]));
+			var salesMonth1 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_1])) / 100.0) * sales_percent;
+			var salesMonth2 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_2])) / 100.0) * sales_percent;
+			var salesMonth3 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_3])) / 100.0) * sales_percent;
+			var salesMonth4 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_4])) / 100.0) * sales_percent;
+			var salesMonth5 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_5])) / 100.0) * sales_percent;
+			var salesMonth6 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_6])) / 100.0) * sales_percent;
+			var salesMonth7 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_7])) / 100.0) * sales_percent;
+			var salesMonth8 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_8])) / 100.0) * sales_percent;
+			var salesMonth9 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_9])) / 100.0) * sales_percent;
+			var salesMonth10 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_10])) / 100.0) * sales_percent;
+			var salesMonth11 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_11])) / 100.0) * sales_percent;
+			var salesMonth12 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_12])) / 100.0) * sales_percent;
+			var salesItemText = salesResults[int].getValue(salesColumns[RESULT_COL_ITEM_TEXT]);
 			
 			// See if we have the sales item in the combined results, if not we can just add it
 			//
 			if(!combinedResults[salesItem])
 				{
-					combinedResults[salesItem] = [salesMonth1,salesMonth2,salesMonth3,salesMonth4,salesMonth5,salesMonth6,salesMonth7,salesMonth8,salesMonth9,salesMonth10,salesMonth11,salesMonth12];
+					combinedResults[salesItem] = [salesMonth1,salesMonth2,salesMonth3,salesMonth4,salesMonth5,salesMonth6,salesMonth7,salesMonth8,salesMonth9,salesMonth10,salesMonth11,salesMonth12,salesItemText];
 				}
 			else
 				{
@@ -321,8 +445,49 @@ function createDemandPlanScheduled(type)
 					combinedResults[salesItem][10] = (salesMonth11 > combinedResults[salesItem][10] ? salesMonth11 : combinedResults[salesItem][10]);
 					combinedResults[salesItem][11] = (salesMonth12 > combinedResults[salesItem][11] ? salesMonth12 : combinedResults[salesItem][11]);
 				}
+			
+			fileContents += '"Sales",' + salesItemText + ',';
+			fileContents += salesMonth1 + ',';
+			fileContents += salesMonth2 + ',';
+			fileContents += salesMonth3 + ',';
+			fileContents += salesMonth4 + ',';
+			fileContents += salesMonth5 + ',';
+			fileContents += salesMonth6 + ',';
+			fileContents += salesMonth7 + ',';
+			fileContents += salesMonth8 + ',';
+			fileContents += salesMonth9 + ',';
+			fileContents += salesMonth10 + ',';
+			fileContents += salesMonth11 + ',';
+			fileContents += salesMonth12 + '\n';
 		}
 	
+	
+		//=============================================================================
+		// Output consolidated figures
+		//=============================================================================
+		//
+		fileContents += '\n';
+		
+		for ( var itemId in combinedResults) 
+			{
+				var data = combinedResults[itemId];
+				
+				fileContents += '"Consolidated",';
+				fileContents += data[12] + ',';
+				fileContents += data[0] + ',';
+				fileContents += data[1] + ',';
+				fileContents += data[2] + ',';
+				fileContents += data[3] + ',';
+				fileContents += data[4] + ',';
+				fileContents += data[5] + ',';
+				fileContents += data[6] + ',';
+				fileContents += data[7] + ',';
+				fileContents += data[8] + ',';
+				fileContents += data[9] + ',';
+				fileContents += data[10] + ',';
+				fileContents += data[11] + '\n';
+				
+			}
 	
 		//=============================================================================
 		// Make sure we have demand plan records for all the items
@@ -335,17 +500,31 @@ function createDemandPlanScheduled(type)
 		// Update the demand plans
 		//=============================================================================
 		//
-		updatePlans(combinedResults);
+		updatePlans(combinedResults, searchStartDate);
+		
 		
 		//=============================================================================
 		// Email the user
 		//=============================================================================
 		//
+		var todaysDate = new Date();
+		
+		//Set the export file name 
+		//
+		fileName = 'Demand Plan Updates-' + todaysDate.getDate() + (todaysDate.getMonth() + 1)  + todaysDate.getFullYear() + '.csv';
+		
+		//Create the file
+		//
+		var fileObject = nlapiCreateFile(fileName, 'CSV', fileContents);
+		
+		
 		var context = nlapiGetContext();
 		var usersEmail = context.getUser();
 		var emailMessage = 'Item demand plan updates have been completed\n';
 		
-		nlapiSendEmail(usersEmail, usersEmail, 'Item Demand Planning', emailMessage);
+		//nlapiSendEmail(usersEmail, usersEmail, 'Item Demand Planning', emailMessage);
+		
+		nlapiSendEmail(usersEmail, usersEmail, 'Item Demand Planning', emailMessage, null, null, null, fileObject);
 }
 
 
@@ -353,13 +532,13 @@ function createDemandPlanScheduled(type)
 // Functions
 //=============================================================================
 //
-function updatePlans(results)
+function updatePlans(results, planStartDate)
 {
-	var startDate = new Date();
-	var startYear = Number(startDate.format('Y'));
-	var startMonth = Number(startDate.format('m'));
+	//var startDate = new Date();
+	var startYear = Number(planStartDate.format('Y'));
+	var startMonth = Number(planStartDate.format('m'));
 	var startDay = '01';
-	var startDateString = startDay + '/' + startDate.format('m') + '/' + startDate.format('Y');
+	var startDateString = startDay + '/' + planStartDate.format('m') + '/' + planStartDate.format('Y');
 
 	var endDate = new Date(startYear, startMonth + 11, 0);
 	var endDateString = endDate.format('d') + '/' + endDate.format('m') + '/' + endDate.format('Y');
@@ -402,7 +581,7 @@ function updatePlans(results)
 							 
 							var monthlyValues = results[item];
 							
-							for (var int = 0; int < monthlyValues.length; int++) 
+							for (var int = 0; int < 12; int++) 
 								{
 									record.selectLineItem('demandplandetail', int + 1);
 									record.setCurrentLineItemMatrixValue('demandplandetail', 'quantity', '1', monthlyValues[int]);
@@ -453,7 +632,7 @@ function getFullResults(entity, search)
 {
 	//Copy the existing saved search so we can page through it
 	//
-	var origSearch = nlapiLoadSearch(entity, search);
+	var origSearch = nlapiLoadSearch(null, search);
 	var newSearch = nlapiCreateSearch(origSearch.getSearchType(), origSearch.getFilters(), origSearch.getColumns());
 	var searchResult = newSearch.runSearch();
 
@@ -488,4 +667,31 @@ function checkResources()
 		{
 			nlapiYieldScript();
 		}
+}
+
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
 }
