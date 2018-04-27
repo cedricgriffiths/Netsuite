@@ -13,7 +13,7 @@
  * @param {String} type Sublist internal id
  * @returns {Boolean} True to save line item, false to abort save
  */
-function clientValidateLine(type) {
+function clientValidateLineESD(type) {
 
 	var returnStatus = true;
 
