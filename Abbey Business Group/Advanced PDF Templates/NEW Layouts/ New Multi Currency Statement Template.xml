@@ -232,7 +232,7 @@
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
 <thead>
 <tr>
-            <th align="left" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Date</th>
+            <th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Date</th>
             <th align="left" colspan="12" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Description</th>
             <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Debit</th>
             <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Credit</th>
@@ -250,6 +250,22 @@
 
 	</#list><!-- end items --></table>
 
+      <table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${statement.aging1@label}</th>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${statement.aging2@label}</th>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${statement.aging3@label}</th>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${statement.aging4@label}</th>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${statement.aging5@label}</th>
+	<th align="left" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; padding: 5px;">${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${statement.aging1}</td>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${statement.aging2}</td>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${statement.aging3}</td>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${statement.aging4}</td>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${statement.aging5}</td>
+	<td align="left" colspan="3" line-height="100%" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${statement.agingbal}</td>
+	</tr></table>
 
 </#if></body></pdf></#list><#else><pdf><head></head><body>
 
