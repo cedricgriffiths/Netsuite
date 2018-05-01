@@ -322,7 +322,7 @@ function buildOutput(salesOrderNumber)
             
 			var itemCount = salesOrderRecord.getLineItemCount('item');
 			
-			for (var int = 1; int < itemCount; int++) 
+			for (var int = 1; int <= itemCount; int++) 
 				{
 					var itemQuantity = salesOrderRecord.getLineItemValue('item', 'quantity', int);
 					var itemRate = Number(salesOrderRecord.getLineItemValue('item', 'rate', int));
