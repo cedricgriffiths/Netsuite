@@ -359,18 +359,18 @@ function createDemandPlanScheduled(type)
 				}
 			
 			var opportunityItem = opportunityResults[int].getValue(opportunityColumns[RESULT_COL_ITEM]);
-			var opportunityMonth1 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_1])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth2 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_2])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth3 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_3])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth4 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_4])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth5 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_5])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth6 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_6])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth7 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_7])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth8 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_8])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth9 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_9])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth10 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_10])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth11 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_11])) / 100.0 ) * opportunity_percent;
-			var opportunityMonth12 = (Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_12])) / 100.0 ) * opportunity_percent;
+			var opportunityMonth1 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_1])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth2 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_2])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth3 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_3])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth4 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_4])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth5 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_5])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth6 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_6])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth7 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_7])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth8 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_8])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth9 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_9])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth10 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_10])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth11 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_11])) / 100.0 ) * opportunity_percent);
+			var opportunityMonth12 = Math.round((Number(opportunityResults[int].getValue(opportunityColumns[RESULT_COL_MONTH_12])) / 100.0 ) * opportunity_percent);
 			var opportunityItemText = opportunityResults[int].getValue(opportunityColumns[RESULT_COL_ITEM_TEXT]);
 			
 			combinedResults[opportunityItem] = [opportunityMonth1,opportunityMonth2,opportunityMonth3,opportunityMonth4,opportunityMonth5,opportunityMonth6,opportunityMonth7,opportunityMonth8,opportunityMonth9,opportunityMonth10,opportunityMonth11,opportunityMonth12,opportunityItemText];
@@ -408,18 +408,18 @@ function createDemandPlanScheduled(type)
 				}
 			
 			var salesItem = salesResults[int].getValue(salesColumns[RESULT_COL_ITEM]);
-			var salesMonth1 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_1])) / 100.0) * sales_percent;
-			var salesMonth2 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_2])) / 100.0) * sales_percent;
-			var salesMonth3 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_3])) / 100.0) * sales_percent;
-			var salesMonth4 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_4])) / 100.0) * sales_percent;
-			var salesMonth5 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_5])) / 100.0) * sales_percent;
-			var salesMonth6 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_6])) / 100.0) * sales_percent;
-			var salesMonth7 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_7])) / 100.0) * sales_percent;
-			var salesMonth8 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_8])) / 100.0) * sales_percent;
-			var salesMonth9 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_9])) / 100.0) * sales_percent;
-			var salesMonth10 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_10])) / 100.0) * sales_percent;
-			var salesMonth11 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_11])) / 100.0) * sales_percent;
-			var salesMonth12 = (Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_12])) / 100.0) * sales_percent;
+			var salesMonth1 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_1])) / 100.0) * sales_percent);
+			var salesMonth2 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_2])) / 100.0) * sales_percent);
+			var salesMonth3 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_3])) / 100.0) * sales_percent);
+			var salesMonth4 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_4])) / 100.0) * sales_percent);
+			var salesMonth5 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_5])) / 100.0) * sales_percent);
+			var salesMonth6 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_6])) / 100.0) * sales_percent);
+			var salesMonth7 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_7])) / 100.0) * sales_percent);
+			var salesMonth8 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_8])) / 100.0) * sales_percent);
+			var salesMonth9 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_9])) / 100.0) * sales_percent);
+			var salesMonth10 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_10])) / 100.0) * sales_percent);
+			var salesMonth11 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_11])) / 100.0) * sales_percent);
+			var salesMonth12 = Math.round((Number(salesResults[int].getValue(salesColumns[RESULT_COL_MONTH_12])) / 100.0) * sales_percent);
 			var salesItemText = salesResults[int].getValue(salesColumns[RESULT_COL_ITEM_TEXT]);
 			
 			// See if we have the sales item in the combined results, if not we can just add it
