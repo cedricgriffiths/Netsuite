@@ -41,7 +41,14 @@ function sumQuantities(type)
 					
 					currentRecord.setFieldValue('custbody_bbs_total_order_items', totalQuantity);
 					
-					nlapiSubmitRecord(currentRecord, false, true);
+					try
+						{
+							nlapiSubmitRecord(currentRecord, false, true);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error updating total order items', err.message);
+						}
 				}
 		}
 }

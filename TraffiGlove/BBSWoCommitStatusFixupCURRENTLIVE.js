@@ -90,12 +90,10 @@ function scheduled(type)
 							var lineItemSource = newRecord.getLineItemValue('item', 'itemsource', int);
 							var lineItemQuantity = Number(newRecord.getLineItemValue('item', 'quantity', int));
 							var lineItemCommitted = Number(newRecord.getLineItemValue('item', 'quantitycommitted', int));
-							var lineItemUsedInBuild = Number(newRecord.getLineItemValue('item', 'quantityfulfilled', int));
 							var lineItemItemId = newRecord.getLineItemValue('item', 'item', int);
 							var lineItemType = newRecord.getLineItemValue('item', 'itemtype', int);
 							
 							lineItemCommitted = (lineItemCommitted == null ? Number(0) : lineItemCommitted);
-							lineItemUsedInBuild = (lineItemUsedInBuild == null ? Number(0) : lineItemUsedInBuild);
 							
 							//Get the process type from the item record
 							//
@@ -148,7 +146,7 @@ function scheduled(type)
 									
 									//Increment the number of lines that are actually committed
 									//
-									if(lineItemQuantity == (lineItemCommitted + lineItemUsedInBuild) || newStatus == 'Built')
+									if(lineItemQuantity == lineItemCommitted || newStatus == 'Built')
 										{
 											linesFullyCommitted++;
 										}
