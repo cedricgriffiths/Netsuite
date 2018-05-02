@@ -149,31 +149,40 @@
 <thead>
 	<tr>
 	<th align="center" colspan="2">Qty</th>
-	<th colspan="8">${item.item@label}</th>
+	<th colspan="12">${item.item@label}</th>
 	<th colspan="2">Brand<br/>Size</th>
 	<th colspan="3">Exact<br/>Colour</th>
 	<th colspan="3">Image</th>
     <th colspan="3">${item.quantitycommitted@label}</th>
-	<th align="right" colspan="2">${item.rate@label}</th>
-	<th align="right" colspan="2">${item.amount@label}</th>
+	<!--<th align="right" colspan="2">${item.rate@label}</th>-->
+	<!--<th align="right" colspan="2">${item.amount@label}</th>-->
 	</tr>
 </thead>
 </#if>
   
     <tr>
 	<td align="center" colspan="2" line-height="150%">${item.quantity}</td>
-	<td colspan="8"><span class="itemname">${item.item}</span><br />${item.description}</td>
+	<td colspan="12"><span class="itemname">${item.item}</span><br />${item.custcol_bbs_purchase_descr_so}<br/>${item.custcol_displayname}</td>
 	<td colspan="2">${item.custcol_bbs_brand_size_chart}</td>
 	<td colspan="3">${item.custcol_bbs_exact_colour}</td>
 	<td colspan="3">
       <#if item.custcol_bbs_thumbnail_image_parsed?length != 0>
         <img src="${item.custcol_bbs_thumbnail_image_parsed}" style="float: left; width:50px; height:50px;" />
     <#else>&nbsp;</#if></td>
-    <td colspan="3">${item.quantitycommitted}</td>
-	<td align="right" colspan="2">${item.rate}</td>
-	<td align="right" colspan="2">${item.amount}</td>
+    <td align="center" colspan="3">${item.quantitycommitted}</td>
+	<!--<td align="right" colspan="2">${item.rate}</td>-->
+	<!--<td align="right" colspan="2">${item.amount}</td>-->
 	</tr>
 	</#list><!-- end items --></table>
 </#if>
+<table class="total" style="width: 100%;">
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
+	<td class="totalcell" align="right"><b>Gross Total</b></td>
+	<td class="totalcell" align="right">${record.total}</td>
+	</tr>
+	<tr>
+	<td>&nbsp;</td>
+	</tr></table>  
 </body>
 </pdf>
