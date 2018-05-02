@@ -1,0 +1,241 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+              <#assign regInfo>Company Registration No: 3527430. Registered Office: 20 Western Avenue, Milton Park, Abingdon, Oxfordshire OX14 4SH, United Kingdom.</#assign>
+              <#assign emailInfo>creditcontrol@eu.m3.com</#assign>
+              <#assign telInfo>01235 828400</#assign>
+              <#assign vatInfo>GB 685 8537 74</#assign>
+              <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full.</#assign>
+              <#assign logoInfo>${companyInformation.logoUrl}</#assign>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;">
+    <tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    </tr>
+    <!--<tr><td>&nbsp;</td></tr>-->
+    <tr>
+	<td><span style="font-size:24px;">Delivery Note</span></td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+          </table>
+    <table class="header" style="width: 100%;">
+
+	<tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	</tr>
+	<tr>
+        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span><br /><span class="nameandaddress" style="font-size:10pt"></span></td>
+	<td align="right" style="font-size:10pt"></td>
+      
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_bbs_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+	</tr>
+          </table>
+        </macro>
+
+        <macro id="nlfooter">
+
+       
+       <table style="width: 100%;">
+         <tr class="messagerow">
+              <td align="left" class="message"><b>${footerMsg}</b></td>
+		  </tr>
+         <tr class="messagerow">
+              <td align="left" class="message">&nbsp;</td>
+		  </tr>
+          <tr class="messagerow">
+              <td align="left" class="message">${regInfo}</td>
+		  </tr>
+        </table>
+
+		<table class="footer" style="width: 100%;">
+          <tr>
+			<td align="right"><pagenumber/> of <totalpages/></td>
+		</tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    <table style="width: 100%;">
+    <tr>
+	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	</tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+    </tr>
+	<tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.trandate@label}</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${salesorder.entity.entityid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td></td><td></td>
+    </tr>
+  </table>
+  
+
+    
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+	<tr>
+	<th colspan="19">Description</th>
+	<th align="right" colspan="4">Ordered</th>
+    <th align="right" colspan="4">${salesorder.item[0].quantitybackordered@label}</th>
+	<th align="right" colspan="4">Shipped</th>
+	</tr>
+</thead>
+<#if record.showAddlItemsPackSlip == 'NONE'><!-- start items --><#list record.item as item><#list salesorder.item as tranline><#if tranline.line==item.orderline>
+  <tr>
+	<td colspan="19">${item.description}</td>
+	<td align="right" colspan="4">${tranline.quantity}</td>
+    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
+	<td align="right" colspan="4">${item.quantity}</td>
+	</tr>
+	</#if></#list></#list><!-- end items --><#elseif record.showAddlItemsPackSlip == 'ALL'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity></#if></#list>
+  <tr>
+	<td colspan="19">${tranline.description}</td>
+	<td align="right" colspan="4">${tranline.quantity}</td>
+    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
+	<td align="right" colspan="4">${shipped}</td>
+	</tr>
+	</#list><!-- end sales order items --><#elseif record.showAddlItemsPackSlip == 'UNFULFILLED'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#assign isInList=false><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity><#assign isInList=true></#if></#list><#if isInList || tranline.quantitybackordered != 0>
+  <tr>
+	<td colspan="19">${tranline.description}</td>
+	<td align="right" colspan="4">${tranline.quantity}</td>
+    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
+	<td align="right" colspan="4">${shipped}</td>
+	</tr>
+	</#if></#list><!-- end sales order items --></#if></table>
+</#if>
+
+<hr />
+  
+</body>
+</pdf>
