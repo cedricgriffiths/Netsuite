@@ -66,7 +66,7 @@ function invoicingScheduled(type)
 							//
 							try
 								{
-									invoiceRecord = nlapiTransformRecord('salesorder', salesOrderId, 'invoice', transformValues); //(10 GU's)
+									invoiceRecord = nlapiTransformRecord('salesorder', salesOrderId, 'invoice', {recordmode: 'dynamic'}); //(10 GU's)
 								}
 							catch(err)
 								{
@@ -98,7 +98,7 @@ function invoicingScheduled(type)
 									for (var int3 = 1; int3 <= ffLines; int3++) 
 										{
 											var ffOrderLineNumber = fulfilmentRecord.getLineItemValue('item', 'orderline', int3);
-											var ffQuantity = fulfilmentRecord.getLineItemValue('item', 'quantity', int3);
+											var ffQuantity = Number(fulfilmentRecord.getLineItemValue('item', 'quantity', int3));
 										
 											//Now loop through the invoice lines to find the matching one
 											//
@@ -109,6 +109,16 @@ function invoicingScheduled(type)
 													if(InvOrderLineNumber == ffOrderLineNumber)
 														{
 															invoiceRecord.setLineItemValue('item', 'quantity', int4, ffQuantity);
+															var invRate = Number(invoiceRecord.getLineItemValue('item', 'rate', int4));
+															var invAmount = invRate * ffQuantity;
+															var invEstUnitCost = Number(invoiceRecord.getLineItemValue('item', 'costestimaterate', int4));
+															var invEstExtendedCost = invEstUnitCost * ffQuantity;
+															
+															invoiceRecord.setLineItemValue('item', 'amount', int4, invAmount);
+															invoiceRecord.setLineItemValue('item', 'costestimate', int4, invEstExtendedCost);
+															
+															
+															
 															break;
 														}
 												}
