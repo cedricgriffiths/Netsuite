@@ -72,138 +72,148 @@ function scheduled(type)
 					
 					//Get the new record & also its status
 					//
-					var newRecord = nlapiLoadRecord('workorder', woSearchId );
-					var newStatus = newRecord.getFieldValue('status');
+					var newRecord = null;
 					
-
-						var itemCount = newRecord.getLineItemCount('item');
-						var linesToCommit = Number(0);
-						var linesFullyCommitted = Number(0);
-						var woFullFinishItem = '';
-						var woFinish = '';
-						var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
-						
-						//Loop through the items on the works order
-						//
-						for (var int = 1; int <= itemCount; int++) 
+					try
 						{
-							var lineItemSource = newRecord.getLineItemValue('item', 'itemsource', int);
-							var lineItemQuantity = Number(newRecord.getLineItemValue('item', 'quantity', int));
-							var lineItemCommitted = Number(newRecord.getLineItemValue('item', 'quantitycommitted', int));
-							var lineItemItemId = newRecord.getLineItemValue('item', 'item', int);
-							var lineItemType = newRecord.getLineItemValue('item', 'itemtype', int);
-							
-							lineItemCommitted = (lineItemCommitted == null ? Number(0) : lineItemCommitted);
-							
-							//Get the process type from the item record
-							//
-							var itemProcessType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
-							
-							//If the process type is Full Finish Set then we want to find the finish
-							//
-							if (itemProcessType == 3)
-								{
-									//Save the full finish item id
-									//
-									woFullFinishItem = lineItemItemId;
-									
-									//Now read the FFI record to find the finish on it
-									//
-									var ffiRecord = nlapiLoadRecord(getItemRecType(lineItemType), lineItemItemId);
-									
-									if(ffiRecord)
-									{
-										var ffiComponents = ffiRecord.getLineItemCount('member');
-										
-										if(ffiComponents > 0)
-										{
-											var memberItemId = ffiRecord.getLineItemValue('member', 'item', 1);
-											var memberItemType = ffiRecord.getLineItemValue('member', 'sitemtype', 1);
-											
-											var memberItemRecord = null;
-											
-											if (memberItemId)
-												{
-													memberItemRecord = nlapiLoadRecord(getItemRecType(memberItemType), memberItemId);
-													
-													if(memberItemRecord)
-														{
-															woFinish = memberItemRecord.getFieldValue('custitem_bbs_item_process_type');
-														}
-												}
-										}								
-									}
-								
-								}
-							
-							//Only stock items will have a commitment quantity
-							//
-							if(lineItemSource == 'STOCK' && lineItemType == 'InvtPart')
-								{
-									//Increment the number of lines that should be committed
-									//
-									linesToCommit++;
-									
-									//Increment the number of lines that are actually committed
-									//
-									if(lineItemQuantity == lineItemCommitted || newStatus == 'Built')
-										{
-											linesFullyCommitted++;
-										}
-									
-								}
+							newRecord = nlapiLoadRecord('workorder', woSearchId );
 						}
-						
-						//Set the w/o commitment status
-						//
-						var newCommitmentStatus = '';
-						
-						if(linesToCommit == linesFullyCommitted)
-							{
-								newRecord.setFieldValue('custbody_bbs_commitment_status', 2 );
-								newCommitmentStatus = '2';
-							}
-						else
-							{
-								if(linesFullyCommitted == 0)
-									{
-										newRecord.setFieldValue('custbody_bbs_commitment_status', 3 );
-										newCommitmentStatus = '3';
-									}
-								else
-									{
-										newRecord.setFieldValue('custbody_bbs_commitment_status', 1 );
-										newCommitmentStatus = '1';
-									}
-							}
-						
-						//Set the full finish item & finish to the works order
-						//
-						if(woFullFinishItem != '')
-							{
-								newRecord.setFieldValue('custbody_bbs_wo_ffi', woFullFinishItem);
-							}
-						
-						if(woFinish != '')
-							{
-								newRecord.setFieldValue('custbody_bbs_wo_finish', woFinish);
-							}
-						
-						if(originalCommitmentStatus != newCommitmentStatus)
+					catch(err)
+						{
+							newRecord = null;
+						}
+					
+					if(newRecord)
+						{
+							var newStatus = newRecord.getFieldValue('status');
+							var itemCount = newRecord.getLineItemCount('item');
+							var linesToCommit = Number(0);
+							var linesFullyCommitted = Number(0);
+							var woFullFinishItem = '';
+							var woFinish = '';
+							var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
+							
+							//Loop through the items on the works order
+							//
+							for (var int = 1; int <= itemCount; int++) 
 								{
+									var lineItemSource = newRecord.getLineItemValue('item', 'itemsource', int);
+									var lineItemQuantity = Number(newRecord.getLineItemValue('item', 'quantity', int));
+									var lineItemCommitted = Number(newRecord.getLineItemValue('item', 'quantitycommitted', int));
+									var lineItemUsedInBuild = Number(newRecord.getLineItemValue('item', 'quantityfulfilled', int));
+									var lineItemItemId = newRecord.getLineItemValue('item', 'item', int);
+									var lineItemType = newRecord.getLineItemValue('item', 'itemtype', int);
 									
-									var newCreatedFrom = newRecord.getFieldValue('createdfrom');
+									lineItemCommitted = (lineItemCommitted == null ? Number(0) : lineItemCommitted);
+									lineItemUsedInBuild = (lineItemUsedInBuild == null ? Number(0) : lineItemUsedInBuild);
 									
-									if(newCreatedFrom != null && newCreatedFrom != '')
+									//Get the process type from the item record
+									//
+									var itemProcessType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
+									
+									//If the process type is Full Finish Set then we want to find the finish
+									//
+									if (itemProcessType == 3)
 										{
-											salesOrders[newCreatedFrom] = newCreatedFrom;
+											//Save the full finish item id
+											//
+											woFullFinishItem = lineItemItemId;
+											
+											//Now read the FFI record to find the finish on it
+											//
+											var ffiRecord = nlapiLoadRecord(getItemRecType(lineItemType), lineItemItemId);
+											
+											if(ffiRecord)
+											{
+												var ffiComponents = ffiRecord.getLineItemCount('member');
+												
+												if(ffiComponents > 0)
+												{
+													var memberItemId = ffiRecord.getLineItemValue('member', 'item', 1);
+													var memberItemType = ffiRecord.getLineItemValue('member', 'sitemtype', 1);
+													
+													var memberItemRecord = null;
+													
+													if (memberItemId)
+														{
+															memberItemRecord = nlapiLoadRecord(getItemRecType(memberItemType), memberItemId);
+															
+															if(memberItemRecord)
+																{
+																	woFinish = memberItemRecord.getFieldValue('custitem_bbs_item_process_type');
+																}
+														}
+												}								
+											}
+										
+										}
+									
+									//Only stock items will have a commitment quantity
+									//
+									if(lineItemSource == 'STOCK' && lineItemType == 'InvtPart')
+										{
+											//Increment the number of lines that should be committed
+											//
+											linesToCommit++;
+											
+											//Increment the number of lines that are actually committed
+											//
+											if(lineItemQuantity == (lineItemCommitted + lineItemUsedInBuild) || newStatus == 'Built')
+												{
+													linesFullyCommitted++;
+												}
+											
 										}
 								}
-						
-						nlapiSubmitRecord(newRecord, false, true);
-						
-						
-					
+							
+							//Set the w/o commitment status
+							//
+							var newCommitmentStatus = '';
+							
+							if(linesToCommit == linesFullyCommitted)
+								{
+									newRecord.setFieldValue('custbody_bbs_commitment_status', 2 );
+									newCommitmentStatus = '2';
+								}
+							else
+								{
+									if(linesFullyCommitted == 0)
+										{
+											newRecord.setFieldValue('custbody_bbs_commitment_status', 3 );
+											newCommitmentStatus = '3';
+										}
+									else
+										{
+											newRecord.setFieldValue('custbody_bbs_commitment_status', 1 );
+											newCommitmentStatus = '1';
+										}
+								}
+							
+							//Set the full finish item & finish to the works order
+							//
+							if(woFullFinishItem != '')
+								{
+									newRecord.setFieldValue('custbody_bbs_wo_ffi', woFullFinishItem);
+								}
+							
+							if(woFinish != '')
+								{
+									newRecord.setFieldValue('custbody_bbs_wo_finish', woFinish);
+								}
+							
+							if(originalCommitmentStatus != newCommitmentStatus)
+									{
+										
+										var newCreatedFrom = newRecord.getFieldValue('createdfrom');
+										
+										if(newCreatedFrom != null && newCreatedFrom != '')
+											{
+												salesOrders[newCreatedFrom] = newCreatedFrom;
+											}
+									}
+							
+							nlapiSubmitRecord(newRecord, false, true);
+						}
 				}
 		}
 	
