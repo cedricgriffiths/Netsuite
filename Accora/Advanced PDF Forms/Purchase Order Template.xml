@@ -5,88 +5,189 @@
         <#assign regInfo>?????</#assign>
         <#assign emailInfo>?????</#assign>
         <#assign telInfo>?????</#assign>
-        <#assign vatInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign faxInfo>?????</#assign>
+        <#assign webInfo>?????</#assign>
         <#assign logoInfo>?????</#assign>
+        <#assign subsidiaryName>${record.subsidiary.name[record.subsidiary.name?index_of(":")+1..]}</#assign>
         <#assign subsidiary>${record.subsidiary.id}</#assign>
   
-        <#if subsidiary=="4">
-              <#assign regInfo>Company Registration No: 99999999. Registered Office: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, United Kingdom.</#assign>
-              <#assign emailInfo>sales@XXXXXXXXXX.co.uk</#assign>
-              <#assign telInfo>999999999999</#assign>
+        <#if subsidiary=="5">
+              <#assign regInfo>Company Registration No: 4915604 . Registered Office: Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@accora.uk.com</#assign>
+              <#assign telInfo>01223 206100</#assign>
+              <#assign faxInfo>01223 206120</#assign>
               <#assign vatInfo>GB 999 999 999</#assign>
-              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=600&amp;c=4810497&amp;h=7cff3197e0d67148de3d</#assign>
+          	  <#assign webInfo>www.accora.uk.com</#assign>
+              <#assign logoInfo>https://system.netsuite.com/core/media/media.nl?id=409&amp;c=4810497_SB1&amp;h=dd11cbd155b80e90fbbf</#assign>
         </#if>
   
-
+        <#if subsidiary=="1">
+              <#assign regInfo>Company Registration No: 4915604 . Registered Office: Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@accora.uk.com</#assign>
+              <#assign telInfo>01223 206100</#assign>
+              <#assign faxInfo>01223 206120</#assign>
+              <#assign vatInfo>GB 999 999 999</#assign>
+              <#assign webInfo>www.accora.uk.com</#assign>
+              <#assign logoInfo>https://system.netsuite.com/core/media/media.nl?id=409&amp;c=4810497_SB1&amp;h=dd11cbd155b80e90fbbf</#assign>
+        </#if>
   
-    <macrolist>
+      <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;">
-    <tr>
-  <td align="right">&nbsp;</td>
-  <td align="right">&nbsp;</td>
-  <td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
-    </tr>
-    <!--<tr><td>&nbsp;</td></tr>-->
-    <tr>
-  <td><span style="font-size:24px;">${record@title}</span></td>
-  <td align="right">&nbsp;</td>
-  <td align="right">&nbsp;</td>
-  </tr>
-          </table>
-    <table class="header" style="width: 100%;">
+              <table class="header" style="width: 100%;">
+  				<tr>
+  					<td align="left" colspan="2" style="font-size:14pt"><b>${subsidiaryName}</b></td>
+  					<td align="right" width="50" style="font-size:8pt">&nbsp;</td>
+  					<td align="left" width="150" style="padding-left: 5px;">&nbsp;</td>
+  					<td align="left">&nbsp;</td>
+  					<td rowspan="6" align="right"><img src="${logoInfo}" style="float: right; width:150px; height:75px;" /></td>
+  				</tr>
+               
+  				<tr>
+  					<td align="left" colspan="2" rowspan="6"><span class="nameandaddress">${record.custbody_subsidiary_address}</span></td>
+  					<td align="right" width="50" style="font-size:8pt">Tel:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt">${telInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                 <tr>
+  					<td align="right" width="50" style="font-size:8pt">Fax:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${faxInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="right" width="50" style="font-size:8pt">Email:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${emailInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="right" width="50" style="font-size:8pt">Web:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${webInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left" colspan="2" style="font-size:18px;">${record@title}</td>
+  				</tr>
+			</table>
 
-  <tr>
-  <td align="right">&nbsp;</td>
-  <td align="right">&nbsp;</td>
-  <td align="right">&nbsp;</td>
-  <td align="right">&nbsp;</td>
-  </tr>
-  <tr>
-  <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
-  <td align="right" style="font-size:10pt"></td>
-  <!--<td align="right" style="font-size:10pt"></td>-->
+			<table class="header" style="width: 100%;">
+            	<tr>
+                  <td align="left" colspan="2" ><b>Supplier Name</b></td>
+					<td align="left">&nbsp;</td>
+				</tr>
 
- <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
-
-  
-  </tr>
-  <tr>
-    <!--<<td align="right"></td>-->
-  <td align="right"></td>
-  </tr>
-  <tr>
-  <!--<<td align="right" style="font-size:10pt"></td>-->
-  <td align="right" style="font-size:10pt"></td>
-  </tr>
-  <tr>
-  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-  <td align="right" style="font-size:10pt">&nbsp;</td>
-  </tr>
-  <tr>
-  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-  <td align="right" style="font-size:10pt">&nbsp;</td>
-  </tr>
-  <tr >
-  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-    <td align="right" style="font-size:10pt">&nbsp;</td>
-  </tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-
-          </table>
+				<tr>
+					<td align="left" colspan="2" rowspan="6">${record.billaddress}</td>
+    				<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; ">DATE</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">DOCUMENT No.</td>
+					
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black;">${record.trandate}</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black;">${record.tranid}</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; ">ORDER No.</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">DESPATCH DATE</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black;">${record.tranid}</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black;">${record.custbody_expected_ship_date}</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; ">INV A/C No.</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">DELIVERY METHOD</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black;">${record.entity.entityid}</td>
+					<td align="center" line-height="5px" style="vertical-align: middle; font-size:8px; border-right: 1px solid black;">&nbsp;</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="13px" colspan="2" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black; ">SETTLEMENT TERMS</td>
+				</tr>
+              	<tr>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+                  <#if record.entity.terms?has_content>
+					<td align="center" line-height="13px" colspan="2"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black;">${record.entity.terms}</td>
+                  <#else>
+                    <td align="center" line-height="13px" colspan="2"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black;">Not Applicable</td>
+                  </#if>
+				</tr>
+                <tr>
+					<td align="left" colspan="2" ><b>Deliver To</b></td>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" colspan="2" style="vertical-align: middle; font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black; ">ORDER REFERENCE</td>
+				</tr>
+              	<tr>
+					<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td>
+					<td align="left">&nbsp;</td>
+					<td align="center" line-height="5px" colspan="2"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">${record.otherrefnum}</td>
+				</tr>
+				<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+              	<tr>
+                  	<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+					<td align="left">&nbsp;</td>
+				</tr>
+			</table>
         </macro>
 
         <macro id="nlfooter">
-
-          <!--<hr />-->
-          
         <table style="width: 100%;">
 
           <tr><td><b>Standard Terms and Conditions apply</b></td></tr>
@@ -210,90 +311,52 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="3%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="330px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
-    <table style="width: 100%;">
-    <tr>
-  <td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-  </tr>
-  <tr>
-  <td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-  </tr>
-  <tr>
-  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-  <tr>
-  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
-  <tr>
-  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.memo}</td>
-    </tr>
-        <tr>
-  <td class="address">&nbsp;</td><td align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
-    </tr>
-      <tr>
-        <#if record.duedate?has_content>
-  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Delivery Date</b></td><td align="right" style="font-size:10pt">${record.duedate?string["dd MMM yyyy"]}</td>
-            </#if>
-    </tr>
     
-      <tr>
-  <td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-  <td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-  <td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-  </table>
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
   <tr >
-  <th align="left" colspan="8">Description</th>
-
-  <th align="center" colspan="1">Quantity</th>
-  <th align="right" colspan="2">Unit Price</th>
-
-  <th align="center" colspan="2">VAT Code</th>
-
-  <th align="right" colspan="2">Amount<br/>(${record.currency})</th>
+  	<th align="left" colspan="8" style="border: 1px solid black; padding-right: 5px;">Item / Description</th>
+  	<th align="left" colspan="3" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">Drawing Ref</th>
+  	<th align="center" colspan="1" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
+  	<th align="right" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">Unit Price</th>
+  	<th align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">VAT Code</th>
+  	<th align="right" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">Amount</th>
   </tr>
 </thead>
 </#if>
 
   <tr>
-  <td align="left" colspan="8" margin-right="5px">${item.item} ${item.description}</td>
-
-  <td align="center" colspan="1">${item.quantity}</td>
-  <td align="right" colspan="2">${item.rate}</td>
-
-  <td align="center" colspan="2">${item.taxcode}</td>
-
-  <td align="right" colspan="2">${item.amount}</td>
+  <td align="left" colspan="8"  style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px;">${item.custcol_item_code_for_print}<br/>${item.description}</td>
+  <td align="left" colspan="3"  style="word-wrap: break-word; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px;">${item.custcol_drawing_ref_tran_col_field}</td>
+  <td align="center" colspan="1" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.quantity}</td>
+  <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">${item.rate}</td>
+  <td align="center" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.taxcode}</td>
+  <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">${item.amount}</td>
   </tr>
   </#list><!-- end items --></table>
 </#if>
 
-<hr />
+
 <table class="total" style="width: 100%;"><tr class="totalrow">
   <td colspan="3">&nbsp;</td>
   <td class="totalcell"  align="right"><b>Subtotal</b></td>
-  <td class="totalcell"  align="right">${record.subtotal}</td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.subtotal}</td>
   </tr>
   <tr class="totalrow">
   <td colspan="3">&nbsp;</td>
 
   <td class="totalcell" align="right"><b>VAT Total</b></td>
   
-  <td class="totalcell"  align="right">${record.taxtotal}</td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.taxtotal}</td>
   </tr>
   <tr class="totalrow">
   <td colspan="3">&nbsp;</td>
   <td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
-  <td class="totalcell"  align="right">${record.total}</td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.total}</td>
   </tr>
   <tr>
   <td>&nbsp;</td>
