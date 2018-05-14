@@ -399,10 +399,13 @@ function createAssembliesFieldChanged(type, name, linenum)
 					//
 					var finishRefs = {};
 					
-					for (var int2 = 0; int2 < assemblyitemSearch.length; int2++) 
+					if(assemblyitemSearch != null)
 						{
-							var finishRefText = assemblyitemSearch[int2].getValue('formulatext');
-							finishRefs[finishRefText] = finishRefText;
+							for (var int2 = 0; int2 < assemblyitemSearch.length; int2++) 
+								{
+									var finishRefText = assemblyitemSearch[int2].getValue('formulatext');
+									finishRefs[finishRefText] = finishRefText;
+								}
 						}
 					
 					//Search the custom list of finishes
