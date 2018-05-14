@@ -322,6 +322,7 @@ function createAssembliesScheduled(type)
 											//Add a bin number to the assembly
 											//
 											newParentRecord.selectNewLineItem('binnumber');
+											newParentRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
 											newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
 											newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
 											newParentRecord.commitLineItem('binnumber', false);					
@@ -496,6 +497,7 @@ function createAssembliesScheduled(type)
 																	//Add a bin number to the assembly
 																	//
 																	newChildRecord.selectNewLineItem('binnumber');
+																	newChildRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
 																	newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
 																	newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
 																	newChildRecord.commitLineItem('binnumber', false);
