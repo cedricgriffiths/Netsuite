@@ -104,8 +104,14 @@ function assignWoToSoARS(type)
 															
 													//Save the works order
 													//
-													var worksOrderId = nlapiSubmitRecord(worksOrderRecord, true, true); //20GU's
-																				
+													try
+														{
+															var worksOrderId = nlapiSubmitRecord(worksOrderRecord, true, true); //20GU's
+														}
+													catch(err)
+														{
+															nlapiLogExecution('ERROR', 'Creating Works Order', err.message);
+														}
 												}
 										}
 								}
