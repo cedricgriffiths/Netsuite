@@ -53,12 +53,14 @@ function(record, message) {
     								{
 		    							var atRisk = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk'});
 		    							var noSupport = custRecord.getValue({fieldId: 'custentity_bbs_customer_support_ended'});
+		    							var prePaid = custRecord.getValue({fieldId: 'custentity_bbs_support_hours'});
 		    							
 		    							var atRiskMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk_msg'});
 		    							var noSupportMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_no_support_msg'});
 		    							
 		    							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
 		    							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
+		    							var prePaidMessage = 'Customer Has Pre-Paid Hours Support - Please Account For Time Spent On Your Timesheet';
 		    							
 		    							if (atRisk)
 		    								{
@@ -71,6 +73,12 @@ function(record, message) {
 												var myMsg = message.create({title: '',message: noSupportMessage,type: message.Type.ERROR});
 												myMsg.show();
 											}
+		    							
+		    							if (prePaid)
+										{
+											var myMsg = message.create({title: '',message: prePaidMessage,type: message.Type.WARNING});
+											myMsg.show();
+										}
     								}
     						}
     				}

@@ -40,13 +40,37 @@ function userEventBeforeLoad(type, form, request)
 							
 							var atRisk = custRecord.getFieldValue('custentity_bbs_customer_at_risk');
 							var noSupport = custRecord.getFieldValue('custentity_bbs_customer_support_ended');
+							var prePaid = custRecord.getFieldValue('custentity_bbs_support_hours');
 							
 							var atRiskMsg = custRecord.getFieldValue('custentity_bbs_customer_at_risk_msg');
 							var noSupportMsg = custRecord.getFieldValue('custentity_bbs_customer_no_support_msg');
 							
 							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
 							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
+							var prePaidMessage = 'Customer Has Pre-Paid Hours Support - Please Account For Time Spent On Your Timesheet';
 							
+							
+							if (prePaid == 'T')
+							{
+								var html = '<SCRIPT language="JavaScript" type="text/javascript">';
+								html += "function bindEvent(element, type, handler) {if(element.addEventListener) {element.addEventListener(type, handler, false);} else {element.attachEvent('on'+type, handler);}} "; 
+								html += 'bindEvent(window, "load", function(){'; 
+								
+								html += "require(['N/record', 'N/ui/message']," +
+											"function(record, message) {" +
+												"function myPageInit() {" +
+													"var myMsg = message.create({title: '',message: '" + prePaidMessage + "',type: message.Type.WARNING});" +
+													"myMsg.show();}" +
+												"myPageInit();" +
+											"});";
+								html += '});'; 
+								html += '</SCRIPT>';
+								
+								// push a dynamic field into the environment
+								var field0 = form.addField('custpage_alertmode', 'inlinehtml', '',null,null); 
+								field0.setDefaultValue(html);
+							}
+						
 							
 							if (atRisk == 'T')
 								{
