@@ -354,10 +354,10 @@ function libFindConsignments(list1) {
 				var shipRef = results[int].getValue(getAltName());
 				var containerNo = results[int].getValue('custrecordbbs_consignment_container_no');
 			
-				list1.setLineItemValue('custpage_col2', line, id); 
-				list1.setLineItemValue('custpage_col3', line, shipRef); 
-				list1.setLineItemValue('custpage_col4', line, containerNo); 
-				list1.setLineItemValue('custpage_col5', line, conId); 
+				list1.setLineItemValue('custpage_cons_id', line, id); 
+				list1.setLineItemValue('custpage_cons_shipref', line, shipRef); 
+				list1.setLineItemValue('custpage_cons_container', line, containerNo); 
+				list1.setLineItemValue('custpage_cons_int_id', line, conId); 
 
 			}
 		}

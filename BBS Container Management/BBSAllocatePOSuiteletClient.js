@@ -15,9 +15,9 @@ function clientFieldChanged(type, name, linenum)
 		
 		if (type == 'custpage_sublist1') 
 		{
-			if (name == 'custpage_col1')
+			if (name == 'custpage_cons_tick')
 			{
-				var ticked = nlapiGetLineItemValue(type, 'custpage_col1', linenum);
+				var ticked = nlapiGetLineItemValue(type, 'custpage_cons_tick', linenum);
 				
 				if (ticked == 'T')
 					{
@@ -27,7 +27,7 @@ function clientFieldChanged(type, name, linenum)
 						{
 							if (int != linenum)
 								{
-									nlapiSetLineItemValue('custpage_sublist1', 'custpage_col1', int, 'F');
+									nlapiSetLineItemValue('custpage_sublist1', 'custpage_cons_tick', int, 'F');
 								}
 						}
 					}
@@ -42,16 +42,16 @@ function clientFieldChanged(type, name, linenum)
 		{
 			//See if the item quantity has changed
 			//
-			if (name == 'custpage_col15')
+			if (name == 'custpage_col_allocate')
 				{
-					var qty = Number(nlapiGetLineItemValue(type, 'custpage_col15', linenum));
-					var outstanding = Number(nlapiGetLineItemValue(type, 'custpage_col14', linenum));
+					var qty = Number(nlapiGetLineItemValue(type, 'custpage_col_allocate', linenum));
+					var outstanding = Number(nlapiGetLineItemValue(type, 'custpage_col_outstanding', linenum));
 					
 					if (qty > outstanding)
 						{
 							alert('Cannot allocate more than available qty of ' + outstanding.toString() );
-							nlapiSetLineItemValue(type, 'custpage_col15', linenum, null);
-							nlapiSetLineItemValue(type, 'custpage_col1', linenum, 'F');
+							nlapiSetLineItemValue(type, 'custpage_col_allocate', linenum, null);
+							nlapiSetLineItemValue(type, 'custpage_col_tick', linenum, 'F');
 						}
 					else
 						{
@@ -59,36 +59,36 @@ function clientFieldChanged(type, name, linenum)
 								{
 									//If the quantity is non-blank then set the tick on the line
 									//
-									nlapiSetLineItemValue(type, 'custpage_col1', linenum, 'T');
+									nlapiSetLineItemValue(type, 'custpage_col_tick', linenum, 'T');
 								}
 							else
 								{
 									//If the quantity is blank then un-set the tick on the line
 									//
-									nlapiSetLineItemValue(type, 'custpage_col1', linenum, 'F');
-									nlapiSetLineItemValue(type, 'custpage_col15', linenum, null);
+									nlapiSetLineItemValue(type, 'custpage_col_tick', linenum, 'F');
+									nlapiSetLineItemValue(type, 'custpage_col_allocate', linenum, null);
 								}
 						}
 				}
 			
-			if (name == 'custpage_col1')
+			if (name == 'custpage_col_tick')
 			{
-				var ticked = nlapiGetLineItemValue(type, 'custpage_col1', linenum);
+				var ticked = nlapiGetLineItemValue(type, 'custpage_col_tick', linenum);
 				
 				if (ticked == 'F')
 					{
 						//If the tick box on the line as been un-checked, then set the quantity to null
 						//
-						nlapiSetLineItemValue(type, 'custpage_col15', linenum, null);
+						nlapiSetLineItemValue(type, 'custpage_col_allocate', linenum, null);
 					}
 				else
 					{
-						var outstanding = nlapiGetLineItemValue(type, 'custpage_col14', linenum);
-						var allocated = nlapiGetLineItemValue(type, 'custpage_col15', linenum);
+						var outstanding = nlapiGetLineItemValue(type, 'custpage_col_outstanding', linenum);
+						var allocated = nlapiGetLineItemValue(type, 'custpage_col_allocate', linenum);
 						
 						if(!allocated)
 							{
-								nlapiSetLineItemValue(type, 'custpage_col15', linenum, outstanding);
+								nlapiSetLineItemValue(type, 'custpage_col_allocate', linenum, outstanding);
 							}
 					}
 			}

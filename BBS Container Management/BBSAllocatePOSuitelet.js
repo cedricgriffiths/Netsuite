@@ -52,11 +52,11 @@ function allocatePOSuitelet(request, response){
 					
 					list1.setLabel('Consignment Records Available to Allocate To');
 					
-					var listSelect = list1.addField('custpage_col1', 'checkbox', 'Select', null);
-					var listConRef = list1.addField('custpage_col2', 'text', 'Id', null);
-					var listConName = list1.addField('custpage_col3', 'text', 'Shipment Reference', null);
-					var listConNum = list1.addField('custpage_col4', 'text', 'Container Number', null);
-					var listConId = list1.addField('custpage_col5', 'text', 'Int Id', null);
+					var listSelect = list1.addField('custpage_cons_tick', 'checkbox', 'Select', null);
+					var listConRef = list1.addField('custpage_cons_id', 'text', 'Id', null);
+					var listConName = list1.addField('custpage_cons_shipref', 'text', 'Shipment Reference', null);
+					var listConNum = list1.addField('custpage_cons_container', 'text', 'Container Number', null);
+					var listConId = list1.addField('custpage_cons_int_id', 'text', 'Int Id', null);
 					listConId.setDisplayType('hidden');
 					
 					// Add a submit button
@@ -130,50 +130,47 @@ function allocatePOSuitelet(request, response){
 							//
 							var fieldConsignment = form.addField('custpage_consignment', 'text', 'Consignment');
 							fieldConsignment.setDefaultValue(paramConsId.toString());
-							
 							fieldConsignment.setDisplayType('hidden');
-							
+						
 							//Add a tab and a sublist
 							//
 							var tab1 = form.addTab('custpage_tab1', 'Purchase Orders');
 							var list1 = form.addSubList('custpage_sublist1', 'list', 'Purchase Orders Available For Allocation', 'custpage_tab1');
-							
 							list1.setLabel('Purchase Orders Available For Allocation');
 					
-							var listSelect =list1.addField('custpage_col1', 'checkbox', 'Select', null);
+							//Create sublist columns
+							//
+							var listSelect =list1.addField('custpage_col_tick', 'checkbox', 'Select', null);
+							var listHyper = list1.addField('custpage_col_po_url', 'url', 'View', null);		
+							var listSupplier = list1.addField('custpage_col_supplier', 'text', 'Supplier', null);
+							var listPoNumber = list1.addField('custpage_col_po_num', 'text', 'Purchase Order', null);
+							var listDocNum = list1.addField('custpage_col_line_no', 'text', 'Line No', null);
+							var listDate = list1.addField('custpage_col_dated', 'date', 'Dated', null);
+							var listItem = list1.addField('custpage_col_item', 'text', 'Item', null);
+							var listItemDesc = list1.addField('custpage_col_description', 'text', 'Description', null);		
+							var listRate = list1.addField('custpage_col_rate', 'currency', 'Rate', null);
+							var listQty = list1.addField('custpage_col_quantity', 'float', 'Quantity', null);
+							var listAmount = list1.addField('custpage_col_amount', 'currency', 'Amount', null);					
+							var listCurrency = list1.addField('custpage_col_currency', 'text', 'Currency', null);	
+							var listExchRate = list1.addField('custpage_col_exch_rate', 'float', 'Exch Rate', null);						
+							var listReceived = list1.addField('custpage_col_received', 'float', 'Received', null);
+							var listContainer = list1.addField('custpage_col_on_container', 'float', 'On Container', null);
+							var listRemain = list1.addField('custpage_col_outstanding', 'float', 'Outstanding', null);
+							var listAlloc = list1.addField('custpage_col_allocate', 'float', 'Allocate', null);						
+							var listPOId = list1.addField('custpage_col_po_id', 'text', 'Id', null);						
+							var listWeight = list1.addField('custpage_col_weight', 'float', 'Weight', null);						
+							var listCurrencyId = list1.addField('custpage_col_curr_id', 'text', 'Currency Id', null);	
 							
-							var listHyper = list1.addField('custpage_col9', 'url', 'View', null);
+							//Set column display attributes
+							//
+							listCurrencyId.setDisplayType('hidden');
 							listHyper.setLinkText('View');
-							
-							var listSupplier = list1.addField('custpage_col13', 'text', 'Supplier', null);
-							var listPoNumber = list1.addField('custpage_col2', 'text', 'Purchase Order', null);
-							var listDocNum = list1.addField('custpage_col3', 'text', 'Line No', null);
-							var listDate = list1.addField('custpage_col4', 'date', 'Dated', null);
-							var listItem = list1.addField('custpage_col8', 'text', 'Item', null);
-							var listItemDesc = list1.addField('custpage_col16', 'text', 'Description', null);
-							
-							var listRate = list1.addField('custpage_col5', 'currency', 'Rate', null);
-							var listQty = list1.addField('custpage_col6', 'float', 'Quantity', null);
-							var listAmount = list1.addField('custpage_col7', 'currency', 'Amount', null);
-							
-							var listCurrency = list1.addField('custpage_col18', 'text', 'Currency', null);	
-							var listExchRate = list1.addField('custpage_col19', 'float', 'Exch Rate', null);
-							
-							var listReceived = list1.addField('custpage_col11', 'float', 'Received', null);
-							var listContainer = list1.addField('custpage_col12', 'float', 'On Container', null);
-							var listRemain = list1.addField('custpage_col14', 'float', 'Outstanding', null);
-							var listAlloc = list1.addField('custpage_col15', 'float', 'Allocate', null);
+							listWeight.setDisplayType('hidden');
+							listPOId.setDisplayType('hidden');
 							listAlloc.setDisplayType('entry');
 							
-							var listPOId = list1.addField('custpage_col10', 'text', 'Id', null);
-							listPOId.setDisplayType('hidden');
-							
-							var listWeight = list1.addField('custpage_col17', 'float', 'Weight', null);
-							listWeight.setDisplayType('hidden');
-
-							var listCurrencyId = list1.addField('custpage_col20', 'text', 'Currency Id', null);	
-							listCurrencyId.setDisplayType('hidden');
-							
+							//Add a refresh button to the sublist
+							//
 							list1.addButton('custpage_refresh', 'Refresh List', 'ButtonRefresh()');
 					
 							//Populate the po list based on the search criteria
@@ -195,21 +192,10 @@ function allocatePOSuitelet(request, response){
 										var line = int + 1;
 										var poId = results[int].getId();
 										
-										//If the po id has changed then read the po record so we can find the item sublist real line no
-										//
-										//if(previousPoId != poId)
-										//	{
-										//		poRec = nlapiLoadRecord('purchaseorder', poId);
-										//		previousPoId = poId;
-										//	}
-										
-										//var lineNo = libFindLine(poRec, 'item', Number(results[int].getValue('line')));
 										var lineNo = results[int].getValue('line');
-										
 										var supplier = results[int].getValue('entityid','vendor');
 										var supplierId = results[int].getValue('internalid','vendor');
 										var tranid = results[int].getValue('tranid');
-										//var lineNo = results[int].getValue('line');
 										var tranDate = results[int].getValue('trandate');
 										var rate = results[int].getValue('rate');
 										var qty = results[int].getValue('quantity');
@@ -236,24 +222,24 @@ function allocatePOSuitelet(request, response){
 											pos[tranid] = [tranid,poId]
 										}
 									
-										list1.setLineItemValue('custpage_col2', line, tranid); 
-										list1.setLineItemValue('custpage_col3', line, lineNo); 
-										list1.setLineItemValue('custpage_col4', line, tranDate); 
-										list1.setLineItemValue('custpage_col5', line, rate); 
-										list1.setLineItemValue('custpage_col6', line, qty); 
-										list1.setLineItemValue('custpage_col7', line, amount); 
-										list1.setLineItemValue('custpage_col8', line, item); 
-										list1.setLineItemValue('custpage_col9', line, poURL);
-										list1.setLineItemValue('custpage_col10', line, poId);
-										list1.setLineItemValue('custpage_col11', line, recv);
-										list1.setLineItemValue('custpage_col12', line, onCont);
-										list1.setLineItemValue('custpage_col13', line, supplier);
-										list1.setLineItemValue('custpage_col14', line, rem);
-										list1.setLineItemValue('custpage_col16', line, itemDesc);
-										list1.setLineItemValue('custpage_col17', line, weight);
-										list1.setLineItemValue('custpage_col18', line, currencyText);
-										list1.setLineItemValue('custpage_col19', line, exchangeRate);
-										list1.setLineItemValue('custpage_col20', line, currency);
+										list1.setLineItemValue('custpage_col_po_num', line, tranid); 
+										list1.setLineItemValue('custpage_col_line_no', line, lineNo); 
+										list1.setLineItemValue('custpage_col_dated', line, tranDate); 
+										list1.setLineItemValue('custpage_col_rate', line, rate); 
+										list1.setLineItemValue('custpage_col_quantity', line, qty); 
+										list1.setLineItemValue('custpage_col_amount', line, amount); 
+										list1.setLineItemValue('custpage_col_item', line, item); 
+										list1.setLineItemValue('custpage_col_po_url', line, poURL);
+										list1.setLineItemValue('custpage_col_po_id', line, poId);
+										list1.setLineItemValue('custpage_col_received', line, recv);
+										list1.setLineItemValue('custpage_col_on_container', line, onCont);
+										list1.setLineItemValue('custpage_col_supplier', line, supplier);
+										list1.setLineItemValue('custpage_col_outstanding', line, rem);
+										list1.setLineItemValue('custpage_col_description', line, itemDesc);
+										list1.setLineItemValue('custpage_col_weight', line, weight);
+										list1.setLineItemValue('custpage_col_currency', line, currencyText);
+										list1.setLineItemValue('custpage_col_exch_rate', line, exchangeRate);
+										list1.setLineItemValue('custpage_col_curr_id', line, currency);
 									}
 									
 									
@@ -330,8 +316,8 @@ function allocatePOSuitelet(request, response){
 				{
 					//Get the details from the sublist
 					//
-					var consId = request.getLineItemValue('custpage_sublist1', 'custpage_col5', int);
-					var consChecked = request.getLineItemValue('custpage_sublist1', 'custpage_col1', int);
+					var consId = request.getLineItemValue('custpage_sublist1', 'custpage_cons_int_id', int);
+					var consChecked = request.getLineItemValue('custpage_sublist1', 'custpage_cons_tick', int);
 					
 					//Process only the checked lines
 					//
@@ -376,19 +362,16 @@ function allocatePOSuitelet(request, response){
 				{
 					//Get the po details from the sublist
 					//
-					var poId = request.getLineItemValue('custpage_sublist1', 'custpage_col10', int);
-					var poLine = Number(request.getLineItemValue('custpage_sublist1', 'custpage_col3', int));
-					var poChecked = request.getLineItemValue('custpage_sublist1', 'custpage_col1', int);
-					var poAllocated = Number(request.getLineItemValue('custpage_sublist1', 'custpage_col15', int));
-					var poDescription = request.getLineItemValue('custpage_sublist1', 'custpage_col16', int);
-					var poRate = request.getLineItemValue('custpage_sublist1', 'custpage_col5', int);
-					var poWeight = request.getLineItemValue('custpage_sublist1', 'custpage_col17', int);
-					var poExchangeRate = request.getLineItemValue('custpage_sublist1', 'custpage_col19', int);
-					var poCurrency = request.getLineItemValue('custpage_sublist1', 'custpage_col20', int);
-					
-					//
-					//New Code - Start
-					//
+					var poId = request.getLineItemValue('custpage_sublist1', 'custpage_col_po_id', int);
+					var poLine = Number(request.getLineItemValue('custpage_sublist1', 'custpage_col_line_no', int));
+					var poChecked = request.getLineItemValue('custpage_sublist1', 'custpage_col_tick', int);
+					var poAllocated = Number(request.getLineItemValue('custpage_sublist1', 'custpage_col_allocate', int));
+					var poDescription = request.getLineItemValue('custpage_sublist1', 'custpage_col_description', int);
+					var poRate = request.getLineItemValue('custpage_sublist1', 'custpage_col_rate', int);
+					var poWeight = request.getLineItemValue('custpage_sublist1', 'custpage_col_weight', int);
+					var poExchangeRate = request.getLineItemValue('custpage_sublist1', 'custpage_col_exch_rate', int);
+					var poCurrency = request.getLineItemValue('custpage_sublist1', 'custpage_col_curr_id', int);
+
 					
 					//Build an array of po id's to process along with all the relevant lines
 					//
@@ -460,55 +443,7 @@ function allocatePOSuitelet(request, response){
 						//
 						nlapiSubmitRecord(poRecord, false, true);
 					}
-					
-					
-					
-					//
-					//New Code - End
-					//
-					
-					/*
-					//Process only the checked lines
-					//
-					if (poChecked == 'T')
-					{
-						//Load up the po record
-						//
-						var poRecord = nlapiLoadRecord('purchaseorder', poId);
-						
-						if (poRecord)
-						{
-							var poSupplier = poRecord.getFieldValue('entity');
-							
-							//Update the amount on consignment on the po line
-							//
-							var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine));
-							
-							var newAlloc = onConsignment + poAllocated;
-							
-							poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poLine, newAlloc);
-							var poItem = poRecord.getLineItemValue('item', 'item', poLine);
-							
-							nlapiSubmitRecord(poRecord, false, true);
-							
-							//Create a consignment detail record to allocate the po to
-							//
-							var consDetail = nlapiCreateRecord('customrecord_bbs_consignment_detail');
-							
-							consDetail.setFieldValue('custrecord_bbs_consignment_header_id', paramConsId);
-							consDetail.setFieldValue('custrecord_bbs_con_det_po_id', poId);
-							consDetail.setFieldValue('custrecord_bbs_con_det_po_line', poLine);
-							consDetail.setFieldValue('custrecord_bbs_con_det_allocated', poAllocated);
-							consDetail.setFieldValue('custrecord_bbs_con_det_item', poItem);
-							consDetail.setFieldValue('custrecord_bbs_con_det_supplier', poSupplier);
-							consDetail.setFieldValue('custrecord_bbs_con_det_item_description', poDescription);
-							consDetail.setFieldValue('custrecord_bbs_con_det_item_rate', poRate);
-							consDetail.setFieldValue('custrecord_bbs_con_det_item_weight', poWeight);
-							
-							nlapiSubmitRecord(consDetail, false, true);
-						}
-					}
-				}*/
+
 				
 				//Redirect back to the calling consignment record
 				//
