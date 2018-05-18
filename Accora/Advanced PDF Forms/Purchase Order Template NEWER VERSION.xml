@@ -81,7 +81,7 @@
                     <td align="left">&nbsp;</td>
                     <td align="left">&nbsp;</td>
                     <td align="left">&nbsp;</td>
-                    <td align="left" colspan="2" style="font-size:18px;">${record@title}</td>
+                    <td align="center" colspan="2" style="font-size:18px;">${record@title}</td>
   				</tr>
 			</table>
 
@@ -130,7 +130,7 @@
                                 <#else>
                                   	<td align="center"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">Not Specified</td>
                                 </#if>
-								<td align="center"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">${record.otherrefnum}</td>
+								<td align="center"  style="vertical-align: middle; font-size:8px; border-right: 1px solid black; border-bottom: 1px solid black;">${record.otherrefnum}</td>
                             </tr>
                       	</table>
                   </td>
@@ -154,15 +154,15 @@
         <macro id="nlfooter">
         <table style="width: 100%;">
 
-          <tr><td><b>Standard Terms and Conditions apply</b></td></tr>
-          <tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>
+          <tr><td align="center"><b>Standard Terms and Conditions apply</b></td></tr>
+          <tr><td align="center"><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>
 
           <tr><td>&nbsp;</td></tr>
         </table>
 
         <table style="width: 100%;">
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
+              <td align="center" class="message">${regInfo}</td>
       </tr>
         </table>
 
@@ -283,8 +283,8 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
   <tr >
-  	<th align="left" colspan="8" style="border: 1px solid black; padding-right: 5px;">Item / Description</th>
-  	<th align="left" colspan="3" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">Drawing Ref</th>
+  	<th align="left" colspan="8" style="border: 1px solid black; padding-left: 5px;">Item / Description</th>
+  	<th align="left" colspan="3" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;">Drawing Ref</th>
   	<th align="center" colspan="1" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">Quantity</th>
   	<th align="right" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">Unit Price</th>
   	<th align="center" colspan="2" style="border-right: 1px solid black; border-top: 1px solid black; border-bottom: 1px solid black;">VAT Code</th>
@@ -293,12 +293,17 @@
 </thead>
 </#if>
 
+  <#assign partNo>${item.custcol_item_code_for_print}</#assign>
+  <#if item.custcol_mpan_tran_col_field?has_content>
+    <#assign partNo>${item.custcol_mpan_tran_col_field}</#assign>
+  </#if>
+  
   <tr>
-  <td align="left" colspan="8"  style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px;">${item.custcol_item_code_for_print}<br/>${item.description}</td>
+  <td align="left" colspan="8"  style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px;">${partNo}<br/>${item.description}</td>
   <td align="left" colspan="3"  style="word-wrap: break-word; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px;">${item.custcol_drawing_ref_tran_col_field}</td>
   <td align="center" colspan="1" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.quantity}</td>
   <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">${item.rate}</td>
-  <td align="center" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.taxcode}</td>
+  <td align="center" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">${item.taxrate1}</td>
   <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px;">${item.amount}</td>
   </tr>
   </#list><!-- end items --></table>
