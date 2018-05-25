@@ -1,0 +1,24 @@
+<customlist scriptid="customlist_cbc_catalogue_view">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>F</isordered>
+  <name>CBC Catalogue View</name>
+  <customvalues>
+    <customvalue scriptid="val_70386_t1403018_547">
+      <abbreviation>F</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Full Access</value>
+    </customvalue>
+    <customvalue scriptid="val_70388_t1403018_174">
+      <abbreviation>N</abbreviation>
+      <isinactive>F</isinactive>
+      <value>None (Manpack)</value>
+    </customvalue>
+    <customvalue scriptid="val_70387_t1403018_660">
+      <abbreviation>R</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Request</value>
+    </customvalue>
+  </customvalues>
+</customlist>

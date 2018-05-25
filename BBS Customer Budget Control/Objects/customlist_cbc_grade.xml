@@ -1,0 +1,114 @@
+<customlist scriptid="customlist_cbc_grade">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>F</isordered>
+  <name>CBC Grade</name>
+  <customvalues>
+    <customvalue scriptid="val_70358_t1403018_435">
+      <abbreviation>A</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Administration</value>
+    </customvalue>
+    <customvalue scriptid="val_70361_t1403018_205">
+      <abbreviation>A</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Ambient</value>
+    </customvalue>
+    <customvalue scriptid="val_70362_t1403018_583">
+      <abbreviation>C</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Chilled</value>
+    </customvalue>
+    <customvalue scriptid="val_70359_t1403018_435">
+      <abbreviation>C</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Cleaning</value>
+    </customvalue>
+    <customvalue scriptid="val_70365_t1403018_791">
+      <abbreviation>D</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Depot</value>
+    </customvalue>
+    <customvalue scriptid="val_70357_t1403018_620">
+      <abbreviation>D</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Driver</value>
+    </customvalue>
+    <customvalue scriptid="val_70373_t1403018_227">
+      <abbreviation>E</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Employee</value>
+    </customvalue>
+    <customvalue scriptid="val_70367_t1403018_885">
+      <abbreviation>E</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Engineer</value>
+    </customvalue>
+    <customvalue scriptid="val_70369_t1403018_275">
+      <abbreviation>F</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Fire Marshall</value>
+    </customvalue>
+    <customvalue scriptid="val_70370_t1403018_984">
+      <abbreviation>F</abbreviation>
+      <isinactive>F</isinactive>
+      <value>First Aider</value>
+    </customvalue>
+    <customvalue scriptid="val_70374_t1403018_721">
+      <abbreviation>F</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Foreman</value>
+    </customvalue>
+    <customvalue scriptid="val_70371_t1403018_597">
+      <abbreviation>G</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Groundsman</value>
+    </customvalue>
+    <customvalue scriptid="val_70364_t1403018_177">
+      <abbreviation>H</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Handling</value>
+    </customvalue>
+    <customvalue scriptid="val_70368_t1403018_305">
+      <abbreviation>J</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Janatorial</value>
+    </customvalue>
+    <customvalue scriptid="val_70372_t1403018_191">
+      <abbreviation>L</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Logistics</value>
+    </customvalue>
+    <customvalue scriptid="val_70366_t1403018_883">
+      <abbreviation>M</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Manager</value>
+    </customvalue>
+    <customvalue scriptid="val_70360_t1403018_469">
+      <abbreviation>S</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Supervisor</value>
+    </customvalue>
+    <customvalue scriptid="val_70375_t1403018_810">
+      <abbreviation>T</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Technician</value>
+    </customvalue>
+    <customvalue scriptid="val_70376_t1403018_721">
+      <abbreviation>V</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Visitor</value>
+    </customvalue>
+    <customvalue scriptid="val_70377_t1403018_821">
+      <abbreviation>W</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Warehouse</value>
+    </customvalue>
+    <customvalue scriptid="val_70363_t1403018_316">
+      <abbreviation>W</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Workshop</value>
+    </customvalue>
+  </customvalues>
+</customlist>

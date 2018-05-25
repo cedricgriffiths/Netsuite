@@ -1,0 +1,24 @@
+<customlist scriptid="customlist_cbc_budget_management_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>F</isordered>
+  <name>CBC Budget Management Type</name>
+  <customvalues>
+    <customvalue scriptid="val_70354_t1403018_930">
+      <abbreviation>A</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Allocations</value>
+    </customvalue>
+    <customvalue scriptid="val_70352_t1403018_379">
+      <abbreviation>M</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Monetary</value>
+    </customvalue>
+    <customvalue scriptid="val_70353_t1403018_732">
+      <abbreviation>P</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Points</value>
+    </customvalue>
+  </customvalues>
+</customlist>

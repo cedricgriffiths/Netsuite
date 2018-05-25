@@ -1,0 +1,29 @@
+<customlist scriptid="customlist_cbc_login_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>F</isordered>
+  <name>CBC Login Type</name>
+  <customvalues>
+    <customvalue scriptid="val_70383_t1403018_776">
+      <abbreviation>A</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Area Manager</value>
+    </customvalue>
+    <customvalue scriptid="val_70382_t1403018_537">
+      <abbreviation>M</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Manager</value>
+    </customvalue>
+    <customvalue scriptid="val_70381_t1403018_822">
+      <abbreviation>S</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Supervisor</value>
+    </customvalue>
+    <customvalue scriptid="val_70380_t1403018_999">
+      <abbreviation>U</abbreviation>
+      <isinactive>F</isinactive>
+      <value>User</value>
+    </customvalue>
+  </customvalues>
+</customlist>

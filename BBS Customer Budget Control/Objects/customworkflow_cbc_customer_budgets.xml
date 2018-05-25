@@ -1,0 +1,101 @@
+<workflow scriptid="customworkflow_cbc_customer_budgets">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts>USERINTERFACE</initcontexts>
+  <initeventtypes></initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype></inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>CBC Customer Budgets</name>
+  <recordtypes>[scriptid=customrecord_cbc_customer_record]</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2315">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>State 1</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setdisplaytypeaction scriptid="workflowaction13242">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula>({custrecord_cbc_customer_budget_type.id}!=3 or ({custrecord_cbc_customer_budget_type.id} is null))</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>HIDDEN</displaytype>
+          <eventtypes>CREATE|EDIT</eventtypes>
+          <field>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+      </workflowactions>
+      <workflowactions triggertype="BEFORELOAD">
+        <setdisplaytypeaction scriptid="workflowaction13243">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes>EDIT</eventtypes>
+          <field>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_budget_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+      </workflowactions>
+      <workflowactions triggertype="AFTERFIELDEDIT">
+        <setdisplaytypeaction scriptid="workflowaction13244">
+          <clienttriggerfields>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_customer_budget_type&apos;)!=3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>HIDDEN</displaytype>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction13245">
+          <clienttriggerfields>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_customer_budget_type&apos;)==3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>NORMAL</displaytype>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setfieldvalueaction scriptid="workflowaction13246">
+          <clienttriggerfields>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_customer_budget_type&apos;)!=3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_customer_record.custrecord_cbc_customer_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

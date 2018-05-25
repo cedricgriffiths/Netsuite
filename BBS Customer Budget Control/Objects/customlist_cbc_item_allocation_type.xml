@@ -1,0 +1,49 @@
+<customlist scriptid="customlist_cbc_item_allocation_type">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>F</isordered>
+  <name>CBC Item Allocation Type</name>
+  <customvalues>
+    <customvalue scriptid="val_70415_t1403018_855">
+      <abbreviation>B</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Belts / Braces</value>
+    </customvalue>
+    <customvalue scriptid="val_70414_t1403018_761">
+      <abbreviation>H</abbreviation>
+      <isinactive>F</isinactive>
+      <value>High Visibility Jackets</value>
+    </customvalue>
+    <customvalue scriptid="val_70418_t1403018_361">
+      <abbreviation>H</abbreviation>
+      <isinactive>F</isinactive>
+      <value>High Visibility Trousers</value>
+    </customvalue>
+    <customvalue scriptid="val_70419_t1403018_760">
+      <abbreviation>J</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Jackets</value>
+    </customvalue>
+    <customvalue scriptid="val_70412_t1403018_427">
+      <abbreviation>L</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Long Sleeve Shirts</value>
+    </customvalue>
+    <customvalue scriptid="val_70416_t1403018_392">
+      <abbreviation>L</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Long Trousers</value>
+    </customvalue>
+    <customvalue scriptid="val_70413_t1403018_385">
+      <abbreviation>S</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Short Sleeve Shirts</value>
+    </customvalue>
+    <customvalue scriptid="val_70417_t1403018_938">
+      <abbreviation>S</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Shorts</value>
+    </customvalue>
+  </customvalues>
+</customlist>

@@ -1,0 +1,59 @@
+<manifest projecttype="ACCOUNTCUSTOMIZATION">
+  <projectname>BBS Customer Budget Control</projectname>
+  <frameworkversion>1.0</frameworkversion>
+  <dependencies>
+    <features>
+      <feature required="false">SUITESIGNON</feature>
+      <feature required="false">JOBS</feature>
+      <feature required="false">ADVANCEDJOBS</feature>
+      <feature required="false">ACCOUNTING</feature>
+      <feature required="false">WEBSITE</feature>
+      <feature required="false">MATRIXITEMS</feature>
+      <feature required="false">CRM</feature>
+      <feature required="true">CUSTOMRECORDS</feature>
+      <feature required="true">SERVERSIDESCRIPTING</feature>
+      <feature required="true">WORKFLOW</feature>
+      <feature required="false">EXTREMELIST</feature>
+      <feature required="false">CREATESUITEBUNDLES</feature>
+      <feature required="false">MAILMERGE</feature>
+      <feature required="false">MULTILANGUAGE</feature>
+      <feature required="false">WEBSTORE</feature>
+      <feature required="false">ADVRECEIVING</feature>
+      <feature required="false">ASSEMBLIES</feature>
+      <feature required="false">INVENTORY</feature>
+      <feature required="false">PAYABLES</feature>
+      <feature required="false">RECEIVABLES</feature>
+      <feature required="false">MULTILOCINVT</feature>
+      <feature required="false">OPPORTUNITIES</feature>
+      <feature required="false">EXPREPORTS</feature>
+      <feature required="false">TIMETRACKING</feature>
+      <feature required="false">WORKORDERS</feature>
+    </features>
+    <objects>
+      <object>customlist_cbc_grade</object>
+      <object>customlist_cbc_login_type</object>
+      <object>customlist_cbc_catalogue_view</object>
+      <object>customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type</object>
+      <object>customlist_cbc_budget_management_type</object>
+      <object>customlist_cbc_item_allocation_type</object>
+      <object>customrecord_cbc_contact_record</object>
+      <object>customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type</object>
+      <object>customlist_cbc_grade</object>
+      <object>customrecord_cbc_customer_record</object>
+      <object>customrecord_cbc_item_record</object>
+      <object>customlist_cbc_catalogue_view</object>
+      <object>customrecord_cbc_customer_record.custrecord_cbc_customer_item_alloc_type</object>
+      <object>customlist_cbc_budget_management_type</object>
+      <object>customlist_cbc_item_allocation_type</object>
+      <object>customlist_cbc_login_type</object>
+      <object>customrecord_cbc_customer_record.custrecord_cbc_customer_budget_type</object>
+      <object>customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type</object>
+      <object>custtab_cbc_subtab</object>
+      <object>customrecord_cbc_contact_record</object>
+      <object>customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type</object>
+    </objects>
+    <files>
+      <file>/SuiteScripts/CBC/CBCContactBudgetClient.js</file>
+    </files>
+  </dependencies>
+</manifest>

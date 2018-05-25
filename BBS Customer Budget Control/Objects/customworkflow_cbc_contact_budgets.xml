@@ -1,0 +1,123 @@
+<workflow scriptid="customworkflow_cbc_contact_budgets">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts>USERINTERFACE</initcontexts>
+  <initeventtypes></initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype></inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>CBC Contact Budgets</name>
+  <recordtypes>[scriptid=customrecord_cbc_contact_record]</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2314">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>State 1</name>
+      <positionx>293</positionx>
+      <positiony>123</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setdisplaytypeaction scriptid="workflowaction13235">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula>({custrecord_cbc_contact_budget_type.id}!=3 or ({custrecord_cbc_contact_budget_type.id} is null))</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>HIDDEN</displaytype>
+          <eventtypes>CREATE|EDIT</eventtypes>
+          <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+      </workflowactions>
+      <workflowactions triggertype="BEFORELOAD">
+        <setdisplaytypeaction scriptid="workflowaction13240">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes>EDIT</eventtypes>
+          <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+      </workflowactions>
+      <workflowactions triggertype="AFTERFIELDEDIT">
+        <setdisplaytypeaction scriptid="workflowaction13234">
+          <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>HIDDEN</displaytype>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction13236">
+          <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)==3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>NORMAL</displaytype>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setfieldvalueaction scriptid="workflowaction13237">
+          <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=3</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <returnusererroraction scriptid="workflowaction13239">
+          <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
+          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=nlapiLookupField(&apos;contact&apos;,nvl(nullIfEmpty(nlapiGetFieldValue(&apos;custrecord_cbc_contact_id&apos;)),-1),&apos;custentity_cbc_contact_budget_type&apos;,false)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <errortext>You cannot select a different budget type from that which is on the contact record</errortext>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+        </returnusererroraction>
+      </workflowactions>
+      <workflowactions triggertype="BEFORESUBMIT">
+        <returnusererroraction scriptid="workflowaction13241">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula>({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id}!={custrecord_cbc_contact_budget_type.id} or ({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id} is null and {custrecord_cbc_contact_budget_type.id} is not null) or ({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id} is not null and {custrecord_cbc_contact_budget_type.id} is null))</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <errortext>You cannot select a different budget type from that which is on the contact record</errortext>
+          <eventtypes>CREATE|EDIT</eventtypes>
+          <isinactive>F</isinactive>
+        </returnusererroraction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>
