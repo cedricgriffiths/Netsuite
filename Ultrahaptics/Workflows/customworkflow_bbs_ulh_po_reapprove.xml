@@ -1,0 +1,76 @@
+<workflow scriptid="customworkflow_bbs_ulh_po_reapprove">
+  <description></description>
+  <initcondition>191</initcondition>
+  <initconditionformula>({total}&gt;{old.total} or (UPPER({currencyname})!=UPPER({old.currencyname}) or ({currencyname} is null and {old.currencyname} is not null) or ({currencyname} is not null and {old.currencyname} is null))) and {approvalstatus.id}=2</initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts>USERINTERFACE</initcontexts>
+  <initeventtypes></initeventtypes>
+  <initoncreate>F</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Purchase Order Reapprove</name>
+  <recordtypes>PURCHASEORDER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>T</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2302">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Reset PO State To Pending Approval</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setfieldvalueaction scriptid="workflowaction13225">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>STDBODYAPPROVALSTATUS</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect>1</valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <setfieldvalueaction scriptid="workflowaction13236">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody4]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

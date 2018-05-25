@@ -1,0 +1,69 @@
+<workflow scriptid="customworkflow_bbs_ulh_supplier_2_2">
+  <description></description>
+  <initcondition>195</initcondition>
+  <initconditionformula>{old.isinactive.id}=&apos;T&apos; and {isinactive.id}=&apos;F&apos;</initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes>EDIT</initeventtypes>
+  <initoncreate>F</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Supplier Part 2</name>
+  <recordtypes>VENDOR</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate7">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Send Email When Supplier Is Activated</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <sendemailaction scriptid="workflowaction12">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&#xd;
+&lt;style type=&quot;text/css&quot;&gt;&#xd;
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 10.0px Verdana}&#xd;
+span.s1 {font-kerning: none}&#xd;
+&lt;/style&gt;&#xd;
+&#xd;
+&#xd;
+&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Your new supplier has now been approved and marked as Active&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;span style=&quot;white-space: nowrap;&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;span style=&quot;white-space: nowrap;&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Supplier : {companyname}&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includerecordlink>T</includerecordlink>
+          <isinactive>F</isinactive>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield>[scriptid=custentity_bbs_ulh_created_by]</recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>FIELD</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <sender>[ACCOUNT_SPECIFIC_VALUE]</sender>
+          <senderfield></senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>SPECIFIC</sendertype>
+          <subject>Supplier Approval</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

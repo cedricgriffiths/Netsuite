@@ -1,0 +1,86 @@
+<workflow scriptid="customworkflow_bbs_ulh_customer_1_2">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes></initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>F</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Customer Part 1</name>
+  <recordtypes>CUSTOMER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate3">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Mark Customer As Inactive &amp; Send Email</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setfieldvalueaction scriptid="workflowaction2">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>STDENTITYISINACTIVE</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <sendemailaction scriptid="workflowaction3">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;A new customer for {&lt;/font&gt;companyname}&amp;nbsp;&lt;span style=&quot;font-family: tahoma; font-size: small;&quot;&gt;has been created and requires your approval to make it active.&lt;/span&gt;&lt;BR&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Please follow the link below to review and activate&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <isinactive>F</isinactive>
+          <recipient>[ACCOUNT_SPECIFIC_VALUE]</recipient>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail>accounts@ultrahaptics.com</recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield></recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>SPECIFIC</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>STDUSERUSER</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>New Customer Created</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

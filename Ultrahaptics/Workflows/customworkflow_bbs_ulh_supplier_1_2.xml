@@ -1,0 +1,93 @@
+<workflow scriptid="customworkflow_bbs_ulh_supplier_1_2">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes>CREATE</initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>F</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Supplier Part 1</name>
+  <recordtypes>VENDOR</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate6">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Set Supplier Inactive &amp; Send Email</name>
+      <positionx>253</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setfieldvalueaction scriptid="workflowaction10">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>STDENTITYISINACTIVE</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <sendemailaction scriptid="workflowaction11">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&#xd;
+&#xd;
+&lt;style type=&quot;text/css&quot;&gt;&#xd;
+p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 10.0px Verdana}&#xd;
+span.s1 {font-kerning: none}&#xd;
+&lt;/style&gt;&#xd;
+&#xd;
+&#xd;
+&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;A new supplier has been created and requires your approval to make it active.&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Supplier : {companyname}&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;&lt;p class=&quot;p1&quot;&gt;&lt;span class=&quot;s1&quot;&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;NetSuite&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/p&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includerecordlink>T</includerecordlink>
+          <isinactive>F</isinactive>
+          <recipient>[ACCOUNT_SPECIFIC_VALUE]</recipient>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield></recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>SPECIFIC</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>[scriptid=custentity_bbs_ulh_created_by]</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>New Supplier Created</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

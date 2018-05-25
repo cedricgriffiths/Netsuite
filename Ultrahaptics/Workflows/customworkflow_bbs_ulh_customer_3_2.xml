@@ -1,0 +1,96 @@
+<workflow scriptid="customworkflow_bbs_ulh_customer_3_2">
+  <description></description>
+  <initcondition>189</initcondition>
+  <initconditionformula>({userrole.id} is null or {userrole.id} not in (3,1017,1007,1023))</initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts>USERINTERFACE</initcontexts>
+  <initeventtypes>EDIT|VIEW</initeventtypes>
+  <initoncreate>F</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>BEFORELOAD</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Customer Part 3</name>
+  <recordtypes>CUSTOMER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate5">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Disable Financial Fields</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="BEFORELOAD">
+        <setdisplaytypeaction scriptid="workflowaction5">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYTERMS</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction6">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYCREDITLIMIT</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction7">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYCREDITHOLDOVERRIDE</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction8">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYPRICELEVEL</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction9">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYCURRENCY</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+        <setdisplaytypeaction scriptid="workflowaction13229">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <displaytype>DISABLED</displaytype>
+          <eventtypes></eventtypes>
+          <field>STDENTITYISINACTIVE</field>
+          <isinactive>F</isinactive>
+        </setdisplaytypeaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

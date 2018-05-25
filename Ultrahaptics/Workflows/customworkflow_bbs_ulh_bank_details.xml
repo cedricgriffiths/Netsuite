@@ -1,0 +1,61 @@
+<workflow scriptid="customworkflow_bbs_ulh_bank_details">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes>CREATE|EDIT</initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Bank Details Notify</name>
+  <recordtypes>[scriptid=customrecord_2663_entity_bank_details]</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2312">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Send Notification Email</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <sendemailaction scriptid="workflowaction13246">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Please review the following bank details that have just been entered or amended to make sure all details are correct.&lt;/font&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includerecordlink>T</includerecordlink>
+          <isinactive>F</isinactive>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail>abby.atkinson@ultrahaptics.com</recipientccemail>
+          <recipientemail>accounts@ultrahaptics.com</recipientemail>
+          <recipientfield></recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>ADDRESS</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>STDUSERUSER</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>Bank Details Entered / Amended</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

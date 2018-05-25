@@ -1,0 +1,63 @@
+<workflow scriptid="customworkflow_bbs_ulh_customer_2_2">
+  <description></description>
+  <initcondition>190</initcondition>
+  <initconditionformula>{old.isinactive.id}=&apos;T&apos; and {isinactive.id}=&apos;F&apos;</initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes>EDIT</initeventtypes>
+  <initoncreate>F</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Customer Part 2</name>
+  <recordtypes>CUSTOMER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate4">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Send Email When Customer Is Activated</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <sendemailaction scriptid="workflowaction4">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;A customer you created has now been approved and marked as active&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Customer: {companyname}&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;tahoma&quot; size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <isinactive>F</isinactive>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield>[scriptid=custentity_bbs_ulh_created_by]</recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>FIELD</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <sender>[ACCOUNT_SPECIFIC_VALUE]</sender>
+          <senderfield></senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>SPECIFIC</sendertype>
+          <subject>Customer Approval</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

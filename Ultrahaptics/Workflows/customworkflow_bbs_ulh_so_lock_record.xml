@@ -1,0 +1,38 @@
+<workflow scriptid="customworkflow_bbs_so_lock_record">
+  <description></description>
+  <initcondition></initcondition>
+  <initconditionformula></initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes></initeventtypes>
+  <initoncreate>F</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype></inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>F</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Sales Order Lock Record</name>
+  <recordtypes>SALESORDER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>F</runasadmin>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2336">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>State 1</name>
+      <positionx>243</positionx>
+      <positiony>133</positiony>
+      <workflowactions triggertype="BEFORELOAD">
+        <lockrecordaction scriptid="workflowaction13321">
+          <conditionformula>{statusref.id} in (&apos;cancelled&apos;,&apos;closed&apos;,&apos;partiallyFulfilled&apos;,&apos;pendingBilling&apos;,&apos;pendingBillingPartFulfilled&apos;,&apos;pendingFulfillment&apos;)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+        </lockrecordaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>

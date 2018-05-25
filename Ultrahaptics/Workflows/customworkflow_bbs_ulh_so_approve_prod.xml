@@ -1,0 +1,810 @@
+<workflow scriptid="customworkflow_poawf_2_2">
+  <description></description>
+  <initcondition>192</initcondition>
+  <initconditionformula>{statusref.id}=&apos;pendingApproval&apos; and {custbody_bbs_ulh_project_manager.id} is null</initconditionformula>
+  <initconditioninbuilder>F</initconditioninbuilder>
+  <initcontexts></initcontexts>
+  <initeventtypes>CREATE|EDIT</initeventtypes>
+  <initoncreate>T</initoncreate>
+  <initonvieworupdate>T</initonvieworupdate>
+  <initsavedsearchcondition></initsavedsearchcondition>
+  <inittriggertype>AFTERSUBMIT</inittriggertype>
+  <isinactive>F</isinactive>
+  <islogenabled>T</islogenabled>
+  <keephistory>T</keephistory>
+  <name>BBS Sales Order Approval (Products)</name>
+  <recordtypes>SALESORDER</recordtypes>
+  <releasestatus>RELEASED</releasestatus>
+  <runasadmin>T</runasadmin>
+  <workflowcustomfields>
+    <workflowcustomfield scriptid="custworkflow_poawf_approver_wf_fld_2_2">
+      <applyformatting>F</applyformatting>
+      <defaultchecked>F</defaultchecked>
+      <defaultselection></defaultselection>
+      <defaultvalue></defaultvalue>
+      <description></description>
+      <displaytype>NORMAL</displaytype>
+      <dynamicdefault></dynamicdefault>
+      <fieldtype>SELECT</fieldtype>
+      <help></help>
+      <label>Approver (2)</label>
+      <linktext></linktext>
+      <maxvalue></maxvalue>
+      <minvalue></minvalue>
+      <selectrecordtype>-4</selectrecordtype>
+      <storevalue>T</storevalue>
+    </workflowcustomfield>
+    <workflowcustomfield scriptid="custworkflow_poawf_approval_state_2_2">
+      <applyformatting>F</applyformatting>
+      <defaultchecked>F</defaultchecked>
+      <defaultselection></defaultselection>
+      <defaultvalue></defaultvalue>
+      <description></description>
+      <displaytype>NORMAL</displaytype>
+      <dynamicdefault></dynamicdefault>
+      <fieldtype>SELECT</fieldtype>
+      <help></help>
+      <label>Approval State (2)</label>
+      <linktext></linktext>
+      <maxvalue></maxvalue>
+      <minvalue></minvalue>
+      <selectrecordtype>-243</selectrecordtype>
+      <storevalue>T</storevalue>
+    </workflowcustomfield>
+    <workflowcustomfield scriptid="custworkflow5">
+      <applyformatting>F</applyformatting>
+      <defaultchecked>F</defaultchecked>
+      <defaultselection></defaultselection>
+      <defaultvalue></defaultvalue>
+      <description></description>
+      <displaytype>NORMAL</displaytype>
+      <dynamicdefault></dynamicdefault>
+      <fieldtype>CHECKBOX</fieldtype>
+      <help></help>
+      <label>Good To Go (2)</label>
+      <linktext></linktext>
+      <maxvalue></maxvalue>
+      <minvalue></minvalue>
+      <selectrecordtype></selectrecordtype>
+      <storevalue>T</storevalue>
+    </workflowcustomfield>
+  </workflowcustomfields>
+  <workflowstates>
+    <workflowstate scriptid="workflowstate2310">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Check Draft Status</name>
+      <positionx>193</positionx>
+      <positiony>53</positiony>
+      <workflowactions triggertype="AFTERSUBMIT">
+        <setfieldvalueaction scriptid="workflowaction13239">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula>{custbody4.id}=&apos;F&apos;</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes>CREATE</eventtypes>
+          <field>[scriptid=customworkflow_poawf_2_2.custworkflow5]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <setfieldvalueaction scriptid="workflowaction13240">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula>{old.custbody4.id}=&apos;T&apos; and {custbody4.id}=&apos;F&apos;</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes>EDIT</eventtypes>
+          <field>[scriptid=customworkflow_poawf_2_2.custworkflow5]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+      </workflowactions>
+      <workflowtransitions>
+        <workflowtransition scriptid="workflowtransition13226">
+          <buttonaction></buttonaction>
+          <conditionformula>{custworkflow5.id}=&apos;T&apos;</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2288]</tostate>
+          <triggertype>AFTERSUBMIT</triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+      </workflowtransitions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate2288">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Entry - Send Initial Email To Ops Team</name>
+      <positionx>193</positionx>
+      <positiony>203</positiony>
+      <workflowactions triggertype="AFTERSUBMIT">
+        <sendemailaction scriptid="workflowaction13180">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;You have a new sales order request&amp;nbsp;to approve.&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Sales Order Number : {tranid}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Customer : {entity}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;</body>
+          <conditionformula>{statusref.id}=&apos;pendingApproval&apos; and {custbody_bbs_ulh_project_manager.id} is null and {user.id} is not null</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <includetransaction>F</includetransaction>
+          <isinactive>F</isinactive>
+          <recipient>[ACCOUNT_SPECIFIC_VALUE]</recipient>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail>alan.colman@ultrahaptics.com</recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield></recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>SPECIFIC</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>STDUSERUSER</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>Sales Order to Approve</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+      </workflowactions>
+      <workflowstatecustomfields>
+        <workflowstatecustomfield scriptid="custwfstate_poawf_nextapprover_entry_2_2">
+          <applyformatting>F</applyformatting>
+          <defaultchecked>F</defaultchecked>
+          <defaultselection></defaultselection>
+          <defaultvalue></defaultvalue>
+          <description>Purchase Approval Workflow : Entry Workflow State Field</description>
+          <displaytype>NORMAL</displaytype>
+          <dynamicdefault></dynamicdefault>
+          <fieldtype>SELECT</fieldtype>
+          <help></help>
+          <label>next Approver (2)</label>
+          <linktext></linktext>
+          <maxvalue></maxvalue>
+          <minvalue></minvalue>
+          <selectrecordtype>-4</selectrecordtype>
+          <storevalue>T</storevalue>
+        </workflowstatecustomfield>
+      </workflowstatecustomfields>
+      <workflowtransitions>
+        <workflowtransition scriptid="workflowtransition13202">
+          <buttonaction></buttonaction>
+          <conditionformula>{custbody_bbs_ulh_project_manager.id} is null and {custbody_bbs_ulh_pm_approved.id}=&apos;F&apos; and {custbody_bbs_ulh_fin_approved.id}=&apos;F&apos;</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2293]</tostate>
+          <triggertype>AFTERSUBMIT</triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+      </workflowtransitions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate2293">
+      <description>Pending Approval Workflow State</description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Pending Approval By Ops Team</name>
+      <positionx>193</positionx>
+      <positiony>323</positiony>
+      <workflowactions triggertype="BEFORELOAD">
+        <addbuttonaction scriptid="workflowaction_4747_poawf_approvebutton">
+          <checkconditionbeforeexecution>F</checkconditionbeforeexecution>
+          <conditionformula>{statusref.id}=&apos;pendingApproval&apos; and {userrole.id} in (1021,1028,3)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <label>Approve</label>
+          <saverecordfirst>F</saverecordfirst>
+        </addbuttonaction>
+        <addbuttonaction scriptid="workflowaction_4747_poawf_rejectbutton">
+          <checkconditionbeforeexecution>F</checkconditionbeforeexecution>
+          <conditionformula>{statusref.id}=&apos;pendingApproval&apos; and {userrole.id} in (1021,1028,3)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <label>Reject</label>
+          <saverecordfirst>F</saverecordfirst>
+        </addbuttonaction>
+        <lockrecordaction scriptid="workflowaction13207">
+          <conditionformula>({userrole.id} is null or {userrole.id} not in (3,1021,1028))</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+        </lockrecordaction>
+      </workflowactions>
+      <workflowtransitions>
+        <workflowtransition scriptid="workflowtransition13204">
+          <buttonaction>[scriptid=customworkflow_poawf_2_2.workflowstate2293.workflowaction_4747_poawf_approvebutton]</buttonaction>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2289]</tostate>
+          <triggertype></triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+        <workflowtransition scriptid="workflowtransition13205">
+          <buttonaction>[scriptid=customworkflow_poawf_2_2.workflowstate2293.workflowaction_4747_poawf_rejectbutton]</buttonaction>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2292]</tostate>
+          <triggertype></triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+      </workflowtransitions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate2289">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Pending Approval By Finance</name>
+      <positionx>193</positionx>
+      <positiony>443</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setfieldvalueaction scriptid="workflowaction13220">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody_bbs_ulh_pm_approved]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <sendemailaction scriptid="workflowaction13221">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;You have a new sales order request&amp;nbsp;to approve.&lt;/span&gt;&lt;/span&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Sales Order Number : {tranid}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Customer : {entity}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;</body>
+          <conditionformula>{custbody_bbs_ulh_fin_approved.id}=&apos;F&apos;</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <includetransaction>F</includetransaction>
+          <isinactive>F</isinactive>
+          <recipient>[ACCOUNT_SPECIFIC_VALUE]</recipient>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield></recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>SPECIFIC</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>STDUSERUSER</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>Sales Order Approval</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+        <createrecordaction scriptid="workflowaction13332">
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <recordtype>[scriptid=customrecord_bbs_approval_audit]</recordtype>
+          <resultfield></resultfield>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <fieldsettings>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_related_record_id]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula>{id}</valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_status]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext>Approved</valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_approver]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield>STDUSERUSER</valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_comments]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext>Approved by Operations</valuetext>
+            </fieldsetting>
+          </fieldsettings>
+        </createrecordaction>
+      </workflowactions>
+      <workflowactions triggertype="BEFORELOAD">
+        <addbuttonaction scriptid="workflowaction13222">
+          <checkconditionbeforeexecution>T</checkconditionbeforeexecution>
+          <conditionformula>{userrole.id} in (1023,1007,1017,3)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <label>Approve</label>
+          <saverecordfirst>F</saverecordfirst>
+        </addbuttonaction>
+        <addbuttonaction scriptid="workflowaction13223">
+          <checkconditionbeforeexecution>T</checkconditionbeforeexecution>
+          <conditionformula>{userrole.id} in (1023,1007,1017,3)</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <label>Reject</label>
+          <saverecordfirst>F</saverecordfirst>
+        </addbuttonaction>
+        <lockrecordaction scriptid="workflowaction13224">
+          <conditionformula>({userrole.id}!=3 or ({userrole.id} is null)) and ({nextapprover.id}!={me} or ({nextapprover.id} is null and {me} is not null) or ({nextapprover.id} is not null and {me} is null))</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+        </lockrecordaction>
+      </workflowactions>
+      <workflowstatecustomfields>
+        <workflowstatecustomfield scriptid="custwfstate_poawf_nextapprover_setne_2_2">
+          <applyformatting>F</applyformatting>
+          <defaultchecked>F</defaultchecked>
+          <defaultselection></defaultselection>
+          <defaultvalue></defaultvalue>
+          <description>Purchase Approval Workflow : Set Next Approver Workflow State Field.</description>
+          <displaytype>NORMAL</displaytype>
+          <dynamicdefault></dynamicdefault>
+          <fieldtype>SELECT</fieldtype>
+          <help>Purchase Approval Workflow : Set Next Approver Workflow State Field.</help>
+          <label>next approver (2)</label>
+          <linktext></linktext>
+          <maxvalue></maxvalue>
+          <minvalue></minvalue>
+          <selectrecordtype>-4</selectrecordtype>
+          <storevalue>F</storevalue>
+        </workflowstatecustomfield>
+      </workflowstatecustomfields>
+      <workflowtransitions>
+        <workflowtransition scriptid="workflowtransition13187">
+          <buttonaction>[scriptid=customworkflow_poawf_2_2.workflowstate2289.workflowaction13222]</buttonaction>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2290]</tostate>
+          <triggertype></triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+        <workflowtransition scriptid="workflowtransition13219">
+          <buttonaction>[scriptid=customworkflow_poawf_2_2.workflowstate2289.workflowaction13223]</buttonaction>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <scheduledelay></scheduledelay>
+          <scheduletimeunit></scheduletimeunit>
+          <tostate>[scriptid=customworkflow_poawf_2_2.workflowstate2292]</tostate>
+          <triggertype></triggertype>
+          <waitforworkflow></waitforworkflow>
+          <waitforworkflowstate></waitforworkflowstate>
+        </workflowtransition>
+      </workflowtransitions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate2290">
+      <description></description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Approved</name>
+      <positionx>193</positionx>
+      <positiony>613</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <setfieldvalueaction scriptid="workflowaction13193">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody_bbs_ulh_fin_approved]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <setfieldvalueaction scriptid="workflowaction13189">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>STDBODYORDERSTATUS</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect>12</valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <sendemailaction scriptid="workflowaction13191">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Congratulations, your sales order has been approved.&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Sales Order Number : {tranid}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Customer : {entity}&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;font face=&quot;Tahoma, Geneva, sans-serif&quot;&gt;&lt;span style=&quot;white-space: nowrap;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/font&gt;&lt;/font&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;</body>
+          <conditionformula>{user.email} is not null and {custbody_bbs_ulh_created_by.email} is not null</conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <includetransaction>F</includetransaction>
+          <isinactive>F</isinactive>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield>[scriptid=custbody_bbs_ulh_created_by]</recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>FIELD</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <sender>[ACCOUNT_SPECIFIC_VALUE]</sender>
+          <senderfield></senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>SPECIFIC</sendertype>
+          <subject>Sales Order Approval</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+        <createrecordaction scriptid="workflowaction13331">
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <recordtype>[scriptid=customrecord_bbs_approval_audit]</recordtype>
+          <resultfield></resultfield>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <fieldsettings>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_related_record_id]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula>{id}</valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_status]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext>Approved</valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_approver]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield>STDUSERUSER</valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_comments]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext>Approved by Finance</valuetext>
+            </fieldsetting>
+          </fieldsettings>
+        </createrecordaction>
+      </workflowactions>
+    </workflowstate>
+    <workflowstate scriptid="workflowstate2292">
+      <description>Rejected Workflow State.</description>
+      <donotexitworkflow>F</donotexitworkflow>
+      <name>Rejected</name>
+      <positionx>553</positionx>
+      <positiony>513</positiony>
+      <workflowactions triggertype="ONENTRY">
+        <sendemailaction scriptid="workflowaction13200">
+          <attachmentfield></attachmentfield>
+          <attachmentfile></attachmentfile>
+          <attachmentjoinfield></attachmentjoinfield>
+          <attachmenttype>SPECIFIC</attachmenttype>
+          <body>&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap; orphans: 2; widows: 2;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Hello from NetSuite!&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap; orphans: 2; widows: 2;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap; orphans: 2; widows: 2;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Unfortunately, your sales order has been rejected.&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap; orphans: 2; widows: 2;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Sales Order Number : {tranid}&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span style=&quot;border-collapse: separate; font-family: &amp;quot;Times New Roman&amp;quot;; line-height: normal;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;Customer : {entity}&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;&lt;BR&gt;&lt;font size=&quot;2&quot;&gt;&lt;font face=&quot;Tahoma, Geneva, sans-serif&quot;&gt;&lt;span style=&quot;white-space: nowrap;&quot;&gt;&lt;br&gt;Additional rejection information:&lt;/span&gt;&lt;/font&gt;&lt;br&gt;&lt;font face=&quot;Tahoma, Geneva, sans-serif&quot;&gt;&lt;span style=&quot;white-space: nowrap;&quot;&gt;{custbody7}&lt;br&gt;&lt;/span&gt;&lt;/font&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/span&gt;&lt;/font&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Please amend and resubmit or delete as appropriate&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;Best Regards&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;&lt;BR&gt;&lt;span style=&quot;border-collapse: separate; color: rgb(0, 0, 0); font-family: &amp;quot;Times New Roman&amp;quot;; font-style: normal; font-variant-ligatures: normal; font-variant-caps: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px;&quot;&gt;&lt;span style=&quot;font-family: Tahoma, Geneva, sans-serif; white-space: nowrap;&quot;&gt;&lt;font size=&quot;2&quot;&gt;NetSuite&lt;/font&gt;&lt;/span&gt;&lt;/span&gt;</body>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <includeformat></includeformat>
+          <includerecordlink>T</includerecordlink>
+          <includetransaction>F</includetransaction>
+          <isinactive>F</isinactive>
+          <recipientbccemail></recipientbccemail>
+          <recipientccemail></recipientccemail>
+          <recipientemail></recipientemail>
+          <recipientfield>[scriptid=custbody_bbs_ulh_created_by]</recipientfield>
+          <recipientjoinfield></recipientjoinfield>
+          <recipienttype>FIELD</recipienttype>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <senderfield>STDUSERUSER</senderfield>
+          <senderjoinfield></senderjoinfield>
+          <sendertype>FIELD</sendertype>
+          <subject>Sales Order Rejection</subject>
+          <template></template>
+          <usetemplate>F</usetemplate>
+        </sendemailaction>
+        <setfieldvalueaction scriptid="workflowaction13233">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody_bbs_ulh_pm_approved]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <setfieldvalueaction scriptid="workflowaction13234">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody_bbs_ulh_fin_approved]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>F</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <setfieldvalueaction scriptid="workflowaction13244">
+          <clienttriggerfields></clienttriggerfields>
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <field>[scriptid=custbody4]</field>
+          <isinactive>F</isinactive>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <valuechecked>T</valuechecked>
+          <valuedate></valuedate>
+          <valuefield></valuefield>
+          <valueformula></valueformula>
+          <valuejoinfield></valuejoinfield>
+          <valueselect></valueselect>
+          <valuetext></valuetext>
+          <valuetype>STATIC</valuetype>
+        </setfieldvalueaction>
+        <createrecordaction scriptid="workflowaction13330">
+          <conditionformula></conditionformula>
+          <conditioninbuilder>F</conditioninbuilder>
+          <conditionsavedsearch></conditionsavedsearch>
+          <contexttypes></contexttypes>
+          <eventtypes></eventtypes>
+          <isinactive>F</isinactive>
+          <recordtype>[scriptid=customrecord_bbs_approval_audit]</recordtype>
+          <resultfield></resultfield>
+          <scheduledelay></scheduledelay>
+          <schedulemode>DELAY</schedulemode>
+          <schedulerecurrence></schedulerecurrence>
+          <scheduletimeofday></scheduletimeofday>
+          <scheduletimeunit></scheduletimeunit>
+          <fieldsettings>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_related_record_id]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula>{id}</valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_status]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield></valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext>Rejected</valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_approver]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield>STDUSERUSER</valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect>[ACCOUNT_SPECIFIC_VALUE]</valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+            <fieldsetting>
+              <targetfield>[scriptid=customrecord_bbs_approval_audit.custrecord_bbs_comments]</targetfield>
+              <valuechecked></valuechecked>
+              <valuedate></valuedate>
+              <valuefield>[scriptid=custbody7]</valuefield>
+              <valueformula></valueformula>
+              <valuejoinfield></valuejoinfield>
+              <valueselect></valueselect>
+              <valuetext></valuetext>
+            </fieldsetting>
+          </fieldsettings>
+        </createrecordaction>
+      </workflowactions>
+    </workflowstate>
+  </workflowstates>
+</workflow>
