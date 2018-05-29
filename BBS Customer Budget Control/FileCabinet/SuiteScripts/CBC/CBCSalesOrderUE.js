@@ -71,7 +71,7 @@ function cbcSalesOrderAfterSubmit(type)
 		{
 			//Get the summarised items by contact values from the new record
 			//
-			getItemsFromNewRecord(newRecord, contactItemObject);
+			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
 			
 			//Update the list with the alloc type & equivalent points usage from the customer items table
 			//
@@ -79,7 +79,9 @@ function cbcSalesOrderAfterSubmit(type)
 			
 			//Work out what we have used against the contacts allowed usage
 			//
-			calculateContactsUsage(newRecord, contactItemObject, errors);
+			var orderDate = newRecord.getFieldValue('trandate');
+			
+			calculateContactsUsage(contactItemObject, errors, orderDate);
 			
 			//Process any errors
 			//
@@ -88,12 +90,46 @@ function cbcSalesOrderAfterSubmit(type)
 
 	if(type == 'edit')
 		{
-		
-		}
+			//Get the summarised items by contact values from the new record
+			//
+			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+			
+			//Get the summarised items by contact values from the old record
+			//
+			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+			
+			//Update the list with the alloc type & equivalent points usage from the customer items table
+			//
+			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+			
+			//Work out what we have used against the contacts allowed usage
+			//
+			var orderDate = newRecord.getFieldValue('trandate');
+			
+			calculateContactsUsage(contactItemObject, errors, orderDate);
+			
+			//Process any errors
+			//
+			processErrors(newRecord, errors, type);
+			}
 	
 	if(type == 'delete')
 		{
-		
+			//Get the summarised items by contact values from the old record
+			//
+			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+			
+			//Update the list with the alloc type & equivalent points usage from the customer items table
+			//
+			updateItemsWithAllocAndPoints(oldRecord, contactItemObject);
+			
+			//Work out what we have used against the contacts allowed usage
+			//
+			calculateContactsUsage(contactItemObject, errors, null);
+			
+			//Process any errors
+			//
+			processErrors(newRecord, errors, type);
 		}
 
 	
@@ -107,11 +143,11 @@ function cbcSalesOrderAfterSubmit(type)
 //Functions
 //=====================================================================
 //
-function getItemsFromNewRecord(_newRecord, _contactItemObject)
+function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 {
-	var newRecordOrderPlacedBy = _newRecord.getFieldValue('custbody_cbc_order_placed_by');
-	var newRecordOrderPlacedByText = _newRecord.getFieldText('custbody_cbc_order_placed_by');
-	var newLinesCount = _newRecord.getLineItemCount('item');
+	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
+	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
+	var newLinesCount = _soRecord.getLineItemCount('item');
 	
 	//Allow for nulls
 	//
@@ -122,12 +158,12 @@ function getItemsFromNewRecord(_newRecord, _contactItemObject)
 		{
 			//Get the values from the lines
 			//
-			var newLineItem = _newRecord.getLineItemValue('item','item',int);
-			var newLineItemText = _newRecord.getLineItemText('item','item',int);
-			var newLineQuantity = _newRecord.getLineItemValue('item','quantity',int);
-			var newLineAmount = _newRecord.getLineItemValue('item','amount',int);
-			var newLineManpackContact = _newRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
-			var newLineManpackContactText = _newRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
+			var newLineItem = _soRecord.getLineItemValue('item','item',int);
+			var newLineItemText = _soRecord.getLineItemText('item','item',int);
+			var newLineQuantity = _soRecord.getLineItemValue('item','quantity',int);
+			var newLineAmount = _soRecord.getLineItemValue('item','amount',int);
+			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
+			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
 			
 			//Allow for nulls
 			//
@@ -147,18 +183,36 @@ function getItemsFromNewRecord(_newRecord, _contactItemObject)
 					//
 					var contactItemKey = padding_left(newLineManpackContact,'0',6) + padding_left(newLineItem,'0',6);
 					
+					//See if we need to add or deduct the values based on the mode which is based on passing the new or old record
+					//
+					var modifier = Number(1);
+					
+					switch(_mode)
+						{
+							case 'A':
+								modifier = Number(1);
+								break;
+								
+							case 'S':
+								modifier = Number(-1);
+								break;
+						}
+					
+					var tempNewLineQuantity = Number(newLineQuantity) * modifier;
+					var tempNewLineAmount = Number(newLineAmount) * modifier;
+						
 					//Does this key value exist in the contact item object
 					//
 					if(!_contactItemObject[contactItemKey])
 						{
-							_contactItemObject[contactItemKey] = [newLineManpackContact, newLineItem, Number(newLineQuantity), Number(newLineAmount),0,0,newLineItemText,newLineManpackContactText]; //contact, item, quantity, amount, allocation type, points, item text, contact text
+							_contactItemObject[contactItemKey] = [newLineManpackContact, newLineItem, tempNewLineQuantity, tempNewLineAmount,0,0,newLineItemText,newLineManpackContactText,0]; //(0)contact, (1)item, (2)quantity, (3)amount, (4)allocation type, (5)points, (6)item text, (7)contact text, (8)actual monetary value
 						}
 					else
 						{
 							//Update the quantity & value for the item
 							//
-							_contactItemObject[contactItemKey][2] = Number(_contactItemObject[contactItemKey][2]) + Number(newLineQuantity);
-							_contactItemObject[contactItemKey][3] = Number(_contactItemObject[contactItemKey][3]) + Number(newLineAmount);
+							_contactItemObject[contactItemKey][2] = Number(_contactItemObject[contactItemKey][2]) + tempNewLineQuantity;
+							_contactItemObject[contactItemKey][3] = Number(_contactItemObject[contactItemKey][3]) + tempNewLineAmount;
 						}
 				}
 		}
@@ -217,7 +271,8 @@ function updateItemsWithAllocAndPoints(_record, _contactItemObject)
 							if(contactItemId == item)
 								{
 									_contactItemObject[contactItem][4] = allocType;
-									_contactItemObject[contactItem][5] = points * Number(_contactItemObject[contactItem][2]);
+									_contactItemObject[contactItem][5] = points; // * Number(_contactItemObject[contactItem][2]);
+									_contactItemObject[contactItem][8] = _contactItemObject[contactItem][3]; //copy the item value into the actual monetary amount
 								}
 						}
 				}
@@ -225,10 +280,14 @@ function updateItemsWithAllocAndPoints(_record, _contactItemObject)
 }
 
 
-function calculateContactsUsage(_record, _contactItemObject, _errors)
+function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 {
+	if(typeof _orderDate == 'undefined')
+		{
+			_orderDate = null;
+		}
+	
 	var contactsObject = {};
-	var orderDate = _record.getFieldValue('trandate');
 	
 	//Build up a list of contacts to work with
 	//
@@ -253,9 +312,9 @@ function calculateContactsUsage(_record, _contactItemObject, _errors)
 			var contactFirstOrderDate = nlapiLookupField('contact', contactToProcess, 'custentity_cbc_contact_first_order_date', false);
 			contactFirstOrderDate = (contactFirstOrderDate == null ? '' : contactFirstOrderDate);
 			
-			if(contactFirstOrderDate == '')
+			if(contactFirstOrderDate == '' && _orderDate != null)
 				{
-					nlapiSubmitField('contact', contactToProcess, 'custentity_cbc_contact_first_order_date', orderDate, false);
+					nlapiSubmitField('contact', contactToProcess, 'custentity_cbc_contact_first_order_date', _orderDate, false);
 					firstOrder = true;
 				}
 			
@@ -307,7 +366,7 @@ function calculateContactsUsage(_record, _contactItemObject, _errors)
 									{
 										itemContactText = _contactItemObject[contactItem][7];
 									
-										var itemAmount = Number(_contactItemObject[contactItem][3]);
+										var itemAmount = Number(_contactItemObject[contactItem][8]);
 										totalAmount += itemAmount;
 									}
 							}
@@ -341,9 +400,9 @@ function calculateContactsUsage(_record, _contactItemObject, _errors)
 								
 								//Also, if this is the first order for the contact, then we need to update the reset date on each of the contacts budget records
 								//
-								if(firstOrder)
+								if(firstOrder && _orderDate != null)
 									{
-										setContactFirstOrderDate(orderDate, Number(contactBudgets[budget][4]), budgetId);
+										setContactFirstOrderDate(_orderDate, Number(contactBudgets[budget][4]), budgetId);
 									}
 							}
 						
@@ -400,9 +459,9 @@ function calculateContactsUsage(_record, _contactItemObject, _errors)
 								
 								//Also, if this is the first order for the contact, then we need to update the reset date on each of the contacts budget records
 								//
-								if(firstOrder)
+								if(firstOrder && _orderDate != null)
 									{
-										setContactFirstOrderDate(orderDate, Number(contactBudgets[budget][4]), budgetId);
+										setContactFirstOrderDate(_orderDate, Number(contactBudgets[budget][4]), budgetId);
 									}
 							}
 						
@@ -460,9 +519,9 @@ function calculateContactsUsage(_record, _contactItemObject, _errors)
 												
 												//Also, if this is the first order for the contact, then we need to update the reset date on each of the contacts budget records
 												//
-												if(firstOrder)
+												if(firstOrder && _orderDate != null)
 													{
-														setContactFirstOrderDate(orderDate, Number(contactBudgets[budget][4]), budgetId);
+														setContactFirstOrderDate(_orderDate, Number(contactBudgets[budget][4]), budgetId);
 													}
 											}
 									}
@@ -495,9 +554,12 @@ function processErrors(_record, _errors, _type)
 			errorText += _errors[int] + "\n";
 		}
 	
-	//Update the sales order with the error text
-	//
-	nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
+	if(type != 'delete')
+		{
+			//Update the sales order with the error text
+			//
+			nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
+		}
 	
 	//If we are creating the sales order then we can set it's status to be 'Pending Approval'
 	//
@@ -508,15 +570,18 @@ function processErrors(_record, _errors, _type)
 	
 	//Send an email to the operator
 	//
-	var userId = nlapiGetContext().getUser();
-	var emailText = 'The following customer budget control errors have been detected; \n\n';
-	var soURL = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'salesorder', recordId, 'view');
-	
-	emailText += errorText;
-	emailText += '\n';
-	emailText += 'Follow this link to see the sales order ' + soURL + '\n';
-	
-	nlapiSendEmail(userId, userId, 'CUSTOMER BUDGET CONTROL', emailText);
+	if(errorText != '')
+		{
+			var userId = nlapiGetContext().getUser();
+			var emailText = 'The following customer budget control errors have been detected; \n\n';
+			var soURL = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'salesorder', recordId, 'view');
+			
+			emailText += errorText;
+			emailText += '\n';
+			emailText += 'Follow this link to see the sales order ' + soURL + '\n';
+			
+			nlapiSendEmail(userId, userId, 'CUSTOMER BUDGET CONTROL', emailText);
+		}
 }
 
 
