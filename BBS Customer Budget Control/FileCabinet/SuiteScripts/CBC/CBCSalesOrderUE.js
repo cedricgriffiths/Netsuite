@@ -12,7 +12,7 @@ function cbcSalesOrderBeforeLoad(type, form, request)
 	if (type =='edit' || type == 'view')
 		{
 			var recId = nlapiGetRecordId();
-			var errors = nlapiLookupField('salesorder', recId, 'custbody_cbc_errors', false);
+			var errors = nlapiLookupField('salesorder', recId, 'custbody_cbc_errors', false).replace(/\n/g,'<br />');
 			
 			
 			if(errors != null && errors != '')
@@ -173,7 +173,7 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 			//If the manpack contact is empty then set it with the id of the order placed by person
 			//
 			newLineManpackContact = (newLineManpackContact == '' ? newRecordOrderPlacedBy : newLineManpackContact);
-			newLineManpackContactText = (newLineManpackContact == '' ? newRecordOrderPlacedByText : newLineManpackContactText);
+			newLineManpackContactText = (newLineManpackContactText == '' ? newRecordOrderPlacedByText : newLineManpackContactText);
 			
 			//We are only interested in lines that will have a contact associated with them, otherwise ignore them
 			//
@@ -566,12 +566,7 @@ function processErrors(_record, _errors, _type)
 			nlapiSubmitField('salesorder', recordId, 'custbody_cbc_errors', errorText, false);
 		}
 	
-	//If we are creating the sales order then we can set it's status to be 'Pending Approval'
-	//
-	if(_type == 'create')
-		{
-			nlapiSubmitField('salesorder', recordId, 'orderstatus', 'A', false);
-		}
+
 	
 	//Send an email to the operator
 	//
