@@ -239,40 +239,45 @@ function updateItemsWithAllocAndPoints(_record, _contactItemObject)
 			itemsArray.push(items);
 		}
 	
-	//Search for the items in the CBC Customer Items table
+	//Have we got any items to process?
 	//
-	var filters = [
-	               	["custrecord_cbc_item_customer","anyof",customer],
-	               	"AND",
-	               	["custrecord_cbc_item_item","anyof",itemsArray]
-	              ];
-	
-	var customrecord_cbc_item_record_recordSearch = nlapiSearchRecord("customrecord_cbc_item_record",null,
-			filters, 
-			[
-				new nlobjSearchColumn("custrecord_cbc_item_item"),
-				new nlobjSearchColumn("custrecord_cbc_item_allocation_type"),
-				new nlobjSearchColumn("custrecord_cbc_item_points")
-			]
-			);
-	
-	if(customrecord_cbc_item_record_recordSearch && customrecord_cbc_item_record_recordSearch.length > 0)
+	if(itemsArray.length > 0)
 		{
-			for (var int = 0; int < customrecord_cbc_item_record_recordSearch.length; int++) 
+			//Search for the items in the CBC Customer Items table
+			//
+			var filters = [
+			               	["custrecord_cbc_item_customer","anyof",customer],
+			               	"AND",
+			               	["custrecord_cbc_item_item","anyof",itemsArray]
+			              ];
+			
+			var customrecord_cbc_item_record_recordSearch = nlapiSearchRecord("customrecord_cbc_item_record",null,
+					filters, 
+					[
+						new nlobjSearchColumn("custrecord_cbc_item_item"),
+						new nlobjSearchColumn("custrecord_cbc_item_allocation_type"),
+						new nlobjSearchColumn("custrecord_cbc_item_points")
+					]
+					);
+			
+			if(customrecord_cbc_item_record_recordSearch && customrecord_cbc_item_record_recordSearch.length > 0)
 				{
-					var item = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_item");
-					var allocType = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_allocation_type");
-					var points = Number(customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_points"));
-					
-					for ( var contactItem in _contactItemObject) 
+					for (var int = 0; int < customrecord_cbc_item_record_recordSearch.length; int++) 
 						{
-							var contactItemId = _contactItemObject[contactItem][1];
+							var item = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_item");
+							var allocType = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_allocation_type");
+							var points = Number(customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_points"));
 							
-							if(contactItemId == item)
+							for ( var contactItem in _contactItemObject) 
 								{
-									_contactItemObject[contactItem][4] = allocType;
-									_contactItemObject[contactItem][5] = points; // * Number(_contactItemObject[contactItem][2]);
-									_contactItemObject[contactItem][8] = _contactItemObject[contactItem][3]; //copy the item value into the actual monetary amount
+									var contactItemId = _contactItemObject[contactItem][1];
+									
+									if(contactItemId == item)
+										{
+											_contactItemObject[contactItem][4] = allocType;
+											_contactItemObject[contactItem][5] = points; // * Number(_contactItemObject[contactItem][2]);
+											_contactItemObject[contactItem][8] = _contactItemObject[contactItem][3]; //copy the item value into the actual monetary amount
+										}
 								}
 						}
 				}
