@@ -476,12 +476,20 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 						
 						//Loop through all of the items finding only those which belong to the current contact
 						//
+						var sublistLineNo = Number(0);
+						
 						for ( var contactItem in _contactItemObject) 
 							{
+								sublistLineNo++;
+								
 								itemContact = _contactItemObject[contactItem][0];
 								
+								//We have found an item that belongs to the current contact
+								//
 								if(itemContact == contactToProcess)
 									{
+										//Get data about the item on the order
+										//
 										var itemQuantity = Number(_contactItemObject[contactItem][2]);
 										var itemAllocationType = _contactItemObject[contactItem][4];
 										var itemName = _contactItemObject[contactItem][6];
@@ -494,7 +502,7 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 												var budgetAllocType = contactBudgets[budget][1];
 												var budgetAllocTypeText = contactBudgets[budget][5];
 												var budgetQuantity = Number(contactBudgets[budget][2]);
-												var budgetUsgae = Number(contactBudgets[budget][3]);
+												var budgetUsage = Number(contactBudgets[budget][3]);
 												var budgetId = contactBudgets[budget][0];
 												
 												//Found a match
@@ -503,7 +511,9 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 													{
 														//Calculate the new usage value
 														//
-														var newBudgetUsage = budgetUsgae + itemQuantity;
+														var newBudgetUsage = budgetUsage + itemQuantity;
+														contactBudgets[budget][3] = newBudgetUsage;
+														
 														
 														nlapiSubmitField('customrecord_cbc_contact_record', budgetId, 'custrecord_cbc_contact_usage', newBudgetUsage, false);
 														
@@ -512,10 +522,11 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 																//Budget exceeded, add to the errors collection
 																//
 																var message = 'Allocation exceeded for ' + itemContactText + 
-																' on product ' + itemName + 
+																' for product ' + itemName + 
+																' on line number ' + sublistLineNo.toString() + 
 																' (Allocation Type = ' + budgetAllocTypeText +
 																', Allowed Qty = ' + budgetQuantity.toString() + 
-																', Current Usgae = ' + budgetUsgae.toString() + 
+																', Current Usage = ' + budgetUsage.toString() + 
 																', New Usage = ' + newBudgetUsage.toString() + 
 																')';
 																_errors.push(message);
