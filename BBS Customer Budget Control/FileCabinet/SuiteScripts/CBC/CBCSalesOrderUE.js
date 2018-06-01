@@ -113,6 +113,35 @@ function cbcSalesOrderAfterSubmit(type)
 			processErrors(newRecord, errors, type);
 			}
 	
+	if(type == 'cancel')
+	{
+		//Get the summarised items by contact values from the new record
+		//
+		getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+		
+		//Get the summarised items by contact values from the old record
+		//
+		getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+		
+		//If we have now cancelled the order we need to look at what items are outstanding, so as we can credit the allocations
+		//
+		processCancelledItems(newRecord, contactItemObject);
+
+		//Update the list with the alloc type & equivalent points usage from the customer items table
+		//
+		updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+		
+		//Work out what we have used against the contacts allowed usage
+		//
+		var orderDate = newRecord.getFieldValue('trandate');
+		
+		calculateContactsUsage(contactItemObject, errors, orderDate);
+		
+		//Process any errors
+		//
+		processErrors(newRecord, errors, type);
+		}
+
 	if(type == 'delete')
 		{
 			//Get the summarised items by contact values from the old record
@@ -143,6 +172,62 @@ function cbcSalesOrderAfterSubmit(type)
 //Functions
 //=====================================================================
 //
+function processCancelledItems(_soRecord, _contactItemObject)
+{
+	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
+	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
+	var newLinesCount = _soRecord.getLineItemCount('item');
+	
+	//Allow for nulls
+	//
+	newRecordOrderPlacedBy = (newRecordOrderPlacedBy == null ? '' : newRecordOrderPlacedBy);
+	newRecordOrderPlacedByText = (newRecordOrderPlacedByText == null ? '' : newRecordOrderPlacedByText);
+	
+	for (var int = 1; int <= newLinesCount; int++) 
+		{
+			//Get the values from the lines
+			//
+			var newLineItem = _soRecord.getLineItemValue('item','item',int);
+			var newLineItemText = _soRecord.getLineItemText('item','item',int);
+			var newLineQuantity = _soRecord.getLineItemValue('item','quantity',int);
+			var newLineQuantityFulfilled = _soRecord.getLineItemValue('item','quantityfulfilled',int);
+			var newLineAmount = _soRecord.getLineItemValue('item','amount',int);
+			var newLineRate = _soRecord.getLineItemValue('item','rate',int);
+			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
+			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
+
+			//Allow for nulls
+			//
+			newLineManpackContact = (newLineManpackContact == null ? '' : newLineManpackContact);
+			newLineManpackContactText = (newLineManpackContactText == null ? '' : newLineManpackContactText);
+			
+			//If the manpack contact is empty then set it with the id of the order placed by person
+			//
+			newLineManpackContact = (newLineManpackContact == '' ? newRecordOrderPlacedBy : newLineManpackContact);
+			newLineManpackContactText = (newLineManpackContactText == '' ? newRecordOrderPlacedByText : newLineManpackContactText);
+			
+			//We are only interested in lines that will have a contact associated with them, otherwise ignore them
+			//
+			if(newLineManpackContact != '')
+				{
+					//Build up the contact + item key
+					//
+					var contactItemKey = padding_left(newLineManpackContact,'0',6) + padding_left(newLineItem,'0',6);
+					
+					var outstandingQuantity = Number(newLineQuantity) - Number(newLineQuantityFulfilled);
+					var outstandingAmount = Number(newLineRate) * outstandingQuantity;
+					
+					if(outstandingQuantity != 0)
+						{
+							//Update the quantity & value for the item
+							//
+							_contactItemObject[contactItemKey][2] = Number(_contactItemObject[contactItemKey][2]) - outstandingQuantity;
+							_contactItemObject[contactItemKey][3] = Number(_contactItemObject[contactItemKey][3]) - outstandingAmount;
+						}
+				}
+		}
+}
+
 function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 {
 	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
