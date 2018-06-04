@@ -114,32 +114,32 @@ function cbcSalesOrderAfterSubmit(type)
 			}
 	
 	if(type == 'cancel')
-	{
-		//Get the summarised items by contact values from the new record
-		//
-		getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
-		
-		//Get the summarised items by contact values from the old record
-		//
-		getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
-		
-		//If we have now cancelled the order we need to look at what items are outstanding, so as we can credit the allocations
-		//
-		processCancelledItems(newRecord, contactItemObject);
-
-		//Update the list with the alloc type & equivalent points usage from the customer items table
-		//
-		updateItemsWithAllocAndPoints(newRecord, contactItemObject);
-		
-		//Work out what we have used against the contacts allowed usage
-		//
-		var orderDate = newRecord.getFieldValue('trandate');
-		
-		calculateContactsUsage(contactItemObject, errors, orderDate);
-		
-		//Process any errors
-		//
-		processErrors(newRecord, errors, type);
+		{
+			//Get the summarised items by contact values from the new record
+			//
+			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+			
+			//Get the summarised items by contact values from the old record
+			//
+			getItemsFromSoRecord(oldRecord, contactItemObject, 'S'); //Subtract mode
+			
+			//If we have now cancelled the order we need to look at what items are outstanding, so as we can credit the allocations
+			//
+			processCancelledItems(newRecord, contactItemObject);
+	
+			//Update the list with the alloc type & equivalent points usage from the customer items table
+			//
+			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+			
+			//Work out what we have used against the contacts allowed usage
+			//
+			var orderDate = newRecord.getFieldValue('trandate');
+			
+			calculateContactsUsage(contactItemObject, errors, orderDate);
+			
+			//Process any errors
+			//
+			processErrors(newRecord, errors, type);
 		}
 
 	if(type == 'delete')
@@ -195,7 +195,7 @@ function processCancelledItems(_soRecord, _contactItemObject)
 			var newLineRate = _soRecord.getLineItemValue('item','rate',int);
 			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
 			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
-
+			
 			//Allow for nulls
 			//
 			newLineManpackContact = (newLineManpackContact == null ? '' : newLineManpackContact);
@@ -233,6 +233,7 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 	var newRecordOrderPlacedBy = _soRecord.getFieldValue('custbody_cbc_order_placed_by');
 	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
 	var newLinesCount = _soRecord.getLineItemCount('item');
+	var contactGrades = {};
 	
 	//Allow for nulls
 	//
@@ -249,20 +250,22 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 			var newLineAmount = _soRecord.getLineItemValue('item','amount',int);
 			var newLineManpackContact = _soRecord.getLineItemValue('item','custcol_cbc_manpack_contact',int);
 			var newLineManpackContactText = _soRecord.getLineItemText('item','custcol_cbc_manpack_contact',int);
+			var newLineClosed = _soRecord.getLineItemValue('item','isclosed',int);
 			
 			//Allow for nulls
 			//
 			newLineManpackContact = (newLineManpackContact == null ? '' : newLineManpackContact);
 			newLineManpackContactText = (newLineManpackContactText == null ? '' : newLineManpackContactText);
+			newLineClosed = (newLineClosed == null ? newLineClosed = 'F' : newLineClosed);
 			
 			//If the manpack contact is empty then set it with the id of the order placed by person
 			//
 			newLineManpackContact = (newLineManpackContact == '' ? newRecordOrderPlacedBy : newLineManpackContact);
 			newLineManpackContactText = (newLineManpackContactText == '' ? newRecordOrderPlacedByText : newLineManpackContactText);
 			
-			//We are only interested in lines that will have a contact associated with them, otherwise ignore them
+			//We are only interested in lines that will have a contact associated with them & that they are not closed, otherwise ignore them
 			//
-			if(newLineManpackContact != '')
+			if(newLineManpackContact != '' && newLineClosed == 'F')
 				{
 					//Build up the contact + item key
 					//
@@ -285,12 +288,29 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 					
 					var tempNewLineQuantity = Number(newLineQuantity) * modifier;
 					var tempNewLineAmount = Number(newLineAmount) * modifier;
-						
+					
+					//Get the grade for the manpack contact
+					//
+					var newLineManpackContactGrade = '0';
+					
+					if(newLineManpackContact != null && newLineManpackContact != '')
+						{
+							if(contactGrades[newLineManpackContact])
+								{
+									newLineManpackContactGrade = contactGrades[newLineManpackContact];
+								}
+							else
+								{
+									newLineManpackContactGrade = nlapiLookupField('contact', newLineManpackContact, 'custentity_cbc_contact_grade', false);
+									contactGrades[newLineManpackContact] = newLineManpackContactGrade;
+								}
+						}
+					
 					//Does this key value exist in the contact item object
 					//
 					if(!_contactItemObject[contactItemKey])
 						{
-							_contactItemObject[contactItemKey] = [newLineManpackContact, newLineItem, tempNewLineQuantity, tempNewLineAmount,0,0,newLineItemText,newLineManpackContactText,0]; //(0)contact, (1)item, (2)quantity, (3)amount, (4)allocation type, (5)points, (6)item text, (7)contact text, (8)actual monetary value
+							_contactItemObject[contactItemKey] = [newLineManpackContact, newLineItem, tempNewLineQuantity, tempNewLineAmount,0,0,newLineItemText,newLineManpackContactText,0,newLineManpackContactGrade]; //(0)contact, (1)item, (2)quantity, (3)amount, (4)allocation type, (5)points, (6)item text, (7)contact text, (8)actual monetary value, (9)contact grade
 						}
 					else
 						{
@@ -341,7 +361,8 @@ function updateItemsWithAllocAndPoints(_record, _contactItemObject)
 					[
 						new nlobjSearchColumn("custrecord_cbc_item_item"),
 						new nlobjSearchColumn("custrecord_cbc_item_allocation_type"),
-						new nlobjSearchColumn("custrecord_cbc_item_points")
+						new nlobjSearchColumn("custrecord_cbc_item_points"),
+						new nlobjSearchColumn("custrecord_cbc_item_grade")
 					]
 					);
 			
@@ -352,12 +373,14 @@ function updateItemsWithAllocAndPoints(_record, _contactItemObject)
 							var item = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_item");
 							var allocType = customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_allocation_type");
 							var points = Number(customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_points"));
+							var grade = Number(customrecord_cbc_item_record_recordSearch[int].getValue("custrecord_cbc_item_grade"));
 							
 							for ( var contactItem in _contactItemObject) 
 								{
 									var contactItemId = _contactItemObject[contactItem][1];
-									
-									if(contactItemId == item)
+									var contactItemGrade = _contactItemObject[contactItem][9];
+								
+									if(contactItemId == item && contactItemGrade == grade)
 										{
 											_contactItemObject[contactItem][4] = allocType;
 											_contactItemObject[contactItem][5] = points; // * Number(_contactItemObject[contactItem][2]);
@@ -471,7 +494,16 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 								
 								//Calculate the new usage value
 								//
-								var newBudgetUsage = Math.round((budgetUsgae + totalAmount));
+								if(totalAmount < 0)
+									{
+										totalAmount = Math.round(Math.abs(totalAmount)) * -1.0;
+									}
+								else
+									{
+										totalAmount = Math.round(totalAmount) ;
+									}
+								
+								var newBudgetUsage = budgetUsgae + totalAmount;
 									
 								nlapiSubmitField('customrecord_cbc_contact_record', budgetId, 'custrecord_cbc_contact_usage', newBudgetUsage, false);
 								
