@@ -131,6 +131,16 @@
           <sameRowAsPrevious>F</sameRowAsPrevious>
           <quickAdd>F</quickAdd>
         </field>
+        <field>
+          <id>[scriptid=custentity_cbc_manpack_user]</id>
+          <label>CBC Manpack User</label>
+          <visible>T</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+          <quickAdd>F</quickAdd>
+        </field>
       </fields>
     </fieldGroup>
     <fieldGroup scriptid="emailphoneaddress">

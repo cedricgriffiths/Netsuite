@@ -217,6 +217,15 @@
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
+        <field>
+          <id>[scriptid=custbody_cbc_errors]</id>
+          <label>CBC Errors</label>
+          <visible>T</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
       </fields>
     </fieldGroup>
     <fieldGroup scriptid="classification">
@@ -659,6 +668,11 @@
               <visible>T</visible>
             </column>
             <column>
+              <id>[scriptid=custcol_cbc_manpack_contact]</id>
+              <label>CBC Manpack Contact</label>
+              <visible>T</visible>
+            </column>
+            <column>
               <id>DEPARTMENT</id>
               <label>Department</label>
               <visible>F</visible>
@@ -879,8 +893,8 @@
               <visible>F</visible>
             </column>
             <column>
-              <id>[scriptid=custcol_cbc_manpack_contact]</id>
-              <label>CBC Manpack Contact</label>
+              <id>[scriptid=custcol_cbc_closed_processed]</id>
+              <label>CBC Closed Processed</label>
               <visible>T</visible>
             </column>
           </columns>

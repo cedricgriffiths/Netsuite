@@ -1,6 +1,6 @@
 <usereventscript scriptid="customscript_cbc_sales_order_ue">
   <aftersubmitfunction>cbcSalesOrderAfterSubmit</aftersubmitfunction>
-  <beforeloadfunction></beforeloadfunction>
+  <beforeloadfunction>cbcSalesOrderBeforeLoad</beforeloadfunction>
   <beforesubmitfunction></beforesubmitfunction>
   <description></description>
   <isinactive>F</isinactive>
@@ -19,10 +19,10 @@
       <eventtype></eventtype>
       <executeinwebstore>F</executeinwebstore>
       <isdeployed>T</isdeployed>
-      <loglevel>DEBUG</loglevel>
+      <loglevel>ERROR</loglevel>
       <recordtype>SALESORDER</recordtype>
       <runasrole></runasrole>
-      <status>TESTING</status>
+      <status>RELEASED</status>
     </scriptdeployment>
   </scriptdeployments>
 </usereventscript>
