@@ -31,6 +31,60 @@ function clientFieldChanged(type, name, linenum)
 		{
 			nlapiSetFieldValue('custpage_so_text', nlapiGetFieldText(name), false, true)
 		}
+	
+	if (name == 'custpage_logo_type_select')
+		{
+			nlapiSetFieldValue('custpage_logo_type_text', nlapiGetFieldText(name), false, true)
+		}
+
+	if (name == 'custpage_logo_select')
+		{
+			nlapiSetFieldValue('custpage_logo_text', nlapiGetFieldText(name), false, true)
+		}
+
+	if (name == 'custpage_asym_belongs_select')
+		{
+			nlapiRemoveSelectOption('custpage_logo_select', null);
+			
+			var belongsTo = nlapiGetFieldValue('custpage_asym_belongs_select');
+			
+			var filters = [
+						   ["type","anyof","Assembly"], 
+						   "AND", 
+						   ["matrix","is","F"], 
+						   "AND", 
+						   ["matrixchild","is","F"], 
+						   "AND", 
+						   ["isphantom","is","T"]
+						];
+			
+			if(belongsTo != null && belongsTo != '')
+				{
+					filters.push("AND",["custitem_bbs_item_customer","anyof",belongsTo]);
+				}
+			
+			var assemblyitemSearch = nlapiCreateSearch("assemblyitem",filters, 
+					[
+					   new nlobjSearchColumn("itemid").setSort(false), 
+					   new nlobjSearchColumn("displayname")
+					]
+					);
+			
+			var assemblyitemSearchResults = getResults(assemblyitemSearch);
+			
+			nlapiInsertSelectOption('custpage_logo_select', '', '', true);
+
+			if(assemblyitemSearchResults != null && assemblyitemSearchResults.length > 0)
+				{
+					for (var int = 0; int < assemblyitemSearchResults.length; int++) 
+						{
+							var assId = assemblyitemSearchResults[int].getId();
+							var assName = assemblyitemSearchResults[int].getValue('itemid');
+							nlapiInsertSelectOption('custpage_logo_select', assId, assName, false);
+
+						}
+				}
+		}
 }
 
 function clientSaveRecord()
@@ -158,6 +212,32 @@ function clientSaveRecord()
     return returnStatus;
 }
 
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
+}
 
 
 

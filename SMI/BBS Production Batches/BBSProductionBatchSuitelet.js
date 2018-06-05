@@ -234,7 +234,8 @@ function productionBatchSuitelet(request, response)
 		var belongsToId = request.getParameter('belongstoid');
 		var customerId = request.getParameter('customerid');
 		var stage = Number(request.getParameter('stage'));
-		var ffi = request.getParameter('ffi');
+		var logoType = request.getParameter('logotype');
+		var logoTypeText = request.getParameter('logotypetext');
 		var mode = request.getParameter('mode'); //U = update existing production batch, C = create a production batch
 		var soLink = request.getParameter('solink'); // T/F - choose to select w/o that are/are not linked to sales orders
 		var soCommitStatus = request.getParameter('socommitstatus'); 
@@ -244,6 +245,11 @@ function productionBatchSuitelet(request, response)
 		var batches = request.getParameter('batches'); 
 		var woCommitStatus = request.getParameter('wocommitstatus'); 
 		var woCommitStatusText = request.getParameter('wocommitstatustext'); 
+		var startDate = request.getParameter('startdate');
+		var endDate = request.getParameter('enddate');
+		var logo = request.getParameter('logo');
+		var logoText = request.getParameter('logotext');
+		var otherrefnumText = request.getParameter('otherrefnum');
 		
 		// Create a form
 		//
@@ -292,6 +298,17 @@ function productionBatchSuitelet(request, response)
 		soTextField.setDisplayType('hidden');
 		soTextField.setDefaultValue(soText);
 		
+		//Store the logo type text in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var logoTypeTextField = form.addField('custpage_logo_type_text', 'text', 'Logo Type Text');
+		logoTypeTextField.setDisplayType('hidden');
+		logoTypeTextField.setDefaultValue(logoTypeText);
+		
+		//Store the logo text in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var logoTextField = form.addField('custpage_logo_text', 'text', 'Logo Text');
+		logoTextField.setDisplayType('hidden');
+		logoTextField.setDefaultValue(logoText);
 		
 		var prodBatchTitle = '';
 		
@@ -353,7 +370,47 @@ function productionBatchSuitelet(request, response)
 				//
 				var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
 				var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'select', 'Assembly Belongs To', 'customer','custpage_grp2');
-				var fullFinishField = form.addField('custpage_ffi_select', 'text', 'Full Finish item', null,'custpage_grp2');
+				var logoTypeField = form.addField('custpage_logo_type_select', 'select', 'Logo Type', 'customlist_bbs_item_process_type','custpage_grp2');
+				var logoField = form.addField('custpage_logo_select', 'select', 'Logo', null,'custpage_grp2');
+				
+				var assemblyitemSearch = nlapiCreateSearch("assemblyitem",
+						[
+						   ["type","anyof","Assembly"], 
+						   "AND", 
+						   ["matrix","is","F"], 
+						   "AND", 
+						   ["matrixchild","is","F"], 
+						   "AND", 
+						   ["isphantom","is","T"]
+						], 
+						[
+						   new nlobjSearchColumn("itemid").setSort(false), 
+						   new nlobjSearchColumn("displayname")
+						]
+						);
+				
+				var assemblyitemSearchResults = getResults(assemblyitemSearch);
+				
+				logoField.addSelectOption('', '', true);
+				
+				if(assemblyitemSearchResults != null && assemblyitemSearchResults.length > 0)
+					{
+						for (var int = 0; int < assemblyitemSearchResults.length; int++) 
+							{
+								var assId = assemblyitemSearchResults[int].getId();
+								var assName = assemblyitemSearchResults[int].getValue('itemid');
+								logoField.addSelectOption(assId, assName, false);
+							}
+					}
+				
+				var startDateField = form.addField('custpage_start_date', 'date', 'WO Date Range From', null,'custpage_grp2');
+				var endDateField = form.addField('custpage_end_date', 'date', 'WO Date Range To', null,'custpage_grp2');
+				
+				var today = new Date();
+				var todayString = nlapiDateToString(today);
+				startDateField.setDefaultValue(todayString);
+				endDateField.setDefaultValue(todayString);
+				
 				
 				//If we are looking at w/o that are linked to s/o then add specific filters
 				//
@@ -443,6 +500,10 @@ function productionBatchSuitelet(request, response)
 						//
 						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
 
+						//Sales order otherrefnum Filter
+						//
+						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null,'custpage_grp2');
+
 					}
 				else
 					{
@@ -473,41 +534,69 @@ function productionBatchSuitelet(request, response)
 				assemblyBelongsToField.setDisplayType('disabled');
 				
 				if(belongsToId != '')
-				{
-					var text = nlapiLookupField('customer', belongsToId, 'companyname', false);
-					assemblyBelongsToField.setDefaultValue(text);
-				}
+					{
+						var text = nlapiLookupField('customer', belongsToId, 'companyname', false);
+						assemblyBelongsToField.setDefaultValue(text);
+					}
 			
-				var fullFinishField = form.addField('custpage_ffi_select', 'text', 'Full Finish Item', null, 'custpage_grp2');
-				fullFinishField.setDisplayType('disabled');
+				var logoTypeField = form.addField('custpage_logo_type_select', 'text', 'Logo Type', null, 'custpage_grp2');
+				logoTypeField.setDisplayType('disabled');
 				
-				if(ffi != '')
-				{
-					fullFinishField.setDefaultValue(ffi);
-				}
+				if(logoTypeText != '')
+					{
+						logoTypeField.setDefaultValue(logoTypeText);
+					}
+				
+				var logoField = form.addField('custpage_logo_select', 'text', 'Logo', null, 'custpage_grp2');
+				logoField.setDisplayType('disabled');
+				
+				if(logoText != '')
+					{
+						logoField.setDefaultValue(logoText);
+					}
+				
+				var startDateField = form.addField('custpage_start_date', 'date', 'Date Range From', null,'custpage_grp2');
+				startDateField.setDisplayType('disabled');
+				
+				if(startDate != '')
+					{
+						startDateField.setDefaultValue(startDate);
+					}
+				
+				var endDateField = form.addField('custpage_end_date', 'date', 'Date Range To', null,'custpage_grp2');
+				endDateField.setDisplayType('disabled');
+				
+				if(endDate != '')
+					{
+						endDateField.setDefaultValue(endDate);
+					}
 				
 				if(soLink == 'T')
-				{
-					var soCommitStatusField = form.addField('custpage_so_commit_select', 'text', 'Sales Order Commitment Status', null, 'custpage_grp2');
-					soCommitStatusField.setDisplayType('disabled');
-					soCommitStatusField.setDefaultValue(soCommitStatusText);
-					soCommitStatusField.setDisplayType('hidden'); //SMI
-					
-					var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
-					soTextField.setDisplayType('disabled');
-					soTextField.setDefaultValue(soText);
-					soTextField.setDisplayType('hidden'); //SMI
-					
-					var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
-					woCommitStatusField.setDisplayType('disabled');
-					woCommitStatusField.setDefaultValue(woCommitStatusText);
-				}
+					{
+						var soCommitStatusField = form.addField('custpage_so_commit_select', 'text', 'Sales Order Commitment Status', null, 'custpage_grp2');
+						soCommitStatusField.setDisplayType('disabled');
+						soCommitStatusField.setDefaultValue(soCommitStatusText);
+						soCommitStatusField.setDisplayType('hidden'); //SMI
+						
+						var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
+						soTextField.setDisplayType('disabled');
+						soTextField.setDefaultValue(soText);
+						soTextField.setDisplayType('hidden'); //SMI
+						
+						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+						woCommitStatusField.setDisplayType('disabled');
+						woCommitStatusField.setDefaultValue(woCommitStatusText);
+						
+						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null, 'custpage_grp2');
+						soOtherRefNumField.setDisplayType('disabled');
+						soOtherRefNumField.setDefaultValue(otherrefnumText);
+					}
 				else
-				{
-					var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
-					woCommitStatusField.setDisplayType('disabled');
-					woCommitStatusField.setDefaultValue(woCommitStatusText);
-				}
+					{
+						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+						woCommitStatusField.setDisplayType('disabled');
+						woCommitStatusField.setDefaultValue(woCommitStatusText);
+					}
 				
 				var maxBatchField = form.addField('custpage_max_batch', 'inlinehtml', '', null, 'custpage_grp2');
 				maxBatchField.setLayoutType('outsidebelow', 'startrow');
@@ -547,6 +636,10 @@ function productionBatchSuitelet(request, response)
 				listSoTranId.setDisplayType('hidden');
 				var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
 				listCustEntityId.setDisplayType('hidden');
+				var listLogoType = subList.addField('custpage_sublist_logo_type', 'text', 'Logo Type', null);
+				var listLogo = subList.addField('custpage_sublist_logo', 'text', 'Logo', null);
+				var listSoRef = subList.addField('custpage_sublist_so_ref', 'text', 'SO Reference', null);
+				
 				
 				var filterArray = [
 				                   ["mainline","is","T"], 
@@ -559,45 +652,65 @@ function productionBatchSuitelet(request, response)
 				                ];
 				
 				if(customerId != '')
-				{
-					filterArray.push("AND",["entity","anyof",customerId]);
-				}
+					{
+						filterArray.push("AND",["entity","anyof",customerId]);
+					}
 				
 				if(belongsToId != '')
-				{
-					filterArray.push("AND",["item.custitem_bbs_item_customer","anyof",belongsToId]);
-				}
+					{
+						filterArray.push("AND",["item.custitem_bbs_item_customer","anyof",belongsToId]);
+					}
 				
 				if(soLink == 'T')
-				{
-					if(soId != '')
 					{
-						filterArray.push("AND",["createdfrom","anyof",soId]);
-					}
-					else
+						if(soId != '')
 						{
-							filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+							filterArray.push("AND",["createdfrom","anyof",soId]);
 						}
-				}
+						else
+							{
+								filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+							}
+					}
 				else
-				{
-					filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
-				}	
+					{
+						filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
+					}	
 				
-				if(ffi != '')
-				{
-					filterArray.push("AND",["custbody_bbs_wo_ffi.itemid","startswith",ffi]);
-				}
+				if(logoType != '')
+					{
+						filterArray.push("AND",["custbody_bbs_wo_logo_type","anyof",logoType]);
+					}
 				
+				if(logo != '')
+					{
+						filterArray.push("AND",["custbody_bbs_wo_logo","anyof",logo]);
+					}
+			
 				if(soCommitStatus != '')
-				{
-					filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
-				}
+					{
+						filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
+					}
 				
 				if(woCommitStatus != '')
-				{
-					filterArray.push("AND",["custbody_bbs_commitment_status","anyof",woCommitStatus]);
-				}
+					{
+						filterArray.push("AND",["custbody_bbs_commitment_status","anyof",woCommitStatus]);
+					}
+				
+				if(startDate != '')
+					{
+						filterArray.push("AND",["trandate","onorafter",startDate]);
+					}
+				
+				if(endDate != '')
+					{
+						filterArray.push("AND",["trandate","onorbefore",endDate]);
+					}
+				
+				if(otherrefnumText != '')
+					{
+						filterArray.push("AND",["createdfrom.poastext","is",otherrefnumText]);
+					}
 				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
 						[
@@ -614,7 +727,10 @@ function productionBatchSuitelet(request, response)
 //SMI					   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
 //SMI					   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null), 
 						   new nlobjSearchColumn("tranid","createdFrom",null), 
-						   new nlobjSearchColumn("externalid","customer",null)
+						   new nlobjSearchColumn("externalid","customer",null),
+						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null), 
+						   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
+						   new nlobjSearchColumn("otherrefnum","createdFrom",null)
 						]
 						);
 						
@@ -664,6 +780,9 @@ function productionBatchSuitelet(request, response)
 //SMI				subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
+					subList.setLineItemValue('custpage_sublist_logo_type', line, searchResultSet[int].getText('custbody_bbs_wo_logo_type'));
+					subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
+					subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
 				}
 		
 				switch(mode)
@@ -775,7 +894,8 @@ function productionBatchSuitelet(request, response)
 				var customerId = request.getParameter('custpage_customer_select');
 				var belongsToId = request.getParameter('custpage_asym_belongs_select');
 				var productionBatchId = request.getParameter('custpage_production_batch');
-				var ffi = request.getParameter('custpage_ffi_select');
+				var logotype = request.getParameter('custpage_logo_type_select');
+				var logotypetext = request.getParameter('custpage_logo_type_text');
 				var mode = request.getParameter('custpage_mode');
 				var solink = request.getParameter('custpage_solink');
 				var socommitstatus = request.getParameter('custpage_so_commit_select');
@@ -784,6 +904,12 @@ function productionBatchSuitelet(request, response)
 				var sotext = request.getParameter('custpage_so_text');
 				var wocommitstatus = request.getParameter('custpage_wo_commit_select');
 				var wocommitstatustext = request.getParameter('custpage_wo_com_text');
+				var startDate = request.getParameter('custpage_start_date');
+				var endDate = request.getParameter('custpage_end_date');
+				var logo = request.getParameter('custpage_logo_select');
+				var logotext = request.getParameter('custpage_logo_text');
+				var otherrefnum = request.getParameter('custpage_so_otherrefnum_select');
+				
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -792,7 +918,8 @@ function productionBatchSuitelet(request, response)
 				params['belongstoid'] = belongsToId;
 				params['productionbatchid'] = productionBatchId;
 				params['stage'] = '2';
-				params['ffi'] = ffi;
+				params['logotype'] = logotype;
+				params['logotypetext'] = logotypetext;
 				params['mode'] = mode;
 				params['solink'] = solink;
 				params['socommitstatus'] = socommitstatus;
@@ -801,6 +928,11 @@ function productionBatchSuitelet(request, response)
 				params['sotext'] = sotext;
 				params['wocommitstatus'] = wocommitstatus;
 				params['wocommitstatustext'] = wocommitstatustext;
+				params['startdate'] = startDate;
+				params['enddate'] = endDate;
+				params['logo'] = logo;
+				params['logotext'] = logotext;
+				params['otherrefnum'] = otherrefnum;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				
@@ -866,6 +998,8 @@ function productionBatchSuitelet(request, response)
 										var soTranId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_so_tranid', int);
 										var custEntityId = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_cust_entityid', int);
 										var custEntity = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_customer', int);
+										var custEntityAccNo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_customer_acc_no', int);
+										var logo = request.getLineItemValue('custpage_sublist_items', 'custpage_sublist_logo', int);
 										
 										//Build the batch key (which is used as the batch description)
 										//
@@ -874,7 +1008,7 @@ function productionBatchSuitelet(request, response)
 										if (soLink == 'T')
 											{
 //SMI										 	key = custEntity + ':' + soTranId + ':' + finish;
-											 	key = custEntity + ':' + soTranId;
+											 	key = custEntity + ':' + logo;
 											}
 										else
 											{
@@ -928,6 +1062,12 @@ function productionBatchSuitelet(request, response)
 								//
 								prodBatchId = nlapiSubmitRecord(prodBatchRecord, true, true);  // 4GU's
 								batchesCreated.push(prodBatchId);
+								
+								//Update the batch with the derived name
+								//
+								var batchName = woKey.split(':')[0] + '-' + prodBatchId.toString();
+								
+								nlapiSubmitField('customrecord_bbs_assembly_batch', prodBatchId, 'name', batchName, false)  // 2GU's
 								
 								//Loop round the w/o id's associated with this batch
 								//
@@ -1209,6 +1349,11 @@ function productionBatchSuitelet(request, response)
 								var woCommitStatus = searchResultSet[int3].getText("custbody_bbs_commitment_status");
 								var woAssemblyItemSequence = searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
 //SMI							var woAssemblyFinishType = searchResultSet[int3].getText("custitemfinish_type","item");
+								
+								if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
+									{
+										woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
+									}
 								
 								if(woMainline == '*')
 									{	
@@ -1840,9 +1985,51 @@ function removePrefix(fullString)
 	return returnString;
 }
 
+function getResults(search)
+{
+	var searchResult = search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
 
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
 
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
 
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
+}
+
+//left padding s with c to a total of n chars
+//
+function padding_left(s, c, n) 
+{
+	if (! s || ! c || s.length >= n) 
+	{
+		return s;
+	}
+	
+	var max = (n - s.length)/c.length;
+	
+	for (var i = 0; i < max; i++) 
+	{
+		s = c + s;
+	}
+	
+	return s;
+}
 
 
 

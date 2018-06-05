@@ -18,12 +18,18 @@
 function clientRecalc(type)
 {
 	var assemblyId = nlapiGetFieldValue('assemblyitem');
-	
 	var itemLines = nlapiGetLineItemCount('item');
+	var lastLevelOneItem = '';
 	
 	for (var int = 1; int <= itemLines; int++) 
 		{
 			var woItem = nlapiGetLineItemValue('item', 'item', int);
+			var woLevel = Number(nlapiGetLineItemValue('item', 'assemblylevel', int));
+			
+			if(woLevel == 1)
+				{
+					lastLevelOneItem = woItem;
+				}
 			
 			if(woItem)
 				{
@@ -34,8 +40,18 @@ function clientRecalc(type)
 	
 					var searchFilters = new Array();
 					searchFilters[0] = new nlobjSearchFilter('custrecord_bbs_bom_member', null, 'is', woItem);
-					searchFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', assemblyId);
 					
+					if(woLevel == 1)
+						{
+							searchFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', assemblyId);
+						}
+					
+					if(woLevel == 2)
+						{
+							searchFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', lastLevelOneItem);
+						}
+				
+				
 					// Create the search
 					//
 					var mvfSearch = nlapiCreateSearch('customrecord_bbs_bom_fields', searchFilters, cols);

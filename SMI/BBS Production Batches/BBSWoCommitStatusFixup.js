@@ -71,12 +71,16 @@ function scheduled(type)
 					//
 					var newRecord = nlapiLoadRecord('workorder', woSearchId );
 					var newStatus = newRecord.getFieldValue('status');
-					
+					var assemblyId = newRecord.getFieldValue('assemblyitem');
 					var itemCount = newRecord.getLineItemCount('item');
 					var linesToCommit = Number(0);
 					var linesFullyCommitted = Number(0);
 					var woFullFinishItem = '';
 					var woFinish = '';
+					var woLogo = '';
+					var woLogoType = '';
+					var lastLevelOneItem = '';
+					
 					var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
 						
 					//Loop through the items on the works order
@@ -89,9 +93,17 @@ function scheduled(type)
 							var lineItemUsedInBuild = Number(newRecord.getLineItemValue('item', 'quantityfulfilled', int));
 							var lineItemItemId = newRecord.getLineItemValue('item', 'item', int);
 							var lineItemType = newRecord.getLineItemValue('item', 'itemtype', int);
-						
+							var lineItemsource = newRecord.getLineItemValue('item', 'itemsource', int);
+							var lineItemLevel = Number(newRecord.getLineItemValue('item', 'assemblylevel', int));
+							
 							lineItemCommitted = (lineItemCommitted == null ? Number(0) : lineItemCommitted);
 							lineItemUsedInBuild = (lineItemUsedInBuild == null ? Number(0) : lineItemUsedInBuild);
+							
+							if(lineItemsource == 'PHANTOM')
+								{
+									woLogo = lineItemItemId;
+									woLogoType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
+								}
 							
 //SMI						//Get the process type from the item record
 //							//
@@ -149,6 +161,54 @@ function scheduled(type)
 										}
 									
 								}
+							
+							//Process the assembly special instructions
+							//
+							if(lineItemLevel == 1)
+							{
+								lastLevelOneItem = lineItemItemId;
+							}
+						
+							//See if there is a special instruction record for the bom/component
+							//
+							var cols = new Array();
+							cols[0] = new nlobjSearchColumn('custrecord_bbs_custom_field_1');
+			
+							var searchFilters = new Array();
+							searchFilters[0] = new nlobjSearchFilter('custrecord_bbs_bom_member', null, 'is', lineItemItemId);
+							
+							if(lineItemLevel == 1)
+								{
+									searchFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', assemblyId);
+								}
+							
+							if(lineItemLevel == 2)
+								{
+									searchFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', lastLevelOneItem);
+								}
+						
+							// Create the search
+							//
+							var mvfSearch = nlapiCreateSearch('customrecord_bbs_bom_fields', searchFilters, cols);
+			
+							// Run the search
+							//
+							var mvfSearchResults = mvfSearch.runSearch();
+			
+							// Get the result set from the search
+							//
+							var mvfSearchResultSet = mvfSearchResults.getResults(0, 100);
+			
+							// See if there are any results to process
+							//
+							if (mvfSearchResultSet != null) 
+								{
+									if (mvfSearchResultSet.length == 1)
+										{
+											var specInst = mvfSearchResultSet[0].getValue(cols[0]);
+											newRecord.setLineItemValue('item', 'custcol_bbs_bom_spec_inst', int, specInst);
+										}
+								}
 						}
 						
 						//Set the w/o commitment status
@@ -196,6 +256,23 @@ function scheduled(type)
 //										}
 //								}
 //						
+						if(woLogo != '')
+							{
+								newRecord.setFieldValue('custbody_bbs_wo_logo', woLogo);
+							}
+						
+						if(woLogoType != '')
+							{
+								newRecord.setFieldValue('custbody_bbs_wo_logo_type', woLogoType);
+							}
+					
+						
+						
+						
+						
+						
+						//Finally submit the works order
+						//
 						nlapiSubmitRecord(newRecord, false, true);					
 				}
 		}
