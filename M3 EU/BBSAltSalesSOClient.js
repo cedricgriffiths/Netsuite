@@ -151,6 +151,11 @@ function getItemRecordType(girtItemType)
 		case 'NonInvtPart':
 			girtItemRecordType = 'noninventoryitem';
 			break;
+			
+		case 'Group':
+			girtItemRecordType = 'itemgroup';
+			break;
+			
 	}
 
 	return girtItemRecordType;
