@@ -1,0 +1,25 @@
+<scheduledscript scriptid="customscript_cbc_budget_fixup_scheduled">
+  <defaultfunction>scheduled</defaultfunction>
+  <description></description>
+  <isinactive>F</isinactive>
+  <name>CBC Budget Fixup Schedulked</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <scriptfile>[/SuiteScripts/CBC/CBCBudgetFixupScheduled.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_cbc_budget_fixup_scheduled">
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <status>NOTSCHEDULED</status>
+      <title>CBC Budget Fixup Schedulked</title>
+      <recurrence>
+        <single>
+          <repeat></repeat>
+          <startdate>2018-06-04</startdate>
+          <starttime>17:00:00Z</starttime>
+        </single>
+      </recurrence>
+    </scriptdeployment>
+  </scriptdeployments>
+</scheduledscript>
