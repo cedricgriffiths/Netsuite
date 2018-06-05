@@ -41,7 +41,7 @@ function altSalesSaveRecord()
 			var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
 			var itemAmount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
 			
-			if(itemType != 'Discount')
+			if(itemType != 'Discount' && itemType != 'EndGroup')
 				{
 					var grossMargin = Number(nlapiLookupField(getItemRecordType(itemType), item, 'custitem_gross_margin_percent_items', false));
 
@@ -77,7 +77,7 @@ function altSalesValidateLine(type)
 	var amount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
 	var rate = Number(nlapiGetCurrentLineItemValue('item', 'rate'));
 	
-	if(itemType != 'Discount')
+	if(itemType != 'Discount' && itemType != 'EndGroup')
 		{
 			//If this is not a discount line, then we have to calculate the alt sales amount & then see if there is a discount line & apply that to the alt sales value
 			//
