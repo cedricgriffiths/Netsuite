@@ -129,10 +129,15 @@ function salesOrderAllocARS(type)
 									//Search for the contacts that are in the manpack list that also do not have a first order date
 									//
 									var contactSearch = nlapiSearchRecord("contact",null,
+											//[
+											//   ["internalid","anyof",manpackArray], 
+											//   "AND", 
+											//   ["custentity_sw_first_order_date","isempty",""]
+											//]
 											[
 											   ["internalid","anyof",manpackArray], 
 											   "AND", 
-											   ["custentity_sw_first_order_date","isempty",""]
+											   [["custentity_sw_first_order_date","isempty",""],"OR",["custentity_sw_pseudo_first_order_date","is","T"]]
 											], 
 											[
 											   new nlobjSearchColumn("entityid")
@@ -174,6 +179,7 @@ function salesOrderAllocARS(type)
 															//Update the allocation fields
 															//
 															contactRecord.setFieldValue('custentity_sw_first_order_date', salesDateString);
+															contactRecord.setFieldValue('custentity_sw_pseudo_first_order_date','F');
 															
 															contactRecord.setFieldValue('custentity_sw_top_1_used_since', salesDateString);
 															contactRecord.setFieldValue('custentity_sw_top_2_used_since', salesDateString);
