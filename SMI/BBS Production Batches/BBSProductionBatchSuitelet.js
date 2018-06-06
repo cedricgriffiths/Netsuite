@@ -1172,11 +1172,12 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("type","item",null),
 							   new nlobjSearchColumn("description","item",null),
 							   new nlobjSearchColumn("mainline",null,null),
-//SMI							   new nlobjSearchColumn("custitem_bbs_item_instructions","item",null),
+							   new nlobjSearchColumn("custcol_bbs_bom_spec_inst",null,null),
 							   new nlobjSearchColumn("quantitycommitted",null,null),
 							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
 							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
-							   new nlobjSearchColumn("custitemfinish_type","item",null)
+							   new nlobjSearchColumn("custitemfinish_type","item",null),
+							   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null)
 							]
 							);
 
@@ -1289,7 +1290,7 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<table style=\"width: 100%\">";
 					xmlPb += "<tr>";
 					xmlPb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-					xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Production Batch Picking List</b></td>";
+					xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 5px;\"><b>Production Batch Picking List</b></td>";
 					xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">" + nlapiEscapeXML(subGroup) + "</td>";
 					xmlPb += "</tr>";
 					
@@ -1299,8 +1300,8 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "</tr>";
 					
 					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Description</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 5px;\"><b>Batch Description</b></td>";
+					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 5px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlPb += "</tr>";
 					
 					xmlPb += "<tr>";
@@ -1312,7 +1313,7 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlPb += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
 					xmlPb += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
-					xmlPb += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
+					//xmlPb += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xmlPb += "</tr>";
 					
 					xmlPb += "</table></macro>";
@@ -1334,21 +1335,23 @@ function productionBatchSuitelet(request, response)
 						{
 							var thisFinishedItem = '';
 							var woSpecInst = '';
+							var firstInventoryItem = true;
 							
 							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 							{
-								var woId = searchResultSet[int3].getId();
-								var woAssemblyItemId = searchResultSet[int3].getValue('item');
-								var woAssemblyItem = searchResultSet[int3].getText('item');
-								var woAssemblyItemDesc = searchResultSet[int3].getValue('description','item');
-								var woAssemblyItemQty = (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
-								var woAssemblyItemCommitted = (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
-								var woMainline = searchResultSet[int3].getValue('mainline');
-//SMI							var woSpecInst = searchResultSet[int3].getValue("custitem_bbs_item_instructions","item");
-								var woItemType = searchResultSet[int3].getValue("type","item");
-								var woCommitStatus = searchResultSet[int3].getText("custbody_bbs_commitment_status");
-								var woAssemblyItemSequence = searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
-//SMI							var woAssemblyFinishType = searchResultSet[int3].getText("custitemfinish_type","item");
+								var woId 						= searchResultSet[int3].getId();
+								var woAssemblyItemId 			= searchResultSet[int3].getValue('item');
+								var woAssemblyItem 				= searchResultSet[int3].getText('item');
+								var woAssemblyItemDesc 			= searchResultSet[int3].getValue('description','item');
+								var woAssemblyItemQty 			= (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
+								var woAssemblyItemCommitted 	= (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
+								var woMainline 					= searchResultSet[int3].getValue('mainline');
+								var woSpecInst 					= searchResultSet[int3].getValue("custcol_bbs_bom_spec_inst");
+								var woItemType 					= searchResultSet[int3].getValue("type","item");
+								var woCommitStatus 				= searchResultSet[int3].getText("custbody_bbs_commitment_status");
+								var woAssemblyItemSequence 		= searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
+								var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
+								
 								
 								if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
 									{
@@ -1388,19 +1391,14 @@ function productionBatchSuitelet(request, response)
 										xmlPb += "<tr >";
 										xmlPb += "<th colspan=\"2\">Works Order</th>";
 										xmlPb += "<th align=\"left\" colspan=\"14\">Component</th>";
-										//xmlPb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
 										xmlPb += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
 		
 										xmlPb += "</tr>";
 										xmlPb += "</thead>";
 										
-									
-										//xml += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
-									
 										xmlPb += "<tr>";
 										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
 										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-										//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; padding-right: 5px;\" align=\"right\" colspan=\"2\">" + woAssemblyItemQty + "</td>";
 										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"2\">&nbsp;</td>";
 										xmlPb += "</tr>";
 															
@@ -1408,10 +1406,12 @@ function productionBatchSuitelet(request, response)
 										xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
 										xmlPb += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
 										xmlPb += "</tr>";
-															
+										
 										xmlPb += "<tr>";
-										xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+										xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\">&nbsp;</td>";
+										xmlPb += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
 										xmlPb += "</tr>";
+										
 									}
 								else
 									{
@@ -1451,30 +1451,43 @@ function productionBatchSuitelet(request, response)
 												
 												finishedItems[thisFinishedItem][3] = finishedItemComponents;
 												
+												
 												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size: 12pt;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-												//xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + woAssemblyItemQty + "</td>";
-												xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
+												xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+												xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+												xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+												xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
 												xmlPb += "</tr>";
-																	
+												/*					
 												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+												xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+												xmlPb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
 												xmlPb += "</tr>";
-																	
+												*/					
 												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"4\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
+												xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+												xmlPb += "<td align=\"left\" colspan=\"4\"><b>Special Instructions :</b></td>";
+												xmlPb += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(woSpecInst) + "</td>";
 												xmlPb += "</tr>";
 									
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"18\">&nbsp;</td>";
-												xmlPb += "</tr>";
-						
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"18\">&nbsp;</td>";
-												xmlPb += "</tr>";
+												if(!firstInventoryItem)
+													{
+														xmlPb += "<tr>";
+														xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+														xmlPb += "<td align=\"left\" colspan=\"4\"><b>Process Type :</b></td>";
+														xmlPb += "<td align=\"left\" colspan=\"10\">" + nlapiEscapeXML(woAssemblyProcessType) + "</td>";
+														xmlPb += "</tr>";
+													}
+												
+												if(firstInventoryItem)
+												{
+													firstInventoryItem = false;
+													
+													xmlPb += "<tr>";
+													xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+													xmlPb += "<td style=\"border-bottom: 1px; border-bottom-color: black;\" colspan=\"16\"><b><br/>Processes Required</b></td>";
+													xmlPb += "</tr>";
+												}
 											}
 									}
 							}
@@ -1487,6 +1500,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Add in the operator signature boxes
 					//
+					xmlPb += "<p/>";
 					xmlPb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
 					xmlPb += "<tr class=\"totalrow\">";
 					xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
@@ -1561,7 +1575,7 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<table style=\"width: 100%\">";
 					xmlCb += "<tr>";
 					xmlCb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-					xmlCb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Consolidated Base Items Picking List</b></td>";
+					xmlCb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 5px;\"><b>Consolidated Base Items Picking List</b></td>";
 					xmlCb += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">&nbsp;</td>";
 					xmlCb += "</tr>";
 					
@@ -1571,8 +1585,8 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "</tr>";
 					
 					xmlCb += "<tr>";
-					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Description</b></td>";
-					xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 5px;\"><b>Batch Description</b></td>";
+					xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 5px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlCb += "</tr>";
 					
 					xmlCb += "<tr>";
@@ -1584,7 +1598,7 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlCb += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
 					xmlCb += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
-					xmlCb += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
+					//xmlCb += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xmlCb += "</tr>";
 					
 					xmlCb += "</table></macro>";
@@ -1647,6 +1661,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Add in the operator signature boxes
 					//
+					xmlCb += "<p/>";
 					xmlCb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
 					xmlCb += "<tr class=\"totalrow\">";
 					xmlCb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
@@ -1727,9 +1742,9 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "<macro id=\"nlheader\">";
 					xmlCf += "<table style=\"width: 100%\">";
 					xmlCf += "<tr>";
-					xmlCf += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px;\">&nbsp;</td>";
-					xmlCf += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px;\"><b>Consolidated Finished Items Production List</b></td>";
-					xmlCf += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px;\">&nbsp;</td>";
+					xmlCf += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 5px;\">&nbsp;</td>";
+					xmlCf += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 5px;\"><b>Consolidated Finished Items Production List</b></td>";
+					xmlCf += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px; padding-bottom: 5px;\">&nbsp;</td>";
 					xmlCf += "</tr>";
 					
 					xmlCf += "<tr>";
@@ -1738,8 +1753,8 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "</tr>";
 					
 					xmlCf += "<tr>";
-					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Description</b></td>";
-					xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 5px;\"><b>Batch Description</b></td>";
+					xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 5px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 					xmlCf += "</tr>";
 					
 					xmlCf += "<tr>";
@@ -1751,7 +1766,7 @@ function productionBatchSuitelet(request, response)
 					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
 					xmlCf += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
 					xmlCf += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
-					xmlCf += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
+					//xmlCf += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
 					xmlCf += "</tr>";
 					
 					xmlCf += "</table></macro>";
@@ -1825,20 +1840,19 @@ function productionBatchSuitelet(request, response)
 							for (var theComponent in theComponents) 
 								{
 									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(theComponents[theComponent][0])) + "</b></td>";
-									//xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][3]) + "</td>";
+									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
+									xmlCf += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(theComponents[theComponent][0])) + "</b></td>";
 									xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][4]) + "</td>";
 									xmlCf += "</tr>";
 														
 									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"12\">" + nlapiEscapeXML(theComponents[theComponent][1]) + "</td>";
+									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
+									xmlCf += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(theComponents[theComponent][1]) + "</td>";
 									xmlCf += "</tr>";
 														
 									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"4\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"12\"><b>" + nlapiEscapeXML(theComponents[theComponent][2]) + "</b></td>";
+									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
+									xmlCf += "<td align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(theComponents[theComponent][2]) + "</b></td>";
 									xmlCf += "</tr>";
 
 									xmlCf += "<tr>";
@@ -1858,6 +1872,7 @@ function productionBatchSuitelet(request, response)
 					
 					//Add in the operator signature boxes
 					//
+					xmlCf += "<p/>";
 					xmlCf += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
 					xmlCf += "<tr class=\"totalrow\">";
 					xmlCf += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
