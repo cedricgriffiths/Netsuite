@@ -163,8 +163,8 @@ function createAssembliesSuitelet(request, response){
 					
 					//Add a filter field to limit the base parent
 					//
-					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Description Filter - Contains', null, 'custpage_grp_parent');
 					var baseParentFilter2Field = form.addField('custpage_base_parent_filter2', 'text', 'Base Parent Code Filter - Starts With', null, 'custpage_grp_parent');
+					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Description Filter - Contains', null, 'custpage_grp_parent');
 					baseParentFilterField.setBreakType('startcol');
 					
 					var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
