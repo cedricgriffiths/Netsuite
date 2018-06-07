@@ -27,6 +27,8 @@ function createAssembliesSuitelet(request, response){
 		var stageParam = Number(request.getParameter('stage'));
 		var custIdParam = request.getParameter('custid');
 		var custTxtParam = request.getParameter('custtxt');
+		var custPriceLevelParam = request.getParameter('custpricelevel');
+		var custCurrencyParam = request.getParameter('custcurrency');
 		var finishIdParam = request.getParameter('finishid');
 		var finishTxtParam = request.getParameter('finishtxt');
 		var finishRefIdParam = request.getParameter('finishrefid');
@@ -60,6 +62,15 @@ function createAssembliesSuitelet(request, response){
 		var custTxtField = form.addField('custpage_cust_txt_param', 'text', 'customer text');
 		custTxtField.setDisplayType('hidden');
 		custTxtField.setDefaultValue(custTxtParam);
+		
+		var custPriceLevelField = form.addField('custpage_cust_pricel_param', 'text', 'customer price level');
+		custPriceLevelField.setDisplayType('hidden');
+		custPriceLevelField.setDefaultValue(custPriceLevelParam);
+		
+		var custCurrencyField = form.addField('custpage_cust_currency_param', 'text', 'customer currency');
+		custCurrencyField.setDisplayType('hidden');
+		custCurrencyField.setDefaultValue(custCurrencyParam);
+		
 		
 		//Finish Item
 		//
@@ -165,7 +176,7 @@ function createAssembliesSuitelet(request, response){
 					//
 					var baseParentFilter2Field = form.addField('custpage_base_parent_filter2', 'text', 'Base Parent Code Filter - Starts With', null, 'custpage_grp_parent');
 					var baseParentFilterField = form.addField('custpage_base_parent_filter', 'text', 'Base Parent Description Filter - Contains', null, 'custpage_grp_parent');
-					baseParentFilterField.setBreakType('startcol');
+					baseParentFilter2Field.setBreakType('startcol');
 					
 					var inventoryitemSearch = nlapiCreateSearch("inventoryitem",
 							[
@@ -316,6 +327,9 @@ function createAssembliesSuitelet(request, response){
 							
 							var buttionFunction = "updateSalesPrice('" + baseParentId.toString() + "')";
 							sublist.addButton(sublistId + '_update', 'Update Sales Prices', buttionFunction);
+							
+							var buttionFunction = "calculateSalesPrice('" + baseParentId.toString() + "')";
+							sublist.addButton(sublistId + '_calculate', 'Calculate Sales Prices', buttionFunction);
 							
 							sublist.addRefreshButton();
 							
@@ -563,6 +577,8 @@ function createAssembliesSuitelet(request, response){
 				//
 				custIdParam = request.getParameter('custpage_cust_id_param');
 				custTxtParam = request.getParameter('custpage_cust_txt_param');
+				custPriceLevelParam = request.getParameter('custpage_cust_pricel_param');
+				custCurrencyParam = request.getParameter('custpage_cust_currency_param');
 				finishIdParam = request.getParameter('custpage_finish_id_param');
 				finishTxtParam = request.getParameter('custpage_finish_txt_param');
 				finishRefIdParam = request.getParameter('custpage_finishref_id_param');
@@ -575,6 +591,8 @@ function createAssembliesSuitelet(request, response){
 				var params = new Array();
 				params['custid'] = custIdParam;
 				params['custtxt'] = custTxtParam;
+				params['custpricelevel'] = custPriceLevelParam;
+				params['custcurrency'] = custCurrencyParam;
 				params['finishid'] = finishIdParam;
 				params['finishtxt'] = finishTxtParam;
 				params['finishrefid'] = finishRefIdParam;

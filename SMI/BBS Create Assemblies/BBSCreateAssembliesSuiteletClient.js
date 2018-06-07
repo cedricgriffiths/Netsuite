@@ -74,10 +74,17 @@ function createAssembliesFieldChanged(type, name, linenum)
 			var customerId = nlapiGetFieldValue('custpage_customer_select');
 			var customerTxt = nlapiGetFieldText('custpage_customer_select');
 			
+			//Get the customer's price level & currency
+			//
+			var customerPriceLevel = nlapiLookupField('customer', customerId, 'pricelevel', false);
+			var customerCurrency = nlapiLookupField('customer', customerId, 'currency', false);
+			
 			//Save the selected customer for later retrieval in the POST section
 			//
 			nlapiSetFieldValue('custpage_cust_id_param', customerId, false, true);
 			nlapiSetFieldValue('custpage_cust_txt_param', customerTxt, false, true);
+			nlapiSetFieldValue('custpage_cust_pricel_param', customerPriceLevel, false, true);
+			nlapiSetFieldValue('custpage_cust_currency_param', customerCurrency, false, true);
 
 			//Remove any existing finish items
 			//
@@ -489,6 +496,108 @@ function createAssembliesFieldChanged(type, name, linenum)
 	
 }
 
+
+//Function called by the update sales price button
+//
+function calculateSalesPrice(baseParentId)
+{
+	//Get the customer price level & the selected finish
+	//
+	var custPriceLevel = nlapiGetFieldValue('custpage_cust_pricel_param');
+	var custCurrency = nlapiGetFieldValue('custpage_cust_currency_param');
+	var finishId = nlapiGetFieldValue('custpage_finish_id_param');
+	
+	var newSalesPrice = Number(0);
+	
+	//Get the price from the finish
+	//
+	var assemblyRecord = nlapiLoadRecord('assemblyitem', finishId);
+	
+	var componentCount = assemblyRecord.getLineItemCount('member');
+	
+	//Loop through the components
+	//
+	for (var componentLine = 1; componentLine <= componentCount; componentLine++) 
+		{
+			//Get the line details
+			//
+			var componentItem = assemblyRecord.getLineItemValue('member', 'item', componentLine);
+			var componentItemType = assemblyRecord.getLineItemValue('member', 'sitemtype', componentLine);
+			var componentItemQuantity = Number(assemblyRecord.getLineItemValue('member', 'quantity', componentLine));
+			
+			//Load up the component record
+			//
+			var componentRecord = nlapiLoadRecord(getItemRecordType(componentItemType), componentItem);
+			
+			//Process the pricing
+			//
+			
+			var priceSublistByCurrency = 'price' + custCurrency;
+					
+			var priceLineCount = componentRecord.getLineItemCount(priceSublistByCurrency);
+			var quantityBreakCount = componentRecord.getMatrixCount(priceSublistByCurrency, 'price');
+					
+			for (var int3 = 1; int3 <= priceLineCount; int3++) 
+				{
+					var pricePriceLevel = componentRecord.getLineItemValue(priceSublistByCurrency, 'pricelevel', int3);
+	
+					if(pricePriceLevel == custPriceLevel)
+						{
+							
+							var matrixPrice = componentRecord.getLineItemMatrixValue(priceSublistByCurrency, 'price', int3, 1);
+							matrixPrice = Number((matrixPrice == '' ? 0 : matrixPrice));
+									
+							newSalesPrice += matrixPrice;
+							
+							break;
+						}
+				}
+		}
+
+	
+	//Get the price from the base item
+	//
+	var baseParentRecord = nlapiLoadRecord('inventoryitem', baseParentId);
+	
+	if(baseParentRecord)
+		{
+			var priceSublistByCurrency = 'price' + custCurrency;
+			
+			var priceLineCount = baseParentRecord.getLineItemCount(priceSublistByCurrency);
+			var quantityBreakCount = baseParentRecord.getMatrixCount(priceSublistByCurrency, 'price');
+			
+			for (var int3 = 1; int3 <= priceLineCount; int3++) 
+				{
+					var pricePriceLevel = baseParentRecord.getLineItemValue(priceSublistByCurrency, 'pricelevel', int3);
+	
+					if(pricePriceLevel == custPriceLevel)
+						{							
+							var matrixPrice = baseParentRecord.getLineItemMatrixValue(priceSublistByCurrency, 'price', int3, 1);
+							matrixPrice = Number((matrixPrice == '' ? 0 : matrixPrice));
+									
+							newSalesPrice += matrixPrice;
+							
+							break;
+						}
+				}
+		}
+	
+	//Update the sublist with the new price
+	//
+	var sublistId = 'custpage_sublist_' + baseParentId.toString();
+	var lines = nlapiGetLineItemCount(sublistId);
+	
+	for (var int = 1; int <= lines; int++) 
+		{
+			var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
+			
+			if(ticked == 'T')
+				{
+					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, newSalesPrice.toFixed(2));
+				}
+		}
+}
+
 //Function called by the update sales price button
 //
 function updateSalesPrice(baseParentId)
@@ -501,28 +610,33 @@ function updateSalesPrice(baseParentId)
 	
 	for (var int = 1; int <= lines; int++) 
 		{
-			nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, salesPrice);
+			var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
 			
-			var costFieldName = sublistId + '_cost';
-			var marginFieldName = sublistId + '_margin';
-				
-			var sales = salesPrice;
-			var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
-					
-			if(!isNaN(sales) && !isNaN(cost))
+			if(ticked == 'T')
 				{
-					sales = Number(sales);
-					cost = Number(cost);
+					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, salesPrice);
+					
+					var costFieldName = sublistId + '_cost';
+					var marginFieldName = sublistId + '_margin';
 						
-					var margin = null;
-					
-					if(sales != null && sales != '' && sales != 0)
+					var sales = salesPrice;
+					var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
+							
+					if(!isNaN(sales) && !isNaN(cost))
 						{
-							margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
+							sales = Number(sales);
+							cost = Number(cost);
+								
+							var margin = null;
+							
+							if(sales != null && sales != '' && sales != 0)
+								{
+									margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
+								}
+							
+							nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
 						}
-					
-					nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
-				}
+				}	
 		}
 }
 
@@ -557,4 +671,30 @@ function getResults(search)
 		}
 	
 	return searchResultSet;
+}
+
+function getItemRecordType(girtItemType)
+{
+	var girtItemRecordType = '';
+	
+	switch(girtItemType)
+	{
+		case 'InvtPart':
+			girtItemRecordType = 'inventoryitem';
+			break;
+		
+		case 'NonInvtPart':
+			girtItemRecordType = 'noninventoryitem';
+			break;
+		
+		case 'Assembly':
+			girtItemRecordType = 'assemblyitem';
+			break;
+			
+		case 'NonInvtPart':
+			girtItemRecordType = 'noninventoryitem';
+			break;
+	}
+
+	return girtItemRecordType;
 }
