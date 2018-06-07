@@ -2,6 +2,27 @@
 <pdf>
 <head>
 
+
+  <#assign cs = "£">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+      
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;"><tr>
@@ -24,10 +45,10 @@
 
     <table style="width: 100%;">
 	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To</td>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Quote to</td>
 	<td align="left">&nbsp;</td>
 	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">QUOTATION NO:</td>
-	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
+	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_quote_ref}</td>
 	</tr>
 
 	<tr>
@@ -257,8 +278,8 @@
           	</#if>
       	  </#if>
 
-          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.00###"]}</td>
-          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${item.amount}</td>
+          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${toCurrency(item.rate)}</td>
+          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${toCurrency(item.amount)}</td>
           </tr>
       </#if>
     </#list><!-- end items -->
