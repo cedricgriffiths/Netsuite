@@ -594,6 +594,27 @@ function calculateSalesPrice(baseParentId)
 			if(ticked == 'T')
 				{
 					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, newSalesPrice.toFixed(2));
+					
+					var costFieldName = sublistId + '_cost';
+					var marginFieldName = sublistId + '_margin';
+						
+					var sales = Number(newSalesPrice.toFixed(2));;
+					var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
+							
+					if(!isNaN(sales) && !isNaN(cost))
+						{
+							sales = Number(sales);
+							cost = Number(cost);
+								
+							var margin = null;
+							
+							if(sales != null && sales != '' && sales != 0)
+								{
+									margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
+								}
+							
+							nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
+						}
 				}
 		}
 }

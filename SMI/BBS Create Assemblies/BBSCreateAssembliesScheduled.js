@@ -444,12 +444,14 @@ function createAssembliesScheduled(type)
 																							{
 																								var pricePriceLevel = newChildRecord.getLineItemValue(priceSublist, 'pricelevel', priceLine);
 																								
-																								if (pricePriceLevel == customerPriceLevel)
+																								//SMI - set the price on all price levels except the default one
+																								//
+																								if (pricePriceLevel != 1)
 																									{
 																										newChildRecord.selectLineItem(priceSublist, priceLine);
 																										newChildRecord.setCurrentLineItemMatrixValue(priceSublist, 'price', 1, salesPrice);
 																										newChildRecord.commitLineItem(priceSublist, false);
-																										break;
+																								//		break;
 																									}
 																							}
 																						}
