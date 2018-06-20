@@ -1,0 +1,216 @@
+<?xml version="1.0"?>
+<!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2"></link>
+	<macrolist>
+		<macro id="nlheader">
+			<!-- Header info: containg company logo, doc title, duedate cust refernace number -->
+<table>
+	<tr id="logo">
+	<td align="right" style="padding:0px;"><img height="69" src="https://system.netsuite.com/c.1294017/template-images/flexitog.tab.strapline.bw.jpg" width="106" /></td>
+	</tr>
+</table>
+<table>
+	<tr>
+	<td align="left" style="border-bottom:3px solid #333333;" valign="middle" width="50%"><span class="title">${record@title}</span></td>
+	<td class="spacer" width="15">&nbsp;</td>
+	<td align="right" style="border-bottom:3px solid #333333;" width="50%">
+	<table>
+			<tr align="right">
+		<td align="right" class="fs11 ar clr-dark" colspan="2"><span class="fs11 bold clr-dark">Acc no:</span>${record.entity.entityid}</td>
+		</tr>
+		<tr>
+		<td align="right" class="fs11 bold ar clr-dark">${record.otherrefnum@label}</td>
+		<td align="right" class="fs11 lc ar ws0 clr-dark">${record.otherrefnum}</td>
+		</tr>
+		</table>
+	</td>
+	</tr>
+</table>
+<!--  Header ends -->		</macro>
+		<macro id="nlfooter">
+			<!-- footer -->
+<table>
+	<tr>
+	<td align="left" class="clr-dark fs7 normal">FlexiTog&reg;<b>|</b> ${companyInformation.shippingaddress_text}</td>
+	<td align="right" class="clr-dark fs6 bold" width="15%"><pagenumber/> / <totalpages/></td>
+	</tr>
+</table>
+		</macro>
+	</macrolist>
+<style type="text/css">
+body{margin-top:0px; padding-top:0px;}
+table {
+				<#if .locale == "zh_CN">
+				  font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+          font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+          font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+          font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+          font-family: verdana;
+        <#else>
+          font-family: sans-serif;
+        </#if>
+				font-size: 9pt;
+				margin-top: 10px;
+				table-layout: fixed;
+				width: 100%;
+			}
+			th {
+				font-weight: bold;
+				font-size: 8pt;
+				vertical-align: middle;
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 3px;
+				padding-top: 5px;
+				background-color: #000000;
+				color: #ffffff;
+			}
+			td {
+				padding-right: 6px;
+				padding-left: 6px;
+				padding-bottom: 4px;
+				padding-top: 4px;
+			}
+			table.itemtable th {
+				padding-bottom: 10px;
+				padding-top: 10px;
+			}
+			table.itemtable tbody tr {
+				border-collapse: collapse;
+				
+			}
+			table.itemtable tbody td {
+				
+				padding-bottom: 20px;
+				padding-top: 20px;
+				border-bottom-color: #cccccc;
+                                border-bottom-style: dotted;
+                                border-bottom-width: 1px;
+			}
+                        
+                        table.itemtable tbody tr:last-child td{border-bottom:0px;}
+			table.body td {
+				padding-top: 2px;
+			}
+						
+			td.addressheader {
+				font-size: 14pt;
+				padding-top: 0px;
+				padding-bottom: 2px;
+				color:#868686;
+
+			}
+			td.address {
+				padding-top: 0px;
+				font-size: 9pt;
+				color:#333333;}
+			/* font styling*/
+			td.fs6{font-size:6pt}
+			td.fs7{font-size:7pt}
+			td.fs8{font-size:8pt}
+			td.fs9{font-size:9pt}
+			td.fs10{font-size:10pt}
+			td.fs11{font-size:11pt}
+			td.fs12{font-size:12pt}
+			td.fs13{font-size:13pt}
+			td.fs14{font-size:14pt}
+			td.fs16{font-size:16pt}
+			td.light{font-weight:300;}
+			td.normal{font-weight:400;}
+			td.bold{font-weight:700;}
+			td.heavy{font-weight:800;}
+			td.italic{font-style:italic;}
+			td.clr-dark{color:#3F3E3E;}
+			td.clr-med{color:#868686;}
+			td.clr-light{color:#C5C5C5;}
+			td.clr-red{color:#C71927;}
+                        td.ar{text-align:right!important;}
+                        td.tt-lc{text-transform:lowercase;}
+                        td.tt-uc{text-transform:uppercase;}
+                        td.ws0{word-spacing:0px;}
+			
+			span.title {
+				font-size: 24pt;
+				font-weight:300;
+				color:#3F3E3E;
+display:block;
+			}
+			hr {
+				width: 100%;
+				color: #d3d3d3;
+				background-color: #d3d3d3;
+				height: 1px;
+			}</style></head>
+<body header="nlheader" header-height="170" footer="nlfooter" footer-height="20pt">
+<!-- RECORD INFO -->
+<table class="addresses">
+	<tr>
+	<td align="left" class="addressheader" width="50%">${record.shipaddress@label}</td>
+	<td class="spacer" width="15">&nbsp;</td>
+	<td align="left" class="addressheader" width="50%">Internal Notes</td>
+	</tr>
+	<tr>
+	<td align="left" class="address" width="50%">${record.shipaddress}</td>
+	<td class="spacer" width="15">&nbsp;</td>
+	<td align="left" class="address" width="50%">${record.custbody_nbs121_internal_note}</td>
+	</tr>
+</table>
+<table class="body">
+	<tr>
+	<th>${record.shipmethod@label}</th>
+	</tr>
+	<tr>
+	<td>${record.shipmethod}</td>
+	</tr>
+</table>
+<table align="left" style="margin-top:30px;">
+	<tr>
+	<td class="fs11 light clr-dark" width="100%">${record.tranid@label} ${record.tranid} | ${record.trandate@label} ${record.trandate}</td>
+	</tr>
+	<tr>
+	<td class="fs9 light clr-med" width="100%"><span class="clr-dark">${record.custbody_nbs121_ordered_by@label}</span> ${record.custbody_nbs121_ordered_by} | <span class="clr-dark">${record.salesrep@label}</span> ${record.salesrep}</td>
+	</tr>
+</table>
+<!--  RECORD INFO Ends--><!-- Items / invoice sales order etc --><#if record.item?has_content>
+<table class="itemtable"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th align="left" colspan="3" style="border-right:1px solid #ffffff;"><span style="align: center;">${item.item@label}</span></th>
+	<th align="left" colspan="10" style="border-right:1px solid #ffffff;">${item.description@label}</th>
+	<th align="right" colspan="2" style="border-right:1px solid #ffffff;">Ordered</th>
+	<th align="center" colspan="4" style="border-right:1px solid #ffffff;">Location(s)</th>
+	<th align="right" colspan="2" style="border-right:1px solid #ffffff;">${item.quantitybackordered@label}</th>
+	<th align="right" colspan="2" style="border-right:1px solid #ffffff;"><span style="align: -webkit-center;">${item.committed@label}</span></th>
+	<th align="right" colspan="1" style="border-right:1px solid #ffffff;">picked</th>
+	</tr>
+</thead>
+</#if>
+	<tr>
+	<td colspan="3">${item.item}</td>
+	<td colspan="10">${item.description}</td>
+	<td align="right" colspan="2">${item.quantity}</td>
+	<td align="center" colspan="4" line-height="150%">${item.inventorydetail}</td>
+	<td align="right" colspan="2">${item.quantitybackordered}</td>
+	<td align="right" colspan="2"><span style="align: -webkit-center;">${item.committed}</span></td>
+	<td align="right" colspan="1" style="border:1px solid #000000;">&nbsp;</td>
+	</tr>
+	</#list>
+</table>
+<!-- end items --><!-- Totals & Payment details --></#if>
+<table cellpadding="2" style="border-top:1px solid #e3e3e3 ; border-bottom:1px solid #e3e3e3; padding:8px 5px;">
+	<tr>
+	<td class="fs11 clr-dark light" colspan="14">Customer notes:</td>
+	<td align="left" class="fs11 clr-dark light" colspan="10" rowspan="2" valign="top"><span class="clr-light"><barcode codetype="code128" showtext="true" value="${record.tranid}"> </barcode></span></td>
+	</tr>
+	<tr>
+	<td class="fs9 clr-med light" colspan="14">${record.custbody_nbs121_customer_note}</td>
+	</tr>
+</table>
+<br /><!-- Totals & Payment details --></body>
+</pdf>
