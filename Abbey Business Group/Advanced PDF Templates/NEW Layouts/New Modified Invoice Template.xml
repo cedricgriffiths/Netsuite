@@ -79,36 +79,7 @@
 </macro>
     <macro id="nlfooter">
 
-	<table style="width: 100%;">
-	<tr>
-	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To/Notes:</td>
-    <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">VAT Reg. No. 484 6151 31<br/>Terms: Nett 30 Days<br/>E&amp;OE</td>
-	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
-	<td align="right" style="font-size: 10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
-	</tr>
-
-	<tr>
-	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.shipaddress}</td>
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
-	<td align="right" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
-	</tr>
-
-    <tr>
-	<td align="left" rowspan="3" style="padding: 5px; font-size: 9px; color: red;">We prefer payment via BACS<br/>Santander UK Plc.<br/>Bridle Road, Bootle<br/>Merseyside L30 4GB<br/>Account No: 10388370<br/>Sort Code: 09-02-22</td>
-	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
-	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
-	</tr>
-      
-    <tr>
-	<td align="left">&nbsp;</td>
-    </tr>
-      
-   	<tr>
-
-	<td align="left">&nbsp;</td>
-    </tr>
-      
-    </table>
+	
 
     <table style="width: 100%;">
 	<tr class="messagerow">
@@ -231,7 +202,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="170px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="50px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
 
 <#if record.item?has_content>
   <table class="itemtable" style="width: 100%;"><!-- start items -->
@@ -263,5 +234,35 @@
 
 <hr />
 
+  <table style="width: 100%;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To/Notes:</td>
+    <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">VAT Reg. No. 484 6151 31<br/>Terms: Nett 30 Days<br/>E&amp;OE</td>
+	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
+	<td align="right" style="font-size: 10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.shipaddress}</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
+	<td align="right" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
+	</tr>
+
+    <tr>
+	<td align="left" rowspan="3" style="padding: 5px; font-size: 9px; color: red;">We prefer payment via BACS<br/>Santander UK Plc.<br/>Bridle Road, Bootle<br/>Merseyside L30 4GB<br/>Account No: 10388370<br/>Sort Code: 09-02-22</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	</tr>
+      
+    <tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+   	<tr>
+
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
 </body>
 </pdf>
