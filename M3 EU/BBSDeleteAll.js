@@ -1,6 +1,6 @@
 function scheduled(type)
 {
-		var dummy = deleteAll('c');
+		var dummy = deleteAll('c',18);
 
 		var z = '';
 }		
@@ -31,7 +31,9 @@ function deleteAll(mode,subsidiaryId,bespokeRecordType)
 			
 		case 'c':
 		case 'T':
-			recordTypes = ["advintercompanyjournalentry",
+			recordTypes = [
+			               "commission",
+			               "advintercompanyjournalentry",
 			               "assemblybuild",
 			               "assemblyunbuild",
 			               "bintransfer",
@@ -95,7 +97,8 @@ function deleteAll(mode,subsidiaryId,bespokeRecordType)
 			               "workorder",
 			               "workorderclose",
 			               "workordercompletion",
-			               "workorderissue"]
+			               "workorderissue"
+			               ]
 			break;
 	}
 	
@@ -124,7 +127,7 @@ function deleteAll(mode,subsidiaryId,bespokeRecordType)
 			var error = err;
 			search = null;
 			searchResult = null;
-			alert(recordType + '==> ' + err);
+			alert(recordType + ' ==> ' + err);
 		}
 		
 		if (searchResult)
@@ -190,7 +193,7 @@ function deleteAll(mode,subsidiaryId,bespokeRecordType)
 											{
 												var error = err;
 												var dummy = '';
-												alert(recordType + '==> ' + err);
+												alert(recordType + ' ==> ' + err);
 											}
 										}
 								}
