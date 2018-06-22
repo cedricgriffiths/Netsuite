@@ -19,19 +19,21 @@ function cbcCustomerBudgetSaveRecord()
 	var budgetType = nlapiGetFieldValue('custrecord_cbc_customer_budget_type');
 	var allocType = nlapiGetFieldValue('custrecord_cbc_customer_item_alloc_type');
 	var customerId = nlapiGetFieldValue('custrecord_cbc_customer_id');
+	var grade = nlapiGetFieldValue('custrecord_cbc_customer_grade');
+	
 	var recordId = nlapiGetRecordId();
 	
-	if(findExistingRecords(budgetType, allocType, customerId, recordId))
+	if(findExistingRecords(budgetType, allocType, customerId, recordId, grade))
 		{
 			returnStatus = false;
 			
 			if(allocType != '')
 				{
-					alert('There is already a record with this item allocation type, please select a different type');
+					alert('There is already a record with this item allocation type within the grade, please select a different type');
 				}
 			else
 				{
-					alert('There is already a record with this budget type, please select a different type');
+					alert('There is already a record with this budget type within the grade, please select a different type');
 				}
 		}
 	
@@ -39,16 +41,21 @@ function cbcCustomerBudgetSaveRecord()
 }
 
 
-function findExistingRecords(_budgetType, _allocType, _customerId, _recordId)
+function findExistingRecords(_budgetType, _allocType, _customerId, _recordId, _grade)
 {
 	var recordsFound = false;
 	
 	var filters = [["custrecord_cbc_customer_id","anyof",_customerId]];
 	
+	if(_grade != '')
+	{
+		filters.push("AND",["custrecord_cbc_customer_grade","anyof",_grade]);
+	}
+
 	if(_budgetType != '')
-		{
-			filters.push("AND",["custrecord_cbc_customer_budget_type","anyof",_budgetType]);
-		}
+	{
+		filters.push("AND",["custrecord_cbc_customer_budget_type","anyof",_budgetType]);
+	}
 
 	if(_allocType != '')
 		{
