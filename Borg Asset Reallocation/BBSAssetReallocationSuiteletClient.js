@@ -91,12 +91,15 @@ function getLocations(_customerId)
 			]
 			);
 	
-	for (var int = 0; int < customrecord_falocationSearch.length; int++) 
+	if(customrecord_falocationSearch != null && customrecord_falocationSearch.length > 0)
 		{
-			var name = customrecord_falocationSearch[int].getValue("name");
-			var id = customrecord_falocationSearch[int].getId();
-			
-			returnData[id] = name;
+			for (var int = 0; int < customrecord_falocationSearch.length; int++) 
+				{
+					var name = customrecord_falocationSearch[int].getValue("name");
+					var id = customrecord_falocationSearch[int].getId();
+					
+					returnData[id] = name;
+				}
 		}
 	
 	return returnData;

@@ -51,6 +51,7 @@ function assetReallocationSuitelet(request, response)
 		
 		var stage = Number(request.getParameter('stage'));
 		
+		stage = (stage == 0 || stage == null ? 1 : stage);
 
 		// Create a form
 		//
@@ -132,14 +133,17 @@ function assetReallocationSuitelet(request, response)
 		case 1:	
 				//Add a select fields
 				//
-				var billingCustomerField = form.addField('custpage_from_bill_cust_select', 'select', 'Billing Customer', 'customer', 'custpage_grp_from');
 				var customerField = form.addField('custpage_from_cust_select', 'select', 'Customer', 'customer', 'custpage_grp_from');
+				var billingCustomerField = form.addField('custpage_from_bill_cust_select', 'select', 'Billing Customer', 'customer', 'custpage_grp_from');
 				var locationField = form.addField('custpage_from_location_select', 'select', 'Location', null, 'custpage_grp_from');
-			
-				var billingCustomerField = form.addField('custpage_to_bill_cust_select', 'select', 'Billing Customer', 'customer', 'custpage_grp_to');
+				customerField.setMandatory(true);
+				
 				var customerField = form.addField('custpage_to_cust_select', 'select', 'Customer', 'customer', 'custpage_grp_to');
+				var billingCustomerField = form.addField('custpage_to_bill_cust_select', 'select', 'Billing Customer', 'customer', 'custpage_grp_to');
 				var locationField = form.addField('custpage_to_location_select', 'select', 'Location', null, 'custpage_grp_to');
-			
+				customerField.setMandatory(true);
+				locationField.setMandatory(true);
+				
 			
 				//Add a submit button to the form
 				//
@@ -151,25 +155,25 @@ function assetReallocationSuitelet(request, response)
 				//Filter the items to display based on the criteria chosen in stage 1
 				//
 				
-				var billingCustomerField = form.addField('custpage_from_bill_cust_select', 'text', 'Billing Customer', null, 'custpage_grp_from');
-				billingCustomerField.setDisplayType('disabled');
-				billingCustomerField.setDefaultValue(paramFromBillingCustomerText);
-					
 				var customerField = form.addField('custpage_from_cust_select', 'text', 'Customer', null, 'custpage_grp_from');
 				customerField.setDisplayType('disabled');
 				customerField.setDefaultValue(paramFromCustomerText);
+					
+				var billingCustomerField = form.addField('custpage_from_bill_cust_select', 'text', 'Billing Customer', null, 'custpage_grp_from');
+				billingCustomerField.setDisplayType('disabled');
+				billingCustomerField.setDefaultValue(paramFromBillingCustomerText);
 					
 				var locationField = form.addField('custpage_from_location_select', 'text', 'Location', null, 'custpage_grp_from');
 				locationField.setDisplayType('disabled');
 				locationField.setDefaultValue(paramFromLocationText);
 					
-				var billingCustomerField = form.addField('custpage_to_bill_cust_select', 'text', 'Billing Customer', null, 'custpage_grp_to');
-				billingCustomerField.setDisplayType('disabled');
-				billingCustomerField.setDefaultValue(paramToBillingCustomerText);
-					
 				var customerField = form.addField('custpage_to_cust_select', 'text', 'Customer', null, 'custpage_grp_to');
 				customerField.setDisplayType('disabled');
 				customerField.setDefaultValue(paramToCustomerText);
+					
+				var billingCustomerField = form.addField('custpage_to_bill_cust_select', 'text', 'Billing Customer', null, 'custpage_grp_to');
+				billingCustomerField.setDisplayType('disabled');
+				billingCustomerField.setDefaultValue(paramToBillingCustomerText);
 					
 				var locationField = form.addField('custpage_to_location_select', 'text', 'Location', null, 'custpage_grp_to');
 				locationField.setDisplayType('disabled');
@@ -193,25 +197,28 @@ function assetReallocationSuitelet(request, response)
 				
 				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
 				var listName = subList.addField('custpage_sublist_name', 'text', 'Name', null);
+				var listBillingCust = subList.addField('custpage_sublist_bill_cust', 'text', 'Billing Customer', null);
+				var listLocation = subList.addField('custpage_sublist_location', 'text', 'Location', null);
 				var listMake = subList.addField('custpage_sublist_make', 'text', 'Make', null);
 				var listModel = subList.addField('custpage_sublist_model', 'text', 'Model', null);
 				var listSerial = subList.addField('custpage_sublist_serial', 'text', 'Serial Number', null);
+				var listIsItem = subList.addField('custpage_sublist_is_item', 'text', 'Asset Is Item', null);
 				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
 				listId.setDisplayType('hidden');
 				
 				filters = [];
 				
-				if(paramFromBillingCustomerId != '')
-					{
-						filters.push(["custrecord_faasset_billingcustomer","anyof",paramFromBillingCustomerId])
-					}
-				
 				if(paramFromCustomerId != '')
 					{
-						filters.push("AND",["custrecord_faasset_customer","anyof",paramFromCustomerId])
+						filters.push(["custrecord_faasset_customer","anyof",paramFromCustomerId])
 					}
-			
-				if(paramFromLocationId != '')
+		
+				if(paramFromBillingCustomerId != null && paramFromBillingCustomerId != '')
+					{
+						filters.push("AND",["custrecord_faasset_billingcustomer","anyof",paramFromBillingCustomerId])
+					}
+				
+				if(paramFromLocationId != null && paramFromLocationId != '')
 					{
 						filters.push("AND",["custrecord_faasset_falocation","anyof",paramFromLocationId])
 					}
@@ -222,7 +229,10 @@ function assetReallocationSuitelet(request, response)
 						   new nlobjSearchColumn("name").setSort(false), 
 						   new nlobjSearchColumn("custrecord_faasset_make"), 
 						   new nlobjSearchColumn("custrecord_faasset_model"), 
-						   new nlobjSearchColumn("custrecord_faasset_serial")
+						   new nlobjSearchColumn("custrecord_faasset_serial"), 
+						   new nlobjSearchColumn("custrecord_faasset_item"),
+						   new nlobjSearchColumn("custrecord_faasset_billingcustomer"),
+						   new nlobjSearchColumn("custrecord_faasset_falocation")
 						]
 						);		
 
@@ -237,6 +247,9 @@ function assetReallocationSuitelet(request, response)
 								var make = customrecord_faassetSearch[int].getValue("custrecord_faasset_make");
 								var model = customrecord_faassetSearch[int].getValue("custrecord_faasset_model");
 								var serial = customrecord_faassetSearch[int].getValue("custrecord_faasset_serial");
+								var isItem = customrecord_faassetSearch[int].getText("custrecord_faasset_item");
+								var billingCust = customrecord_faassetSearch[int].getText("custrecord_faasset_billingcustomer");
+								var location = customrecord_faassetSearch[int].getText("custrecord_faasset_falocation");
 								
 								line++;
 								
@@ -244,14 +257,12 @@ function assetReallocationSuitelet(request, response)
 								subList.setLineItemValue('custpage_sublist_make', line, make);
 								subList.setLineItemValue('custpage_sublist_model', line, model);
 								subList.setLineItemValue('custpage_sublist_serial', line, serial);
-								subList.setLineItemValue('custpage_sublist_id', line, id);
-								
+								subList.setLineItemValue('custpage_sublist_is_item', line, isItem);
+								subList.setLineItemValue('custpage_sublist_bill_cust', line, billingCust);
+								subList.setLineItemValue('custpage_sublist_location', line, location);
+								subList.setLineItemValue('custpage_sublist_id', line, id);	
 							}
-					
-					
-					
 					}
-				
 				
 				form.addSubmitButton('Reassign Assets');
 
@@ -259,12 +270,15 @@ function assetReallocationSuitelet(request, response)
 				
 			case 3:
 			
-				var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
-				batchesField.setDisplayType('hidden');
-				batchesField.setDefaultValue(batches);
-				
-				
-				
+				//Add a message field 
+				//
+				var messageField = form.addField('custpage_message', 'textarea', 'Message', null, null);
+				messageField.setDisplaySize(120, 4);
+				messageField.setDisplayType('readonly');
+				messageField.setDefaultValue('The selected assets have now been moved to the new specified location');
+			
+				form.addSubmitButton('Finish');
+
 				break;
 			}
 		
@@ -313,7 +327,46 @@ function assetReallocationSuitelet(request, response)
 				
 			case 2:
 				
+				var paramToBillingCustomerId = request.getParameter('custpage_to_billing_cust_id');
+				var paramToCustomerId = request.getParameter('custpage_to_cust_id');
+				var paramToLocationId = request.getParameter('custpage_to_location_id');
+				
+				
 				var lineCount = request.getLineItemCount('custpage_sublist_assets');
+				
+				for (var int = 1; int <= lineCount; int++) 
+					{
+						var ticked = request.getLineItemValue('custpage_sublist_assets', 'custpage_sublist_tick', int);
+						
+						//Look for ticked lines
+						//
+						if (ticked == 'T')
+							{
+								var assetId = request.getLineItemValue('custpage_sublist_assets', 'custpage_sublist_id', int);
+								
+								var fields = new Array();
+								var values = new Array();
+								
+								fields[0] = 'custrecord_faasset_customer';
+								fields[1] = 'custrecord_faasset_falocation';
+								fields[2] = 'custrecord_faasset_billingcustomer';
+								
+								values[0] = paramToCustomerId;
+								values[1] = paramToLocationId;
+								
+								if(paramToBillingCustomerId != '')
+									{
+										values.push(paramToBillingCustomerId);
+									}
+								else
+									{
+										values.push(null);
+									}
+								
+								var status = nlapiSubmitField('customrecord_faasset', assetId, fields, values, true);
+								
+							}
+					}
 				
 				var params = new Array();
 				params['stage'] = '3';
@@ -325,6 +378,7 @@ function assetReallocationSuitelet(request, response)
 			
 			case 3:
 				
+				response.sendRedirect('TASKLINK', 'CARD_20',null,null,null);
 				
 				break;
 		}
