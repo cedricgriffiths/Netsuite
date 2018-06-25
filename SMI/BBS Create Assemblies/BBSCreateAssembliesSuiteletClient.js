@@ -676,21 +676,24 @@ function getResults(search)
 	var start = 0;
 	var end = 1000;
 	var searchResultSet = searchResult.getResults(start, end);
-	var resultlen = searchResultSet.length;
-
-	//If there is more than 1000 results, page through them
-	//
-	while (resultlen == 1000) 
-		{
-				start += 1000;
-				end += 1000;
-
-				var moreSearchResultSet = searchResult.getResults(start, end);
-				resultlen = moreSearchResultSet.length;
-
-				searchResultSet = searchResultSet.concat(moreSearchResultSet);
-		}
 	
+	if(searchResultSet != null)
+		{
+			var resultlen = searchResultSet.length;
+		
+			//If there is more than 1000 results, page through them
+			//
+			while (resultlen == 1000) 
+				{
+						start += 1000;
+						end += 1000;
+		
+						var moreSearchResultSet = searchResult.getResults(start, end);
+						resultlen = moreSearchResultSet.length;
+		
+						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+				}
+		}
 	return searchResultSet;
 }
 

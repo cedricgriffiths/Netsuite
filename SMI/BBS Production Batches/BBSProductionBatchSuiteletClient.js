@@ -17,11 +17,21 @@
  */
 function clientFieldChanged(type, name, linenum)
 {
+	if (name == 'custpage_wo_build_percent_select')
+		{
+			nlapiSetFieldValue('custpage_wo_build_percent_text', nlapiGetFieldText(name), false, true)
+		}
+
+	if (name == 'custpage_sales_order_select')
+		{
+			nlapiSetFieldValue('custpage_sales_order_text', nlapiGetFieldText(name), false, true)
+		}
+
 	if (name == 'custpage_so_commit_select')
 		{
 			nlapiSetFieldValue('custpage_so_com_text', nlapiGetFieldText(name), false, true)
 		}
-	
+
 	if (name == 'custpage_wo_commit_select')
 		{
 			nlapiSetFieldValue('custpage_wo_com_text', nlapiGetFieldText(name), false, true)

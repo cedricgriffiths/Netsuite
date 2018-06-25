@@ -250,6 +250,10 @@ function productionBatchSuitelet(request, response)
 		var logo = request.getParameter('logo');
 		var logoText = request.getParameter('logotext');
 		var otherrefnumText = request.getParameter('otherrefnum');
+		var salesOrderText = request.getParameter('salesordertext');
+		var salesOrderId = request.getParameter('salesorderid');
+		var woBuildPercentText = request.getParameter('wobildpercenttext');
+		var woBuildPercentId = request.getParameter('wobildpercentid');
 		
 		// Create a form
 		//
@@ -309,6 +313,19 @@ function productionBatchSuitelet(request, response)
 		var logoTextField = form.addField('custpage_logo_text', 'text', 'Logo Text');
 		logoTextField.setDisplayType('hidden');
 		logoTextField.setDefaultValue(logoText);
+		
+		//Store the sales order text in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var salesOrderTextField = form.addField('custpage_sales_order_text', 'text', 'Sales Order Text');
+		salesOrderTextField.setDisplayType('hidden');
+		salesOrderTextField.setDefaultValue(salesOrderText);
+		
+		//Store the wo build percentage text in a field in the form so that it can be retrieved in the POST section of the code
+		//
+		var woBuildPercentTextField = form.addField('custpage_wo_build_percent_text', 'text', 'WO Build Percent Text');
+		woBuildPercentTextField.setDisplayType('hidden');
+		woBuildPercentTextField.setDefaultValue(woBuildPercentText);
+		
 		
 		var prodBatchTitle = '';
 		
@@ -410,7 +427,7 @@ function productionBatchSuitelet(request, response)
 				var todayString = nlapiDateToString(today);
 				startDateField.setDefaultValue(todayString);
 				endDateField.setDefaultValue(todayString);
-				
+				startDateField.setLayoutType('normal', 'startcol');
 				
 				//If we are looking at w/o that are linked to s/o then add specific filters
 				//
@@ -500,10 +517,43 @@ function productionBatchSuitelet(request, response)
 						//
 						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
 
+						//Works Order Build Percentage Filter
+						//
+						var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'select', 'Works Order % Buildable', 'customlist_bbs_wo_percent_can_build','custpage_grp2');
+
 						//Sales order otherrefnum Filter
 						//
 						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null,'custpage_grp2');
-
+						soOtherRefNumField.setLayoutType('normal', 'startcol');
+						
+						//Sales Orders pending fulfilment
+						//
+						var salesorderSearch = nlapiSearchRecord("salesorder",null,
+								[
+								   ["type","anyof","SalesOrd"], 
+								   "AND", 
+								   ["mainline","is","T"], 
+								   "AND", 
+								   ["status","anyof","SalesOrd:B"]
+								], 
+								[
+								   new nlobjSearchColumn("tranid").setSort(false)
+								]
+								);
+						
+						var salesOrderField = form.addField('custpage_sales_order_select', 'select', 'Sales Order', null, 'custpage_grp2');
+						salesOrderField.addSelectOption('0', '', true);
+						
+						if(salesorderSearch != null && salesorderSearch.length > 0)
+							{
+								for (var int = 0; int < salesorderSearch.length; int++) 
+									{
+										var salesOrderId = salesorderSearch[int].getId();
+										var salesOrderNumber = salesorderSearch[int].getValue("tranid");
+										
+										salesOrderField.addSelectOption(salesOrderId, salesOrderNumber, false);
+									}
+							}
 					}
 				else
 					{
@@ -557,6 +607,7 @@ function productionBatchSuitelet(request, response)
 				
 				var startDateField = form.addField('custpage_start_date', 'date', 'Date Range From', null,'custpage_grp2');
 				startDateField.setDisplayType('disabled');
+				startDateField.setLayoutType('normal', 'startcol');
 				
 				if(startDate != '')
 					{
@@ -587,9 +638,18 @@ function productionBatchSuitelet(request, response)
 						woCommitStatusField.setDisplayType('disabled');
 						woCommitStatusField.setDefaultValue(woCommitStatusText);
 						
+						var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'text', 'Works Order % Buildable', null, 'custpage_grp2');
+						woBuildPercentageField.setDisplayType('disabled');
+						woBuildPercentageField.setDefaultValue(woBuildPercentText);
+						
 						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null, 'custpage_grp2');
 						soOtherRefNumField.setDisplayType('disabled');
 						soOtherRefNumField.setDefaultValue(otherrefnumText);
+						soOtherRefNumField.setLayoutType('normal', 'startcol');
+						
+						var salesOrderField = form.addField('custpage_sales_order_select', 'text', 'Sales Order', null, 'custpage_grp2');
+						salesOrderField.setDisplayType('disabled');
+						salesOrderField.setDefaultValue(salesOrderText);
 					}
 				else
 					{
@@ -628,6 +688,8 @@ function productionBatchSuitelet(request, response)
 				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
 				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
 				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
+				var listWoBuildStatus = subList.addField('custpage_sublist_wo_percent_build', 'text', 'WO % Buildable', null);
+				
 				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
 				listId.setDisplayType('hidden');
 //SMI			var listFFI = subList.addField('custpage_sublist_ffi', 'text', 'FFI', null);
@@ -712,6 +774,16 @@ function productionBatchSuitelet(request, response)
 						filterArray.push("AND",["createdfrom.poastext","is",otherrefnumText]);
 					}
 				
+				if(salesOrderId != '' && salesOrderId != '0')
+					{
+						filterArray.push("AND",["createdfrom","anyof",salesOrderId]);
+					}
+				
+				if(woBuildPercentId != '')
+					{
+						filterArray.push("AND",["custbody_bbs_wo_percent_can_build","anyof",woBuildPercentId]);
+					}
+				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
 						[
 						   new nlobjSearchColumn("tranid",null,null), 
@@ -730,7 +802,8 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("externalid","customer",null),
 						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
-						   new nlobjSearchColumn("otherrefnum","createdFrom",null)
+						   new nlobjSearchColumn("otherrefnum","createdFrom",null),
+						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null)
 						]
 						);
 						
@@ -783,6 +856,8 @@ function productionBatchSuitelet(request, response)
 					subList.setLineItemValue('custpage_sublist_logo_type', line, searchResultSet[int].getText('custbody_bbs_wo_logo_type'));
 					subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
 					subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
+					subList.setLineItemValue('custpage_sublist_wo_percent_build', line, searchResultSet[int].getText('custbody_bbs_wo_percent_can_build'));
+					
 				}
 		
 				switch(mode)
@@ -909,7 +984,10 @@ function productionBatchSuitelet(request, response)
 				var logo = request.getParameter('custpage_logo_select');
 				var logotext = request.getParameter('custpage_logo_text');
 				var otherrefnum = request.getParameter('custpage_so_otherrefnum_select');
-				
+				var salesOrderId = request.getParameter('custpage_sales_order_select');
+				var salesOrderText = request.getParameter('custpage_sales_order_text');
+				var woBuildPercentId = request.getParameter('custpage_wo_build_percent_select');
+				var woBuildPercentText = request.getParameter('custpage_wo_build_percent_text');
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -933,6 +1011,10 @@ function productionBatchSuitelet(request, response)
 				params['logo'] = logo;
 				params['logotext'] = logotext;
 				params['otherrefnum'] = otherrefnum;
+				params['salesorderid'] = salesOrderId;
+				params['salesordertext'] = salesOrderText;
+				params['wobildpercentid'] = woBuildPercentId;
+				params['wobildpercenttext'] = woBuildPercentText;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				

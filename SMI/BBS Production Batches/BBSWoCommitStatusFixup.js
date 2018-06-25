@@ -80,6 +80,8 @@ function scheduled(type)
 					var woLogo = '';
 					var woLogoType = '';
 					var lastLevelOneItem = '';
+					var totalQuantity = Number(0);
+					var totalCommitted = Number(0);
 					
 					var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
 						
@@ -160,6 +162,10 @@ function scheduled(type)
 											linesFullyCommitted++;
 										}
 									
+									//Total up the total quantity & committed quantity
+									//
+									totalQuantity += lineItemQuantity;
+									totalCommitted += (lineItemCommitted + lineItemUsedInBuild);
 								}
 							
 							//Process the assembly special instructions
@@ -267,9 +273,43 @@ function scheduled(type)
 							}
 					
 						
+						//Set the commitment percentage
+						//
+						var commitPercent = Number(0);
 						
+						if((totalQuantity - totalCommitted) >= 0)
+						{
+							commitPercent = Number((totalCommitted / totalQuantity) * 100.00).toFixed();
+						}
+					
+						var percentListValue = null;
 						
+						if (commitPercent >= 0 && commitPercent <= 25)
+						{
+							percentListValue = 1;
+						}
+					
+						if (commitPercent >= 26 && commitPercent <= 50)
+						{
+							percentListValue = 2;
+						}
+					
+						if (commitPercent >= 51 && commitPercent <= 75)
+						{
+							percentListValue = 3;
+						}
 						
+						if (commitPercent >= 76 && commitPercent <= 90)
+						{
+							percentListValue = 4;
+						}
+					
+						if (commitPercent >= 91 && commitPercent <= 100)
+						{
+							percentListValue = 5;
+						}
+					
+						newRecord.setFieldValue('custbody_bbs_wo_percent_can_build', percentListValue);
 						
 						//Finally submit the works order
 						//
