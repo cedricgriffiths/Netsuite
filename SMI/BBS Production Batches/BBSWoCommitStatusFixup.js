@@ -304,9 +304,14 @@ function scheduled(type)
 							percentListValue = 4;
 						}
 					
-						if (commitPercent >= 91 && commitPercent <= 100)
+						if (commitPercent >= 91 && commitPercent <= 99)
 						{
 							percentListValue = 5;
+						}
+					
+						if (commitPercent == 100)
+						{
+							percentListValue = 6;
 						}
 					
 						newRecord.setFieldValue('custbody_bbs_wo_percent_can_build', percentListValue);
