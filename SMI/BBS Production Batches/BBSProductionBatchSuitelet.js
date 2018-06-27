@@ -685,7 +685,8 @@ function productionBatchSuitelet(request, response)
 				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
-				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
+				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Qty Required', null);
+				var listShipDate = subList.addField('custpage_sublist_ship_date', 'text', 'Ship Date', null);
 				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
 				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
 				var listWoBuildStatus = subList.addField('custpage_sublist_wo_percent_build', 'text', 'WO % Buildable', null);
@@ -803,7 +804,8 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null), 
 						   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
 						   new nlobjSearchColumn("otherrefnum","createdFrom",null),
-						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null)
+						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null),
+						   new nlobjSearchColumn("shipdate","createdFrom",null)
 						]
 						);
 						
@@ -857,6 +859,7 @@ function productionBatchSuitelet(request, response)
 					subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
 					subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_wo_percent_build', line, searchResultSet[int].getText('custbody_bbs_wo_percent_can_build'));
+					subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
 					
 				}
 		
