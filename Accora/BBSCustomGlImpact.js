@@ -11,12 +11,12 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 	//
 	var rectype = transactionRecord.getRecordType();
 	var recid   = transactionRecord.getId();
+	var configs = {};
 	
-	//Get the configuration record
+	//Get the configuration records
 	//
 	var customrecord_bbs_custom_gl_configSearch = nlapiSearchRecord("customrecord_bbs_custom_gl_config",null,
 			[
-			   ["name","is","default"]
 			], 
 			[
 			   new nlobjSearchColumn("name").setSort(false), 
@@ -35,13 +35,17 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 			//
 			if(customrecord_bbs_custom_gl_configSearch.length > 0)
 				{
-					//Get the config values
-					//
-					var configShippingId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_ship_charge');
-					var configDiscountId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_disc_item');
-					var configFromAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_from_acc');
-					var configToAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_to_acc');
-					
+					for (var int = 0; int < customrecord_bbs_custom_gl_configSearch.length; int++) 
+						{
+							//Get the config values
+							//
+							var configShippingId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_ship_charge');
+							var configDiscountId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_disc_item');
+							var configFromAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_from_acc');
+							var configToAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_to_acc');
+							
+							configs[configDiscountId] = [configShippingId,configFromAccId,configToAccId];
+						}
 					
 					//Where was the item fulfilment created from 
 					//
@@ -65,8 +69,13 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 									
 									//Only procede if the sale order has the correct discount on it
 									//
-									if(soDiscount == configDiscountId)
+									if(configs[soDiscount])
 										{
+											var configDiscountId = soDiscount;
+											var configShippingId = configs[soDiscount][0];
+											var configFromAccId = configs[soDiscount][1];
+											var configToAccId = configs[soDiscount][2];
+											
 											var shippingCost = Number(0);
 											
 											//Find the shipping cost on the sales order lines
