@@ -44,7 +44,7 @@ function scheduled(type)
 					 
 					 if(remaining < 50)
 						 {
-						 	break;
+						 	nlapiYieldScript();
 						 }
 					 
 					 try
@@ -172,6 +172,10 @@ function getRecType(type)
 	
 	switch(type)
 	{
+		case 'CustPymt':
+			recType = 'customerpayment';
+			break;
+		
 		case 'CustInvc':
 			recType = 'invoice';
 			break;
