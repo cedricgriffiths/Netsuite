@@ -36,3 +36,18 @@ function libExportDSSI(recType)
 	//
 	window.open(url, '_self', 'Export Invoice', 'toolbar=no, scrollbars=no, resizable=no');;
 }
+
+function LibPrintLabels()
+{
+	var url = nlapiResolveURL('SUITELET', 'customscript_bbs_print_sn_label', 'customdeploy_bbs_print_sn_label');
+	
+	var Id = nlapiGetRecordId();
+
+	// Add the invoice id to the url
+	//
+	url += '&fulfillmentid=' + Id;
+
+	// Open the suitelet in the current window
+	//
+	window.open(url, '_blank', 'Print Serial Number Labels', 'toolbar=no, scrollbars=no, resizable=no');
+}
