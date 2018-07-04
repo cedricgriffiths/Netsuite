@@ -254,6 +254,11 @@
 	</tr>
 	<tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
+    <td class="totalcell" align="right"><b>Discount Total</b></td>
+	<td class="totalcell" align="right">${record.discounttotal}</td>
+	</tr>
+	<tr class="totalrow">
+	<td colspan="4">&nbsp;</td>
     <td class="totalcell" align="right"><b>VAT Total</b></td>
 	<td class="totalcell" align="right">${record.taxtotal}</td>
 	</tr>

@@ -57,7 +57,6 @@ function deleteAll(mode,subsidiaryId,bespokeRecordType)
 			               "estimate",
 			               "expensereport",
 			               "fulfillmentrequest",
-			               "genericresource",
 			               "intercompanyjournalentry",
 			               "intercompanytransferorder",
 			               "inventoryadjustment",
