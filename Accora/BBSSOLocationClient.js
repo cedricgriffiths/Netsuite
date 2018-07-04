@@ -23,6 +23,22 @@ function salesOrderLineInit(type)
     	 }
 }
 
+function salesOrderFieldChanged(type, name, linenum)
+{
+	 if(type == null && name == 'location')
+		 {
+		 	var mainLocation = nlapiGetFieldValue('location');
+		 	
+		 	var lines = Number(nlapiGetLineItemCount('item'));
+		 	
+		 	if(lines == 0)
+		 		{
+		 			nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+		 		}
+		 }
+}
+
+
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
  * @appliedtorecord recordType
