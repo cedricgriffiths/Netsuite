@@ -65,17 +65,23 @@ function cbcSalesOrderAfterSubmit(type)
 	var contactItemObject = {};
 	var errors = [];
 	
+	//nlapiLogExecution('DEBUG', 'Sales Order UE', type);
+	
 	//Process depending on type of action
 	//
 	if(type == 'create')
 		{
 			//Get the summarised items by contact values from the new record
 			//
+			//nlapiLogExecution('DEBUG', 'New Record', JSON.stringify(newRecord));
+		
 			getItemsFromSoRecord(newRecord, contactItemObject, 'A'); //Add mode
+			//nlapiLogExecution('DEBUG', 'Get Items', JSON.stringify(contactItemObject));
 			
 			//Update the list with the alloc type & equivalent points usage from the customer items table
 			//
 			updateItemsWithAllocAndPoints(newRecord, contactItemObject);
+			//nlapiLogExecution('DEBUG', 'Update Items', JSON.stringify(contactItemObject));
 			
 			//Work out what we have used against the contacts allowed usage
 			//
@@ -178,6 +184,7 @@ function processCancelledItems(_soRecord, _contactItemObject)
 	var newRecordOrderPlacedByText = _soRecord.getFieldText('custbody_cbc_order_placed_by');
 	var newLinesCount = _soRecord.getLineItemCount('item');
 	
+	
 	//Allow for nulls
 	//
 	newRecordOrderPlacedBy = (newRecordOrderPlacedBy == null ? '' : newRecordOrderPlacedBy);
@@ -235,6 +242,8 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 	var newLinesCount = _soRecord.getLineItemCount('item');
 	var contactGrades = {};
 	
+	//nlapiLogExecution('DEBUG', 'Line Count', newLinesCount);
+	
 	//Allow for nulls
 	//
 	newRecordOrderPlacedBy = (newRecordOrderPlacedBy == null ? '' : newRecordOrderPlacedBy);
@@ -265,7 +274,10 @@ function getItemsFromSoRecord(_soRecord, _contactItemObject, _mode)
 			
 			//We are only interested in lines that will have a contact associated with them & that they are not closed, otherwise ignore them
 			//
-			if(newLineManpackContact != '' && newLineClosed == 'F')
+			//nlapiLogExecution('DEBUG', 'manpack contact', newLineManpackContact);
+			//nlapiLogExecution('DEBUG', 'closed', newLineClosed);
+			
+			if(newLineManpackContact != '' && (newLineClosed == 'F' || newLineClosed == '' || newLineClosed == null))
 				{
 					//Build up the contact + item key
 					//
@@ -409,6 +421,8 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 			contactsObject[_contactItemObject[contactItem][0]] = _contactItemObject[contactItem][0];
 		}
 	
+	//nlapiLogExecution('DEBUG', 'Contacts Object', JSON.stringify(contactsObject));
+	
 	//Loop through the contacts
 	//
 	for ( var contactToProcess in contactsObject) 
@@ -419,6 +433,8 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 			//Get the contact's budget type
 			//
 			var contactBudgetType = Number(nlapiLookupField('contact', contactToProcess, 'custentity_cbc_contact_budget_type', false));
+			
+			//nlapiLogExecution('DEBUG', 'Contacts budget type', contactBudgetType);
 			
 			//Get the contact's first order date & update if required
 			//
@@ -593,6 +609,8 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 						
 						//Loop through all of the items finding only those which belong to the current contact
 						//
+						//nlapiLogExecution('DEBUG', 'Allocations', 'In allocations');
+						
 						var sublistLineNo = Number(0);
 						
 						for ( var contactItem in _contactItemObject) 
@@ -605,6 +623,8 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 								//
 								if(itemContact == contactToProcess)
 									{
+									//nlapiLogExecution('DEBUG', 'Allocations', 'Matched contact');
+									
 										//Get data about the item on the order
 										//
 										var itemQuantity = Number(_contactItemObject[contactItem][2]);
@@ -626,6 +646,8 @@ function calculateContactsUsage(_contactItemObject, _errors, _orderDate)
 												//
 												if(budgetAllocType == itemAllocationType)
 													{
+													//nlapiLogExecution('DEBUG', 'Allocations', 'Matched alloc type');
+													
 														//Calculate the new usage value
 														//
 														var newBudgetUsage = budgetUsage + itemQuantity;
