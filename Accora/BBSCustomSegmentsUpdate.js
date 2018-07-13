@@ -12,6 +12,8 @@
  */
 function scheduled(type) 
 {
+	var messages = '';
+	
 	var transactionSearch = nlapiSearchRecord("transaction",null,
 			[
 			   ["subsidiary","anyof","1"], 
@@ -60,10 +62,12 @@ function scheduled(type)
 						 }
 					 catch(err)
 					 	{
-						 	alert(err.message);
+						 	messages += apiRecType + ' (' + recId  + ') '+ err.message + '\n';
 					 	}
 				}
 		}
+
+	nlapiLogExecution('DEBUG', 'Error Summary', messages);
 }
 
 function getNewSector(dept)
@@ -198,6 +202,10 @@ function getRecType(type)
 		
 		case 'ItemRcpt':
 			recType = 'itemreceipt';
+			break;
+			
+		default:
+			recType = type;
 			break;
 	}
 
