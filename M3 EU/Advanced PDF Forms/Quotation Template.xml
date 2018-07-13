@@ -12,10 +12,9 @@
   
 <#if subsidiary=="18">
               <#assign regInfo>Company Registration No: 3527430. Registered Office: 20 Western Avenue, Milton Park, Abingdon, Oxfordshire OX14 4SH, United Kingdom.</#assign>
-              <#assign emailInfo>creditcontrol@eu.m3.com</#assign>
               <#assign telInfo>01235 828400</#assign>
               <#assign vatInfo>GB 685 8537 74</#assign>
-              <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full.</#assign>
+              <#assign footerMsg>Our Proposal is valid for 90 days. By signing this Proposal the customer accepts the listed services offered by M3. For full Terms and Conditions <a href="http://doctors.net.uk/_datastore/netsuite/Terms and conditions.pdf">click here</a> . For M3 product scopes and specifications <a href="https://www.doctors.net.uk/_datastore/netsuite/Product%20scopes_deliverables_specifications.pdf">click here</a></#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
 </#if>
   
@@ -24,7 +23,7 @@
               <#assign emailInfo>creditcontrol@eu.m3.com</#assign>
               <#assign telInfo>01235 828400</#assign>
               <#assign vatInfo>GB 685 8537 74</#assign>
-              <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full.</#assign>
+              <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full. For full Terms and Conditions please visit: https://eu.m3.com/</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
 </#if>
   
@@ -55,14 +54,38 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_bbs_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_bbs_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br/><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
         </macro>
 
         <macro id="nlfooter">
 
-       
+       	<table style="width: 100%;">
+    <tr style="padding-bottom: 5pt; line-height: 100%;">
+	<td align="left" colspan="2" style="font-size:10px; padding: 5px;">Signature:</td>
+	<td align="left" colspan="8" style="font-size:10px; border-bottom: 1px solid black; padding: 5px;">&nbsp;</td>
+    </tr>
+          
+    <tr style="padding-bottom: 5pt; line-height: 100%;">
+	<td align="left" colspan="2" style="font-size:10px; padding: 5px;">Print Name In Full:</td>
+	<td align="left" colspan="8" style="font-size:10px; border-bottom: 1px solid black; padding: 5px;">&nbsp;</td>
+	</tr>
+
+    <tr style="padding-bottom: 5pt; line-height: 100%;">
+	<td align="left" colspan="2" style="font-size:10px; padding: 5px;">Job Title:</td>
+	<td align="left" colspan="8" style="font-size:10px; border-bottom: 1px solid black; padding: 5px;">&nbsp;</td>
+	</tr>
+          
+    <tr style="padding-bottom: 5pt; line-height: 100%;">
+	<td align="left" colspan="2" style="font-size:10px; padding: 5px;">Date:</td>
+	<td align="left" colspan="8" style="font-size:10px; border-bottom: 1px solid black; padding: 5px;">&nbsp;</td>
+	</tr>
+
+    </table>
+          
+<p/>
+          
        <table style="width: 100%;">
          <tr class="messagerow">
               <td align="left" class="message"><b>${footerMsg}</b></td>
@@ -184,17 +207,17 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="150px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	<td colspan="2" class="addressheader">&nbsp;</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	<td colspan="2" rowspan="8" class="address">&nbsp;</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td colspan="2" align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Proposal #</b></td><td colspan="2" align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
 	<tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.trandate@label}</b></td><td colspan="2" align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
@@ -202,9 +225,7 @@
   <tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Your Po #</b></td><td colspan="2" align="right" style="font-size:10pt">${record.otherrefnum}</td>
     </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td colspan="2" align="right" style="font-size:10pt">${record.entity.entityid}</td>
-    </tr>
+      
       <tr>
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
@@ -218,31 +239,42 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
   </table>
+  <p/>
+  
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th colspan="12">Description</th>
+	<th colspan="16">Description</th>
     <th align="center" colspan="3"><br/>Quantity</th>
 	<th align="right" colspan="3">Unit<br/>Price</th>
     <th align="right" colspan="3">Net<br/>Amount</th>
-    <th align="center" colspan="4">VAT<br/>Code</th>
     <th align="right" colspan="3">VAT<br/>Amount</th>
 	<th align="right" colspan="3">Gross<br/>Amount</th>
 	</tr>
 </thead>
 </#if>
-
+<#if item.itemtype != "EndGroup">
   <tr>
-	<td colspan="12">${item.description}</td>
-    <td align="center" colspan="3">${item.quantity}</td>
-	<td align="right" colspan="3">${item.rate}</td>
-    <td align="right" colspan="3">${item.amount}</td>
-    <td align="center" colspan="4">${item.taxcode}</td>
-	<td align="right" colspan="3">${item.tax1amt}</td>
-	<td align="right" colspan="3">${item.grossamt}</td>
-	</tr>
+	<td colspan="16" style="border-bottom: 1px solid black;">${item.description}</td>
+    <td align="center" colspan="3" style="border-bottom: 1px solid black;">${item.quantity}</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">${item.rate}</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">${item.amount}</td>
+    <td align="right" colspan="3" style="border-bottom: 1px solid black;">${item.tax1amt}</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">${item.grossamt}</td>
+  </tr>
+    <#else>
+  <tr>
+	<td colspan="16" style="border-bottom: 1px solid black;">.</td>
+    <td align="center" colspan="3" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">&nbsp;</td>
+    <td align="right" colspan="3" style="border-bottom: 1px solid black;">&nbsp;</td>
+	<td align="right" colspan="3" style="border-bottom: 1px solid black;">&nbsp;</td>
+  </tr>
+    </#if>
+  
 	</#list><!-- end items --></table>
 </#if>
 
@@ -252,7 +284,7 @@
 	<td class="totalcell" align="right"><b>Net Total</b></td>
 	<td class="totalcell" align="right">${record.subtotal}</td>
 	</tr>
-	<tr class="totalrow">
+  	<tr class="totalrow">
 	<td colspan="4">&nbsp;</td>
     <td class="totalcell" align="right"><b>Discount Total</b></td>
 	<td class="totalcell" align="right">${record.discounttotal}</td>
