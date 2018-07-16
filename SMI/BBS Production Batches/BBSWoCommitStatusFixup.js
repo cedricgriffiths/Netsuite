@@ -79,6 +79,7 @@ function scheduled(type)
 					var woFinish = '';
 					var woLogo = '';
 					var woLogoType = '';
+					var machine = '';
 					var lastLevelOneItem = '';
 					var totalQuantity = Number(0);
 					var totalCommitted = Number(0);
@@ -105,6 +106,7 @@ function scheduled(type)
 								{
 									woLogo = lineItemItemId;
 									woLogoType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
+									machine = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_machine', false);
 								}
 							
 //SMI						//Get the process type from the item record
@@ -262,11 +264,16 @@ function scheduled(type)
 //										}
 //								}
 //						
+						if(machine != '')
+							{
+								newRecord.setFieldValue('custbody_bbs_wo_machine', machine);
+							}
+					
 						if(woLogo != '')
 							{
 								newRecord.setFieldValue('custbody_bbs_wo_logo', woLogo);
 							}
-						
+					
 						if(woLogoType != '')
 							{
 								newRecord.setFieldValue('custbody_bbs_wo_logo_type', woLogoType);
