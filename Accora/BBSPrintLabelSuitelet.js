@@ -86,6 +86,7 @@ function buildOutput(fulfillmentId)
 			var salesOrderId = fulfillmentRecord.getFieldValue('createdfrom');
 			var salesOrderNo = nlapiLookupField('salesorder', salesOrderId, 'tranid', false);
 			var customer = nlapiEscapeXML(fulfillmentRecord.getFieldText('entity'));
+			var firstTime = true;
 			
 			for (var int = 1; int <= lines; int++) 
 				{
@@ -94,7 +95,6 @@ function buildOutput(fulfillmentId)
 					var item = nlapiEscapeXML(fulfillmentRecord.getLineItemText('item', 'item', int));
 					var itemType = fulfillmentRecord.getLineItemValue('item', 'itemtype', int);
 					var itemName = nlapiEscapeXML(nlapiLookupField(getItemRecordType(itemType), itemId, 'displayname', false));
-					var firstTime = true;
 					
 					if(serialNumber != null && serialNumber != '')
 						{
