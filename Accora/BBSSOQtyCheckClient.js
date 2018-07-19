@@ -75,12 +75,16 @@ function qtyCheckValidateLine(type)
 function itemIsSerialised(item, itemType)
 {
 	var returnValue = false;
+	var thisItemType = getItemRecordType(itemType);
 	
-	var isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
-	
-	if(isSerialItem == 'T')
+	if(thisItemType != null)
 		{
-			returnValue = true;
+			var isSerialItem = nlapiLookupField(thisItemType, item, 'custitem_serial_numbered', false);
+			
+			if(isSerialItem == 'T')
+				{
+					returnValue = true;
+				}
 		}
 	
 	return returnValue;
@@ -106,6 +110,10 @@ function getItemRecordType(girtItemType)
 			
 		case 'NonInvtPart':
 			girtItemRecordType = 'noninventoryitem';
+			break;
+			
+		default:
+			girtItemRecordType = null;
 			break;
 	}
 
