@@ -1,0 +1,47 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<#assign aDateTime = .now>
+<#assign aDate = aDateTime?date>
+
+	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+
+    <style type="text/css">* {
+			font-family: NotoSans, sans-serif;
+		}
+		table {
+            font-size: 9pt;
+            <!--margin-top: 10px;-->
+            table-layout: fixed;
+            page-break-inside: avoid;
+        }
+		td p { align:left }
+</style>
+</head>
+<body padding="0.5cm 0cm 0cm 0cm" width="112mm" height="59mm">
+    <#list records as label>
+<table style="width: 112mm; height: 59mm">
+  <tr>
+  <td align="center">${label.skuUpcBarcode}</td>
+  </tr>
+  <tr>
+    <#if (label.skuUpcBarcode?length > 0)>
+      <#if label.skuUpcBarcode?is_number && (label.skuUpcBarcode?length == 12 || label.skuUpcBarcode?length == 13)>
+		<td align="center"><barcode bar-width="0.75" codetype="<#if label.upc>upca<#else>ean13</#if>" showtext="false" value="<#if label.upc>0</#if>${label.skuUpcBarcode?j_string}"></barcode></td>
+	  <#else>
+		<td align="center"><barcode bar-width="0.5" codetype="code128" showtext="false" value="${label.skuUpcBarcode?html}"></barcode></td>
+	  </#if>
+      <#else>
+		<td align="center"><barcode bar-width="0.5" codetype="code128" showtext="false" value="${label.id?html}"></barcode></td>
+	  </#if>
+  </tr>
+
+  <tr>
+  <td align="center">${label.name}</td>
+  </tr>
+	<tr>
+	<td align="center">${aDate?string.medium}</td>
+	</tr></table>
+</#list>
+</body>
+</pdf>

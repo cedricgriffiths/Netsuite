@@ -161,9 +161,9 @@ function buildOutput(salesOrderNumber)
 					var salesQtyShip = salesorderSearch[int].getValue('quantitycommitted');
 					var salesQty = salesorderSearch[int].getValue('quantity');
 					var salesContact = salesorderSearch[int].getText('custcol_bbs_sales_line_contact');
-					var salesContactName = salesorderSearch[int].getValue('entityid','custcol_bbs_sales_line_contact');
+					var salesContactName = salesorderSearch[int].getValue('entityid','custcol_bbs_contact_sales_lines');
 					var salesContactEmpNo = ''; //salesorderSearch[int].getValue('custentity_bbs_contact_employee_number','custcol_bbs_sales_line_contact');
-					var salesContactId = salesorderSearch[int].getValue('custcol_bbs_sales_line_contact');
+					var salesContactId = salesorderSearch[int].getValue('custcol_bbs_contact_sales_lines');
 					var salesEntity = salesorderSearch[int].getText('entity');
 					var salesEntityId = salesorderSearch[int].getValue('entity');
 					var salesOrder = salesorderSearch[int].getValue('tranid');
@@ -338,10 +338,10 @@ function buildOutput(salesOrderNumber)
 					//Do the detail lines output here
 					//
 					xml += "<tr>";
-					xml += "<td style=\"font-size:12px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
-					xml += "<td style=\"font-size:12px; padding-right: 5px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
-					xml += "<td style=\"font-size:12px;\" align=\"center\" colspan=\"2\">" + salesQtyShip + "</td>";
-					xml += "<td style=\"font-size:12px; border: 1px solid black;\" height=\"5px\" width=\"3px\" align=\"center\">&nbsp;<br/>&nbsp;</td>";
+					xml += "<td style=\"font-size:12px; margin-bottom: 2px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
+					xml += "<td style=\"font-size:12px; margin-bottom: 2px; padding-right: 5px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
+					xml += "<td style=\"font-size:12px; margin-bottom: 2px;\" align=\"center\" colspan=\"2\">" + salesQtyShip + "</td>";
+					xml += "<td style=\"font-size:12px; margin-bottom: 2px; border: 1px solid black;\" height=\"5px\" width=\"3px\" align=\"center\">&nbsp;<br/>&nbsp;</td>";
 					xml += "</tr>";
 					
 					xml += "<tr>";
