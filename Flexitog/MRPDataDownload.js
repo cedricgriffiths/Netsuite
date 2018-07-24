@@ -280,9 +280,14 @@ function MRPDownloadSuitelet(request, response) {
 		var weeksRange = Number(request.getParameter(FORM_WEEKS_FIELD));
 
 		var todaysDate = new Date();
+		
+		//Find the end of this week
+		//
+		var dateOfEndOfWeek = (todaysDate.getDate() - todaysDate.getDay()) + 6;
+		todaysDate.setDate(dateOfEndOfWeek);
+
 		var year = todaysDate.getFullYear().toString();
 		var month = todaysDate.getMonth().toString();
-		//var day = '01';
 		var day = todaysDate.getDate().toString();
 		var currentDate = new Date(year, month, day);
 
