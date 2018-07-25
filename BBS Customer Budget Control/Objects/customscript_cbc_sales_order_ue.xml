@@ -17,11 +17,11 @@
       <allroles>T</allroles>
       <audslctrole></audslctrole>
       <eventtype></eventtype>
-      <executeinwebstore>F</executeinwebstore>
+      <executeinwebstore>T</executeinwebstore>
       <isdeployed>T</isdeployed>
-      <loglevel>ERROR</loglevel>
+      <loglevel>DEBUG</loglevel>
       <recordtype>SALESORDER</recordtype>
-      <runasrole></runasrole>
+      <runasrole>ADMINISTRATOR</runasrole>
       <status>RELEASED</status>
     </scriptdeployment>
   </scriptdeployments>

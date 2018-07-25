@@ -3,7 +3,7 @@
   <recordType>CONTACT</recordType>
   <inactive>F</inactive>
   <preferred>T</preferred>
-  <storedWithRecord>F</storedWithRecord>
+  <storedWithRecord>T</storedWithRecord>
   <mainFields>
     <fieldGroup scriptid="primaryinformation">
       <label>Primary Information</label>
@@ -124,16 +124,6 @@
         <field>
           <id>IMAGE</id>
           <label>Image</label>
-          <visible>T</visible>
-          <mandatory>F</mandatory>
-          <displayType>NORMAL</displayType>
-          <columnBreak>F</columnBreak>
-          <sameRowAsPrevious>F</sameRowAsPrevious>
-          <quickAdd>F</quickAdd>
-        </field>
-        <field>
-          <id>[scriptid=custentity_cbc_manpack_user]</id>
-          <label>CBC Manpack User</label>
           <visible>T</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
@@ -316,6 +306,127 @@
         <subList>
           <id>ENTITYCOMPANY</id>
           <label>Companies</label>
+          <visible>T</visible>
+        </subList>
+      </subItems>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cbc_subtab]</id>
+      <label>Customer Budget Control</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <fieldGroup scriptid="fieldgroup_351_t1403018_738">
+          <label>Web Site Access</label>
+          <visible>T</visible>
+          <showTitle>T</showTitle>
+          <singleColumn>F</singleColumn>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custentity_cbc_contact_web_login]</id>
+              <label>CBC Web Login Enabled</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_login_type]</id>
+              <label>CBC Login Type</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+          </fields>
+        </fieldGroup>
+        <fieldGroup scriptid="fieldgroup_340_t1403018_473">
+          <label>Configuration</label>
+          <visible>T</visible>
+          <showTitle>T</showTitle>
+          <singleColumn>F</singleColumn>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custentity_cbc_contact_department]</id>
+              <label>CBC Department</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_grade]</id>
+              <label>CBC Grade</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_catalogue_view]</id>
+              <label>CBC Catalogue View</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_supervisor]</id>
+              <label>CBC Supervisor</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_budget_type]</id>
+              <label>CBC Budget Management Type</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>T</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_contact_first_order_date]</id>
+              <label>CBC First Order Date</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+            <field>
+              <id>[scriptid=custentity_cbc_manpack_user]</id>
+              <label>CBC Manpack User</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+          </fields>
+        </fieldGroup>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CBC_CONTACT_ID</id>
+          <label>CBC Contact Budgets</label>
           <visible>T</visible>
         </subList>
       </subItems>
@@ -565,99 +676,6 @@
         <defaultFieldGroup/>
       </fieldGroups>
       <subItems/>
-    </tab>
-    <tab>
-      <id>[scriptid=custtab_cbc_subtab]</id>
-      <label>Customer Budget Control</label>
-      <visible>T</visible>
-      <fieldGroups>
-        <fieldGroup scriptid="fieldgroup_340_t1403018_473">
-          <label>Configuration</label>
-          <visible>T</visible>
-          <showTitle>T</showTitle>
-          <singleColumn>F</singleColumn>
-          <fields position="MIDDLE">
-            <field>
-              <id>[scriptid=custentity_cbc_contact_web_login]</id>
-              <label>CBC Web Login Enabled</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_login_type]</id>
-              <label>CBC Login Type</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_catalogue_view]</id>
-              <label>CBC Catalogue View</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_grade]</id>
-              <label>CBC Grade</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>T</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_supervisor]</id>
-              <label>CBC Supervisor</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_budget_type]</id>
-              <label>CBC Budget Management Type</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-            <field>
-              <id>[scriptid=custentity_cbc_contact_first_order_date]</id>
-              <label>CBC First Order Date</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>DISABLED</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <quickAdd>F</quickAdd>
-            </field>
-          </fields>
-        </fieldGroup>
-        <defaultFieldGroup/>
-      </fieldGroups>
-      <subItems>
-        <subList>
-          <id>ENTITYRECMACHCUSTRECORD_CBC_CONTACT_ID</id>
-          <label>CBC Contact Budgets</label>
-          <visible>T</visible>
-        </subList>
-      </subItems>
     </tab>
   </tabs>
   <quickViewFields>

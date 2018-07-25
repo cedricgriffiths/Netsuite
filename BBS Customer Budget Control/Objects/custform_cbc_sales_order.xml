@@ -2,7 +2,7 @@
   <name>CBC Sales Order</name>
   <recordType>SALESORDER</recordType>
   <inactive>F</inactive>
-  <preferred>F</preferred>
+  <preferred>T</preferred>
   <mainFields>
     <fieldGroup scriptid="primaryinformation">
       <label>Primary Information</label>
@@ -453,6 +453,33 @@
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
+        <field>
+          <id>[scriptid=custbody_wrm_claimnumber]</id>
+          <label>Claim Number</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>DISABLED</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody_wrm_replacementso]</id>
+          <label>Replacement SO No.</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>INLINETEXT</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody_wrm_so_returnauthorization]</id>
+          <label>Return Authorization</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>INLINETEXT</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
       </fields>
     </defaultFieldGroup>
   </mainFields>
@@ -896,6 +923,31 @@
               <id>[scriptid=custcol_cbc_closed_processed]</id>
               <label>CBC Closed Processed</label>
               <visible>T</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_scm_itemsub_link]</id>
+              <label>Item Substitution</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_scm_itemsub_original_item]</id>
+              <label>Original Item</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_wrm_reg_warrantyreg]</id>
+              <label>Register Warranty</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_wrm_reg_warrantyterms]</id>
+              <label>Warranty Terms</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_wrm_reg_warrantyexpire]</id>
+              <label>Original Warranty Expiration</label>
+              <visible>F</visible>
             </column>
           </columns>
         </subList>
@@ -1818,6 +1870,15 @@
       </subItems>
     </tab>
     <tab>
+      <id>[scriptid=custtab_95_t1403018_869]</id>
+      <label>Customer Budget Control</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
       <id>MILESTONES</id>
       <label>Milestones</label>
       <visible>T</visible>
@@ -1926,6 +1987,15 @@
             <field>
               <id>[scriptid=custbody_bbs_target_date]</id>
               <label>Target Date</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_item_type]</id>
+              <label>Item Type</label>
               <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>

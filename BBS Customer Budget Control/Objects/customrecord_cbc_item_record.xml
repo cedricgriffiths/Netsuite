@@ -275,4 +275,11 @@
       <subtab></subtab>
     </customrecordcustomfield>
   </customrecordcustomfields>
+  <links>
+    <link>
+      <linkcategory>BASICLISTSCUSTOM</linkcategory>
+      <linklabel></linklabel>
+      <linktasktype>LIST</linktasktype>
+    </link>
+  </links>
 </customrecordtype>

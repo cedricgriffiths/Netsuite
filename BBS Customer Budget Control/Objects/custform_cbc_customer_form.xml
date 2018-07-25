@@ -1151,6 +1151,36 @@
       </subItems>
     </tab>
     <tab>
+      <id>[scriptid=custtab_cbc_subtab]</id>
+      <label>Customer Budget Control</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CBC_ITEM_CUSTOMER</id>
+          <label>CBC Customer Items</label>
+          <visible>T</visible>
+        </subList>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CBC_CUSTOMER_ID</id>
+          <label>CBC Customer Budgets</label>
+          <visible>T</visible>
+        </subList>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CBC_DEPARTMENT_CUSTOMER</id>
+          <label>CBC Customer Departments</label>
+          <visible>T</visible>
+        </subList>
+        <subList>
+          <id>[scriptid=custsublist_28_t1403018_217]</id>
+          <label>CBC Budget Status</label>
+          <visible>T</visible>
+        </subList>
+      </subItems>
+    </tab>
+    <tab>
       <id>ENTITYADDRESS</id>
       <label>Address</label>
       <visible>T</visible>
@@ -1164,15 +1194,6 @@
           <visible>T</visible>
         </subList>
       </subItems>
-    </tab>
-    <tab>
-      <id>[scriptid=custtab_17_3776644_208]</id>
-      <label>Tax Reporting</label>
-      <visible>T</visible>
-      <fieldGroups>
-        <defaultFieldGroup/>
-      </fieldGroups>
-      <subItems/>
     </tab>
     <tab>
       <id>ENTITYMARKETING</id>
@@ -1484,6 +1505,15 @@
       <subItems/>
     </tab>
     <tab>
+      <id>[scriptid=custtab_17_3776644_208]</id>
+      <label>Tax Reporting</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
       <id>ENTITYS_SYSINFO</id>
       <label>System Information</label>
       <visible>T</visible>
@@ -1634,26 +1664,6 @@
         </defaultFieldGroup>
       </fieldGroups>
       <subItems/>
-    </tab>
-    <tab>
-      <id>[scriptid=custtab_cbc_subtab]</id>
-      <label>Customer Budget Control</label>
-      <visible>T</visible>
-      <fieldGroups>
-        <defaultFieldGroup/>
-      </fieldGroups>
-      <subItems>
-        <subList>
-          <id>ENTITYRECMACHCUSTRECORD_CBC_CUSTOMER_ID</id>
-          <label>CBC Customer Budgets</label>
-          <visible>T</visible>
-        </subList>
-        <subList>
-          <id>ENTITYRECMACHCUSTRECORD_CBC_ITEM_CUSTOMER</id>
-          <label>CBC Customer Items</label>
-          <visible>T</visible>
-        </subList>
-      </subItems>
     </tab>
   </tabs>
   <quickViewFields>

@@ -245,7 +245,7 @@
       <defaultvalue></defaultvalue>
       <description></description>
       <displayheight></displayheight>
-      <displaytype>LOCKED</displaytype>
+      <displaytype>NORMAL</displaytype>
       <displaywidth></displaywidth>
       <dynamicdefault></dynamicdefault>
       <encryptatrest>F</encryptatrest>
@@ -284,7 +284,7 @@
       <defaultvalue></defaultvalue>
       <description></description>
       <displayheight></displayheight>
-      <displaytype>LOCKED</displaytype>
+      <displaytype>NORMAL</displaytype>
       <displaywidth></displaywidth>
       <dynamicdefault></dynamicdefault>
       <encryptatrest>F</encryptatrest>
@@ -314,4 +314,11 @@
       <subtab></subtab>
     </customrecordcustomfield>
   </customrecordcustomfields>
+  <links>
+    <link>
+      <linkcategory>BASICLISTSCUSTOM</linkcategory>
+      <linklabel></linklabel>
+      <linktasktype>LIST</linktasktype>
+    </link>
+  </links>
 </customrecordtype>

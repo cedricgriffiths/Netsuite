@@ -16,8 +16,8 @@
       <recurrence>
         <single>
           <repeat></repeat>
-          <startdate>2018-06-04</startdate>
-          <starttime>17:00:00Z</starttime>
+          <startdate>2018-06-05</startdate>
+          <starttime>11:30:00Z</starttime>
         </single>
       </recurrence>
     </scriptdeployment>
