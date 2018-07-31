@@ -61,7 +61,7 @@ function itemFulfilmentAfterSubmit(type)
 								
 									if(isSerialItem == 'T')
 										{
-											var serialNumber = salesOrderNo + padding_left(int.toString(), '0', 6);
+											var serialNumber = salesOrderNo + padding_left(int.toString(), '0', 3);
 											
 											record.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serialNumber);
 										

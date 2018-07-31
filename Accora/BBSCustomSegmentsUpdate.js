@@ -22,7 +22,9 @@ function scheduled(type)
 			   "AND", 
 			   ["mainline","is","T"],
 			   "AND",
-			   ["custbody_cseg_bbs_sector_uk","anyof","@NONE@"]
+			   ["custbody_cseg_bbs_sector_uk","anyof","@NONE@"], 
+			   "AND", 
+			   ["type","noneof","ItemShip"]
 			], 
 			[
 			   new nlobjSearchColumn("trandate").setSort(false), 
@@ -56,9 +58,16 @@ function scheduled(type)
 							 var department = record.getFieldValue('department');
 							 var newSector = getNewSector(department);
 							 
-							 record.setFieldValue('custbody_cseg_bbs_sector_uk', newSector);
-							 
-							 nlapiSubmitRecord(record, false, true);
+							 if(newSector != null)
+								 {
+									 record.setFieldValue('custbody_cseg_bbs_sector_uk', newSector);
+									 
+									 nlapiSubmitRecord(record, false, true);
+								 }
+							 else
+								 {
+								 	messages += 'No mapping for department ' + department + '\n';
+								 }
 						 }
 					 catch(err)
 					 	{
