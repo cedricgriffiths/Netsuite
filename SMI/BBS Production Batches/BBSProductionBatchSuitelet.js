@@ -1561,7 +1561,7 @@ function productionBatchSuitelet(request, response)
 									{
 										//Collate all of the base items together
 										//
-										if(woItemType == 'InvtPart')
+										if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
 											{
 												if(!baseItems[woAssemblyItemSequence])
 													{

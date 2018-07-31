@@ -413,6 +413,8 @@ function buildOutput(batchId)
 							{	
 								thisFinishedItem = woAssemblyItemSequence;
 	
+								firstInventoryItem = true;
+								
 								//Collate all of the finished items together
 								//
 								if(!finishedItems[thisFinishedItem])
@@ -429,7 +431,7 @@ function buildOutput(batchId)
 							{
 								//Collate all of the base items together
 								//
-								if(woItemType == 'InvtPart')
+								if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
 									{
 										if(firstInventoryItem)
 											{
@@ -519,7 +521,7 @@ function buildOutput(batchId)
 		xml += "<macro id=\"nlfooter\">";
 		
 		xml += "<table class=\"footer\" style=\"width: 100%;\">";
-		xml += "<tr><td align=\"left\" style=\"font-size:16px;\">Ship Date: " + thisShipDateFormatted + "</td><td align=\"right\" style=\"font-size:16px;\">" + thisShipDay + "</td></tr>";
+		xml += "<tr><td align=\"left\" style=\"font-size:16px; vertical-align: middle;\">Ship Date: " + thisShipDateFormatted + "</td><td align=\"right\" style=\"font-size:32px; vertical-align: middle;\"><b>" + thisShipDay + "</b></td></tr>";
 		xml += "</table>";
 		
 		xml += "</macro>";
@@ -535,13 +537,13 @@ function buildOutput(batchId)
 		xml += "<tr>";
 		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
 		xml += "<td align=\"left\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchId) + "</td>";
+		xml += "<td align=\"right\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchId) + "</td>";
 		xml += "</tr>";
 		
 		xml += "<tr>";
 		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
 		xml += "<td align=\"left\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+		xml += "<td align=\"right\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
 		xml += "</tr>";
 		
 		
@@ -552,7 +554,7 @@ function buildOutput(batchId)
 		
 		//Body
 		//
-		xml += "<body header=\"nlheader\" header-height=\"120px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.4cm 0.4cm 0.4cm 0.4cm\" width=\"112mm\" height=\"112mm\">";
+		xml += "<body header=\"nlheader\" header-height=\"120px\" footer=\"nlfooter\" footer-height=\"30px\" padding=\"0.4cm 0.4cm 0.4cm 0.4cm\" width=\"112mm\" height=\"112mm\">";
 		
 
 
