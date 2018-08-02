@@ -554,10 +554,12 @@ function calculateSalesPrice(baseParentId)
 				}
 		}
 
+
 	
-	//Get the price from the base item
+	//Get the price of the base item based on the customer's currency & price level, just in case we can't find a customer item price for the specific option
 	//
 	var baseParentRecord = nlapiLoadRecord('inventoryitem', baseParentId);
+	var baseParentPrice = Number(0);
 	
 	if(baseParentRecord)
 		{
@@ -575,30 +577,51 @@ function calculateSalesPrice(baseParentId)
 							var matrixPrice = baseParentRecord.getLineItemMatrixValue(priceSublistByCurrency, 'price', int3, 1);
 							matrixPrice = Number((matrixPrice == '' ? 0 : matrixPrice));
 									
-							newSalesPrice += matrixPrice;
+							baseParentPrice = matrixPrice;
 							
 							break;
 						}
 				}
 		}
 	
+	//Load up the customer record so we can access the item pricing
+	//
+	var custId = nlapiGetFieldValue('custpage_cust_id_param');
+	var custRecord = null;
+	
+	try
+		{
+			custRecord = nlapiLoadRecord('customer', custId);
+		}
+	catch(err)
+		{
+			custRecord = null;
+		}
+	
+	
+	
+	
 	//Update the sublist with the new price
 	//
 	var sublistId = 'custpage_sublist_' + baseParentId.toString();
 	var lines = nlapiGetLineItemCount(sublistId);
 	
+
 	for (var int = 1; int <= lines; int++) 
 		{
 			var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
+			var baseItemChildId = nlapiGetLineItemValue(sublistId, sublistId + '_id', int);
 			
 			if(ticked == 'T')
 				{
-					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, newSalesPrice.toFixed(2));
+					var finalPrice = calculatePropperPrice(custRecord, newSalesPrice, baseItemChildId, baseParentPrice); //The customer record, the cumulative price of the finishes, the base item child id, the price of the base item
+					
+					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, finalPrice.toFixed(2));
 					
 					var costFieldName = sublistId + '_cost';
 					var marginFieldName = sublistId + '_margin';
 						
-					var sales = Number(newSalesPrice.toFixed(2));;
+					var sales = Number(finalPrice.toFixed(2));;
 					var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
 							
 					if(!isNaN(sales) && !isNaN(cost))
@@ -618,6 +641,47 @@ function calculateSalesPrice(baseParentId)
 				}
 		}
 }
+
+//Function to work out the correct price
+//
+function calculatePropperPrice(_custRecord, _newSalesPrice, _baseItemChildId, _baseItemPrice)
+{
+	var theFinalPrice = Number(0);
+	var itemPricingPrice = Number(0);
+	
+	if(_custRecord)
+		{
+			var itemPricingLines = _custRecord.getLineItemCount('itempricing');
+			
+			//Loop through the itempricing sublist
+			//
+			for (var itemPricingLine = 1; itemPricingLine <= itemPricingLines; itemPricingLine++) 
+				{
+					var itemPricingItemId = _custRecord.getLineItemValue('itempricing', 'item', itemPricingLine);
+					
+					//Found a matching item
+					//
+					if(itemPricingItemId == _baseItemChildId)
+						{
+							itemPricingPrice = Number(_custRecord.getLineItemValue('itempricing', 'price', itemPricingLine));
+						
+							break;
+						}
+				}
+		}
+	
+	if(itemPricingPrice != 0)
+		{
+			theFinalPrice = _newSalesPrice + itemPricingPrice;
+		}
+	else
+		{
+			theFinalPrice = _newSalesPrice + _baseItemPrice;
+		}
+	
+	return theFinalPrice;
+}
+
 
 //Function called by the update sales price button
 //
