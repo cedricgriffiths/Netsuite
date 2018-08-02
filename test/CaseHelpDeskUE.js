@@ -28,7 +28,7 @@ function userEventAfterSubmit(type){
 			
 			//See if the case has the help desk flag set & the status is 'Customer at Risk'
 			//
-			if (caseHelpdesk == 'T' && (caseStatus == '15' || caseStatus == '16'))
+			if (caseHelpdesk == 'T' && (caseStatus == '15' || caseStatus == '16' || caseStatus == '18'))
 				{
 					//Get the customer id from the case
 					//
@@ -65,6 +65,13 @@ function userEventAfterSubmit(type){
 							custRecord.setFieldValue('custentity_bbs_customer_no_support_msg', title);
 						}
 					
+					//Set the no support flag
+					//
+					if (caseStatus == '18')
+						{
+							custRecord.setFieldValue('custentity_bbs_no_bespoke', 'T');
+						}
+					
 					//Update the customer record
 					//
 					nlapiSubmitRecord(custRecord, false, true);
@@ -81,7 +88,7 @@ function userEventAfterSubmit(type){
 		
 		var caseHelpdesk = newCaseRecord.getFieldValue('helpdesk');
 		
-		//If the case has changed from at riusk to cancelled, then update the customer record accordingly
+		//If the case has changed from at risk to cancelled, then update the customer record accordingly
 		//
 		if (caseHelpdesk == 'T' && oldCaseStatus == 15 && newCaseStatus == 16)
 		{
@@ -121,6 +128,7 @@ function userEventAfterSubmit(type){
 			
 			//Set the status & un-set the at risk flag
 			//
+			custRecord.setFieldValue('custentity_bbs_no_bespoke', 'F');
 			custRecord.setFieldValue('custentity_bbs_customer_at_risk', 'F');
 			custRecord.setFieldValue('custentity_bbs_customer_support_ended', 'F');
 			custRecord.setFieldValue('entitystatus', origStatus);

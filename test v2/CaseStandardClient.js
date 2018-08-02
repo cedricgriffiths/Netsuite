@@ -54,6 +54,7 @@ function(record, message) {
 		    							var atRisk = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk'});
 		    							var noSupport = custRecord.getValue({fieldId: 'custentity_bbs_customer_support_ended'});
 		    							var prePaid = custRecord.getValue({fieldId: 'custentity_bbs_support_hours'});
+		    							var noBespoke = custRecord.getValue({fieldId: 'custentity_bbs_no_bespoke'});
 		    							
 		    							var atRiskMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_at_risk_msg'});
 		    							var noSupportMsg = custRecord.getValue({fieldId: 'custentity_bbs_customer_no_support_msg'});
@@ -61,6 +62,7 @@ function(record, message) {
 		    							var atRiskMessage = 'Customer Is At Risk! ' + ((atRiskMsg == null) ? '' : atRiskMsg);
 		    							var noSupportMessage = 'Customer Support Contract Has Ended! ' + ((noSupportMsg == null) ? '' : noSupportMsg);
 		    							var prePaidMessage = 'Customer Has Pre-Paid Hours Support - Please Account For Time Spent On Your Timesheet';
+		    							var noBespokeMessage = 'Customer Does Not Have Support For Bespoke - Please Verify Subject Of Support Case';
 		    							
 		    							if (atRisk)
 		    								{
@@ -77,6 +79,12 @@ function(record, message) {
 		    							if (prePaid)
 										{
 											var myMsg = message.create({title: '',message: prePaidMessage,type: message.Type.WARNING});
+											myMsg.show();
+										}
+		    							
+		    							if (noBespoke)
+										{
+											var myMsg = message.create({title: '',message: noBespokeMessage,type: message.Type.WARNING});
 											myMsg.show();
 										}
     								}
