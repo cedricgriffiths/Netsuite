@@ -276,10 +276,36 @@ function createAssembliesSuitelet(request, response){
 					var finishCost = Number(0);
 					var finishPrice = Number(0);
 					
+					//Calculate the cost of the finish
+					//
 					if(finishRecord)
 						{
-							finishCost = Number(finishRecord.getFieldValue('custitem_bbs_item_cost'));
-							finishPrice = Number(finishRecord.getFieldValue('custitem_sw_cust_finish_price'));
+							//finishCost = Number(finishRecord.getFieldValue('custitem_bbs_item_cost'));
+						
+							var finishMembers = finishRecord.getLineItemCount('member');
+							
+							for (var finishMemberLine = 1; finishMemberLine <= finishMembers; finishMemberLine++) 
+								{
+									var memberId = finishRecord.getLineItemValue('member', 'item', finishMemberLine);
+									var memberQuantity = Number(finishRecord.getLineItemValue('member', 'quantity', finishMemberLine));
+									var memberType = finishRecord.getLineItemValue('member', 'sitemtype', finishMemberLine);
+									var memberCost = Number(0);
+									
+									switch(memberType)
+										{
+											case 'InvtPart':
+												
+												memberCost = Number(nlapiLookupField('inventoryitem', memberId, 'averagecost', false)) * memberQuantity;
+												break;
+												
+											case 'NonInvtPart':
+												
+												memberCost = Number(nlapiLookupField('noninventoryitem', memberId, 'cost', false)) * memberQuantity;
+												break;
+										}
+									
+									finishCost += memberCost;
+								}
 						}
 					
 					//Get the session data
@@ -411,8 +437,8 @@ function createAssembliesSuitelet(request, response){
 															   ["matrixchild","is","T"], 
 															   "AND", 
 															   ["internalid","anyof",matrixIds], 
-															   "AND", 
-															   ["ispreferredvendor","is","T"],
+															   //"AND", 
+															   //["ispreferredvendor","is","T"],
 															   "AND", 
 															   ["isinactive","is","F"]
 															];
@@ -444,7 +470,8 @@ function createAssembliesSuitelet(request, response){
 											   new nlobjSearchColumn("salesdescription",null,null), 
 											   new nlobjSearchColumn("type",null,null), 
 											   new nlobjSearchColumn("baseprice",null,null), 
-											   new nlobjSearchColumn("vendorcost",null,null), 
+											   new nlobjSearchColumn("averagecost",null,null), 
+											   //new nlobjSearchColumn("vendorcost",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_category",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
@@ -474,7 +501,8 @@ function createAssembliesSuitelet(request, response){
 													var matrixOpt2Id = matrixChildSearch[int3].getValue('custitem_bbs_item_colour');
 													var matrixOpt3Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size1');
 													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
-													var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
+													//var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
+													var matrixCost = Number(matrixChildSearch[int3].getValue('averagecost')) + finishCost;
 													
 													//Build up the list of available colours & sizes
 													//

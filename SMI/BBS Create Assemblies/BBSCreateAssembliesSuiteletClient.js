@@ -598,26 +598,32 @@ function calculateSalesPrice(baseParentId)
 			custRecord = null;
 		}
 	
-	
-	
-	
 	//Update the sublist with the new price
 	//
 	var sublistId = 'custpage_sublist_' + baseParentId.toString();
 	var lines = nlapiGetLineItemCount(sublistId);
 	
-
+	//Loop round all of the lines in the sublist
+	//
 	for (var int = 1; int <= lines; int++) 
 		{
 			var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
 			var baseItemChildId = nlapiGetLineItemValue(sublistId, sublistId + '_id', int);
 			
+			//Process ticked lines
+			//
 			if(ticked == 'T')
 				{
-					var finalPrice = calculatePropperPrice(custRecord, newSalesPrice, baseItemChildId, baseParentPrice); //The customer record, the cumulative price of the finishes, the base item child id, the price of the base item
+					//Work out the proper price
+					//
+					var finalPrice = calculatePropperPrice(custRecord, newSalesPrice, baseItemChildId, baseParentPrice, custCurrency, custPriceLevel); //The customer record, the cumulative price of the finishes, the base item child id, the price of the base item, customer's currency, customers price level
 					
+					//Set the sales price on the sublist
+					//
 					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, finalPrice.toFixed(2));
 					
+					//Calculate the margin
+					//
 					var costFieldName = sublistId + '_cost';
 					var marginFieldName = sublistId + '_margin';
 						
@@ -644,11 +650,13 @@ function calculateSalesPrice(baseParentId)
 
 //Function to work out the correct price
 //
-function calculatePropperPrice(_custRecord, _newSalesPrice, _baseItemChildId, _baseItemPrice)
+function calculatePropperPrice(_custRecord, _newSalesPrice, _baseItemChildId, _baseItemPrice, _custCurrency, _custPriceLevel)
 {
 	var theFinalPrice = Number(0);
 	var itemPricingPrice = Number(0);
 	
+	//See if we can find the child item in the customer's item pricing
+	//
 	if(_custRecord)
 		{
 			var itemPricingLines = _custRecord.getLineItemCount('itempricing');
@@ -672,11 +680,53 @@ function calculatePropperPrice(_custRecord, _newSalesPrice, _baseItemChildId, _b
 	
 	if(itemPricingPrice != 0)
 		{
+			//We have found the child item in the customer's item pricing
+			//
 			theFinalPrice = _newSalesPrice + itemPricingPrice;
 		}
 	else
 		{
-			theFinalPrice = _newSalesPrice + _baseItemPrice;
+			//We didn't find the child item in the customer's item pricing, so we now need to see if we can find
+			//the prince from the child item record using the customer's currency & price band
+			//
+			var childItemRecord = nlapiLoadRecord('inventoryitem', _baseItemChildId);
+			var childItemPrice = Number(0);
+			
+			if(childItemRecord)
+				{
+					var priceSublistByCurrency = 'price' + _custCurrency;
+					
+					var priceLineCount = childItemRecord.getLineItemCount(priceSublistByCurrency);
+					var quantityBreakCount = childItemRecord.getMatrixCount(priceSublistByCurrency, 'price');
+					
+					for (var int3 = 1; int3 <= priceLineCount; int3++) 
+						{
+							var pricePriceLevel = childItemRecord.getLineItemValue(priceSublistByCurrency, 'pricelevel', int3);
+			
+							if(pricePriceLevel == _custPriceLevel)
+								{							
+									var matrixPrice = childItemRecord.getLineItemMatrixValue(priceSublistByCurrency, 'price', int3, 1);
+									matrixPrice = Number((matrixPrice == '' ? 0 : matrixPrice));
+											
+									childItemPrice = matrixPrice;
+									
+									break;
+								}
+						}
+				}
+			
+			if(childItemPrice != 0)
+				{
+					//We found a price on the child item for the customer's currency & price level, so use that
+					//
+					theFinalPrice = _newSalesPrice + childItemPrice;
+				}
+			else
+				{
+					//We didn't find a price on the child item for the customer's currency & price level, so fall back to the base item price
+					//
+					theFinalPrice = _newSalesPrice + _baseItemPrice;
+				}
 		}
 	
 	return theFinalPrice;
