@@ -203,15 +203,12 @@ function printManPackSuitelet(request, response)
 	//=====================================================================
 	//
 	var salesOrderParam = request.getParameter('salesorder');
-	var version = request.getParameter('version');
-	
-	version = (version == null || version == '' ? Number(1) : Number(version));
 	
 	if (salesOrderParam != null && salesOrderParam != '') 
 		{
 			// Build the output
 			//	
-			var file = (version == 1 ? buildOutput(salesOrderParam) : buildOutputV2(salesOrderParam));
+			var file = buildOutputV2(salesOrderParam);
 	
 			// Send back the output in the response message
 			//
@@ -273,13 +270,9 @@ function printManPackSuitelet(request, response)
 					//
 					var salesOrder = request.getParameter('custpage_salesorder_select');
 			
-					var version = request.getParameter('version');
-					
-					version = (version == null || version == '' ? Number(1) : Number(version));
-					
 					// Build the output
 					//	
-					var file = (version == 1 ? buildOutput(salesOrder) : buildOutputV2(salesOrder));
+					var file = buildOutputV2(salesOrder);
 			
 					//Send back the output in the response message
 					//
