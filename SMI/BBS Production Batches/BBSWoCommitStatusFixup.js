@@ -254,16 +254,16 @@ function scheduled(type)
 //								newRecord.setFieldValue('custbody_bbs_wo_finish', woFinish);
 //							}
 //						
-//						if(originalCommitmentStatus != newCommitmentStatus)
-//								{									
-//									var newCreatedFrom = newRecord.getFieldValue('createdfrom');
-//									
-//									if(newCreatedFrom != null && newCreatedFrom != '')
-//										{
-//											salesOrders[newCreatedFrom] = newCreatedFrom;
-//										}
-//								}
-//						
+						if(originalCommitmentStatus != newCommitmentStatus)
+								{									
+									var newCreatedFrom = newRecord.getFieldValue('createdfrom');
+									
+									if(newCreatedFrom != null && newCreatedFrom != '')
+										{
+											salesOrders[newCreatedFrom] = newCreatedFrom;
+										}
+								}
+						
 						if(machine != '')
 							{
 								newRecord.setFieldValue('custbody_bbs_wo_machine', machine);
@@ -330,37 +330,49 @@ function scheduled(type)
 		}
 	
 	
-//SMI	
-//	//=============================================================================================
-//	//Code to check status of associated sales order
-//	//=============================================================================================
-//	//
-//	nlapiLogExecution('DEBUG', 'S/O to process', JSON.stringify(salesOrders));
-//	var counter = Number(0);
-//	
-//	for ( var newCreatedFrom in salesOrders) 
-//		{
-//			counter++;
-//	
-//			//Have we got a created from?
-//			//
-//			if(newCreatedFrom != null && newCreatedFrom != '')
-//				{
-//					var salesOrderRecord = null;
-//			
-//					checkResources();
-//									
-//					try
-//						{
-//							salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
-//						}
-//					catch(error)
-//						{
-//							salesOrderRecord = null;
-//						}
-//									
-//					if(salesOrderRecord)
-//						{
+	
+	//=============================================================================================
+	//Code to check status of associated sales order
+	//=============================================================================================
+	//
+	nlapiLogExecution('DEBUG', 'S/O to process', JSON.stringify(salesOrders));
+	var counter = Number(0);
+	
+	for ( var newCreatedFrom in salesOrders) 
+		{
+			counter++;
+	
+			//Have we got a created from?
+			//
+			if(newCreatedFrom != null && newCreatedFrom != '')
+				{
+					var salesOrderRecord = null;
+			
+					checkResources();
+									
+					try
+						{
+							salesOrderRecord = nlapiLoadRecord('salesorder', newCreatedFrom);
+						}
+					catch(error)
+						{
+							salesOrderRecord = null;
+						}
+									
+					if(salesOrderRecord)
+						{
+							var lines = salesOrderRecord.getLineItemCount('item');
+							
+							for (var int = 1; int <= lines; int++) 
+								{
+									var woId = salesOrderRecord.getLineItemValue('item', 'woid', int);
+									salesOrderRecord.setLineItemValue('item', 'custcol_bbs_wo_id', int, woId);
+								}
+							
+							nlapiSubmitRecord(salesOrderRecord, false, true);
+						}
+				}
+		}
 //							//We need to check the other works orders
 //							//
 //							var workorderSearch = nlapiCreateSearch("workorder",
