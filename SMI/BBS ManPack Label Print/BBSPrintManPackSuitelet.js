@@ -529,7 +529,7 @@ function buildOutputV2(salesOrderNumber)
 							
 							//Body
 							//
-							xml += "<body header=\"nlheader\" header-height=\"350px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+							xml += "<body header=\"nlheader\" header-height=\"400px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
 
 							
 						}
