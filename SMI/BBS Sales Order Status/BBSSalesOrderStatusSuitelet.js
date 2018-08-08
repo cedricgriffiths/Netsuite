@@ -390,7 +390,8 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			   new nlobjSearchColumn("quantityshiprecv"), 
 			   new nlobjSearchColumn("custcol_bbs_wo_id"), 
 			   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID",null), 
-			   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null)
+			   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null),
+			   new nlobjSearchColumn("mainline","CUSTCOL_BBS_WO_ID",null)
 			]
 			);
 
@@ -412,32 +413,62 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 					var searchLineWoId = salesorderLineSearch[int].getValue("custcol_bbs_wo_id");
 					var searchLineWoText = salesorderLineSearch[int].getText("custcol_bbs_wo_id");
 					var searchLineWoCanBuild = salesorderLineSearch[int].getText("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
+					var searchLineWoCanBuildId = salesorderLineSearch[int].getValue("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
 					var searchLineWoCommitStatus = salesorderLineSearch[int].getText("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID");
+					var searchLineWoMainLine = salesorderLineSearch[int].getValue("mainline","CUSTCOL_BBS_WO_ID");
 
-					//Build up the sales order key which is order number + line number
+					//Filter out the multiple lines from the works order link
 					//
-					var orderAndLineKey = padding_left(salesOrderId,'0', 6) + '|' + padding_left(searchLineNumber,'0', 6);
-					
-					//Save the line information to an object
-					//
-					var lineDetails = new salesOrderInfo();
-					lineDetails.lineNumber = searchLineNumber;
-					lineDetails.lineItemId = searchLineItemId;
-					lineDetails.lineItemText = searchLineItemText;
-					lineDetails.lineOrdered = searchLineQuantity;
-					lineDetails.lineFulfilled = searchLineShipped;
-					lineDetails.lineWoNo = searchLineWoText;
-					lineDetails.lineWoPercentBuildable = searchLineWoCanBuild;
-					lineDetails.lineWoCommitStatus = searchLineWoCommitStatus;
-					
-					//Add to the order details object
-					//
-					salesOrderDetail[orderAndLineKey] = lineDetails;
-					
-					//Save away the item to an object
-					//
-					itemsObject[searchLineItemId] = searchLineItemId;
-					
+					if(searchLineWoMainLine == '*' || (searchLineWoId == '' || searchLineWoId == null) )
+						{
+							//Build up the sales order key which is order number + line number
+							//
+							var orderAndLineKey = padding_left(salesOrderId,'0', 6) + '|' + padding_left(searchLineNumber,'0', 6);
+							var orderHeaderKey = padding_left(salesOrderId,'0', 6) + '|' + '000000';
+							
+							//Update the total number of items ordered on the header
+							//
+							salesOrderDetail[orderHeaderKey].orderItemsTotal += searchLineQuantity;
+							
+							//Check to see if we need to filter by WO percentage buildable
+							//
+							var saveLine = false;
+							
+							if(_woBuildable != null && _woBuildable != '')
+								{
+									if(_woBuildable == searchLineWoCanBuildId)
+										{
+											saveLine = true;
+										}
+								}
+							else
+								{
+									saveLine = true;
+								}
+							
+							if(saveLine)
+								{
+									//Save the line information to an object
+									//
+									var lineDetails = new salesOrderInfo();
+									lineDetails.lineNumber = searchLineNumber;
+									lineDetails.lineItemId = searchLineItemId;
+									lineDetails.lineItemText = searchLineItemText;
+									lineDetails.lineOrdered = searchLineQuantity;
+									lineDetails.lineFulfilled = searchLineShipped;
+									lineDetails.lineWoNo = searchLineWoText;
+									lineDetails.lineWoPercentBuildable = searchLineWoCanBuild;
+									lineDetails.lineWoCommitStatus = searchLineWoCommitStatus;
+								
+									//Add to the order details object
+									//
+									salesOrderDetail[orderAndLineKey] = lineDetails;
+									
+									//Save away the item to an object
+									//
+									itemsObject[searchLineItemId] = searchLineItemId;
+								}
+						}
 				}
 		}
 	
