@@ -1,0 +1,422 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+
+
+<link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <!-- Header -->
+<table style="font-size: 7.5pt; color:#888888; padding-left:0px; padding-right:0px;"><tr>
+	<td align="center" colspan="1">&nbsp;</td>
+	<!-- Contact details -->
+	<td align="left" colspan="3" valign="middle">
+	<table border="0" cellpadding="0" style="font-size: 7.5pt; color:#888888;"><tr style="padding: 1px 0px;">
+		<td align="left" colspan="1"><img height="10" src="https://system.netsuite.com/c.1294017/template-images/icon-phone.jpg" width="10" /></td>
+		<td algin="left" colspan="11">&nbsp;+44 (0) 1692 400 300</td>
+		</tr>
+		<tr style="padding: 1px 0px;">
+		<td align="left" colspan="1"><img height="10" src="https://system.netsuite.com/c.1294017/template-images/icon-email.jpg" width="10" /></td>
+		<td algin="left" colspan="11" style="padding-left:5px;">&nbsp;customerservice@flexitog.com</td>
+		</tr>
+		<tr style="padding: 1px 0px;">
+		<td align="left" colspan="1"><img height="10" src="https://system.netsuite.com/c.1294017/template-images/icon-web.jpg" width="10" /></td>
+		<td algin="left" colspan="11" style="padding-left:5px;">&nbsp;www.flexitog.com</td>
+		</tr></table>
+	</td>
+	<!-- Logo -->
+	<td align="center" colspan="4" id="logo"><img src="https://system.netsuite.com/c.1294017/template-images/FlexiTog-Form-Logo-2017.png" /></td>
+	<!-- Address -->
+	<td align="right" colspan="3" style="line-height: 11pt;" valign="middle">
+	<p align="right">The Granary Business Park<br />School Road, Neatishead<br />Norfolk, NR12 8BU</p>
+	</td>
+	<td align="center" colspan="1">&nbsp;</td>
+	</tr></table>
+        </macro>
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 7.5pt; color:#888888; margin-top:0px;"><tr>
+	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
+	<td align="center" colspan="10" style="padding: 0;">FlexiTog<sup>&reg;</sup> is a registered brand and trading name of JGM International | VAT Registration no. GB225 3187 77</td>
+	<td align="right" colspan="1" style="padding: 0;"><pagenumber/>/<totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">body{margin-top:0px; padding-top:0px;}
+      table {
+        <#if .locale == "zh_CN">
+            font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+            font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+            font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+            font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+            font-family: verdana;
+        <#else>
+            font-family: sans-serif;
+        </#if>
+            font-size: 8pt;
+            table-layout: fixed;
+        width:100%
+        }
+
+
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: top;
+            padding: 10px 0px 10px 0px;
+            background-color: #333333;
+            color: #ffffff;
+        }
+              
+        td {
+            padding: 4px 6px;
+            color:#868686;
+        }
+
+        td#logo{background-color:#cf0a2c; padding: 32px 0px 28px;}
+        td#logo img{width:40%; height:40%;}
+        /*item table style*/
+        table.itemtable > thead > tr > th {
+      background-color: #ffffff;
+            color: #333333;
+            font-style: italic;
+            font-size: 10pt;
+            vertical-align: bottom;
+            font-weight:400;
+            padding: 20px 4px 5px 4px;
+            border-top:0px;
+          }
+      table.itemtable > tr {
+      padding:0px;
+            margin:0px;
+          border-bottom:2px solid #ffffff
+        }
+    table.itemtable > td {
+         padding:4px;
+         vertical-align:top;
+        }
+      table.itemtable > tbody > tr > td:first-child, table.itemtable > tbody > tr > td:last-child {background-color:#ffffff; border-bottom:2px solid #ffffff }
+      
+  table.totals td {
+      padding-top:2px;
+            padding-bottom:2px;
+        }
+      
+      table.totals > tbody > tr >  td:first-child {
+      padding-top:4px;
+            padding-bottom:2px;
+        }
+       table.totals > tbody > tr >  td:last-child {
+      padding-top:2px;
+            padding-bottom:4px;
+        }
+      /*inner table*/
+      table.inner tr {
+          padding:0px;
+            margin:0px;
+          border-bottom:0px;
+      }
+      table.inner td {
+         padding:0px 4px;
+         vertical-align:top;}
+      
+      
+      .underline {
+        border-top:2px solid #ffffff!important;
+                border-left:0px solid #ffffff!important;
+                border-right:0px solid #ffffff!important;
+                border-bottom: 2px solid #333333;
+                padding-bottom:4px!important;
+}
+      
+
+      
+        /* font size*/
+      
+          td.fs4, span.fs4{font-size:4pt}
+          td.fs7, span.fs7{font-size:7pt}
+          td.fs7-5{font-size:7.5pt}
+          td.fs8{font-size:8pt}
+          td.fs9{font-size:9pt}
+          td.fs10, th.fs10, span.fs10{font-size:10pt}
+          td.fs12, tr.fs12, th.fs12, p.fs12, span.fs12{font-size:12pt}
+          td.fs16, tr.fs16{font-size:16pt}
+          td.fs26{font-size:26pt}
+          td.fs32{font-size:32pt}
+
+        /* font Weight*/
+          td.light{font-weight:300;}
+          td.normal, th.normal, p.normal, span.normal, .normal{font-weight:400;}
+          td.bold, p.bold, span.bold, .bold{font-weight:700;}
+          td.heavy, p.heavy, span.heavy, .heavy{font-weight:800;}
+          td.italic, th.italic, p.italic, span.italic, .italic{font-style:italic;}
+
+        /* font color*/
+          td.c-black, span.c-dark{color:#1a1a1a;}
+          td.c-dark, th.c-dark, span.c-dark{color:#333333;}
+          td.c-med, span.c-med{color:#888888;}
+          td.c-white, tr.c-white{color:#ffffff;}
+          td.c-red, tr.c-red span.c-red{color:#cf0a2c;}
+
+        /* font Alignment*/
+          td.ar{text-align:right!important;}
+          td.tt-lc{text-transform:lowercase;}
+          td.tt-uc{text-transform:uppercase;}
+          td.tt-sc{text-transform:capitalize;}
+          td.ws0{word-spacing:0px;}
+
+      /* Background Colours */
+          td.dark, tr.dark{background-color:#333333;}
+          td.med, tr.med, th.med, .med{background-color:#ededed;}
+          td.med-light, tr.med-light{background-color:#f1f1f1;}
+          td.altcol, th.altcol, tr.altcol{background-color:#f6f6f6;}
+          td.white, tr.white{background-color:#ffffff;}
+          td.red, tr.red{background-color:#cf0a2c;}
+          td.lightred, tr.lightred{background-color:#FFD6D0;}
+      /* Padding and margins */
+          td.pd-0, tr.pd-0{padding:0pxImportant;}
+          td.pdtb-10{padding:10px 0px;}
+          td.pdb-10{padding-bottom:10px;}
+          td.pdr-2{padding-right:2px}
+          .ma-t-10{margin-top:10px;}
+          tr.pd-2{padding:2px}
+</style>
+</head>
+<body header="nlheader" header-height="125" footer="nlfooter" footer-height="20" padding="0mm 0mm 0mm 0mm" size="A4">
+    <!-- **************************************  DOCUMENT TITLE AND NUMBER **************************************  -->
+<table cellpadding="0"><tr>
+	<td align="center" colspan="1">&nbsp;</td>
+	<td align="left" class="fs32 c-dark" colspan="5">${record@title}</td>
+	<td align="right" class="fs16 c-dark ar " colspan="5" valign="middle">
+	<p align="right"><!-- statement date from statment generation -->${record.trandate}</p>
+	</td>
+	<td align="center" colspan="1">&nbsp;</td>
+	</tr></table>
+<!-- **************************************  DOC ADRESSES DATE AND AMOUNTS **************************************  -->
+
+<table cellpadding="0" style="width: 100%; margin:10px 0px;"><!-- Titles --><tr style="padding:5px">
+	<td align="center" colspan="1">&nbsp;</td>
+	<td align="left" class="fs10 c-grey tt-sc" colspan="5">${record.billaddress@label}</td>
+	<td align="right" class="fs10 c-dark ar" colspan="5" style="padding-right:2px;">&nbsp;</td>
+	<td align="center" colspan="1">&nbsp;</td>
+	</tr>
+	<!-- Details -->
+	<tr>
+	<td align="center" colspan="1">&nbsp;</td>
+	<td align="left" colspan="5" style="">${record.billaddress}</td>
+	<td align="right" colspan="5">
+	<table cellpadding="0"><tr>
+		<td align="right" class="fs10 c-dark bold ar">Account Balance <!-- ${record.balance@label}--></td>
+		</tr>
+		<tr>
+		<td align="right" class="fs26 c-dark bold ar">${record.amountDue}<!-- ${record.balance}--></td>
+		</tr></table>
+	</td>
+	<td align="center" colspan="1">&nbsp;</td>
+	</tr></table>
+<!-- ************************************** ACCOUNT DETAILS ************************************** -->
+
+<table border="0" style="width: 100%;">
+<thead>
+	<tr>
+	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
+	<#if customer.parent?has_content><!--Child-->
+	<!-- account details -->
+	<th align="left" class="pb-0" colspan="3">
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${record.accountnumber}</span><br />Acc Manager: &nbsp;<span class="normal">${record.salesrep}</span><!-- if no data pulled through add ${record.entity.salesrep} --></p>
+	</th>
+	
+	<!-- Credit Limit -->
+	<th align="center" class="pb-0 fs10" colspan="4" valign="middle">${record.creditlimit@label}:&nbsp;<span class="normal">${record.creditlimit}</span></th>
+	<!-- TERMS -->
+	<th align="right" class="pb-0 fs10" colspan="3" valign="middle">
+	<p align="right">Payment ${record.terms@label}:&nbsp;<span class="normal">${record.terms}</span></p>
+	</th>
+	<#else><!-- Parent--> 
+	<!-- account details -->
+	<th align="left" class="pb-0 fs10" colspan="3">
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${record.accountnumber}</span></p>
+	</th>
+	
+	<!-- Credit Limit -->
+	<th align="center" class="pb-0 fs10" colspan="4" valign="middle">Acc Manager: &nbsp;<span class="normal">${record.salesrep}</span></th>
+	<!-- TERMS -->
+	<th align="right" class="pb-0 fs10" colspan="3" valign="middle">
+	<p align="right">Payment ${record.terms@label}:&nbsp;<span class="normal">${record.terms}</span></p>
+	</th>
+	</#if>
+	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
+	</tr>
+</thead>
+</table>
+<!-- **************************************  TABLE STARTS HERE **************************************   -->
+
+<table class="itemtable" style="width: 100%; margin-top: 0px;"><!-- Start Items --><!-- ******************************* TABLE HEADINGS ********************************   -->
+<thead style="margin-bottom:2px;">
+	<tr><!-- spacer -->
+	<th align="center" colspan="1">&nbsp;</th>
+	<!-- Issued Date -->
+	<th align="left" class="underline" colspan="1">
+	<p align="left">${record.lines.datecol@label}</p>
+	</th>
+	<!-- Item Description -->
+	<th align="left" class="underline" colspan="3">${record.lines.description@label}</th>
+	<!-- Due Date -->
+	<th align="left" class="underline" colspan="1">${record.lines.duedate@label}</th>
+	<!-- Pricing -->
+	<th align="center" class="underline" colspan="5" style="background-color:#ebebeb;">
+	<table border="0" cellpadding="0" style="width: 100%; padding-right:1px;"><tr>
+		<th align="center" class="med fs10 italic c-dark normal">${record.lines.charge@label}</th>
+		<th align="right" class="med fs10 italic c-dark normal" style="padding:0px 3px;">${record.lines.payment@label}</th>
+		<th align="right" class="med fs10 italic c-dark normal">${record.lines.balance@label}</th>
+		</tr></table>
+	</th>
+	<!-- spacer -->
+	<th align="center" colspan="1">&nbsp;</th>
+	</tr>
+</thead>
+<!-- ******************************* TABLE COLUMNS ********************************   -->
+<#list record.lines as line><#if line.description?contains("#INV")><#if line.duedate?length!=0><#if line.duedate lt record.trandate><tr style="background-color:#ffd6d0; color:#cf0a2c; font-weight: bold; border-bottom: 2px solid #ffffff;"><#else><tr style="background-color: ${((line_index % 2)==0)?string('#f6f6f6', '#ffffff')};  border-bottom: 2px solid #ffffff; padding:0px;"></#if><#else><tr style="background-color:#ffd6d0; color:#cf0a2c; font-weight: bold; border-bottom: 2px solid #ffffff;"></#if><#else><tr style="background-color: ${((line_index % 2)==0)?string('#f6f6f6', '#ffffff')};  border-bottom: 2px solid #ffffff; padding:0px;"></#if>
+<!-- spacer -->
+	<td align="center" colspan="1">&nbsp;</td>
+	<!-- Issue Date -->
+	<td align="left" class="fs7 c-dark" colspan="1">${line.datecol}</td>
+	<!-- Item Description -->
+	<td align="left" class="fs7 c-dark" colspan="3">${line.description}</td>
+	<td align="left" class="fs7 bold c-dark" colspan="1">${line.duedate}</td>
+	<!-- Pricing -->
+ <#if line.description?contains("#INV")><#if line.duedate?length!=0><#if line.duedate lt record.trandate><td align="center" colspan="5" style="background-color:#ffd6d0; color:#cf0a2c; font-weight: bold;"><#else><td align="center" colspan="5" style="background-color: ${((line_index % 2)==0)?string('#f6f6f6', '#ffffff')};"></#if><#else><td align="center" colspan="5" style="background-color:#ffd6d0; color:#cf0a2c; font-weight: bold;"></#if><#else><td align="center" colspan="5" style="background-color: ${((line_index % 2)==0)?string('#f6f6f6', '#ffffff')};"></#if>
+	<table border="0" cellpadding="0" class="inner fs-9 c-dark" style="width: 100%; border-collapse:collapse; padding:0px;"><tr>
+		<td align="center" class="fs-9 c-dark">${line.charge}</td>
+		<td align="right" class="fs-9 c-dark">${line.payment}</td>
+		<td align="right" class="fs-9 c-dark">${line.balance}</td>
+		</tr></table>
+	</td>
+	<!-- spacer -->
+	<td align="center" colspan="1">&nbsp;</td>
+	</tr>
+	</#list></table>
+<!-- end items -->
+  <!--  **************************************  TABLE TOTALS COLUMN STARTS HERE **************************************  -->
+
+<table class="totals" style="page-break-inside: avoid; width: 100%; margin-top:0px;"><#if customer.consoloverduebalance?has_content><!-- ************ Sub totals************  --><tr class="med normal fs10 c-dark;">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td align="center" class="white" colspan="5" rowspan="4" valign="middle">
+		<!--  **************************************  Payment Information **************************************  -->
+		<table style="page-break-inside: avoid; width: 100%; margin-top:20px; "><tr>
+			<td align="left" class="fs10 c-dark" colspan="11" style="padding-top:6px;">Payment details</td>
+			<td align="center" class="white" colspan="1">&nbsp;</td>
+			</tr>
+			<tr>
+			<td align="left" class="c-dark" colspan="11" valign="top">HSBC | 18 London Street, Norwich, NR2 1LG<br /><#if record.currencysymbol?contains("GBP")>Sort Code: 40 35 06 | <#else></#if> Acc no. <#if record.currencysymbol?contains("GBP")>91527320</#if><#if record.currencysymbol?contains("EUR")>73270495</#if><#if record.currencysymbol?contains("USD")>73270487</#if><br />Iban: <#if record.currencysymbol?contains("GBP")>GB03 MIDL 4035 0691 5273 20</#if><#if record.currencysymbol?contains("EUR")>GB91 MIDL 4005 1573 2704 95</#if><#if record.currencysymbol?contains("USD")>GB16 MIDL 4005 1573 2704 87</#if><br />Bic: <#if record.currencysymbol?contains("GBP")>MIDLGB2147D</#if><#if record.currencysymbol?contains("EUR")>MIDLGB22</#if><#if record.currencysymbol?contains("USD")>MIDLGB22</#if></td>
+			<td align="center" class="white" colspan="1">&nbsp;</td>
+			</tr>
+			<tr>
+			<td align="left" colspan="11">
+			<p align="left"><span style="color:#cf0a2c; font-weight:bold; padding-top:10px;">IMPORTANT!:</span><br />Please supply a BACS remittance with all payments. Please email all bank remittance to: <span class="c-dark bold">accounts@flexitog.com</span> Please ensure you quote your account number <span class="c-dark bold">${record.accountnumber}</span> with all payments</p>
+			</td>
+			<td align="center" class="white" colspan="1">&nbsp;</td>
+			</tr>
+			<tr class="pd-0" style="margin:0px; padding:0px">
+			<td class="pd-0 fs4" colspan="11" >&nbsp;</td>
+			<td align="center" class="white pd-0 fs4" colspan="1">&nbsp;</td>
+			</tr>
+		</table>
+	</td>
+	<td align="left" class="med c-dark bold fs12" style="border-bottom: 1px solid #333333;" colspan="5">
+	<p align="left">Sub Totals</p>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	<!-- ************ Invoice within terms ************  -->
+	<tr class="med normal fs10 c-white;">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td colspan="5"><!--  ************************************** Totals **************************************  -->
+	<table cellpadding="0" style="padding: 4px 0px;"><tr><#assign inv_interms = customer.balance - customer.overduebalance>
+		<td align="left" class="c-dark fs12" valign="middle">Current <span style="font-size: 7pt;">(Within payment terms)</span></td>
+		<td align="right" class="c-dark fs12" valign="middle"><#if record.currencysymbol?contains("GBP")>&pound;</#if><#if record.currencysymbol?contains("EUR")>&euro;</#if><#if record.currencysymbol?contains("USD")>$</#if><#if record.currencysymbol?contains("CAD")><span style="display:none;">${record.currencysymbol}</span>$</#if>${inv_interms}</td>
+		</tr></table>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	<!-- ************ Overdue Invoices ************  -->
+	<tr class="lightred bold fs10 c-red;">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td colspan="5"><!--  ************************************** Totals and terms **************************************  -->
+	<table cellpadding="0" style="padding: 4px 0px;"><tr>
+		<td align="left" class="bold c-red fs12" valign="middle">OVERDUE</td>
+		<td align="right" class="c-red bold fs12" valign="middle"><!--<#if record.currencysymbol?contains("GBP")>&pound;</#if><#if record.currencysymbol?contains("EUR")>&euro;</#if><#if record.currencysymbol?contains("USD")>$</#if><#if record.currencysymbol?contains("CAD")><span style="display:none;">${record.currencysymbol}</span>$</#if>-->${customer.overduebalance}</td>
+		</tr></table>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	<!-- ************ Balance Totals ************  -->
+	<tr class="dark bold fs10 c-white;">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td colspan="5"><!--  ************************************** Totals and terms **************************************  -->
+	<table cellpadding="0" style="padding: 4px 0px;"><tr>
+		<td align="left" class="c-white fs16" valign="middle">Total</td>
+		<td align="right" class="c-white fs16" valign="middle">${record.amountDue}</td>
+		</tr></table>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	</table>
+	<table style="margin-top:20px;">
+	<tr class=" bold fs10 c-red">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td align="center" class="c-red" colspan="10" style="padding-top:8px; padding-bottom:8px; border: 2px solid #cf0a2c;">
+	<#if customer.parent?has_content><!--Child-->
+	<!--  ************************************** Hold Notice **************************************  -->
+		<p align="center"><b style="font-size: 12pt;"><span style="text-decoration:underline;">IMPORTANT NOTICE!</span> IF YOUR ACCOUNT HAS OVERDUE INVOICE <span style="text-decoration:underline;"></span></b><br /><span style="color:#1a1a1a;">your account will be placed on hold and Goods will only be dispatched on new orders once all overdue invoices are paid</span></p>
+	<#else> <!--Parent-->
+	<p align="center"><b style="font-size: 12pt;"><span style="text-decoration:underline;">IMPORTANT NOTICE!</span> IF YOUR ACCOUNT HAS OVERDUE INVOICE <span style="text-decoration:underline;"></span></b><br /><span style="color:#1a1a1a;">your account will be placed on hold and Goods will only be dispatched on new orders once all overdue invoices are paid</span></p>
+	</#if>	
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	</table>
+	
+	<#else><!-- ************ Balance Totals ************  -->
+	<tr class="dark bold fs10 c-white;">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<!--  ************************************** Points message **************************************  -->
+	<td align="center" class="c-dark fs9 white" colspan="5" style="" valign="middle">&nbsp;</td>
+	<td colspan="5"><!--  ************************************** Totals and terms **************************************  -->
+	<table cellpadding="0" style="padding: 4px 0px;"><tr>
+		<td align="left" class="c-white fs16" valign="middle">Total due</td>
+		<td align="right" class="c-white fs16" valign="middle">${record.amountDue}</td>
+		</tr></table>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	<tr>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td colspan="10">
+      <!--  **************************************  Payment Information **************************************  -->
+        <table style="page-break-inside: avoid; width:100%; margin-top:20px; ">
+          <tr >
+            <td  colspan="10" align="left" class="fs10 c-dark" style="border-top:1px dotted #333333; padding-top:6px;">Payment details</td>
+          </tr>
+            <tr>
+            <td align="left" class="c-dark" colspan="10">HSBC | 18 London Street, Norwich, NR2 1LG<br /><#if record.currencysymbol?contains("GBP")>Sort Code: | <#else></#if>Acc no. <#if record.currencysymbol?contains("GBP")>91527320</#if><#if record.currencysymbol?contains("EUR")>73270495</#if><#if record.currencysymbol?contains("USD")>73270487</#if> | Iban: <#if record.currencysymbol?contains("GBP")>GB03 MIDL 4035 0691 5273 20</#if><#if record.currencysymbol?contains("EUR")>GB91 MIDL 4005 1573 2704 95</#if><#if record.currencysymbol?contains("USD")>GB16 MIDL 4005 1573 2704 87</#if> | Bic: <#if record.currencysymbol?contains("GBP")>MIDLGB2147D</#if><#if record.currencysymbol?contains("EUR")>MIDLGB22</#if><#if record.currencysymbol?contains("USD")>MIDLGB22</#if> | SWIFT:HBUKGB4B</td>
+            </tr>
+            <tr>
+            <td colspan="10" align="left"><span style="color:#cf0a2c; font-weight:bold;">IMPORTANT!</span>&nbsp; Please supply a BACS remittance with all payments. Please email all bank remittance to: <span class="c-dark bold fs10">accounts@flexitog.com</span> Please ensure you quote your account number <span class="c-dark bold fs10">${record.accountnumber}</span> with all payments</td>
+            </tr>
+            <tr class="pd-0" style="margin:0px; padding:0px">
+            <td colspan="10" class="pd-0 fs4" style="border-bottom:1px dotted #333333;">&nbsp;</td>
+            </tr>
+          </table>
+	</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	</table></#if>
+	
+</body>
+</pdf>
