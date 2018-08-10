@@ -420,8 +420,8 @@ function productionBatchSuitelet(request, response)
 							}
 					}
 				
-				var startDateField = form.addField('custpage_start_date', 'date', 'WO Date Range From', null,'custpage_grp2');
-				var endDateField = form.addField('custpage_end_date', 'date', 'WO Date Range To', null,'custpage_grp2');
+				var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
+				var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
 				
 				var today = new Date();
 				var todayString = nlapiDateToString(today);
@@ -605,7 +605,7 @@ function productionBatchSuitelet(request, response)
 						logoField.setDefaultValue(logoText);
 					}
 				
-				var startDateField = form.addField('custpage_start_date', 'date', 'Date Range From', null,'custpage_grp2');
+				var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
 				startDateField.setDisplayType('disabled');
 				startDateField.setLayoutType('normal', 'startcol');
 				
@@ -614,7 +614,7 @@ function productionBatchSuitelet(request, response)
 						startDateField.setDefaultValue(startDate);
 					}
 				
-				var endDateField = form.addField('custpage_end_date', 'date', 'Date Range To', null,'custpage_grp2');
+				var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
 				endDateField.setDisplayType('disabled');
 				
 				if(endDate != '')
@@ -762,12 +762,12 @@ function productionBatchSuitelet(request, response)
 				
 				if(startDate != '')
 					{
-						filterArray.push("AND",["trandate","onorafter",startDate]);
+						filterArray.push("AND",["createdfrom.shipdate","onorafter",startDate]);
 					}
 				
 				if(endDate != '')
 					{
-						filterArray.push("AND",["trandate","onorbefore",endDate]);
+						filterArray.push("AND",["createdfrom.shipdate","onorbefore",endDate]);
 					}
 				
 				if(otherrefnumText != '')

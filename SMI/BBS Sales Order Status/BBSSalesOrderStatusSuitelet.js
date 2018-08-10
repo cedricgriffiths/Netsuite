@@ -305,7 +305,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	var filters = [
 				   ["type","anyof","SalesOrd"], 
 				   "AND", 
-				   ["mainline","is","T"]
+				   ["mainline","is","T"], 
+				   "AND", 
+				   ["status","anyof","SalesOrd:D","SalesOrd:B","SalesOrd:E"] //Partially Fulilled, Pending Fulfillment, Pending Billing/Partially Fulfilled
 				];
 	
 	if(_soStartDate != '')
@@ -481,6 +483,39 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	
 	//We need to find any PO's for the items that are on the sales orders
 	//
+	var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+			[
+			   ["type","anyof","PurchOrd"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["status","anyof","PurchOrd:D","PurchOrd:E","PurchOrd:B"], //Partially Received, Pending Billing/Partially Received, Pending Receipt
+			   "AND", 
+			   ["quantityshiprecv","equalto","0"], 
+			   "AND", 
+			   ["item","anyof",itemsList], 
+			   "AND", 
+			   ["duedate","isnotempty",""]
+			], 
+			[
+			   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
+			   new nlobjSearchColumn("duedate",null,"MIN")
+			]
+			);
+	
+	if(purchaseorderSearch)
+		{
+			for (var int = 0; int < purchaseorderSearch.length; int++) 
+				{
+					
+				}
+		}
+	
+	
 	
 	
 	
