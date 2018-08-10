@@ -1,0 +1,91 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       09 Aug 2018     cedricgriffiths
+ *
+ */
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @param {String} type Sublist internal id
+ * @param {String} name Field internal id
+ * @param {Number} linenum Optional line item number, starts from 1
+ * @returns {Boolean} True to continue changing field value, false to abort value change
+ */
+function itemRateValidateField(type, name, linenum)
+{
+	if(type == 'item' && name == 'rate')
+		{
+			var context = nlapiGetContext();
+			var usersRole = Number(context.getRole());
+
+			if(usersRole == 3)
+				{
+					return true;
+				}
+			else
+				{
+					var currentPriceLevel = Number(nlapiGetCurrentLineItemValue('item', 'price'));
+					
+			   		if(currentPriceLevel == -1) //Custom Price
+			   			{
+			   				return true;
+			   			}
+			   		else
+			   			{
+			   				var currentRate = nlapiGetCurrentLineItemValue('item', 'rate');
+			   				var oldRate = nlapiGetLineItemValue('item', 'rate', linenum);
+			   				
+			   				if(currentRate != oldRate && oldRate != null)
+			   					{
+			   						alert('You cannot change the item rate');
+			   						
+			   						nlapiSetCurrentLineItemValue('item', 'rate', oldRate, false, true);
+			   						
+			   						return false;
+			   					}
+			   			}
+				}
+		}
+
+	if(type == 'item' && name == 'amount')
+	{
+		var context = nlapiGetContext();
+		var usersRole = Number(context.getRole());
+
+		if(usersRole == 3)
+			{
+				return true;
+			}
+		else
+			{
+				var currentPriceLevel = Number(nlapiGetCurrentLineItemValue('item', 'price'));
+				
+				if(currentPriceLevel == -1) //Custom Price
+		   			{
+		   				return true;
+		   			}
+				else
+		   			{
+				   		var currentAmount = nlapiGetCurrentLineItemValue('item', 'amount');
+				   		var oldAmount = nlapiGetLineItemValue('item', 'amount', linenum);
+				   				
+				   		if(currentAmount != oldAmount && oldAmount != null)
+				   			{
+				   				alert('You cannot change the item amount');
+				   						
+				   				nlapiSetCurrentLineItemValue('item', 'amount', oldAmount, false, true);
+				   						
+				   				return false;
+				   			}
+		   			}
+			}
+	}
+
+    return true;
+}
+
+
