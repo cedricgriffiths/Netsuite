@@ -69,7 +69,7 @@ function buildOutput(fulfillmentId)
 			xml += "		font-family: NotoSans, sans-serif;";
 			xml += "		}";
 			xml += "		table {";
-			xml += "            font-size: 9pt;";
+			xml += "            font-size: 7pt;";
 			xml += "            table-layout: fixed;";
 			xml += "            page-break-inside: avoid;";
 			xml += "            display: inline;";
@@ -86,6 +86,8 @@ function buildOutput(fulfillmentId)
 			var salesOrderId = fulfillmentRecord.getFieldValue('createdfrom');
 			var salesOrderNo = nlapiLookupField('salesorder', salesOrderId, 'tranid', false);
 			var customer = nlapiEscapeXML(fulfillmentRecord.getFieldText('entity'));
+			var subsidiaryId = fulfillmentRecord.getFieldValue('subsidiary');
+			
 			var firstTime = true;
 			
 			for (var int = 1; int <= lines; int++) 
@@ -112,35 +114,57 @@ function buildOutput(fulfillmentId)
 							
 									xml += "<table>";
 								
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td colspan=\"2\"><b>" + itemName + "</b></td>";
+									xml += "<td rowspan=\"4\" align=\"right\">";
+									xml += "<img src=\"https://system.na2.netsuite.com/core/media/media.nl?id=245030&amp;c=4810497&amp;h=335bbabdec6b6ef31eb4\" style=\"width:20px; height:20px;\"/>";
+									xml += "</td>";
 									xml += "</tr>";
 									
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td>Part No:</td>";
 									xml += "<td>" + item + "</td>";
 									xml += "</tr>";
 									
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td><b>Serial No:</b></td>";
 									xml += "<td><b>" + serialNumber + "</b></td>";
 									xml += "</tr>";
 									
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td>Order No:</td>";
 									xml += "<td>" + salesOrderNo + "</td>";
 									xml += "</tr>";
 									
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td>Customer:</td>";
-									xml += "<td>" + customer + "</td>";
+									xml += "<td colspan=\"2\">" + customer + "</td>";
+									//xml += "<td>&nbsp;</td>";
 									xml += "</tr>";
 									
-									xml += "<tr style=\"height: 10pt\">";
+									xml += "<tr >";
 									xml += "<td>Date:</td>";
-									xml += "<td>" + todayString + "</td>";
+									xml += "<td colspan=\"2\">" + todayString + "</td>";
+									//xml += "<td>&nbsp;</td>";
 									xml += "</tr>";
 									
+									xml += "<tr >";
+									
+									switch(subsidiaryId)
+										{
+											case '1':
+												xml += "<td colspan=\"3\">Accora Inc, 6720B Rockledge Drive, Suite 750<br/>Bethesda MD 20817  +44 (0)1223 206100</td>";
+												
+												break;
+										
+											case '5':
+												xml += "<td colspan=\"3\">Accora Ltd. Barrington Road, Orwell<br/>Cambridge, SG8 5QP  01223 206100</td>";
+												
+												break;
+										}
+									
+									xml += "</tr>";
+
 									xml += "</table>";
 								}
 						}
