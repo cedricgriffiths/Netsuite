@@ -56,9 +56,17 @@ function itemFulfilmentAfterSubmit(type)
 								{
 									var item = record.getLineItemValue('item', 'item', int);
 									var itemType = record.getLineItemValue('item', 'itemtype', int);
+									var isSerialItem = '';
 									
-									var isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
-								
+									try
+										{
+											isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
+										}
+									catch(err)
+										{
+											isSerialItem = 'F';
+										}
+									
 									if(isSerialItem == 'T')
 										{
 											var serialNumber = salesOrderNo + padding_left(int.toString(), '0', 3);
