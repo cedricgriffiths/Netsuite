@@ -701,8 +701,7 @@ function productionBatchSuitelet(request, response)
 				listCustEntityId.setDisplayType('hidden');
 				var listLogoType = subList.addField('custpage_sublist_logo_type', 'text', 'Logo Type', null);
 				var listLogo = subList.addField('custpage_sublist_logo', 'text', 'Logo', null);
-				//var listSoRef = subList.addField('custpage_sublist_so_ref', 'text', 'SO Reference', null);
-				var listCSE = subList.addField('custpage_sublist_cse', 'text', 'CSE', null);
+				var listSoRef = subList.addField('custpage_sublist_so_ref', 'text', 'SO Reference', null);
 				
 				
 				var filterArray = [
@@ -806,8 +805,7 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
 						   new nlobjSearchColumn("otherrefnum","createdFrom",null),
 						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null),
-						   new nlobjSearchColumn("shipdate","createdFrom",null),
-						   new nlobjSearchColumn("custbody_bbs_cse_sales_transactions","createdFrom",null)
+						   new nlobjSearchColumn("shipdate","createdFrom",null)
 						]
 						);
 						
@@ -859,10 +857,9 @@ function productionBatchSuitelet(request, response)
 					subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
 					subList.setLineItemValue('custpage_sublist_logo_type', line, searchResultSet[int].getText('custbody_bbs_wo_logo_type'));
 					subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
-					//subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
+					subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
 					subList.setLineItemValue('custpage_sublist_wo_percent_build', line, searchResultSet[int].getText('custbody_bbs_wo_percent_can_build'));
 					subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
-					subList.setLineItemValue('custpage_sublist_cse', line, searchResultSet[int].getText("custbody_bbs_cse_sales_transactions","createdFrom"));
 					
 				}
 		
