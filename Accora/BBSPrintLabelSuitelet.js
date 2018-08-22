@@ -116,14 +116,15 @@ function buildOutput(fulfillmentId)
 								
 									xml += "<tr >";
 									xml += "<td colspan=\"2\"><b>" + itemName + "</b></td>";
-									xml += "<td rowspan=\"4\" align=\"right\">";
-									xml += "<img src=\"https://system.na2.netsuite.com/core/media/media.nl?id=245030&amp;c=4810497&amp;h=335bbabdec6b6ef31eb4\" style=\"width:20px; height:20px;\"/>";
-									xml += "</td>";
+									xml += "<td>&nbsp;</td>";
 									xml += "</tr>";
 									
 									xml += "<tr >";
 									xml += "<td>Part No:</td>";
 									xml += "<td>" + item + "</td>";
+									xml += "<td rowspan=\"3\" align=\"right\">";
+									xml += "<img src=\"https://system.na2.netsuite.com/core/media/media.nl?id=245030&amp;c=4810497&amp;h=335bbabdec6b6ef31eb4\" style=\"width:40px; height:20px;\"/>";
+									xml += "</td>";
 									xml += "</tr>";
 									
 									xml += "<tr >";
