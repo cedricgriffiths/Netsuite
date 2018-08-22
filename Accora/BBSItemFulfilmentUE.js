@@ -51,35 +51,39 @@ function itemFulfilmentAfterSubmit(type)
 					if(salesOrderId != null && salesOrderId != '')
 						{
 							var salesOrderNo = nlapiLookupField('salesorder', salesOrderId, 'tranid', false);
-							
-							for (var int = 1; int <= lines; int++) 
+							var salesOrderLocation = nlapiLookupField('salesorder', salesOrderId, 'location', false);
+						
+							if(salesOrderLocation == '7') //Only Orwell is required
 								{
-									var item = record.getLineItemValue('item', 'item', int);
-									var itemType = record.getLineItemValue('item', 'itemtype', int);
-									var isSerialItem = '';
-									
-									try
+									for (var int = 1; int <= lines; int++) 
 										{
-											isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
-										}
-									catch(err)
-										{
-											isSerialItem = 'F';
-										}
-									
-									if(isSerialItem == 'T')
-										{
-											var serialNumber = salesOrderNo + padding_left(int.toString(), '0', 3);
+											var item = record.getLineItemValue('item', 'item', int);
+											var itemType = record.getLineItemValue('item', 'itemtype', int);
+											var isSerialItem = '';
 											
-											record.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serialNumber);
-										
-											updated = true;
+											try
+												{
+													isSerialItem = nlapiLookupField(getItemRecordType(itemType), item, 'custitem_serial_numbered', false);
+												}
+											catch(err)
+												{
+													isSerialItem = 'F';
+												}
+											
+											if(isSerialItem == 'T')
+												{
+													var serialNumber = salesOrderNo + padding_left(int.toString(), '0', 3);
+													
+													record.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serialNumber);
+												
+													updated = true;
+												}
 										}
-								}
-							
-							if(updated)
-								{
-									nlapiSubmitRecord(record, false, true);
+									
+									if(updated)
+										{
+											nlapiSubmitRecord(record, false, true);
+										}
 								}
 						}
 				}

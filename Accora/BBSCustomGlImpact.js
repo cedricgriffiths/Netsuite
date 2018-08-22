@@ -91,8 +91,33 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 														}
 												}
 											
+											//See if shipping cost is actually on the fulfilment record
+											//
+											var fulfilmentLines = transactionRecord.getLineItemCount('item');
+											var fulfilmentHasShipping = false;
+											
+											for (var fulfilmentLine = 1; fulfilmentLine <= fulfilmentLines; fulfilmentLine++) 
+												{
+													var fulfilmentItemType = transactionRecord.getLineItemValue('item', 'itemtype', fulfilmentLine);
+													var fulfilmentItemId = transactionRecord.getLineItemValue('item', 'item', fulfilmentLine);
+												
+													if(fulfilmentItemType == 'OthCharge' && fulfilmentItemId == configShippingId)
+														{
+															fulfilmentHasShipping = true;
+														}
+												}
+											
+											//If the fulfillment does not have a shipping charge on it, then we zero the value
+											//
+											if(!fulfilmentHasShipping)
+												{
+													shippingCost = Number(0);
+												}
+											
 											//Loop through the standard GL lines
 											//
+											var shippingDone = false;
+											
 											for (var i=0; i<linecount; i++) 
 												{
 													//Get the line object
@@ -115,16 +140,34 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	//
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(configFromAccId));
-																	newLine.setCreditAmount(debit + shippingCost);
+																	newLine.setCreditAmount(debit);
 																	newLine.setLocationId(location);
 																	newLine.setMemo('Cost Of Warranty');
 																	
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(configToAccId));
-																	newLine.setDebitAmount(debit + shippingCost);
+																	newLine.setDebitAmount(debit);
 																	newLine.setLocationId(location);
 																	newLine.setMemo('Cost Of Warranty');
 																	
+																	//Add shipping posting lines here
+																	//
+																	if(!shippingDone && shippingCost != 0)
+																		{
+																			shippingDone = true;
+																		
+																			var newLine = customLines.addNewLine();
+																			newLine.setAccountId(parseInt(configFromAccId));
+																			newLine.setCreditAmount(shippingCost);
+																			newLine.setLocationId(location);
+																			newLine.setMemo('Warranty Shipping');
+																			
+																			var newLine = customLines.addNewLine();
+																			newLine.setAccountId(parseInt(configToAccId));
+																			newLine.setDebitAmount(shippingCost);
+																			newLine.setLocationId(location);
+																			newLine.setMemo('Warranty Shipping');
+																		}
 																}
 														}
 												}

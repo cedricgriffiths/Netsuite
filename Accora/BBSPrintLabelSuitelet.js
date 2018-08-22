@@ -123,7 +123,7 @@ function buildOutput(fulfillmentId)
 									xml += "<td>Part No:</td>";
 									xml += "<td>" + item + "</td>";
 									xml += "<td rowspan=\"3\" align=\"right\">";
-									xml += "<img src=\"https://system.na2.netsuite.com/core/media/media.nl?id=245030&amp;c=4810497&amp;h=335bbabdec6b6ef31eb4\" style=\"width:40px; height:20px;\"/>";
+									xml += "<img src=\"https://system.na2.netsuite.com/core/media/media.nl?id=245030&amp;c=4810497&amp;h=335bbabdec6b6ef31eb4\" style=\"width:40px; height:30px;\"/>";
 									xml += "</td>";
 									xml += "</tr>";
 									
@@ -151,18 +151,7 @@ function buildOutput(fulfillmentId)
 									
 									xml += "<tr >";
 									
-									switch(subsidiaryId)
-										{
-											case '1':
-												xml += "<td colspan=\"3\">Accora Inc, 6720B Rockledge Drive, Suite 750<br/>Bethesda MD 20817  +44 (0)1223 206100</td>";
-												
-												break;
-										
-											case '5':
-												xml += "<td colspan=\"3\">Accora Ltd. Barrington Road, Orwell<br/>Cambridge, SG8 5QP  01223 206100</td>";
-												
-												break;
-										}
+									xml += "<td style=\"font-size: 8px;\" colspan=\"3\">Accora Ltd. Barrington Road, Orwell, Cambridge, SG8 5QP  01223 206100</td>";
 									
 									xml += "</tr>";
 
