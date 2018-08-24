@@ -55,7 +55,39 @@ function scheduled(type)
 				workorderSearch = workorderSearch.concat(moreSearchResultSet);
 		}
 	
+	//Search for works orders that are in process, planned or released & the commitment status is fully committed & there are items on back order
+	//
+	var workorderSearch2 = nlapiSearchRecord("workorder",null,
+			[
+			   ["type","anyof","WorkOrd"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
+			   "AND", 
+			   ["formulanumeric: {quantity}-{quantitycommitted}-{quantityshiprecv}","greaterthan","0"], 
+			   "AND", 
+			   ["custbody_bbs_commitment_status","anyof","2"]
+			], 
+			[
+			   new nlobjSearchColumn("trandate").setSort(false), 
+			   new nlobjSearchColumn("tranid"), 
+			   new nlobjSearchColumn("entity"), 
+			   new nlobjSearchColumn("custbody_bbs_commitment_status")
+			]
+			);
 	
+	if(workorderSearch2 != null && workorderSearch2.length > 0)
+		{
+			if(workorderSearch)
+				{
+					workorderSearch = workorderSearch.concat(workorderSearch2);
+				}
+			else
+				{
+					workorderSearch = workorderSearch2;
+				}
+		}
 	
 	if(workorderSearch)
 		{
