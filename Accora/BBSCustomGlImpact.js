@@ -39,10 +39,10 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 						{
 							//Get the config values
 							//
-							var configShippingId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_ship_charge');
-							var configDiscountId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_disc_item');
-							var configFromAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_from_acc');
-							var configToAccId = customrecord_bbs_custom_gl_configSearch[0].getValue('custrecord_bbs_custom_gl_to_acc');
+							var configShippingId = customrecord_bbs_custom_gl_configSearch[int].getValue('custrecord_bbs_custom_gl_ship_charge');
+							var configDiscountId = customrecord_bbs_custom_gl_configSearch[int].getValue('custrecord_bbs_custom_gl_disc_item');
+							var configFromAccId = customrecord_bbs_custom_gl_configSearch[int].getValue('custrecord_bbs_custom_gl_from_acc');
+							var configToAccId = customrecord_bbs_custom_gl_configSearch[int].getValue('custrecord_bbs_custom_gl_to_acc');
 							
 							configs[configDiscountId] = [configShippingId,configFromAccId,configToAccId];
 						}
@@ -131,6 +131,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 															var account = line.getAccountId();
 															var debit = Number(line.getDebitAmount());
 															var location = line.getLocationId();
+															var classId = line.getClassId();
 															
 															//Find the relevant posting line by looking at the account id
 															//
@@ -143,12 +144,14 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	newLine.setCreditAmount(debit);
 																	newLine.setLocationId(location);
 																	newLine.setMemo('Cost Of Warranty');
+																	newLine.setClassId(classId);
 																	
 																	var newLine = customLines.addNewLine();
 																	newLine.setAccountId(parseInt(configToAccId));
 																	newLine.setDebitAmount(debit);
 																	newLine.setLocationId(location);
 																	newLine.setMemo('Cost Of Warranty');
+																	newLine.setClassId(classId);
 																	
 																	//Add shipping posting lines here
 																	//
@@ -167,6 +170,7 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																			newLine.setDebitAmount(shippingCost);
 																			newLine.setLocationId(location);
 																			newLine.setMemo('Warranty Shipping');
+																			
 																		}
 																}
 														}
