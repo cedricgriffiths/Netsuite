@@ -712,7 +712,7 @@ function productionBatchSuitelet(request, response)
 				                   "AND", 
 				                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
 				                   "AND", 
-				                   ["status","anyof","WorkOrd:A","WorkOrd:B"]
+				                   ["status","anyof","WorkOrd:A","WorkOrd:B","WorkOrd:D"]
 				                ];
 				
 				if(customerId != '')
