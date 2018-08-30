@@ -28,7 +28,7 @@ function atpDateFieldChanged(type, name, linenum)
 				{
 					var shippingDays = Number(0);
 					
-					if(itemType == 'Assembly' )g
+					if(itemType == 'Assembly' )
 						{
 							shippingDays = Number(nlapiLookupField('assemblyitem', itemId, 'custitem_bbs_shipping_days', false));
 						}
