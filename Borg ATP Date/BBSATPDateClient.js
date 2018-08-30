@@ -24,11 +24,11 @@ function atpDateFieldChanged(type, name, linenum)
 			var itemId = nlapiGetCurrentLineItemValue('item', 'item');
 			var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
 			
-			if(itemType == 'Assembly' || itemType == 'InvtPart')
+			if(itemType == 'Assembly' || itemType == 'InvtPart' && (shipDate != null && shipDate != ''))
 				{
 					var shippingDays = Number(0);
 					
-					if(itemType == 'Assembly' )
+					if(itemType == 'Assembly' )g
 						{
 							shippingDays = Number(nlapiLookupField('assemblyitem', itemId, 'custitem_bbs_shipping_days', false));
 						}
