@@ -45,6 +45,10 @@ function itemStockedAfterSubmit(type)
 						{
 							nlapiSubmitField(itemType, itemId, 'custitem_bbs_item_stocked', 'T', false);
 						}
+					else
+						{
+							nlapiSubmitField(itemType, itemId, 'custitem_bbs_item_stocked', 'F', false);
+						}
 				}
 		}
 }
