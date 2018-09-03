@@ -232,68 +232,70 @@ function suitelet(request, response)
 	//Get request
 	//
 	if (request.getMethod() == 'GET') 
-	{
-		//See if we have any results to process
-		//
-		if(opsSearchResults != null && opsSearchResults.length > 0)
-			{
-				//Loop through the results to see how many distinct aircraft we have
-				//
-				for (var int = 0; int < opsSearchResults.length; int++) 
-					{
-						var aircraftId = opsSearchResults[int].getValue("custrecord_fw_acreg");
-						opsAircraft[aircraftId] = aircraftId;
-					}
-				
-				//Having got a list of all the distinct aircraft, loop through them to build up an empty ops board
-				//
-				for ( var aircraft in opsAircraft) 
-					{
-						var opsBoardKeyEstimated = aircraft + '|' + 'ESTIMATED';
-						var opsBoardKeyActual = aircraft + '|' + 'ACTUAL';
-						
-						opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded);
-						opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded);
-					}
-				
-				//Now we have an empty ops board, we need to start to fill in the data by looping through the results
-				//
-				for (var int = 0; int < opsSearchResults.length; int++) 
-					{
-						//Build the key to reference the estimated line on the ops board
-						//
-						var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ESTIMATED';
-						
-						//Fill in the aircraft details for the left hand column on the board
-						//
-						updateOpsBoardWithAircraft(opsBoard, opsKey, opsSearchResults[int], 'E'); //Ops Board Object, Ops Board Key, Search Results Row, Row type
-						
-						//Fill in the flight details in the ops board
-						//
-						updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'E', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
-						
-						
-						//Build the key to reference the actual line on the ops board
-						//
-						var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ACTUAL';
-						
-						//Fill in the aircraft details for the left hand column on the board
-						//
-						updateOpsBoardWithAircraft(opsBoard, opsKey, opsSearchResults[int], 'A'); //Ops Board Object, Ops Board Key, Search Results Row, Row type
-						
-						//Fill in the flight details in the ops board
-						//
-						updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'A', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
-						
-					}
-				
-				//Convert the data into html
-				//
-				html = convertDataToHtml(opsBoard, now);
-			}
-
-		response.write(html);
-	}
+		{
+			//See if we have any results to process
+			//
+			if(opsSearchResults != null && opsSearchResults.length > 0)
+				{
+					//Loop through the results to see how many distinct aircraft we have
+					//
+					for (var int = 0; int < opsSearchResults.length; int++) 
+						{
+							var aircraftId = opsSearchResults[int].getValue("custrecord_fw_acreg");
+							opsAircraft[aircraftId] = aircraftId;
+						}
+					
+					//Having got a list of all the distinct aircraft, loop through them to build up an empty ops board
+					//
+					for ( var aircraft in opsAircraft) 
+						{
+							var opsBoardKeyEstimated = aircraft + '|' + 'ESTIMATED';
+							var opsBoardKeyActual = aircraft + '|' + 'ACTUAL';
+							
+							opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded);
+							opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded);
+						}
+					
+					//Now we have an empty ops board, we need to start to fill in the data by looping through the results
+					//
+					for (var int = 0; int < opsSearchResults.length; int++) 
+						{
+							//Build the key to reference the estimated line on the ops board
+							//
+							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ESTIMATED';
+							
+							//Fill in the aircraft details for the left hand column on the board
+							//
+							updateOpsBoardWithAircraft(opsBoard, opsKey, opsSearchResults[int], 'E'); //Ops Board Object, Ops Board Key, Search Results Row, Row type
+							
+							//Fill in the flight details in the ops board
+							//
+							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'E', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
+							
+							
+							//Build the key to reference the actual line on the ops board
+							//
+							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ACTUAL';
+							
+							//Fill in the aircraft details for the left hand column on the board
+							//
+							updateOpsBoardWithAircraft(opsBoard, opsKey, opsSearchResults[int], 'A'); //Ops Board Object, Ops Board Key, Search Results Row, Row type
+							
+							//Fill in the flight details in the ops board
+							//
+							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'A', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
+							
+						}
+					
+					//Convert the data into html
+					//
+					html = convertDataToHtml(opsBoard, now);
+				}
+	
+			//Return the html to the client
+			//
+			response.write(html);
+		}
 }
 
 
@@ -323,6 +325,8 @@ function opsCell(_cellDate, _cellIsNow)
 			var text = '';
 			var borders = '';
 			
+			//Special processing if the cell is classed as 'now'
+			//
 			if(this.cellIsNow)
 				{
 					borders = 'border-color: black ' + theColour + ' black ' + HTMLCOLOURYELLOW + '; border-left: 3px solid ' + HTMLCOLOURYELLOW;
@@ -340,31 +344,35 @@ function opsCell(_cellDate, _cellIsNow)
 	//Method to return html for the body cells
 	//
 	this.getBodyHtml = function()
-	{
-		var borders = '';
-		var text = '';
-		
-		if(this.cellIsNow)
-			{
-				borders = 'border-color: black black black yellow; border-left: 3px solid yellow';
-				text = "<td align=\"center\"style=\"font-size: " + this.cellTextSize + "; background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";
-			}
-		else
-			{
-				if(this.cellBackgroundColour != HTMLCOLOURWHITE)
-					{
-						borders = "border-right: 1px solid " + this.cellBackgroundColour + "; border-left: 1px solid " + this.cellBackgroundColour + ";";
-						text = "<td align=\"center\" style=\"font-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";
-					}
-				else
-					{
-						borders = 'border-color: black 1px solid;';
-						text = "<td align=\"center\" style=\"fnt-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";					
-					}
-			}
-		
-		return text;
-	}
+		{
+			var borders = '';
+			var text = '';
+			
+			//Special processing if the cell is classed as 'now'
+			//
+			if(this.cellIsNow)
+				{
+					borders = 'border-color: black black black yellow; border-left: 3px solid yellow';
+					text = "<td align=\"center\"style=\"font-size: " + this.cellTextSize + "; background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";
+				}
+			else
+				{
+					//If the cell has a colour in it, the we need to make the borders the same colour as the background
+					//
+					if(this.cellBackgroundColour != HTMLCOLOURWHITE)
+						{
+							borders = "border-right: 1px solid " + this.cellBackgroundColour + "; border-left: 1px solid " + this.cellBackgroundColour + ";";
+							text = "<td align=\"center\" style=\"font-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";
+						}
+					else
+						{
+							borders = 'border-color: black 1px solid;';
+							text = "<td align=\"center\" style=\"fnt-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";					
+						}
+				}
+			
+			return text;
+		}
 }
 
 // Represents a single ops board aircraft info cell which will be the first cell in the row
@@ -378,21 +386,21 @@ function opsInfoCell()
 	this.rowType = '';
 	
 	this.getInfoHtmlLine = function()
-	{
-		var text = '';
-		
-		if(this.rowType == 'E')
-			{
-				text = "<td width=\"200px\">" + this.aircraftReg + "&nbsp;&nbsp;&nbsp;(" + this.aircraftNo + ")</td>";
-			}
-
-		if(this.rowType == 'A')
-			{
-				text = "<td width=\"200px\">" + this.fixtureRef + "&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
-			}
-
-		return text;
-	}
+		{
+			var text = '';
+			
+			if(this.rowType == 'E')
+				{
+					text = "<td width=\"200px\">" + this.aircraftReg + "&nbsp;&nbsp;&nbsp;(" + this.aircraftNo + ")</td>";
+				}
+	
+			if(this.rowType == 'A')
+				{
+					text = "<td width=\"200px\">" + this.fixtureRef + "&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
+				}
+	
+			return text;
+		}
 }
 
 
@@ -419,6 +427,8 @@ function convertDataToHtml(_opsBoard, _now)
 	var tableDepth = (Number(30) * opsLines) + 10;
 	tableDepth = (tableDepth > 10000 ? 10000 : tableDepth); //set the max table depth to 10,000 pixels 
 	
+	//Start the html
+	//
 	content += "<html>";
 	content += "<head>";
 	
