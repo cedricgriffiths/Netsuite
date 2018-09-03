@@ -251,16 +251,18 @@ function suitelet(request, response)
 						{
 							var opsBoardKeyEstimated = aircraft + '|' + 'ESTIMATED';
 							var opsBoardKeyActual = aircraft + '|' + 'ACTUAL';
+							var opsBoardKeyBlank = aircraft + '|' + 'BLANK';
 							
 							opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded);
 							opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded);
+							opsBoard[opsBoardKeyBlank] = makeCellArray(startDate, endDate, nowRounded);
 						}
 					
 					//Now we have an empty ops board, we need to start to fill in the data by looping through the results
 					//
 					for (var int = 0; int < opsSearchResults.length; int++) 
 						{
-							//Build the key to reference the estimated line on the ops board
+							//Build the key to reference the ESTIMATED line on the ops board
 							//
 							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ESTIMATED';
 							
@@ -273,7 +275,7 @@ function suitelet(request, response)
 							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'E', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
 							
 							
-							//Build the key to reference the actual line on the ops board
+							//Build the key to reference the ACTUAL line on the ops board
 							//
 							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ACTUAL';
 							
@@ -285,6 +287,14 @@ function suitelet(request, response)
 							//
 							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'A', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
 							
+							
+							//Build the key to reference the BLANK line on the ops board
+							//
+							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'BLANK';
+							
+							//Fill in the aircraft details for the left hand column on the board
+							//
+							updateOpsBoardWithAircraft(opsBoard, opsKey, opsSearchResults[int], 'B'); //Ops Board Object, Ops Board Key, Search Results Row, Row type
 						}
 					
 					//Convert the data into html
@@ -399,6 +409,11 @@ function opsInfoCell()
 					text = "<td width=\"200px\">" + this.fixtureRef + "&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
 				}
 	
+			if(this.rowType == 'B')
+				{
+					text = "<td width=\"200px\">&nbsp;</td>";
+				}
+
 			return text;
 		}
 }
@@ -424,7 +439,7 @@ function convertDataToHtml(_opsBoard, _now)
 			opsLines++;
 		}	
 	
-	var tableDepth = (Number(30) * opsLines) + 10;
+	var tableDepth = (Number(33) * opsLines) + 10;
 	tableDepth = (tableDepth > 10000 ? 10000 : tableDepth); //set the max table depth to 10,000 pixels 
 	
 	//Start the html
@@ -508,18 +523,39 @@ function convertDataToHtml(_opsBoard, _now)
 	//Construct the header info which will be the cells and their times 
 	//
 	var firstOpsBoardKey = Object.keys(_opsBoard)[0]; 
-	var yesterdaysDate = new Date(_now);
-	var tomorrowsDate = new Date(_now);
+	var yesterdaysDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
+	var tomorrowsDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
 	yesterdaysDate.setDate(yesterdaysDate.getDate() - 1);
 	tomorrowsDate.setDate(yesterdaysDate.getDate() + 1);
 	
 	
 	content += "<tr>";
 	content += "<th>&nbsp;</th>";
+	
 	//content += "<th align=\"center\" colspan=\"" + MAXOPSBOARDSIZE + "\">" + _now.format('D d F Y') + "</th>";
-	content += "<th align=\"center\" colspan=\"32\">" + yesterdaysDate.format('D d F Y') + "</th>";
+	var yesterdaysCellCount = Number(0);
+	var tomorrowsCellCount = Number(0);
+	
+	for (var headerCell = 1; headerCell < _opsBoard[firstOpsBoardKey].length; headerCell++) 
+	{
+		var cellDateRaw = _opsBoard[firstOpsBoardKey][headerCell].cellDate;
+		var cellDate = new Date(cellDateRaw.getFullYear(), cellDateRaw.getMonth(), cellDateRaw.getDate(), 0, 0, 0, 0);
+	
+		if(cellDate.getTime() == yesterdaysDate.getTime())
+			{
+				yesterdaysCellCount++;
+			}
+		
+		if(cellDate.getTime() == tomorrowsDate.getTime())
+			{
+				tomorrowsCellCount++;
+			}
+	}
+	
+	
+	content += "<th align=\"center\" colspan=\"" + yesterdaysCellCount + "\">" + yesterdaysDate.format('D d F Y') + "</th>";
 	content += "<th align=\"center\" colspan=\"48\">" + _now.format('D d F Y H:i') + " UTC</th>";
-	content += "<th align=\"center\" colspan=\"17\">" + tomorrowsDate.format('D d F Y') + "</th>";
+	content += "<th align=\"center\" colspan=\"" + tomorrowsCellCount + "\">" + tomorrowsDate.format('D d F Y') + "</th>";
 	content += "</tr>";
 	
 	content += "<tr>";
@@ -812,7 +848,7 @@ function getOpsSearchResults(_startDate, _endDate)
 	var customrecord_fs_sectorsSearch = nlapiSearchRecord("customrecord_fs_sectors",null,
 			[
 //TODO Use the start & end date rather than hard code them  ["custrecord_sector_departuredate","within", nlapiDateToString(_startDate), nlapiDateToString(_endDate)], 
-			   ["internalid","anyof",["117736","118041"]],
+			   ["internalid","anyof",["117736","118041","117734"]],
 			   "AND", 
 			   ["custrecord_sector_fixture.mainline","is","T"]
 			], 
