@@ -325,7 +325,7 @@ function opsCell(_cellDate, _cellIsNow)
 			
 			if(this.cellIsNow)
 				{
-					borders = 'border-color: black black black ' + HTMLCOLOURYELLOW + '; border-left: 3px solid ' + HTMLCOLOURYELLOW;
+					borders = 'border-color: black ' + theColour + ' black ' + HTMLCOLOURYELLOW + '; border-left: 3px solid ' + HTMLCOLOURYELLOW;
 					text = "<th style=\"background-color: " + theColour + "; " + borders + "\">" + this.cellDate.format('H') + ':' + this.cellDate.format('i') + "</th>";
 				}
 			else
