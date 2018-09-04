@@ -109,8 +109,8 @@ function getItemRecordType(girtItemType)
 			girtItemRecordType = 'assemblyitem';
 			break;
 			
-		case 'NonInvtPart':
-			girtItemRecordType = 'noninventoryitem';
+		case 'Kit':
+			girtItemRecordType = 'kititem';
 			break;
 	}
 

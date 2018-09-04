@@ -31,15 +31,20 @@ function qtyCheckFieldChanged(type, name, linenum)
 {
 	if(type == 'item' && name == 'quantity')
 		{
-			var itemId = nlapiGetCurrentLineItemValue('item', 'item');
-			var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
-			var itemQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
-			
-			var itemSerialised = itemIsSerialised(itemId, itemType);
-			
-			if(itemSerialised && itemQty > 1)
+			var subsidiary = nlapiGetFieldValue('subsidiary');
+		
+			if(subsidiary == 5)
 				{
-					alert('Item quantity must be "1" for a serial numbered item');
+					var itemId = nlapiGetCurrentLineItemValue('item', 'item');
+					var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
+					var itemQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
+					
+					var itemSerialised = itemIsSerialised(itemId, itemType);
+					
+					if(itemSerialised && itemQty > 1)
+						{
+							alert('Item quantity must be "1" for a serial numbered item');
+						}
 				}
 		}
 }
@@ -55,17 +60,22 @@ function qtyCheckValidateLine(type)
 {
 	if(type == 'item')
 	{
-		var itemId = nlapiGetCurrentLineItemValue('item', 'item');
-		var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
-		var itemQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
+		var subsidiary = nlapiGetFieldValue('subsidiary');
 		
-		var itemSerialised = itemIsSerialised(itemId, itemType);
-		
-		if(itemSerialised && itemQty > 1)
+		if(subsidiary == 5)
 			{
-				alert('Item quantity must be "1" for a serial numbered item');
+				var itemId = nlapiGetCurrentLineItemValue('item', 'item');
+				var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
+				var itemQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
 				
-				return false;
+				var itemSerialised = itemIsSerialised(itemId, itemType);
+				
+				if(itemSerialised && itemQty > 1)
+					{
+						alert('Item quantity must be "1" for a serial numbered item');
+						
+						return false;
+					}
 			}
 	}
 	
@@ -108,8 +118,8 @@ function getItemRecordType(girtItemType)
 			girtItemRecordType = 'assemblyitem';
 			break;
 			
-		case 'NonInvtPart':
-			girtItemRecordType = 'noninventoryitem';
+		case 'Kit':
+			girtItemRecordType = 'kititem';
 			break;
 			
 		default:
