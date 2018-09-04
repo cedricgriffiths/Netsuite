@@ -21,8 +21,12 @@
 	var HTMLCOLOURGREEN = '#66ff66';
 	var HTMLCOLOURAMBER = '#ff8000';
 	var HTMLCOLOURYELLOW = '#ffff00';
+	var HTMLCOLOURRED = '#ff0000';
 	var SEARCHCOLFIXTUREHYPERLINK = 17;
 	var SEARCHCOLSECTORHYPERLINK = 18;
+	var RESOLUTIONWIDTH = '1920';
+	var RESOLUTIONHEIGHT = '1080';
+	
 }
 
 function suitelet(request, response)
@@ -212,7 +216,9 @@ function suitelet(request, response)
 	}).call(this);
 	
 	
-	//Declare variables
+	//=============================================================================================
+	// Declare variables
+	//=============================================================================================
 	//
 	var html = '';
 	var now = convertDateToUTC(new Date()); // work out the current date/time as UTC
@@ -224,6 +230,7 @@ function suitelet(request, response)
 	var opsAircraft = {}; //object to hold list of aircraft
 	var opsBoard = {}; //object to hold the ops board data
 	
+	
 	//=============================================================================================
 	// Main Code
 	//=============================================================================================
@@ -233,6 +240,10 @@ function suitelet(request, response)
 	//
 	if (request.getMethod() == 'GET') 
 		{
+			//Parameters passed to the suitelet (refresh=time in seconds to refresh the page)
+			//
+			var refreshParam = Number(request.getParameter('refresh'));
+						
 			//See if we have any results to process
 			//
 			if(opsSearchResults != null && opsSearchResults.length > 0)
@@ -253,15 +264,20 @@ function suitelet(request, response)
 							var opsBoardKeyActual = aircraft + '|' + 'ACTUAL';
 							var opsBoardKeyBlank = aircraft + '|' + 'BLANK';
 							
-							opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded);
-							opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded);
-							opsBoard[opsBoardKeyBlank] = makeCellArray(startDate, endDate, nowRounded);
+							opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded); //Add an ESTIMATED line to the ops board
+							opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded); //Add an ACTUAL line to the ops board
+							opsBoard[opsBoardKeyBlank] = makeCellArray(startDate, endDate, nowRounded); //Add an BLANK line to the ops board
 						}
 					
 					//Now we have an empty ops board, we need to start to fill in the data by looping through the results
 					//
 					for (var int = 0; int < opsSearchResults.length; int++) 
 						{
+							//=============================================================================================
+							// Processing for ESTIMATED line
+							//=============================================================================================
+							//
+						
 							//Build the key to reference the ESTIMATED line on the ops board
 							//
 							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ESTIMATED';
@@ -272,9 +288,14 @@ function suitelet(request, response)
 							
 							//Fill in the flight details in the ops board
 							//
-							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'E', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
+							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'E', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual), Time now
 							
 							
+							//=============================================================================================
+							// Processing for ACTUAL line
+							//=============================================================================================
+							//
+						
 							//Build the key to reference the ACTUAL line on the ops board
 							//
 							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'ACTUAL';
@@ -285,9 +306,14 @@ function suitelet(request, response)
 							
 							//Fill in the flight details in the ops board
 							//
-							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'A', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual)
+							updateOpsBoardWithFlight(opsBoard, opsKey, opsSearchResults[int], 'A', now); //Ops Board Object, Ops Board Key, Search Results Row, Type (E=ESTIMATED, A=Actual), Time now
 							
 							
+							//=============================================================================================
+							// Processing for BLANK line
+							//=============================================================================================
+							//
+						
 							//Build the key to reference the BLANK line on the ops board
 							//
 							var opsKey = opsSearchResults[int].getValue("custrecord_fw_acreg") + '|' + 'BLANK';
@@ -299,7 +325,7 @@ function suitelet(request, response)
 					
 					//Convert the data into html
 					//
-					html = convertDataToHtml(opsBoard, now);
+					html = convertDataToHtml(opsBoard, now, refreshParam);
 				}
 	
 			//Return the html to the client
@@ -339,7 +365,7 @@ function opsCell(_cellDate, _cellIsNow)
 			//
 			if(this.cellIsNow)
 				{
-					borders = 'border-color: black ' + theColour + ' black ' + HTMLCOLOURYELLOW + '; border-left: 3px solid ' + HTMLCOLOURYELLOW;
+					borders = 'border-color: black ' + theColour + ' black ' + HTMLCOLOURYELLOW + '; border-left: 4px solid ' + HTMLCOLOURYELLOW;
 					text = "<th style=\"background-color: " + theColour + "; " + borders + "\">" + this.cellDate.format('H') + ':' + this.cellDate.format('i') + "</th>";
 				}
 			else
@@ -362,7 +388,7 @@ function opsCell(_cellDate, _cellIsNow)
 			//
 			if(this.cellIsNow)
 				{
-					borders = 'border-color: black black black yellow; border-left: 3px solid yellow';
+					borders = 'border-color: black black black yellow; border-left: 4px solid yellow';
 					text = "<td align=\"center\"style=\"font-size: " + this.cellTextSize + "; background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";
 				}
 			else
@@ -385,6 +411,7 @@ function opsCell(_cellDate, _cellIsNow)
 		}
 }
 
+
 // Represents a single ops board aircraft info cell which will be the first cell in the row
 //
 function opsInfoCell()
@@ -401,7 +428,7 @@ function opsInfoCell()
 			
 			if(this.rowType == 'E')
 				{
-					text = "<td width=\"200px\">" + this.aircraftReg + "&nbsp;&nbsp;&nbsp;(" + this.aircraftNo + ")</td>";
+					text = "<td width=\"200px\"><a href=\"https://www.flightradar24.com/data/aircraft/" + this.aircraftReg + "\" target=\"_blank\">" + this.aircraftReg + "</a>&nbsp;&nbsp;&nbsp;(" + this.aircraftNo + ")</td>";
 				}
 	
 			if(this.rowType == 'A')
@@ -426,7 +453,7 @@ function opsInfoCell()
 
 //Build the html from the ops board data
 //
-function convertDataToHtml(_opsBoard, _now)
+function convertDataToHtml(_opsBoard, _now, _refreshTime)
 {
 	var content = ''
 	
@@ -439,13 +466,20 @@ function convertDataToHtml(_opsBoard, _now)
 			opsLines++;
 		}	
 	
-	var tableDepth = (Number(33) * opsLines) + 10;
+	var tableDepth = (Number(23) * opsLines) + 25;
 	tableDepth = (tableDepth > 10000 ? 10000 : tableDepth); //set the max table depth to 10,000 pixels 
 	
 	//Start the html
 	//
 	content += "<html>";
 	content += "<head>";
+	
+	//Refresh interval if time > 0, otherwise no refresh
+	//
+	if(_refreshTime > 0)
+		{
+			content += "<meta http-equiv=\"refresh\" content=\"" + _refreshTime + "\">";
+		}
 	
 	//Scripting
 	//
@@ -465,7 +499,7 @@ function convertDataToHtml(_opsBoard, _now)
 	content += "<style type=\"text/css\">";
 	content += "table {";
 	content += "  position: relative;";
-	content += "  width: 1920px;";
+	content += "  width: " + RESOLUTIONWIDTH + "px;";
 	content += "  background-color: #aaa;";
 	content += "  overflow: hidden;";
 	content += "  border-collapse: collapse;";
@@ -473,13 +507,13 @@ function convertDataToHtml(_opsBoard, _now)
 	content += "thead {";
 	content += "  position: relative;";
 	content += "  display: block; ";
-	content += "  width: 1920px;";
+	content += "  width: " + RESOLUTIONWIDTH + "px;";
 	content += "  overflow: visible;";
 	content += "}";
 	content += "thead th {";
 	content += "  background-color: #ffffff; ";
 	content += "  min-width: 50px;";
-	content += "  height: 30px;";
+	content += "  height: 20px;";
 	content += "  border: 1px solid #222; ";
 	content += "}";
 	content += "thead th:nth-child(1) {";
@@ -490,8 +524,7 @@ function convertDataToHtml(_opsBoard, _now)
 	content += "tbody {";
 	content += "  position: relative;";
 	content += "  display: block;";
-	content += "  width: 1920px;";
-	//content += "  height: 239px;";
+	content += "  width: " + RESOLUTIONWIDTH + "px;";
 	content += "  height: " + tableDepth.toString() + "px;";
 	content += "  overflow: scroll;";
 	content += "}";
@@ -506,7 +539,7 @@ function convertDataToHtml(_opsBoard, _now)
 	content += "tbody tr td:nth-child(1) {  ";
 	content += "  position: relative;";
 	content += "  display: block; ";
-	content += "  height: 30px;";
+	content += "  height: 20px;";
 	content += "  background-color: #ffffff; ";
 	content += "}";	
 	content += "</style>";
@@ -516,26 +549,23 @@ function convertDataToHtml(_opsBoard, _now)
 	//Start of body section
 	//
 	content += "<body>";
-	content += "  <table>";
-	content += "    <thead>";
+	content += "<table>";
+	content += "<thead>";
 	
 	
-	//Construct the header info which will be the cells and their times 
+	//Construct the header info which will be the cells and their times as well as a top level header showing which day the ce;l;s belong to
 	//
 	var firstOpsBoardKey = Object.keys(_opsBoard)[0]; 
 	var yesterdaysDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
 	var tomorrowsDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
 	yesterdaysDate.setDate(yesterdaysDate.getDate() - 1);
 	tomorrowsDate.setDate(yesterdaysDate.getDate() + 1);
-	
-	
-	content += "<tr>";
-	content += "<th>&nbsp;</th>";
-	
-	//content += "<th align=\"center\" colspan=\"" + MAXOPSBOARDSIZE + "\">" + _now.format('D d F Y') + "</th>";
+
 	var yesterdaysCellCount = Number(0);
 	var tomorrowsCellCount = Number(0);
 	
+	//Work out how to split the date heading across the individual cells
+	//
 	for (var headerCell = 1; headerCell < _opsBoard[firstOpsBoardKey].length; headerCell++) 
 	{
 		var cellDateRaw = _opsBoard[firstOpsBoardKey][headerCell].cellDate;
@@ -552,12 +582,17 @@ function convertDataToHtml(_opsBoard, _now)
 			}
 	}
 	
-	
+	//Top level heading
+	//
+	content += "<tr>";
+	content += "<th>&nbsp;</th>";
 	content += "<th align=\"center\" colspan=\"" + yesterdaysCellCount + "\">" + yesterdaysDate.format('D d F Y') + "</th>";
 	content += "<th align=\"center\" colspan=\"48\">" + _now.format('D d F Y H:i') + " UTC</th>";
 	content += "<th align=\"center\" colspan=\"" + tomorrowsCellCount + "\">" + tomorrowsDate.format('D d F Y') + "</th>";
 	content += "</tr>";
 	
+	//Headings by time
+	//
 	content += "<tr>";
 	content += "<th width=\"200px\">Ops Board v1.0.0.1</th>";
 	
@@ -566,12 +601,12 @@ function convertDataToHtml(_opsBoard, _now)
 			content += _opsBoard[firstOpsBoardKey][headerCell].getHeaderHtml();
 		}
 	
-	content += "      </tr>";
-	content += "    </thead>";
+	content += "</tr>";
+	content += "</thead>";
 	
 	//Construct the table body
 	//
-	content += "    <tbody>";
+	content += "<tbody>";
 	
 	for ( var opsKey in _opsBoard) 
 		{
@@ -579,6 +614,8 @@ function convertDataToHtml(_opsBoard, _now)
 		
 			for (var bodyCell = 0; bodyCell < _opsBoard[opsKey].length; bodyCell++) 
 				{
+					//Cell 0 get the aircraft info, cell 1+ gets the fixture & sector info
+					//
 					if(bodyCell == 0)
 						{
 							content += _opsBoard[opsKey][bodyCell].getInfoHtmlLine();
@@ -592,8 +629,8 @@ function convertDataToHtml(_opsBoard, _now)
 			content += "</tr>";	
 		}
 
-	content += "    </tbody>";
-	content += "  </table>";
+	content += "</tbody>";
+	content += "</table>";
 	
 	//End of body section
 	//
@@ -654,12 +691,15 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 	uobwfOffBlockTime = _results.getValue("custrecord_fw_offblocktime");
 	uobwfOnBlockDate = _results.getValue("custrecord_fw_onblocksdate");
 	uobwfOnBlockTime = _results.getValue("custrecord_fw_onblockstime");
-	
-	//uobwfSectorHyperlink = _results.getValue(_results.getAllColumns()[SEARCHCOLSECTORHYPERLINK]);
-	//uobwfFixtureHyperlink = _results.getValue(_results.getAllColumns()[SEARCHCOLFIXTUREHYPERLINK]);
+	uobwfDivertedAirport = _results.getText("custrecord_fw_divertedto");
+	uobwfEtaDate = _results.getValue("custrecord_fw_etadate");
+	uobwfEtaTime = _results.getValue("custrecord_fw_etatime");
+	uobwfAirborneTime = _results.getValue("custrecord_fw_airbornetime");
+	uobwfTouchdownTime = _results.getValue("custrecord_fw_touchdowntime");
 	
 	uobwfFixtureHyperlink = _results.getValue("internalid","CUSTRECORD_SECTOR_FIXTURE");
 	uobwfSectorHyperlink = _results.getValue("internalid");
+	
 	
 	//Processing for an ESTIMATED line on the ops board
 	//
@@ -776,14 +816,73 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 					//
 					var uobwOffBlockDateTime = toHalfHour(joinDateTime(uobwfOffBlockDate, uobwfOffBlockTime));
 					
+					//Keep a copy of the un-rounded date/times for late departure/arrival calculations 
+					//
+					var uobwOffBlockDateTimeUnRounded = joinDateTime(uobwfOffBlockDate, uobwfOffBlockTime);
+					var uobwDepartureDateTimeUnRounded = joinDateTime(uobwfDepartureDate, uobwfDepartureTime);
+					var uobwArrivalDateTimeUnRounded = joinDateTime(uobwfArrivalDate, uobwfArrivalTime);
+					
+					
 					//Join the on block date & time together & then round to the nearest 30 mins
 					//
-					var uobwOnBlockDateTime = toHalfHour(joinDateTime(uobwfOnBlockDate, uobwfOnBlockTime));
+					var uobwOnBlockDateTime = null;
+					try
+						{
+							uobwOnBlockDateTime = toHalfHour(joinDateTime(uobwfOnBlockDate, uobwfOnBlockTime));
+						}
+					catch(err)
+						{
+							uobwOnBlockDateTime = null;
+						}
+					
+					//Join the ETA date & time together & then round to the nearest 30 mins
+					//
+					var uobwEtaDateTime = null;
+					try
+						{
+							uobwEtaDateTime = toHalfHour(joinDateTime(uobwfEtaDate, uobwfEtaTime));
+						}
+					catch(err)
+						{
+							uobwEtaDateTime = null;
+						}
+					
+					var uobwTheEndDateTime = null
+					var uobwTheEndDateTimeUnRounded = null
+					var uobwTheEndTime = '';
+					
+					//Is the on block date/time filled in, if so use that
+					//
+					if(uobwOnBlockDateTime != null)
+						{
+							uobwTheEndDateTime = new Date(uobwOnBlockDateTime);
+							uobwTheEndTime = uobwfOnBlockTime;
+							uobwTheEndDateTimeUnRounded = joinDateTime(uobwfOnBlockDate, uobwfOnBlockTime);
+						}
+					else
+						{
+							//Else is the ETA date/time filled in, if so use that
+							//
+							if(uobwEtaDateTime != null)
+								{
+									uobwTheEndDateTime = new Date(uobwEtaDateTime);
+									uobwTheEndTime = uobwfEtaTime;
+									uobwTheEndDateTimeUnRounded = joinDateTime(uobwfEtaDate, uobwfEtaTime);
+								}
+							else
+								{
+									//If we have no on block date/time & no ETA date/time, we must use the off block date/time
+									//
+									uobwTheEndDateTime = new Date(uobwOffBlockDateTime);
+									uobwTheEndTime = uobwfOffBlockTime;
+									uobwTheEndDateTimeUnRounded = joinDateTime(uobwfOffBlockDate, uobwfOffBlockTime);
+								}
+						}
 					
 					//Find the start and end cell in the ops board
 					//
 					var startCellNumber = findCellByDate(_opsBoard, _opsKey, uobwOffBlockDateTime);
-					var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwOnBlockDateTime);
+					var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwTheEndDateTime);
 					
 					//If the start cell has come back as zero, then we must have started before the ops board range, therefore set the start to be cell 1
 					//If the end cell has come back as zero, then we must have ended after the ops board range, therefore set the start to be cell 97
@@ -795,10 +894,29 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 					startCellNumber = (startCellNumber == 0 ? 1 : startCellNumber); 
 					endCellNumber = (endCellNumber == 0 ? MAXOPSBOARDSIZE : endCellNumber); 
 					
+					//Check to see if we can fit in the diverted airport in the ops board i.e. the end cell has to be < 97
+					//
+					if(endCellNumber < MAXOPSBOARDSIZE && (uobwfDivertedAirport != null && uobwfDivertedAirport != ''))
+						{
+							_opsBoard[_opsKey][endCellNumber + 1].cellText = uobwfDivertedAirport;
+							_opsBoard[_opsKey][endCellNumber + 1].cellTextColour = HTMLCOLOURBLACK;
+							_opsBoard[_opsKey][endCellNumber + 1].cellBackgroundColour = HTMLCOLOURWHITE;
+						}
+				
 					var blockColour = HTMLCOLOURGREEN;
 						
 					//Fill in the flight bar between the start and the end cells
 					//
+					var airborneCellNumber = Number(startCellNumber) + 1;
+					var touchdownCellNumber = Number(endCellNumber) - 1;
+					
+					//If we were late departing & late arriving, then set all the cell colours to be red
+					//
+					if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime() && uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
+						{
+							blockColour = HTMLCOLOURRED;
+						}
+					
 					for (var cellCounter = startCellNumber; cellCounter <= endCellNumber; cellCounter++) 
 						{
 							_opsBoard[_opsKey][cellCounter].cellTextColour = HTMLCOLOURWHITE;
@@ -806,21 +924,51 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 							_opsBoard[_opsKey][cellCounter].cellHyperlink = uobwfSectorHyperlink;
 							_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + blockColour + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">link</a>";
 							
+
+							//If we are on the airborne cell of the bar, the add the airborne time to the cell text
+							//
+							if(cellCounter == airborneCellNumber && (uobwfAirborneTime != null && uobwfAirborneTime != ''))
+								{
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfAirborneTime + "</a>";
+								}
+							
+							
+							//If we are on the touchdown cell of the bar, the add the touchdown time to the cell text
+							//
+							if(cellCounter == touchdownCellNumber && (uobwfTouchdownTime != null && uobwfTouchdownTime != ''))
+								{
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfTouchdownTime + "</a>";
+								}
+							
+							
 							//If we are on the first cell of the bar, the add the departure time to the cell text
 							//
 							if(cellCounter == startCellNumber)
 								{
-									//_opsBoard[_opsKey][cellCounter].cellText = beforeStartMarker + uobwfOffBlockTime;
+									//If we were late departing, then set the first cell colour to be red
+									//
+									if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime())
+										{
+											_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+										}
+									
 									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + beforeStartMarker + uobwfOffBlockTime + "</a>";
 									
 								}
+							
 							
 							//If we are on the last cell of the bar, the add the arrival time to the cell text
 							//
 							if(cellCounter == endCellNumber)
 								{
-									//_opsBoard[_opsKey][cellCounter].cellText = uobwfOnBlockTime + afterEndMarker;
-									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"  href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfOnBlockTime + afterEndMarker + "</a>";
+									//If we were late arriving, then set the last cell colour to be red
+									//
+									if(uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
+										{
+											_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+										}
+									
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"  href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwTheEndTime + afterEndMarker + "</a>";
 									
 								}
 						}
@@ -847,8 +995,8 @@ function getOpsSearchResults(_startDate, _endDate)
 {
 	var customrecord_fs_sectorsSearch = nlapiSearchRecord("customrecord_fs_sectors",null,
 			[
-//TODO Use the start & end date rather than hard code them  ["custrecord_sector_departuredate","within", nlapiDateToString(_startDate), nlapiDateToString(_endDate)], 
-			   ["internalid","anyof",["117736","118041","117734"]],
+			   ["custrecord_sector_departuredate","within", nlapiDateToString(_startDate), nlapiDateToString(_endDate)], 
+			   //["internalid","anyof",["117736","118041","117734"]],
 			   "AND", 
 			   ["custrecord_sector_fixture.mainline","is","T"]
 			], 
@@ -874,7 +1022,11 @@ function getOpsSearchResults(_startDate, _endDate)
 			   new nlobjSearchColumn("formulatext").setFormula("'<a href=\"/app/common/custom/custrecordentry.nl?rectype=34&id='||{internalid}||'\"target=\"_blank\">'||'<div style=\"color:#008000\">' ||{internalid}|| '</div>'||'</a>'"), 
 			   new nlobjSearchColumn("custrecord_sector_flightnumber"), 
 			   new nlobjSearchColumn("internalid","CUSTRECORD_SECTOR_FIXTURE",null), 
-			   new nlobjSearchColumn("internalid")
+			   new nlobjSearchColumn("internalid"),
+			   new nlobjSearchColumn("custrecord_fw_divertedto"),
+			   new nlobjSearchColumn("custrecord_fw_airbornetime"),
+			   new nlobjSearchColumn("custrecord_fw_touchdowntime"),
+			   new nlobjSearchColumn("custrecord_fw_etatime")
 			]
 			);
 	
@@ -938,6 +1090,7 @@ function convertDateToUTC(_date)
 	return new Date(_date.getUTCFullYear(), _date.getUTCMonth(), _date.getUTCDate(), _date.getUTCHours(), _date.getUTCMinutes(), _date.getUTCSeconds()); 
 }
 
+
 //left padding s with c to a total of n chars
 //
 function padding_left(s, c, n) 
@@ -956,6 +1109,7 @@ function padding_left(s, c, n)
 	
 	return s;
 }
+
 
 //right padding s with c to a total of n chars
 function padding_right(s, c, n) 
