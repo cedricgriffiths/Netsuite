@@ -25,8 +25,10 @@ function itemStockedAfterSubmit(type)
 			var itemId = newItemRecord.getId();
 			var itemType = newItemRecord.getRecordType();
 			
-			if(itemType == 'inventoryitem')
+			if(itemType == 'inventoryitem' && itemId != null)
 				{
+					//nlapiLogExecution('DEBUG', 'Item Stocked UE', "Type=" + type + " Item Type=" + itemType + " ItemId=" + itemId);
+					
 					var lines = newItemRecord.getLineItemCount('locations');
 					var hasReorderPoint = false;
 					
