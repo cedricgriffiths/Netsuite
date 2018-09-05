@@ -274,22 +274,57 @@ function buildOutput(caseId)
 			var today = new Date();
 			var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
 			
-			var companyId = nlapiEscapeXML(caseRecord.getFieldValue('company'));
-			var engineer = nlapiEscapeXML(caseRecord.getFieldText('custevent_war_rep_engr'));
-			var module = nlapiEscapeXML(caseRecord.getFieldText('custevent_acc_callout_issuetype'));
+			var companyId = caseRecord.getFieldValue('company');
+			var contactId = caseRecord.getFieldValue('contact');
+			var subsidiaryId = caseRecord.getFieldValue('subsidiary');
+			
+			var engineer = nlapiEscapeXML(caseRecord.getFieldText('custevent_acc_callout_engr'));
+			var calloutIssue = nlapiEscapeXML(caseRecord.getFieldText('custevent_acc_callout_issuetype'));
 			var calloutType = nlapiEscapeXML(caseRecord.getFieldText('custevent_acc_callout_type'));
-			var contact = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_custissuefullname'));
 			var caseNumber = nlapiEscapeXML(caseRecord.getFieldValue('casenumber'));
 			var assignedTo = nlapiEscapeXML(caseRecord.getFieldValue('assigned'));
 			var dateCreated = nlapiEscapeXML(caseRecord.getFieldValue('datecreated'));
-			var subsidiaryId = caseRecord.getFieldValue('subsidiary');
-			var jobDetails = nlapiEscapeXML(caseRecord.getFieldValue('custevent_war_rep_info'));
+			var jobDetails = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_callout_jobsheet_info'));
+			var productRange = nlapiEscapeXML(caseRecord.getFieldText('custevent_acc_callout_prodrange'));
+			var newPo = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_callout_new_po_number'));
+			var newSo = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_callout_new_so_number'));
+			var originalPo = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_callout_original_po_num'));
+			var originalSo = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_callout_orig_sop_number'));
+			var productSerialNo = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_prod_serial'));
+			var serviceUserName = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_su_name'));
+			var serviceUserPhone = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_su_phonenum'));
+			var serviceUserAddress = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_su_addr'));
+			var serviceUserMobile = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_su_mobilenum'));
+			var serviceUserPostcode = nlapiEscapeXML(caseRecord.getFieldValue('custevent_acc_su_postcode'));
+			
 			
 			var subsidiaryName = nlapiEscapeXML(removePrefix(nlapiLookupField('subsidiary', subsidiaryId, 'name', false)));
 			var company = nlapiEscapeXML(nlapiLookupField('customer', companyId, 'companyname', false));
+			var contact = nlapiEscapeXML(nlapiLookupField('contact', contactId, 'entityid', false));
 			
-			assignedTo = (assignedTo == null | assignedTo == '' ? 'unassigned' : assignedTo);
+			
+			engineer = (engineer == null ? '' : engineer);
+			calloutIssue = (calloutIssue == null ? '' : calloutIssue);
+			calloutType = (calloutType == null ? '' : calloutType);
+			caseNumber = (caseNumber == null ? '' : caseNumber);
+			assignedTo = (assignedTo == null ? '' : assignedTo);
+			dateCreated = (dateCreated == null ? '' : dateCreated);
+			jobDetails = (jobDetails == null ? '' : jobDetails);
+			productRange = (productRange == null ? '' : productRange);
+			newPo = (newPo == null ? '' : newPo);
+			newSo = (newSo == null ? '' : newSo);
+			originalPo = (originalPo == null ? '' : originalPo);
+			originalSo = (originalSo == null ? '' : originalSo);
+			productSerialNo = (productSerialNo == null ? '' : productSerialNo);
+			serviceUserName = (serviceUserName == null ? '' : serviceUserName);
+			serviceUserPhone = (serviceUserPhone == null ? '' : serviceUserPhone);
+			serviceUserAddress = (serviceUserAddress == null ? '' : serviceUserAddress);
+			serviceUserMobile = (serviceUserMobile == null ? '' : serviceUserMobile);
+			serviceUserPostcode = (serviceUserPostcode == null ? '' : serviceUserPostcode);
+			
+			
 			jobDetails = jobDetails.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
+			serviceUserAddress = serviceUserAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 			
 			//Header & style sheet
 			//
@@ -348,60 +383,111 @@ function buildOutput(caseId)
 				
 			xml += "<table class=\"tabborder\" style=\"width: 100%;\">";
 			xml += "<tr>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Callout ID</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Case ID</b></td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + caseNumber + "</td>";					
 			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Call Logged</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + dateCreated + "</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Engineer Name</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + engineer + "</td>";					
 			xml += "</tr>";					
 			xml += "<tr>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Customer Name</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Customer Name</b></td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + company + "</td>";					
 			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Logged By</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + assignedTo + "</td>";					
-			xml += "</tr>";					
-			xml += "<tr>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Contact</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + contact + "</td>";					
-			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
-			xml += "</tr>";					
-			xml += "</table>";
-			
-			xml += "<table class=\"tabgray\" style=\"width: 100%;\">";
-			xml += "<tr>";					
-			xml += "<td align=\"center\" style=\"font-size: 12pt;\"><b>Visit Details</b></td>";					
-			xml += "</tr>";					
-			xml += "</table>";
-				
-			xml += "<table class=\"tabborder\" style=\"width: 100%;\">";
-			xml += "<tr>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Engineer Name</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + engineer + "</td>";					
-			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Callout Type</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Callout Type</b></td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + calloutType + "</td>";					
 			xml += "</tr>";					
 			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Contact</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + contact + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Product Range</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + productRange + "</td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
 			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">Module</td>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + module + "</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Callout Issue</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + calloutIssue + "</td>";					
 			xml += "</tr>";					
 			xml += "</table>";
 			
 			xml += "<table class=\"tabgray\" style=\"width: 100%;\">";
 			xml += "<tr>";					
-			xml += "<td align=\"center\" style=\"font-size: 12pt;\"><b>Job Details</b></td>";					
+			xml += "<td align=\"center\" style=\"font-size: 12pt;\"><b>Callout Type Details</b></td>";					
 			xml += "</tr>";					
 			xml += "</table>";
 				
 			xml += "<table class=\"tabborder\" style=\"width: 100%;\">";
 			xml += "<tr>";					
-			xml += "<td align=\"left\" style=\"font-size: 10pt; width:100%; height: 380px\">" + jobDetails + "</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 12pt; width:23%\"><b>Paid Callout</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td colspan=\"2\" align=\"left\" style=\"font-size: 12pt; width:23%\"><b>Warranty/Free of Charge</b></td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>PO</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + newPo + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Original PO</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + originalPo + "</td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>SO</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + newSo + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Original SO</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + originalSo + "</td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Serial No.</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + productSerialNo + "</td>";					
+			xml += "</tr>";					
+			xml += "</table>";
+			
+			xml += "<table class=\"tabgray\" style=\"width: 100%;\">";
+			xml += "<tr>";					
+			xml += "<td align=\"center\" style=\"font-size: 12pt;\"><b>Service User Details</b></td>";					
+			xml += "</tr>";					
+			xml += "</table>";
+			
+			xml += "<table class=\"tabborder\" style=\"width: 100%;\">";
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Name</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + serviceUserName + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Telephone</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + serviceUserPhone + "</td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Address</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + serviceUserAddress + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Mobile Phone</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + serviceUserMobile + "</td>";					
+			xml += "</tr>";					
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\"><b>Postcode</b></td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">" + serviceUserPostcode + "</td>";					
+			xml += "<td align=\"right\" style=\"font-size: 10pt; width:8%\">&nbsp;</td>";									
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
+			xml += "<td align=\"left\" style=\"font-size: 10pt; width:23%\">&nbsp;</td>";					
+			xml += "</tr>";					
+			xml += "</table>";
+			
+			
+			xml += "<table class=\"tabgray\" style=\"width: 100%;\">";
+			xml += "<tr>";					
+			xml += "<td align=\"center\" style=\"font-size: 12pt;\"><b>Callout Info</b></td>";					
+			xml += "</tr>";					
+			xml += "</table>";
+				
+			xml += "<table class=\"tabborder\" style=\"width: 100%;\">";
+			xml += "<tr>";					
+			xml += "<td align=\"left\" style=\"font-size: 8pt; width:100%; height: 200px\">" + jobDetails + "</td>";					
 			xml += "</tr>";					
 			xml += "</table>";
 			
