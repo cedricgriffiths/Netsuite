@@ -299,6 +299,13 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	var salesOrderDetail = {};
 	var itemsList = [];
 	var itemsObject = {};
+	var purchaseOrderItems = {};
+	var worksOrderItems = {};
+	
+	
+	//
+	//Process SALES ORDER HEADERS
+	//
 	
 	//Search of sales orders based on transaction date & shipping date
 	//
@@ -330,7 +337,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			filters.push("AND", ["shipdate","onorbefore",_shipEndDate])
 		}
 
-	var salesorderSearch = nlapiSearchRecord("salesorder",null,filters,
+	var salesorderSearch = getResults(nlapiCreateSearch("salesorder",filters,
 			[
 			   new nlobjSearchColumn("trandate"), 
 			   new nlobjSearchColumn("tranid").setSort(false), 
@@ -338,7 +345,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			   new nlobjSearchColumn("shipdate"),
 			   new nlobjSearchColumn("entityid","customer",null)
 			]
-			);
+			));
 
 	//Have we got any results
 	//
@@ -367,7 +374,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 				}
 		}
 	
-	//Search the sales order lines
+	
+	//
+	//Process SALES ORDER LINES
 	//
 	var filters = [
 				   ["type","anyof","SalesOrd"], 
@@ -381,7 +390,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 				   ["internalid","anyof",salesOrderList]
 				];
 	
-	var salesorderLineSearch = nlapiSearchRecord("salesorder",null,filters,
+	var salesorderLineSearch = getResults(nlapiCreateSearch("salesorder",filters,
 			[
 			   new nlobjSearchColumn("tranid").setSort(false), 
 			   new nlobjSearchColumn("linesequencenumber").setSort(false),
@@ -395,7 +404,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null),
 			   new nlobjSearchColumn("mainline","CUSTCOL_BBS_WO_ID",null)
 			]
-			);
+			));
 
 	//Have we got any results
 	//
@@ -481,9 +490,14 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			itemsList.push(items);
 		}
 	
+	
+	//
+	//Process PURCHASE ORDER LINES
+	//
+	
 	//We need to find any PO's for the items that are on the sales orders
 	//
-	var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+	var purchaseorderSearch = getResults(nlapiCreateSearch("purchaseorder",
 			[
 			   ["type","anyof","PurchOrd"], 
 			   "AND", 
@@ -502,23 +516,144 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			   ["duedate","isnotempty",""]
 			], 
 			[
-			   new nlobjSearchColumn("item",null,"GROUP").setSort(false), 
-			   new nlobjSearchColumn("duedate",null,"MIN")
+			   new nlobjSearchColumn("item").setSort(false), 
+			   new nlobjSearchColumn("duedate").setSort(true), 
+			   new nlobjSearchColumn("tranid")
 			]
-			);
+			));
 	
+	//Process the found purchase orders
+	//
 	if(purchaseorderSearch)
 		{
+			lastItemId = '';
+			
 			for (var int = 0; int < purchaseorderSearch.length; int++) 
 				{
+					var poItemId = purchaseorderSearch[int].getValue('item');
+					var poDueDate = purchaseorderSearch[int].getValue('duedate');
+					var poNumber = purchaseorderSearch[int].getValue('tranid');
+					var poId = purchaseorderSearch[int].getId();
 					
+					if(lastItemId != poItemId)
+						{
+							lastItemId = poItemId;
+							purchaseOrderItems[poItemId] = new purchaseOrderInfo(poNumber, poDueDate, poId);
+						}
+				}
+		}
+	
+	//Loop through the sales orders looking at the lines & then see if there is a po for the item
+	//if there is one, then update the sales order line with the po details
+	//
+	for ( var salesOrderKey in salesOrderDetail) 
+		{
+			//Look for keys that represent lines, not headers (headers have a line number = '000000')
+			//
+			if(salesOrderKey.split('|')[1] != '000000')
+				{
+					var salesOrderItemId = salesOrderDetail[salesOrderKey].lineItemId;
+					
+					var matchingPoDetail = purchaseOrderItems[salesOrderItemId];
+					
+					//See if we have found the po detail for the item
+					//
+					if(matchingPoDetail != null)
+						{
+							salesOrderDetail[salesOrderKey].linePoNo = matchingPoDetail.orderNumber;
+							salesOrderDetail[salesOrderKey].linePoDueDate = matchingPoDetail.orderDueDate;
+							salesOrderDetail[salesOrderKey].linePoId = matchingPoDetail.orderId;
+						}
 				}
 		}
 	
 	
+	//
+	//Process WORKS ORDER LINES
+	//
+	
+	//We need to find any PO's for the items that are on the sales orders
+	//
+	var workorderSearch = getResults(nlapiCreateSearch("workorder",
+			[
+			   ["type","anyof","WorkOrd"], 
+			   "AND", 
+			   ["mainline","is","F"], 
+			   "AND", 
+			   ["taxline","is","F"], 
+			   "AND", 
+			   ["shipping","is","F"], 
+			   "AND", 
+			   ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
+			   "AND", 
+			   ["item","anyof",itemsList]
+			], 
+			[
+			   new nlobjSearchColumn("item").setSort(false), 
+			   new nlobjSearchColumn("trandate").setSort(true), 
+			   new nlobjSearchColumn("tranid"),
+			   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build")
+			]
+			));
+	
+	//Process the found works orders
+	//
+	if(workorderSearch)
+		{
+			lastItemId = '';
+			
+			for (var int = 0; int < workorderSearch.length; int++) 
+				{
+					var woItemId = workorderSearch[int].getValue('item');
+					var woDueDate = workorderSearch[int].getValue('duedate');
+					var woNumber = workorderSearch[int].getValue('tranid');
+					var woId = workorderSearch[int].getId();
+					var woBuildable = workorderSearch[int].getValue('custbody_bbs_wo_percent_can_build');
+					var woBuildableText = workorderSearch[int].getText('custbody_bbs_wo_percent_can_build');
+					
+					if(lastItemId != woItemId)
+						{
+							lastItemId = woItemId;
+							worksOrderItems[woItemId] = new worksOrderInfo(woNumber, woDueDate, woId, woBuildable, woBuildableText) ;
+						}
+				}
+		}
+	
+	//Loop through the sales orders looking at the lines & then see if there is a wo for the item
+	//if there is one, then update the sales order line with the wo details
+	//
+	for ( var salesOrderKey in salesOrderDetail) 
+		{
+			//Look for keys that represent lines, not headers (headers have a line number = '000000')
+			//
+			if(salesOrderKey.split('|')[1] != '000000')
+				{
+					var salesOrderItemId = salesOrderDetail[salesOrderKey].lineItemId;
+					
+					var matchingWoDetail = worksOrderItems[salesOrderItemId];
+					
+					//See if we have found the po detail for the item
+					//
+					if(matchingWoDetail != null)
+						{
+							salesOrderDetail[salesOrderKey].lineWoNo = matchingWoDetail.orderNumber;
+							salesOrderDetail[salesOrderKey].lineWoId = matchingWoDetail.orderId;
+							salesOrderDetail[salesOrderKey].lineWoPercentBuildable = matchingWoDetail.woBuildable;
+							salesOrderDetail[salesOrderKey].lineWoPercentBuildableText = matchingWoDetail.woBuildableText;
+						}
+				}
+		}
+	
+
+	//Filter out data based of WO percentage buildable
+	//
 	
 	
 	
+	
+	//
+	//Process the output document
+	//
 	
 	//Sort the sales order object so that we are in sales order number / line number order
 	//
@@ -630,6 +765,37 @@ function padding_left(s, c, n)
 	return s;
 }
 
+function getResults(_search)
+{
+	var searchResult = _search.runSearch();
+	
+	//Get the initial set of results
+	//
+	var start = 0;
+	var end = 1000;
+	var searchResultSet = searchResult.getResults(start, end);
+	var resultlen = searchResultSet.length;
+
+	//If there is more than 1000 results, page through them
+	//
+	while (resultlen == 1000) 
+		{
+				start += 1000;
+				end += 1000;
+
+				var moreSearchResultSet = searchResult.getResults(start, end);
+				resultlen = moreSearchResultSet.length;
+
+				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+		}
+	
+	return searchResultSet;
+}
+
+//=====================================================================
+//Objects
+//=====================================================================
+//
 function salesOrderInfo(_orderNumber, _orderDate, _orderCustomer, _orderShipDate)
 {
 	this.orderNumber = _orderNumber;
@@ -646,11 +812,29 @@ function salesOrderInfo(_orderNumber, _orderDate, _orderCustomer, _orderShipDate
 	this.lineOrdered = Number(0);
 	this.lineFulfilled = Number(0);
 	this.lineWoNo = '';
+	this.lineWoId = '';
 	this.lineWoPercentBuildable = '';
+	this.lineWoPercentBuildableText = '';
 	this.lineWoCommitStatus = '';
 	this.linePoNo = '';
 	this.linePoDueDate = '';
-	
+	this.linePoId = '';
+}
+
+function purchaseOrderInfo(_orderNumber, _orderDueDate, _poId)
+{
+	this.orderNumber = _orderNumber;
+	this.orderDueDate = _orderDueDate;	
+	this.orderId = _poId;
+}
+
+function worksOrderInfo(_orderNumber, _orderDueDate, _poId, _woBuildable, _woBuildableText)
+{
+	this.orderNumber = _orderNumber;
+	this.orderDueDate = _orderDueDate;	
+	this.orderId = _poId;
+	this.woBuildable = _woBuildable;
+	this.woBuildableText = _woBuildableText;
 }
 
 
