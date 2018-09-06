@@ -243,7 +243,18 @@ function suitelet(request, response)
 			//Parameters passed to the suitelet (refresh=time in seconds to refresh the page)
 			//
 			var refreshParam = Number(request.getParameter('refresh'));
-						
+				
+			//Set up a default response string in case there is no data to display
+			//
+			html = "<html><head>"; 
+			
+			if(refreshParam > 0)
+			{
+				html += "<meta http-equiv=\"refresh\" content=\"" + refreshParam + "\">";
+			}
+			
+			html += "</head><body><p>No Data To Display</p></body></html>";
+			
 			//See if we have any results to process
 			//
 			if(opsSearchResults != null && opsSearchResults.length > 0)
