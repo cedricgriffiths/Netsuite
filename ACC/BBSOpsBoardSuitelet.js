@@ -24,7 +24,7 @@
 	var HTMLCOLOURRED = '#ff0000';
 	var SEARCHCOLFIXTUREHYPERLINK = 17;
 	var SEARCHCOLSECTORHYPERLINK = 18;
-	var RESOLUTIONWIDTH = '1920';
+	var RESOLUTIONWIDTH = '1800';
 	var RESOLUTIONHEIGHT = '1080';
 	
 }
@@ -432,6 +432,7 @@ function opsInfoCell()
 	this.fixtureRef = '';
 	this.sectorType = '';
 	this.rowType = '';
+	this.fixtureId = '';
 	
 	this.getInfoHtmlLine = function()
 		{
@@ -444,7 +445,8 @@ function opsInfoCell()
 	
 			if(this.rowType == 'A')
 				{
-					text = "<td width=\"200px\">" + this.fixtureRef + "&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
+					//text = "<td width=\"200px\">" + this.fixtureRef + "&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
+					text = "<td width=\"200px\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + this.fixtureId + "\" target=\"_blank\">" + this.fixtureRef + "</a>&nbsp;&nbsp;&nbsp;(" + this.sectorType + ")</td>";
 				}
 	
 			if(this.rowType == 'B')
@@ -536,7 +538,8 @@ function convertDataToHtml(_opsBoard, _now, _refreshTime)
 	content += "  position: relative;";
 	content += "  display: block;";
 	content += "  width: " + RESOLUTIONWIDTH + "px;";
-	content += "  height: " + tableDepth.toString() + "px;";
+	//content += "  height: " + tableDepth.toString() + "px;";
+	content += "  height: 700px;";
 	content += "  overflow: scroll;";
 	content += "}";
 	content += "tbody td {";
@@ -729,91 +732,102 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 			//
 			var uobwArrivalDateTime = toHalfHour(joinDateTime(uobwfArrivalDate, uobwfArrivalTime));
 			
-			//Find the start and end cell in the ops board
+			//See if the arrival date/time is before the date/time of the first cell
+			//If so, then ignore it
 			//
-			var startCellNumber = findCellByDate(_opsBoard, _opsKey, uobwDepartureDateTime);
-			var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwArrivalDateTime);
-			
-			//If the start cell has come back as zero, then we must have started before the ops board range, therefore set the start to be cell 1
-			//If the end cell has come back as zero, then we must have ended after the ops board range, therefore set the start to be cell 97
-			//Also set up a little marker to indicate that the time is actually off the start/end of the ops board when displaying on the bar
-			//
-			var beforeStartMarker = (startCellNumber == 0 ? '<' : '');
-			var afterEndMarker = (endCellNumber == 0 ? '>' : '');
-			
-			startCellNumber = (startCellNumber == 0 ? 1 : startCellNumber); 
-			endCellNumber = (endCellNumber == 0 ? MAXOPSBOARDSIZE : endCellNumber); 
-			
-			//Check to see if we can fit in the departure airport in the ops board i.e. the start cell has to be > 1
-			//
-			if(startCellNumber > 1)
+			if(uobwArrivalDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime())
 				{
-					_opsBoard[_opsKey][startCellNumber - 1].cellText = uobwfDepartureAirport;
-					_opsBoard[_opsKey][startCellNumber - 1].cellTextColour = HTMLCOLOURBLACK;
-					_opsBoard[_opsKey][startCellNumber - 1].cellBackgroundColour = HTMLCOLOURWHITE;
+					//do nothing
+					//
 				}
-		
-			//Check to see if we can fit in the arrival airport in the ops board i.e. the end cell has to be < 97
-			//
-			if(endCellNumber < MAXOPSBOARDSIZE)
+			else
 				{
-					_opsBoard[_opsKey][endCellNumber + 1].cellText = uobwfArrivalAirport;
-					_opsBoard[_opsKey][endCellNumber + 1].cellTextColour = HTMLCOLOURBLACK;
-					_opsBoard[_opsKey][endCellNumber + 1].cellBackgroundColour = HTMLCOLOURWHITE;
-				}
-		
-			
-			//See if we need to change the estimated bar from black to amber if we are within 5 minutes of 'now'
-			//and we still do not have any actual departure date/time
-			//
-			var blockColour = HTMLCOLOURBLACK;
-			
-			if( _now.getTime() >= uobwDepartureDateTimeFiveMinsBefore.getTime()  && (uobwfOffBlockTime == '' || uobwfOffBlockTime == null))
-				{
-					blockColour = HTMLCOLOURAMBER;
-				}
+					//Find the start and end cell in the ops board
+					//
+					var startCellNumber = findCellByDate(_opsBoard, _opsKey, uobwDepartureDateTime);
+					var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwArrivalDateTime);
+					
+					//If the start cell has come back as zero, then we must have started before the ops board range, therefore set the start to be cell 1
+					//If the end cell has come back as zero, then we must have ended after the ops board range, therefore set the start to be cell 97
+					//Also set up a little marker to indicate that the time is actually off the start/end of the ops board when displaying on the bar
+					//
+					var beforeStartMarker = (startCellNumber == 0 ? '<' : '');
+					var afterEndMarker = (endCellNumber == 0 ? '>' : '');
+					
+					startCellNumber = (startCellNumber == 0 ? 1 : startCellNumber); 
+					endCellNumber = (endCellNumber == 0 ? MAXOPSBOARDSIZE : endCellNumber); 
+					
+					//Check to see if we can fit in the departure airport in the ops board i.e. the start cell has to be > 1
+					//
+					if(startCellNumber > 1)
+						{
+							_opsBoard[_opsKey][startCellNumber - 1].cellText = uobwfDepartureAirport;
+							_opsBoard[_opsKey][startCellNumber - 1].cellTextColour = HTMLCOLOURBLACK;
+							_opsBoard[_opsKey][startCellNumber - 1].cellBackgroundColour = HTMLCOLOURWHITE;
+						}
 				
-			//Fill in the flight bar between the start and the end cells
-			//
-			for (var cellCounter = startCellNumber; cellCounter <= endCellNumber; cellCounter++) 
-				{
-					_opsBoard[_opsKey][cellCounter].cellTextColour = HTMLCOLOURWHITE;
-					_opsBoard[_opsKey][cellCounter].cellBackgroundColour = blockColour;
-					_opsBoard[_opsKey][cellCounter].cellHyperlink = uobwfFixtureHyperlink;
-					_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + blockColour + ";\"href=\"/app/accounting/transactions/salesord.nl?id=" + uobwfFixtureHyperlink + " \"target=\"_blank\">link</a>";
-					
-					//If we are on the first cell of the bar, the add the departure time to the cell text
+					//Check to see if we can fit in the arrival airport in the ops board i.e. the end cell has to be < 97
 					//
-					if(cellCounter == startCellNumber)
+					if(endCellNumber < MAXOPSBOARDSIZE)
 						{
-							//_opsBoard[_opsKey][cellCounter].cellText = beforeStartMarker + uobwfDepartureTime;
-							_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/accounting/transactions/salesord.nl?id=" + uobwfFixtureHyperlink + " \"target=\"_blank\">" + beforeStartMarker + uobwfDepartureTime + "</a>";
+							_opsBoard[_opsKey][endCellNumber + 1].cellText = uobwfArrivalAirport;
+							_opsBoard[_opsKey][endCellNumber + 1].cellTextColour = HTMLCOLOURBLACK;
+							_opsBoard[_opsKey][endCellNumber + 1].cellBackgroundColour = HTMLCOLOURWHITE;
+						}
+				
+					
+					//See if we need to change the estimated bar from black to amber if we are within 5 minutes of 'now'
+					//and we still do not have any actual departure date/time
+					//
+					var blockColour = HTMLCOLOURBLACK;
+					
+					if( _now.getTime() >= uobwDepartureDateTimeFiveMinsBefore.getTime()  && (uobwfOffBlockTime == '' || uobwfOffBlockTime == null))
+						{
+							blockColour = HTMLCOLOURAMBER;
+						}
+						
+					//Fill in the flight bar between the start and the end cells
+					//
+					for (var cellCounter = startCellNumber; cellCounter <= endCellNumber; cellCounter++) 
+						{
+							_opsBoard[_opsKey][cellCounter].cellTextColour = HTMLCOLOURWHITE;
+							_opsBoard[_opsKey][cellCounter].cellBackgroundColour = blockColour;
+							_opsBoard[_opsKey][cellCounter].cellHyperlink = uobwfFixtureHyperlink;
+							_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + blockColour + ";\"href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">link</a>";
+							
+							//If we are on the first cell of the bar, the add the departure time to the cell text
+							//
+							if(cellCounter == startCellNumber)
+								{
+									//_opsBoard[_opsKey][cellCounter].cellText = beforeStartMarker + uobwfDepartureTime;
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + beforeStartMarker + uobwfDepartureTime + "</a>";
+								}
+							
+							//If we are on the last cell of the bar, the add the arrival time to the cell text
+							//
+							if(cellCounter == endCellNumber)
+								{
+									//_opsBoard[_opsKey][cellCounter].cellText = uobwfArrivalTime + afterEndMarker;
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfArrivalTime + afterEndMarker + "</a>";
+								}
 						}
 					
-					//If we are on the last cell of the bar, the add the arrival time to the cell text
+					//Find the middle cell of the bar to put the flight number in, but only if we have a bar length > 2 cells
 					//
-					if(cellCounter == endCellNumber)
+					var barLength = (endCellNumber - startCellNumber) + 1;
+					
+					if(barLength > 2)
 						{
-							//_opsBoard[_opsKey][cellCounter].cellText = uobwfArrivalTime + afterEndMarker;
-							_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/accounting/transactions/salesord.nl?id=" + uobwfFixtureHyperlink + " \"target=\"_blank\">" + uobwfArrivalTime + afterEndMarker + "</a>";
+							var middle = Math.floor((barLength - 1) / 2);
+							var middleCell = startCellNumber + middle;
+							
+							_opsBoard[_opsKey][middleCell].cellTextSize = '8pt';
+							_opsBoard[_opsKey][middleCell].cellTextColour = HTMLCOLOURWHITE;
+							_opsBoard[_opsKey][middleCell].cellBackgroundColour = blockColour;
+							//_opsBoard[_opsKey][middleCell].cellText = uobwfFlightNumber;
+							_opsBoard[_opsKey][middleCell].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/accounting/transactions/salesord.nl?id=" + uobwfFixtureHyperlink + " \"target=\"_blank\">" + uobwfFlightNumber + "</a>";
+							
 						}
-				}
-			
-			//Find the middle cell of the bar to put the flight number in, but only if we have a bar length > 2 cells
-			//
-			var barLength = (endCellNumber - startCellNumber) + 1;
-			
-			if(barLength > 2)
-				{
-					var middle = Math.floor((barLength - 1) / 2);
-					var middleCell = startCellNumber + middle;
-					
-					_opsBoard[_opsKey][middleCell].cellTextSize = '8pt';
-					_opsBoard[_opsKey][middleCell].cellTextColour = HTMLCOLOURWHITE;
-					_opsBoard[_opsKey][middleCell].cellBackgroundColour = blockColour;
-					//_opsBoard[_opsKey][middleCell].cellText = uobwfFlightNumber;
-					_opsBoard[_opsKey][middleCell].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"href=\"/app/accounting/transactions/salesord.nl?id=" + uobwfFixtureHyperlink + " \"target=\"_blank\">" + uobwfFlightNumber + "</a>";
-					
 				}
 		}
 	
@@ -890,97 +904,108 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 								}
 						}
 					
-					//Find the start and end cell in the ops board
+					//See if the arrival date/time is before the date/time of the first cell
+					//If so, then ignore it
 					//
-					var startCellNumber = findCellByDate(_opsBoard, _opsKey, uobwOffBlockDateTime);
-					var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwTheEndDateTime);
-					
-					//If the start cell has come back as zero, then we must have started before the ops board range, therefore set the start to be cell 1
-					//If the end cell has come back as zero, then we must have ended after the ops board range, therefore set the start to be cell 97
-					//Also set up a little marker to indicate that the time is actually off the start/end of the ops board when displaying on the bar
-					//
-					var beforeStartMarker = (startCellNumber == 0 ? '<' : '');
-					var afterEndMarker = (endCellNumber == 0 ? '>' : '');
-					
-					startCellNumber = (startCellNumber == 0 ? 1 : startCellNumber); 
-					endCellNumber = (endCellNumber == 0 ? MAXOPSBOARDSIZE : endCellNumber); 
-					
-					//Check to see if we can fit in the diverted airport in the ops board i.e. the end cell has to be < 97
-					//
-					if(endCellNumber < MAXOPSBOARDSIZE && (uobwfDivertedAirport != null && uobwfDivertedAirport != ''))
+					if(uobwTheEndDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime())
 						{
-							_opsBoard[_opsKey][endCellNumber + 1].cellText = uobwfDivertedAirport;
-							_opsBoard[_opsKey][endCellNumber + 1].cellTextColour = HTMLCOLOURBLACK;
-							_opsBoard[_opsKey][endCellNumber + 1].cellBackgroundColour = HTMLCOLOURWHITE;
+							//do nothing
+							//
 						}
-				
-					var blockColour = HTMLCOLOURGREEN;
+					else
+						{
+							//Find the start and end cell in the ops board
+							//
+							var startCellNumber = findCellByDate(_opsBoard, _opsKey, uobwOffBlockDateTime);
+							var endCellNumber = findCellByDate(_opsBoard, _opsKey, uobwTheEndDateTime);
+							
+							//If the start cell has come back as zero, then we must have started before the ops board range, therefore set the start to be cell 1
+							//If the end cell has come back as zero, then we must have ended after the ops board range, therefore set the start to be cell 97
+							//Also set up a little marker to indicate that the time is actually off the start/end of the ops board when displaying on the bar
+							//
+							var beforeStartMarker = (startCellNumber == 0 ? '<' : '');
+							var afterEndMarker = (endCellNumber == 0 ? '>' : '');
+							
+							startCellNumber = (startCellNumber == 0 ? 1 : startCellNumber); 
+							endCellNumber = (endCellNumber == 0 ? MAXOPSBOARDSIZE : endCellNumber); 
+							
+							//Check to see if we can fit in the diverted airport in the ops board i.e. the end cell has to be < 97
+							//
+							if(endCellNumber < MAXOPSBOARDSIZE && (uobwfDivertedAirport != null && uobwfDivertedAirport != ''))
+								{
+									_opsBoard[_opsKey][endCellNumber + 1].cellText = uobwfDivertedAirport;
+									_opsBoard[_opsKey][endCellNumber + 1].cellTextColour = HTMLCOLOURBLACK;
+									_opsBoard[_opsKey][endCellNumber + 1].cellBackgroundColour = HTMLCOLOURWHITE;
+								}
 						
-					//Fill in the flight bar between the start and the end cells
-					//
-					var airborneCellNumber = Number(startCellNumber) + 1;
-					var touchdownCellNumber = Number(endCellNumber) - 1;
-					
-					//If we were late departing & late arriving, then set all the cell colours to be red
-					//
-					if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime() && uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
-						{
-							blockColour = HTMLCOLOURRED;
-						}
-					
-					for (var cellCounter = startCellNumber; cellCounter <= endCellNumber; cellCounter++) 
-						{
-							_opsBoard[_opsKey][cellCounter].cellTextColour = HTMLCOLOURWHITE;
-							_opsBoard[_opsKey][cellCounter].cellBackgroundColour = blockColour;
-							_opsBoard[_opsKey][cellCounter].cellHyperlink = uobwfSectorHyperlink;
-							_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + blockColour + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">link</a>";
-							
-
-							//If we are on the airborne cell of the bar, the add the airborne time to the cell text
+							var blockColour = HTMLCOLOURGREEN;
+								
+							//Fill in the flight bar between the start and the end cells
 							//
-							if(cellCounter == airborneCellNumber && (uobwfAirborneTime != null && uobwfAirborneTime != ''))
+							var airborneCellNumber = Number(startCellNumber) + 1;
+							var touchdownCellNumber = Number(endCellNumber) - 1;
+							
+							//If we were late departing & late arriving, then set all the cell colours to be red
+							//
+							if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime() && uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
 								{
-									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfAirborneTime + "</a>";
+									blockColour = HTMLCOLOURRED;
 								}
 							
-							
-							//If we are on the touchdown cell of the bar, the add the touchdown time to the cell text
-							//
-							if(cellCounter == touchdownCellNumber && (uobwfTouchdownTime != null && uobwfTouchdownTime != ''))
+							for (var cellCounter = startCellNumber; cellCounter <= endCellNumber; cellCounter++) 
 								{
-									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfTouchdownTime + "</a>";
-								}
-							
-							
-							//If we are on the first cell of the bar, the add the departure time to the cell text
-							//
-							if(cellCounter == startCellNumber)
-								{
-									//If we were late departing, then set the first cell colour to be red
+									_opsBoard[_opsKey][cellCounter].cellTextColour = HTMLCOLOURWHITE;
+									_opsBoard[_opsKey][cellCounter].cellBackgroundColour = blockColour;
+									_opsBoard[_opsKey][cellCounter].cellHyperlink = uobwfSectorHyperlink;
+									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + blockColour + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">link</a>";
+									
+		
+									//If we are on the airborne cell of the bar, the add the airborne time to the cell text
 									//
-									if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime())
+									if(cellCounter == airborneCellNumber && (uobwfAirborneTime != null && uobwfAirborneTime != ''))
 										{
-											_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+											_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfAirborneTime + "</a>";
 										}
 									
-									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + beforeStartMarker + uobwfOffBlockTime + "</a>";
 									
-								}
-							
-							
-							//If we are on the last cell of the bar, the add the arrival time to the cell text
-							//
-							if(cellCounter == endCellNumber)
-								{
-									//If we were late arriving, then set the last cell colour to be red
+									//If we are on the touchdown cell of the bar, the add the touchdown time to the cell text
 									//
-									if(uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
+									if(cellCounter == touchdownCellNumber && (uobwfTouchdownTime != null && uobwfTouchdownTime != ''))
 										{
-											_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+											_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwfTouchdownTime + "</a>";
 										}
 									
-									_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"  href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwTheEndTime + afterEndMarker + "</a>";
 									
+									//If we are on the first cell of the bar, the add the departure time to the cell text
+									//
+									if(cellCounter == startCellNumber)
+										{
+											//If we were late departing, then set the first cell colour to be red
+											//
+											if(uobwOffBlockDateTimeUnRounded.getTime() > uobwDepartureDateTimeUnRounded.getTime())
+												{
+													_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+												}
+											
+											_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\" href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + beforeStartMarker + uobwfOffBlockTime + "</a>";
+											
+										}
+									
+									
+									//If we are on the last cell of the bar, the add the arrival time to the cell text
+									//
+									if(cellCounter == endCellNumber)
+										{
+											//If we were late arriving, then set the last cell colour to be red
+											//
+											if(uobwTheEndDateTimeUnRounded.getTime() > uobwArrivalDateTimeUnRounded.getTime())
+												{
+													_opsBoard[_opsKey][cellCounter].cellBackgroundColour = HTMLCOLOURRED;
+												}
+											
+											_opsBoard[_opsKey][cellCounter].cellText = "<a style=\"text-decoration: none; color: " + HTMLCOLOURWHITE + ";\"  href=\"/app/common/custom/custrecordentry.nl?rectype=34&id=" + uobwfSectorHyperlink + " \"target=\"_blank\">" + uobwTheEndTime + afterEndMarker + "</a>";
+											
+										}
 								}
 						}
 				}
@@ -992,6 +1017,7 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 //
 function updateOpsBoardWithAircraft(_opsBoard, _opsKey, _results, _rowType)
 {
+	_opsBoard[_opsKey][0].fixtureId = _results.getValue("internalid","CUSTRECORD_SECTOR_FIXTURE")
 	_opsBoard[_opsKey][0].aircraftReg = _results.getValue("custrecord_fw_acreg");
 	_opsBoard[_opsKey][0].aircraftNo = _results.getValue("custrecord_fw_acno");
 	_opsBoard[_opsKey][0].fixtureRef = _results.getText("custrecord_sector_fixture");
