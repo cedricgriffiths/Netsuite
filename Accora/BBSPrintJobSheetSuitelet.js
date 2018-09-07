@@ -226,12 +226,13 @@ function printJobSheetSuitelet(request, response)
 			//
 			var now = new Date();
 			var fileNameDateTime = now.format('Y') +  now.format('m') + now.format('d') + '_' + now.format('H') + now.format('i') + now.format('s');
-			var pdfFileName = 'Engineer Job Sheet ' + fileNameDateTime;
+			var caseNumber = nlapiLookupField('supportcase', caseParam, 'casenumber', false);
+			var pdfFileName = 'Engineer Job Sheet ' + caseNumber + '_' + fileNameDateTime;
 			
 			//Set the file name & folder
 			//
 			file.setName(pdfFileName);
-			file.setFolder(-10);	//Attachments Received Folder in File Cabinet
+			file.setFolder(262601);	//Jbsheets Folder in File Cabinet
 
 		    //Upload the file to the file cabinet.
 			//
@@ -241,7 +242,7 @@ function printJobSheetSuitelet(request, response)
 		    
 			// Send back the output in the response message
 			//
-			response.setContentType('PDF', 'Engineer Job Sheet', 'inline');
+			response.setContentType('PDF', 'Engineer Job Sheet.pdf', 'inline');
 			response.write(file.getValue());
 		}
 }
@@ -299,10 +300,19 @@ function buildOutput(caseId)
 			
 			
 			var subsidiaryName = nlapiEscapeXML(removePrefix(nlapiLookupField('subsidiary', subsidiaryId, 'name', false)));
-			var company = nlapiEscapeXML(nlapiLookupField('customer', companyId, 'companyname', false));
-			var contact = nlapiEscapeXML(nlapiLookupField('contact', contactId, 'entityid', false));
+			var company = '';
+			var contact = '';
 			
+			if(companyId != null && companyId != '')
+				{
+					company = nlapiEscapeXML(nlapiLookupField('customer', companyId, 'companyname', false));
+				}
 			
+			if(contactId != null && contactId != '')
+				{
+					contact = nlapiEscapeXML(nlapiLookupField('contact', contactId, 'entityid', false));
+				}
+		
 			engineer = (engineer == null ? '' : engineer);
 			calloutIssue = (calloutIssue == null ? '' : calloutIssue);
 			calloutType = (calloutType == null ? '' : calloutType);
@@ -356,7 +366,7 @@ function buildOutput(caseId)
 			xml += "<macrolist>";
 			xml += "<macro id=\"nlfooter\">";
 			xml += "<table style=\"width: 100%;\">";
-			xml += "<tr><td align=\"left\" style=\"font-size: 10px;\"><b>SOP307&ndash;A Rev 01</b></td></tr>";
+			xml += "<tr><td align=\"left\" style=\"font-size: 10px;\"><b>SOP307&ndash;A Rev 02</b></td></tr>";
 			xml += "</table>";
 			xml += "</macro>";
 			xml += "</macrolist>";
@@ -524,28 +534,24 @@ function buildOutput(caseId)
 			xml += "<table class=\"tabborderall\" style=\"width: 100%;\">";
 			xml += "<tr>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; line-height: 190%;\"><b>Customer</b></td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; line-height: 190%;\"><b>Engineer</b></td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
-			xml += "</tr>";					
+			xml += "</tr>";	
+			
 			xml += "<tr>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Sign:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Sign:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
-			xml += "</tr>";					
+			xml += "</tr>";	
+			
 			xml += "<tr>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Print:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Print:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
-			xml += "</tr>";					
+			xml += "</tr>";		
+			
 			xml += "<tr>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Date:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
 			xml += "<td align=\"left\" style=\"font-size: 10pt; width:50%; padding-left: 20px; line-height: 190%;\">Date:</td>";					
-			//xml += "<td align=\"left\" style=\"font-size: 10pt; width:25%; line-height: 190%;\">&nbsp;</td>";					
-			xml += "</tr>";					
+			xml += "</tr>";		
+			
 			xml += "</table>";
 						
 			//Finish 
