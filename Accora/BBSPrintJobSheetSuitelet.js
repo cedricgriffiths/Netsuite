@@ -332,6 +332,7 @@ function buildOutput(caseId)
 			xml += "<head>";
 			xml += "<style>";
 			
+			xml += "*{font-family: Arial, Helvetica, sans-serif;}";
 			xml += "table.tabborderall td {";
 			xml += "border: 1px solid black;";
 			xml += "border-collapse: collapse;";
