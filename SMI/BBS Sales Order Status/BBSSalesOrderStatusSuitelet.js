@@ -647,7 +647,23 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 
 	//Filter out data based of WO percentage buildable
 	//
-	
+	if(_woBuildable != null && _woBuildable != '')
+		{
+			for ( var salesOrderKey in salesOrderDetail) 
+				{
+					//Look for keys that represent lines, not headers (headers have a line number = '000000')
+					//
+					if(salesOrderKey.split('|')[1] != '000000')
+						{
+							//If we have found a line that does not match the filter, then delete it
+							//
+							if(salesOrderDetail[salesOrderKey].lineWoPercentBuildable != _woBuildable)
+								{
+									delete salesOrderDetail[salesOrderKey];
+								}
+						}
+				}
+		}
 	
 	
 	
@@ -675,7 +691,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
 	xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
 	xml += "b {font-weight: bold;color: #333333;}";
-	xml += "table.header td {padding: 0px;font-size: 10pt;}";
+	xml += "table.header td {padding: 0px; font-size: 10pt;}";
 	xml += "table.footer td {padding: 0;font-size: 6pt;}";
 	xml += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
 	xml += "table.body td {padding-top: 0px;}";
@@ -690,6 +706,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
 	xml += "td.message{font-size: 8pt;}";
 	xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
+	xml += "td.ordhead {padding-bottom: 10px;vertical-align: top;font-size:10px;}";
 	xml += "span.title {font-size: 28pt;}";
 	xml += "span.number {font-size: 16pt;}";
 	xml += "span.itemname {font-weight: bold;line-height: 150%;}";
@@ -709,15 +726,74 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	xml += "</macro>";
 					
 	xml += "<macro id=\"nlheader\">";
+	xml += "<table class=\"header\" style=\"width: 100%;\">";
+	xml += "<tr>";
+	xml += "<td align=\"center\">Sales Order Status";
+	xml += "</td>";
+	xml += "</tr>";
+	xml += "</table>";
 	xml += "</macro>";
 	xml += "</macrolist>";
 	xml += "</head>";
 							
 	//Body
 	//
-	xml += "<body header=\"nlheader\" header-height=\"350px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+	xml += "<body header=\"nlheader\" header-height=\"50px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4-LANDSCAPE\">";
 
-	xml += "<p>No Data To Print</p>";
+	var firstHeader = true;
+	
+	for ( var salesOrderKey in orderedSalesOrderDetail) 
+		{
+			//Order header
+			//
+			if(firstHeader)
+				{
+					firstHeader = false;
+				}
+			else
+				{
+					
+				}
+			
+			if(salesOrderKey.split('|')[1] == '000000')
+				{
+					xml += "<table class=\"ordhead\" style=\"width: 100%; page-break-inside: avoid;\">";
+					xml += "<thead>";
+					xml += "<tr>";
+					xml += "<th align=\"left\">Sales<br/>Order</th>";
+					xml += "<th colspan=\"2\" align=\"left\">Order<br/>Date</th>";
+					xml += "<th colspan=\"4\" align=\"left\"><br/>Customer</th>";
+					xml += "<th colspan=\"2\" align=\"left\">Ship<br/>Date</th>";
+					xml += "<th colspan=\"2\" align=\"left\"># Items<br/>Ordered</th>";
+					xml += "<th colspan=\"2\" align=\"left\"># Items<br/>Fulfillable</th>";
+					xml += "<th colspan=\"2\" align=\"left\"><br/>% Available</th>";
+					xml += "</tr>";
+					xml += "</thead>";
+					xml += "<tr>";
+					xml += "<td class=\"ordhead\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderNumber + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderCustomer + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderShipDate + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsFulfillable + "</td>";
+					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderPercentAvailable + "</td>";
+					xml += "</tr>";
+					
+					xml += "</table>";
+				
+				}
+			else
+				{
+					//Order detail
+					//
+				
+				}
+		}
+	
+	
+	
+	
+	//xml += "<p>No Data To Print</p>";
 	
 			
 	//Finish the body
@@ -727,16 +803,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	//Finish the pdf
 	//
 	xml += "</pdf>";
-	
-/*
-			xml += "<pdf>"
-			xml += "<head>";
-			xml += "</head>";
-			xml += "<body padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-			xml += "<p>No Data To Print</p>";
-			xml += "</body>";
-			xml += "</pdf>";
-*/
+
 	
 	//Convert to pdf using the BFO library
 	//
@@ -803,7 +870,7 @@ function salesOrderInfo(_orderNumber, _orderDate, _orderCustomer, _orderShipDate
 	this.orderCustomer = _orderCustomer;
 	this.orderShipDate = _orderShipDate;
 	this.orderItemsTotal = Number(0);
-	this.orderItemsNotFulfillable = Number(0);
+	this.orderItemsFulfillable = Number(0);
 	this.orderPercentAvailable = Number(0);
 	
 	this.lineNumber = '';
