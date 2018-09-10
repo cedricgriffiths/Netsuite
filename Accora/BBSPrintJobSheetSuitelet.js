@@ -229,10 +229,33 @@ function printJobSheetSuitelet(request, response)
 			var caseNumber = nlapiLookupField('supportcase', caseParam, 'casenumber', false);
 			var pdfFileName = 'Engineer Job Sheet ' + caseNumber + '_' + fileNameDateTime;
 			
+			var fileCount = Number(0);
+			
+			var supportcaseSearch = nlapiSearchRecord("supportcase",null,
+					[
+					   ["internalid","anyof",caseParam], 
+					   "AND", 
+					   ["file.internalid","noneof","@NONE@"]
+					], 
+					[
+					   new nlobjSearchColumn("casenumber").setSort(false), 
+					   new nlobjSearchColumn("internalid","file",null)
+					]
+					);
+			
+			if(supportcaseSearch)
+				{
+					fileCount = supportcaseSearch.length;
+				}
+			
+			fileCount++;
+			
+			pdfFileName += '_' + fileCount.toFixed(0);
+			
 			//Set the file name & folder
 			//
 			file.setName(pdfFileName);
-			file.setFolder(262601);	//Jbsheets Folder in File Cabinet
+			file.setFolder(262601);	//Jobsheets Folder in File Cabinet
 
 		    //Upload the file to the file cabinet.
 			//
@@ -242,7 +265,7 @@ function printJobSheetSuitelet(request, response)
 		    
 			// Send back the output in the response message
 			//
-			response.setContentType('PDF', 'Engineer Job Sheet.pdf', 'inline');
+			response.setContentType('PDF', pdfFileName + '.pdf', 'inline');
 			response.write(file.getValue());
 		}
 }
