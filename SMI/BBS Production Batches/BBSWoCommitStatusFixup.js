@@ -115,6 +115,7 @@ function scheduled(type)
 					var lastLevelOneItem = '';
 					var totalQuantity = Number(0);
 					var totalCommitted = Number(0);
+					var lowestCommitted = Number(99999);
 					
 					var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
 						
@@ -185,6 +186,13 @@ function scheduled(type)
 							//
 							if(lineItemSource == 'STOCK' && lineItemType == 'InvtPart')
 								{
+									//Find the lowest quantity that can be built
+									//
+									if(lineItemCommitted < lowestCommitted)
+										{
+											lowestCommitted = lineItemCommitted;
+										}
+									
 									//Increment the number of lines that should be committed
 									//
 									linesToCommit++;
@@ -311,6 +319,10 @@ function scheduled(type)
 								newRecord.setFieldValue('custbody_bbs_wo_logo_type', woLogoType);
 							}
 					
+						//Set the lowest committed value
+						//
+						lowestCommitted = (lowestCommitted == 99999 ? 0 : lowestCommitted);
+						newRecord.setFieldValue('custbody_bbs_wo_qty_can_build', lowestCommitted);
 						
 						//Set the commitment percentage
 						//

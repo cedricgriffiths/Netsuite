@@ -339,8 +339,8 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 
 	var salesorderSearch = getResults(nlapiCreateSearch("salesorder",filters,
 			[
-			   new nlobjSearchColumn("trandate"), 
-			   new nlobjSearchColumn("tranid").setSort(false), 
+			   new nlobjSearchColumn("trandate").setSort(false), 
+			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("entity"), 
 			   new nlobjSearchColumn("shipdate"),
 			   new nlobjSearchColumn("entityid","customer",null)
@@ -365,12 +365,13 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 					
 					//Save the header details away in an object
 					//
+					var searchOrderId = salesorderSearch[int].getId();
 					var searchOrderNumber = salesorderSearch[int].getValue("tranid");
 					var searchOrderDate = salesorderSearch[int].getValue("trandate");
 					var searchOrderShipDate = salesorderSearch[int].getValue("shipdate");
 					var searchOrderCustomer = salesorderSearch[int].getValue("entityid","customer");
 					
-					salesOrderDetail[orderAndLineKey] = new salesOrderInfo(searchOrderNumber, searchOrderDate, searchOrderCustomer, searchOrderShipDate);
+					salesOrderDetail[orderAndLineKey] = new salesOrderInfo(searchOrderId, searchOrderNumber, searchOrderDate, searchOrderCustomer, searchOrderShipDate);
 				}
 		}
 	
@@ -378,294 +379,254 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	//
 	//Process SALES ORDER LINES
 	//
-	var filters = [
-				   ["type","anyof","SalesOrd"], 
-				   "AND", 
-				   ["mainline","is","F"], 
-				   "AND", 
-				   ["taxline","is","F"], 
-				   "AND", 
-				   ["shipping","is","F"],
-				   "AND",
-				   ["internalid","anyof",salesOrderList]
-				];
-	
-	var salesorderLineSearch = getResults(nlapiCreateSearch("salesorder",filters,
-			[
-			   new nlobjSearchColumn("tranid").setSort(false), 
-			   new nlobjSearchColumn("linesequencenumber").setSort(false),
-			   new nlobjSearchColumn("item"), 
-			   new nlobjSearchColumn("itemid","item",null), 
-			   new nlobjSearchColumn("quantity"), 
-			   new nlobjSearchColumn("quantitycommitted"), 
-			   new nlobjSearchColumn("quantityshiprecv"), 
-			   new nlobjSearchColumn("custcol_bbs_wo_id"), 
-			   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID",null), 
-			   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null),
-			   new nlobjSearchColumn("mainline","CUSTCOL_BBS_WO_ID",null)
-			]
-			));
-
-	//Have we got any results
-	//
-	if(salesorderLineSearch)
+	if(salesOrderList.length > 0)
 		{
-			//Loop through the results
+			var filters = [
+						   ["type","anyof","SalesOrd"], 
+						   "AND", 
+						   ["mainline","is","F"], 
+						   "AND", 
+						   ["taxline","is","F"], 
+						   "AND", 
+						   ["shipping","is","F"],
+						   "AND",
+						   ["internalid","anyof",salesOrderList]
+						];
+			
+			var salesorderLineSearch = getResults(nlapiCreateSearch("salesorder",filters,
+					[
+					   new nlobjSearchColumn("tranid").setSort(false), 
+					   new nlobjSearchColumn("linesequencenumber").setSort(false),
+					   new nlobjSearchColumn("item"), 
+					   new nlobjSearchColumn("type","item"), 
+					   new nlobjSearchColumn("itemid","item",null), 
+					   new nlobjSearchColumn("quantity"), 
+					   new nlobjSearchColumn("quantitycommitted"), 
+					   new nlobjSearchColumn("quantityshiprecv"), 
+					    new nlobjSearchColumn("custcol_bbs_wo_id"), 
+					   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID",null), 
+					   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null),
+					   new nlobjSearchColumn("tranid","CUSTCOL_BBS_WO_ID",null),
+					   new nlobjSearchColumn("mainline","CUSTCOL_BBS_WO_ID",null)
+					]
+					));
+		
+			//Have we got any results
 			//
-			for (var int = 0; int < salesorderLineSearch.length; int++) 
+			if(salesorderLineSearch)
 				{
-					var salesOrderId = salesorderLineSearch[int].getId();
-					var searchLineNumber = salesorderLineSearch[int].getValue("linesequencenumber");
-					var searchLineItemId = salesorderLineSearch[int].getValue("item");
-					var searchLineItemText = salesorderLineSearch[int].getValue("itemid","item");
-					var searchLineQuantity = Number(salesorderLineSearch[int].getValue("quantity"));
-					var searchLineCommitted = Number(salesorderLineSearch[int].getValue("quantitycommitted"));
-					var searchLineShipped = Number(salesorderLineSearch[int].getValue("quantityshiprecv"));
-					var searchLineWoId = salesorderLineSearch[int].getValue("custcol_bbs_wo_id");
-					var searchLineWoText = salesorderLineSearch[int].getText("custcol_bbs_wo_id");
-					var searchLineWoCanBuild = salesorderLineSearch[int].getText("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
-					var searchLineWoCanBuildId = salesorderLineSearch[int].getValue("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
-					var searchLineWoCommitStatus = salesorderLineSearch[int].getText("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID");
-					var searchLineWoMainLine = salesorderLineSearch[int].getValue("mainline","CUSTCOL_BBS_WO_ID");
-
-					//Filter out the multiple lines from the works order link
+					//Loop through the results
 					//
-					if(searchLineWoMainLine == '*' || (searchLineWoId == '' || searchLineWoId == null) )
+					for (var int = 0; int < salesorderLineSearch.length; int++) 
 						{
-							//Build up the sales order key which is order number + line number
-							//
-							var orderAndLineKey = padding_left(salesOrderId,'0', 6) + '|' + padding_left(searchLineNumber,'0', 6);
-							var orderHeaderKey = padding_left(salesOrderId,'0', 6) + '|' + '000000';
+							var salesOrderId = salesorderLineSearch[int].getId();
+							var searchLineNumber = salesorderLineSearch[int].getValue("linesequencenumber");
+							var searchLineItemType = salesorderLineSearch[int].getValue("type","item");
+							var searchLineItemId = salesorderLineSearch[int].getValue("item");
+							var searchLineItemText = salesorderLineSearch[int].getValue("itemid","item");
+							var searchLineQuantity = Number(salesorderLineSearch[int].getValue("quantity"));
+							var searchLineCommitted = Number(salesorderLineSearch[int].getValue("quantitycommitted"));
+							var searchLineFulfilled = Number(salesorderLineSearch[int].getValue("quantityshiprecv"));
+							var searchLineWoId = salesorderLineSearch[int].getValue("custcol_bbs_wo_id");
+							var searchLineWoText = salesorderLineSearch[int].getValue("tranid","CUSTCOL_BBS_WO_ID");
+							var searchLineWoCanBuild = salesorderLineSearch[int].getText("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
+							var searchLineWoCanBuildId = salesorderLineSearch[int].getValue("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID");
+							var searchLineWoCommitStatus = salesorderLineSearch[int].getText("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID");
+							var searchLineWoMainLine = salesorderLineSearch[int].getValue("mainline","CUSTCOL_BBS_WO_ID");
+							var searchLineWoCanBuildQty = Number(salesorderLineSearch[int].getValue("custbody_bbs_wo_qty_can_build","CUSTCOL_BBS_WO_ID"));
 							
-							//Update the total number of items ordered on the header
+							//Filter out the multiple lines from the works order link
 							//
-							salesOrderDetail[orderHeaderKey].orderItemsTotal += searchLineQuantity;
-							
-							//Check to see if we need to filter by WO percentage buildable
-							//
-							var saveLine = false;
-							
-							if(_woBuildable != null && _woBuildable != '')
+							if(searchLineWoMainLine == '*' || (searchLineWoId == '' || searchLineWoId == null) )
 								{
-									if(_woBuildable == searchLineWoCanBuildId)
+									//Build up the sales order key which is order number + line number
+									//
+									var orderAndLineKey = padding_left(salesOrderId,'0', 6) + '|' + padding_left(searchLineNumber,'0', 6);
+									var orderHeaderKey = padding_left(salesOrderId,'0', 6) + '|' + '000000';
+									
+									//Update the total number of items ordered on the header
+									//
+									salesOrderDetail[orderHeaderKey].orderItemsTotal += searchLineQuantity;
+									
+									//Update the total number of items that have been fulfilled on the header
+									//
+									salesOrderDetail[orderHeaderKey].orderItemsFulfilled += searchLineFulfilled;
+										
+									//Update the number of items fulfillable
+									//
+									if(searchLineItemType == 'InvtPart')
+										{
+											salesOrderDetail[orderHeaderKey].orderItemsFulfillable += searchLineCommitted;
+										}
+								
+									if(searchLineItemType == 'Assembly')
+										{
+											salesOrderDetail[orderHeaderKey].orderItemsFulfillable += searchLineWoCanBuildQty;
+										}
+								
+								
+									//Check to see if we need to filter by WO percentage buildable
+									//
+									var saveLine = false;
+									
+									if(_woBuildable != null && _woBuildable != '')
+										{
+											if(_woBuildable == searchLineWoCanBuildId)
+												{
+													saveLine = true;
+												}
+										}
+									else
 										{
 											saveLine = true;
 										}
-								}
-							else
-								{
-									saveLine = true;
-								}
-							
-							if(saveLine)
-								{
-									//Save the line information to an object
-									//
-									var lineDetails = new salesOrderInfo();
-									lineDetails.lineNumber = searchLineNumber;
-									lineDetails.lineItemId = searchLineItemId;
-									lineDetails.lineItemText = searchLineItemText;
-									lineDetails.lineOrdered = searchLineQuantity;
-									lineDetails.lineFulfilled = searchLineShipped;
-									lineDetails.lineWoNo = searchLineWoText;
-									lineDetails.lineWoPercentBuildable = searchLineWoCanBuild;
-									lineDetails.lineWoCommitStatus = searchLineWoCommitStatus;
-								
-									//Add to the order details object
-									//
-									salesOrderDetail[orderAndLineKey] = lineDetails;
 									
-									//Save away the item to an object
-									//
-									itemsObject[searchLineItemId] = searchLineItemId;
+									if(saveLine)
+										{
+											//Increment the number of lines that are on this sales order
+											//
+											salesOrderDetail[orderHeaderKey].orderLineCount ++;
+											
+											//Save the line information to an object
+											//
+											var lineDetails = new salesOrderInfo();
+											lineDetails.lineNumber = searchLineNumber;
+											lineDetails.lineItemId = searchLineItemId;
+											lineDetails.lineItemText = searchLineItemText;
+											lineDetails.lineOrdered = searchLineQuantity;
+											lineDetails.lineFulfilled = searchLineFulfilled;
+											lineDetails.lineWoNo = searchLineWoText;
+											lineDetails.lineWoId = searchLineWoId;
+											lineDetails.lineWoPercentBuildable = searchLineWoCanBuildId;
+											lineDetails.lineWoPercentBuildableText = searchLineWoCanBuild
+											lineDetails.lineWoCommitStatus = searchLineWoCommitStatus;
+										
+											//Add to the order details object
+											//
+											salesOrderDetail[orderAndLineKey] = lineDetails;
+											
+											//Save away the item to an object
+											//
+											itemsObject[searchLineItemId] = searchLineItemId;
+										}
 								}
 						}
 				}
-		}
-	
-	//Convert the items object to an array for use in a search
-	//
-	for ( var items in itemsObject) 
-		{
-			itemsList.push(items);
-		}
-	
+			
+			//Convert the items object to an array for use in a search
+			//
+			for ( var items in itemsObject) 
+				{
+					itemsList.push(items);
+				}
+		}	
 	
 	//
 	//Process PURCHASE ORDER LINES
 	//
 	
-	//We need to find any PO's for the items that are on the sales orders
-	//
-	var purchaseorderSearch = getResults(nlapiCreateSearch("purchaseorder",
-			[
-			   ["type","anyof","PurchOrd"], 
-			   "AND", 
-			   ["mainline","is","F"], 
-			   "AND", 
-			   ["taxline","is","F"], 
-			   "AND", 
-			   ["shipping","is","F"], 
-			   "AND", 
-			   ["status","anyof","PurchOrd:D","PurchOrd:E","PurchOrd:B"], //Partially Received, Pending Billing/Partially Received, Pending Receipt
-			   "AND", 
-			   ["quantityshiprecv","equalto","0"], 
-			   "AND", 
-			   ["item","anyof",itemsList], 
-			   "AND", 
-			   ["duedate","isnotempty",""]
-			], 
-			[
-			   new nlobjSearchColumn("item").setSort(false), 
-			   new nlobjSearchColumn("duedate").setSort(true), 
-			   new nlobjSearchColumn("tranid")
-			]
-			));
-	
-	//Process the found purchase orders
-	//
-	if(purchaseorderSearch)
+	if(itemsList.length > 0)
 		{
-			lastItemId = '';
-			
-			for (var int = 0; int < purchaseorderSearch.length; int++) 
-				{
-					var poItemId = purchaseorderSearch[int].getValue('item');
-					var poDueDate = purchaseorderSearch[int].getValue('duedate');
-					var poNumber = purchaseorderSearch[int].getValue('tranid');
-					var poId = purchaseorderSearch[int].getId();
-					
-					if(lastItemId != poItemId)
-						{
-							lastItemId = poItemId;
-							purchaseOrderItems[poItemId] = new purchaseOrderInfo(poNumber, poDueDate, poId);
-						}
-				}
-		}
-	
-	//Loop through the sales orders looking at the lines & then see if there is a po for the item
-	//if there is one, then update the sales order line with the po details
-	//
-	for ( var salesOrderKey in salesOrderDetail) 
-		{
-			//Look for keys that represent lines, not headers (headers have a line number = '000000')
+			//We need to find any PO's for the items that are on the sales orders
 			//
-			if(salesOrderKey.split('|')[1] != '000000')
-				{
-					var salesOrderItemId = salesOrderDetail[salesOrderKey].lineItemId;
-					
-					var matchingPoDetail = purchaseOrderItems[salesOrderItemId];
-					
-					//See if we have found the po detail for the item
-					//
-					if(matchingPoDetail != null)
-						{
-							salesOrderDetail[salesOrderKey].linePoNo = matchingPoDetail.orderNumber;
-							salesOrderDetail[salesOrderKey].linePoDueDate = matchingPoDetail.orderDueDate;
-							salesOrderDetail[salesOrderKey].linePoId = matchingPoDetail.orderId;
-						}
-				}
-		}
-	
-	
-	//
-	//Process WORKS ORDER LINES
-	//
-	
-	//We need to find any PO's for the items that are on the sales orders
-	//
-	var workorderSearch = getResults(nlapiCreateSearch("workorder",
-			[
-			   ["type","anyof","WorkOrd"], 
-			   "AND", 
-			   ["mainline","is","F"], 
-			   "AND", 
-			   ["taxline","is","F"], 
-			   "AND", 
-			   ["shipping","is","F"], 
-			   "AND", 
-			   ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"], 
-			   "AND", 
-			   ["item","anyof",itemsList]
-			], 
-			[
-			   new nlobjSearchColumn("item").setSort(false), 
-			   new nlobjSearchColumn("trandate").setSort(true), 
-			   new nlobjSearchColumn("tranid"),
-			   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build")
-			]
-			));
-	
-	//Process the found works orders
-	//
-	if(workorderSearch)
-		{
-			lastItemId = '';
+			var purchaseorderSearch = getResults(nlapiCreateSearch("purchaseorder",
+					[
+					   ["type","anyof","PurchOrd"], 
+					   "AND", 
+					   ["mainline","is","F"], 
+					   "AND", 
+					   ["taxline","is","F"], 
+					   "AND", 
+					   ["shipping","is","F"], 
+					   "AND", 
+					   ["status","anyof","PurchOrd:D","PurchOrd:E","PurchOrd:B"], //Partially Received, Pending Billing/Partially Received, Pending Receipt
+					   "AND", 
+					   ["quantityshiprecv","equalto","0"], 
+					   "AND", 
+					   ["item","anyof",itemsList], 
+					   "AND", 
+					   ["duedate","isnotempty",""]
+					], 
+					[
+					   new nlobjSearchColumn("item").setSort(false), 
+					   new nlobjSearchColumn("duedate").setSort(true), 
+					   new nlobjSearchColumn("tranid")
+					]
+					));
 			
-			for (var int = 0; int < workorderSearch.length; int++) 
-				{
-					var woItemId = workorderSearch[int].getValue('item');
-					var woDueDate = workorderSearch[int].getValue('duedate');
-					var woNumber = workorderSearch[int].getValue('tranid');
-					var woId = workorderSearch[int].getId();
-					var woBuildable = workorderSearch[int].getValue('custbody_bbs_wo_percent_can_build');
-					var woBuildableText = workorderSearch[int].getText('custbody_bbs_wo_percent_can_build');
-					
-					if(lastItemId != woItemId)
-						{
-							lastItemId = woItemId;
-							worksOrderItems[woItemId] = new worksOrderInfo(woNumber, woDueDate, woId, woBuildable, woBuildableText) ;
-						}
-				}
-		}
-	
-	//Loop through the sales orders looking at the lines & then see if there is a wo for the item
-	//if there is one, then update the sales order line with the wo details
-	//
-	for ( var salesOrderKey in salesOrderDetail) 
-		{
-			//Look for keys that represent lines, not headers (headers have a line number = '000000')
+			//Process the found purchase orders
 			//
-			if(salesOrderKey.split('|')[1] != '000000')
+			if(purchaseorderSearch)
 				{
-					var salesOrderItemId = salesOrderDetail[salesOrderKey].lineItemId;
+					lastItemId = '';
 					
-					var matchingWoDetail = worksOrderItems[salesOrderItemId];
-					
-					//See if we have found the po detail for the item
-					//
-					if(matchingWoDetail != null)
+					for (var int = 0; int < purchaseorderSearch.length; int++) 
 						{
-							salesOrderDetail[salesOrderKey].lineWoNo = matchingWoDetail.orderNumber;
-							salesOrderDetail[salesOrderKey].lineWoId = matchingWoDetail.orderId;
-							salesOrderDetail[salesOrderKey].lineWoPercentBuildable = matchingWoDetail.woBuildable;
-							salesOrderDetail[salesOrderKey].lineWoPercentBuildableText = matchingWoDetail.woBuildableText;
+							var poItemId = purchaseorderSearch[int].getValue('item');
+							var poDueDate = purchaseorderSearch[int].getValue('duedate');
+							var poNumber = purchaseorderSearch[int].getValue('tranid');
+							var poId = purchaseorderSearch[int].getId();
+							
+							if(lastItemId != poItemId)
+								{
+									lastItemId = poItemId;
+									purchaseOrderItems[poItemId] = new purchaseOrderInfo(poNumber, poDueDate, poId);
+								}
 						}
 				}
-		}
-	
-
-	//Filter out data based of WO percentage buildable
-	//
-	if(_woBuildable != null && _woBuildable != '')
-		{
+			
+			//Loop through the sales orders looking at the lines & then see if there is a po for the item
+			//if there is one, then update the sales order line with the po details
+			//
 			for ( var salesOrderKey in salesOrderDetail) 
 				{
 					//Look for keys that represent lines, not headers (headers have a line number = '000000')
 					//
 					if(salesOrderKey.split('|')[1] != '000000')
 						{
-							//If we have found a line that does not match the filter, then delete it
+							var salesOrderItemId = salesOrderDetail[salesOrderKey].lineItemId;
+							
+							var matchingPoDetail = purchaseOrderItems[salesOrderItemId];
+							
+							//See if we have found the po detail for the item
 							//
-							if(salesOrderDetail[salesOrderKey].lineWoPercentBuildable != _woBuildable)
+							if(matchingPoDetail != null)
 								{
-									delete salesOrderDetail[salesOrderKey];
+									salesOrderDetail[salesOrderKey].linePoNo = matchingPoDetail.orderNumber;
+									salesOrderDetail[salesOrderKey].linePoDueDate = matchingPoDetail.orderDueDate;
+									salesOrderDetail[salesOrderKey].linePoId = matchingPoDetail.orderId;
 								}
 						}
 				}
+	
 		}
 	
+	//Remove any headers that have no lines to show
+	//
+	for ( var soKey in salesOrderDetail) 
+		{
+			if(soKey.split('|')[1] == '000000' && salesOrderDetail[soKey].orderLineCount == 0)
+				{
+					delete salesOrderDetail[soKey];
+				}
+		}
 	
+	//Calculate the percentage available
+	//
+	for ( var soKey in salesOrderDetail) 
+		{
+			if(soKey.split('|')[1] == '000000')
+				{
+					try
+						{
+							salesOrderDetail[soKey].orderPercentAvailable = Math.round((salesOrderDetail[soKey].orderItemsFulfillable / (salesOrderDetail[soKey].orderItemsTotal - salesOrderDetail[soKey].orderItemsFulfilled) * 100));
+						}
+					catch(err)
+						{
+							salesOrderDetail[soKey].orderPercentAvailable = Number(0);
+						}
+				}
+		}
 	
 	//
 	//Process the output document
@@ -689,7 +650,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	xml += "<head>";
 	xml += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
 	xml += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-	xml += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+	xml += "td {padding: 0px;vertical-align: top; font-size:8px;}";
 	xml += "b {font-weight: bold;color: #333333;}";
 	xml += "table.header td {padding: 0px; font-size: 10pt;}";
 	xml += "table.footer td {padding: 0;font-size: 6pt;}";
@@ -706,7 +667,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	xml += "td.totalcell {border-bottom: 1px solid black;border-collapse: collapse;}";
 	xml += "td.message{font-size: 8pt;}";
 	xml += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-	xml += "td.ordhead {padding-bottom: 10px;vertical-align: top;font-size:10px;}";
+	xml += "td.ordhead {padding-bottom: 10px;vertical-align: top;font-size:10px; }";
+	xml += "td.orddet {padding-bottom: 0px;vertical-align: top;font-size:8px; border: 1px solid #d9d9d9; border-collapse: collapse; }";
+	xml += "th.orddet {font-size:8px;}";
 	xml += "span.title {font-size: 28pt;}";
 	xml += "span.number {font-size: 16pt;}";
 	xml += "span.itemname {font-weight: bold;line-height: 150%;}";
@@ -738,72 +701,132 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							
 	//Body
 	//
-	xml += "<body header=\"nlheader\" header-height=\"50px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4-LANDSCAPE\">";
+	xml += "<body header=\"nlheader\" header-height=\"30px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.25cm 0.25cm 0.25cm 0.25cm\" size=\"A4-LANDSCAPE\">";
 
-	var firstHeader = true;
-	
-	for ( var salesOrderKey in orderedSalesOrderDetail) 
+	if(Object.keys(orderedSalesOrderDetail).length > 0)
 		{
-			//Order header
-			//
-			if(firstHeader)
-				{
-					firstHeader = false;
-				}
-			else
-				{
-					
-				}
+			var firstHeader = true;
+			var firstDetail = true;
 			
-			if(salesOrderKey.split('|')[1] == '000000')
+			for ( var salesOrderKey in orderedSalesOrderDetail) 
 				{
-					xml += "<table class=\"ordhead\" style=\"width: 100%; page-break-inside: avoid;\">";
-					xml += "<thead>";
-					xml += "<tr>";
-					xml += "<th align=\"left\">Sales<br/>Order</th>";
-					xml += "<th colspan=\"2\" align=\"left\">Order<br/>Date</th>";
-					xml += "<th colspan=\"4\" align=\"left\"><br/>Customer</th>";
-					xml += "<th colspan=\"2\" align=\"left\">Ship<br/>Date</th>";
-					xml += "<th colspan=\"2\" align=\"left\"># Items<br/>Ordered</th>";
-					xml += "<th colspan=\"2\" align=\"left\"># Items<br/>Fulfillable</th>";
-					xml += "<th colspan=\"2\" align=\"left\"><br/>% Available</th>";
-					xml += "</tr>";
-					xml += "</thead>";
-					xml += "<tr>";
-					xml += "<td class=\"ordhead\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderNumber + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderCustomer + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderShipDate + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsFulfillable + "</td>";
-					xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderPercentAvailable + "</td>";
-					xml += "</tr>";
-					
-					xml += "</table>";
-				
-				}
-			else
-				{
-					//Order detail
+					//Order header
 					//
-				
+					if(salesOrderKey.split('|')[1] == '000000')
+						{
+							if(firstHeader)
+								{
+									firstHeader = false;
+								}
+							else
+								{	
+									//End the detail table
+									//
+									if(!firstDetail)
+										{
+											xml += "</table>";
+											
+										}
+									
+									xml += "</div>";
+								}
+							
+							firstDetail = true;
+							
+							xml += "<div style=\"page-break-inside: avoid; margin-top: 20px;\">";
+							
+							xml += "<table class=\"ordhead\" style=\"width: 100%;\">";
+							xml += "<thead>";
+							xml += "<tr style=\"background-color: #e3e3e3;\">";
+							xml += "<th align=\"left\">Sales<br/>Order</th>";
+							xml += "<th colspan=\"2\" align=\"left\">Order<br/>Date</th>";
+							xml += "<th colspan=\"4\" align=\"left\"><br/>Customer</th>";
+							xml += "<th colspan=\"2\" align=\"left\">Ship<br/>Date</th>";
+							xml += "<th colspan=\"2\" align=\"right\"># Items<br/>Ordered</th>";
+							xml += "<th colspan=\"2\" align=\"right\"># Items<br/>Fulfillable</th>";
+							xml += "<th colspan=\"2\" align=\"right\"><br/>% Available</th>";
+							xml += "</tr>";
+							xml += "</thead>";
+							xml += "<tr>";
+							xml += "<td class=\"ordhead\" align=\"left\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].orderId + "\" target=\"_blank\">"   + orderedSalesOrderDetail[salesOrderKey].orderNumber + "</a></td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderCustomer + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderShipDate + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal.toFixed(2) + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsFulfillable.toFixed(2) + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderPercentAvailable.toFixed(2) + "</td>";
+							xml += "</tr>";
+							
+							xml += "</table>";
+						
+						}
+					else
+						{
+							//Order detail
+							//
+							if(firstDetail)
+								{
+									firstDetail = false;
+									
+									xml += "<table class=\"orddet\" style=\"margin-left: 70px; width: 100%; \">";
+									xml += "<thead>";
+									xml += "<tr>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"left\">Line<br/>Number</th>";
+									xml += "<th class=\"orddet\" colspan=\"3\" align=\"left\"><br/>Item</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\"><br/>Ordered</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\"><br/>Fulfilled</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Works<br/>Order</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Works Order<br/>% Buildable</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Purchase<br/>Order</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">PO Due<br/>Date</th>";
+									xml += "</tr>";
+									xml += "</thead>";
+								}
+		
+							xml += "<tr>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineNumber + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineItemText + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineOrdered.toFixed(2) + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineFulfilled.toFixed(2) + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/workord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].lineWoId + "\" target=\"_blank\">"  + orderedSalesOrderDetail[salesOrderKey].lineWoNo + "</a></td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineWoPercentBuildableText + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/purchord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].linePoId + "\" target=\"_blank\">" + orderedSalesOrderDetail[salesOrderKey].linePoNo + "</a></td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].linePoDueDate + "</td>";
+							xml += "</tr>";
+							
+							
+						}
 				}
+			
+			
+			
+			
+			//End the detail table
+			//
+			if(!firstDetail)
+				{
+					xml += "</table>";
+					
+				}
+			
+			//Finish the body
+			//
+			xml += "</div>";
+			xml += "</body>";
+					
+			//Finish the pdf
+			//
+			xml += "</pdf>";
 		}
-	
-	
-	
-	
-	//xml += "<p>No Data To Print</p>";
-	
-			
-	//Finish the body
-	//
-	xml += "</body>";
-			
-	//Finish the pdf
-	//
-	xml += "</pdf>";
-
+	else
+		{
+			xml += "<p>No Data To Display</p>";
+			xml += "</body>";
+		
+			//Finish the pdf
+			//
+			xml += "</pdf>";
+		}
 	
 	//Convert to pdf using the BFO library
 	//
@@ -863,15 +886,18 @@ function getResults(_search)
 //Objects
 //=====================================================================
 //
-function salesOrderInfo(_orderNumber, _orderDate, _orderCustomer, _orderShipDate)
+function salesOrderInfo(_orderId, _orderNumber, _orderDate, _orderCustomer, _orderShipDate)
 {
+	this.orderId = _orderId;
 	this.orderNumber = _orderNumber;
 	this.orderDate = _orderDate;
 	this.orderCustomer = _orderCustomer;
 	this.orderShipDate = _orderShipDate;
 	this.orderItemsTotal = Number(0);
+	this.orderItemsFulfilled = Number(0);
 	this.orderItemsFulfillable = Number(0);
 	this.orderPercentAvailable = Number(0);
+	this.orderLineCount = Number(0);
 	
 	this.lineNumber = '';
 	this.lineItemId = '';
