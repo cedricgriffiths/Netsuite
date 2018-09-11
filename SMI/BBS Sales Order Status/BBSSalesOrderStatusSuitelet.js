@@ -245,8 +245,10 @@ function salesOrderStatusSuitelet(request, response)
 			
 			//Add a select field to pick the wo percentage buildable from
 			//
-			var percentAvailableField = form.addField('custpage_pcent_avail_select', 'integer', '% Available', null, 'custpage_grp_filters');
-			percentAvailableField.setLayoutType('normal', 'startcol');
+			var percentAvailableFromField = form.addField('custpage_pcent_avail_select_from', 'percent', '% Available From', null, 'custpage_grp_filters');
+			percentAvailableFromField.setLayoutType('normal', 'startcol');
+			
+			var percentAvailableToField = form.addField('custpage_pcent_avail_select_to', 'percent', '% Available To', null, 'custpage_grp_filters');
 			
 			//Add a select field to pick the wo percentage buildable from
 			//
@@ -273,12 +275,13 @@ function salesOrderStatusSuitelet(request, response)
 			var soEndDate = request.getParameter('custpage_so_end_date');
 			var shipStartDate = request.getParameter('custpage_ship_start_date');
 			var shipEndDate = request.getParameter('custpage_ship_end_date');
-			var percentAvail = request.getParameter('custpage_pcent_avail_select');
+			var percentAvailFrom = Number(request.getParameter('custpage_pcent_avail_select_from').replace('%',''));
+			var percentAvailTo = Number(request.getParameter('custpage_pcent_avail_select_to').replace('%',''));
 			var woBuildable = request.getParameter('custpage_wo_buildable_select');
 			
 			// Build the output
 			//	
-			var file = buildOutput(soStartDate,soEndDate,shipStartDate,shipEndDate,percentAvail,woBuildable);
+			var file = buildOutput(soStartDate,soEndDate,shipStartDate,shipEndDate,percentAvailFrom,percentAvailTo,woBuildable);
 			
 			//Send back the output in the response message
 			//
@@ -293,7 +296,7 @@ function salesOrderStatusSuitelet(request, response)
 // Functions
 //=====================================================================
 //
-function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percentAvail,_woBuildable)
+function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percentAvailFrom,_percentAvailTo,_woBuildable)
 {
 	var salesOrderList = [];
 	var salesOrderDetail = {};
@@ -601,15 +604,6 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	
 		}
 	
-	//Remove any headers that have no lines to show
-	//
-	for ( var soKey in salesOrderDetail) 
-		{
-			if(soKey.split('|')[1] == '000000' && salesOrderDetail[soKey].orderLineCount == 0)
-				{
-					delete salesOrderDetail[soKey];
-				}
-		}
 	
 	//Calculate the percentage available
 	//
@@ -624,6 +618,44 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 					catch(err)
 						{
 							salesOrderDetail[soKey].orderPercentAvailable = Number(0);
+						}
+				}
+		}
+	
+	//Filter on percentage available & remove header line
+	//
+	for ( var soKey in salesOrderDetail) 
+		{
+			if(soKey.split('|')[1] == '000000' && ((_percentAvailFrom != 0 && salesOrderDetail[soKey].orderPercentAvailable < _percentAvailFrom) || (_percentAvailTo != 0 && salesOrderDetail[soKey].orderPercentAvailable > _percentAvailTo)))
+				{
+					delete salesOrderDetail[soKey];
+				}
+		}
+	
+	
+	//Remove any headers that have no lines to show
+	//
+	for ( var soKey in salesOrderDetail) 
+		{
+			if(soKey.split('|')[1] == '000000' && salesOrderDetail[soKey].orderLineCount == 0)
+				{
+					delete salesOrderDetail[soKey];
+				}
+		}
+	
+	
+	//Remove any lines that do not have a header
+	//
+	
+	for ( var soKey in salesOrderDetail) 
+		{
+			if(soKey.split('|')[1] != '000000')
+				{
+					var headerKey = soKey.split('|')[0] + '|000000';
+					
+					if(!salesOrderDetail[headerKey])
+						{
+							delete salesOrderDetail[soKey];
 						}
 				}
 		}
@@ -785,7 +817,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 		
 							xml += "<tr>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineNumber + "</td>";
-							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineItemText + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + removePrefix(orderedSalesOrderDetail[salesOrderKey].lineItemText) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineOrdered.toFixed(2) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineFulfilled.toFixed(2) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/workord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].lineWoId + "\" target=\"_blank\">"  + orderedSalesOrderDetail[salesOrderKey].lineWoNo + "</a></td>";
@@ -880,6 +912,20 @@ function getResults(_search)
 		}
 	
 	return searchResultSet;
+}
+
+function removePrefix(fullString)
+{
+	var returnString = fullString;
+	
+	var colon = fullString.indexOf(' : ');
+	
+	if(colon > -1)
+		{
+			returnString = fullString.substr(colon + 2);
+		}
+	
+	return returnString;
 }
 
 //=====================================================================
