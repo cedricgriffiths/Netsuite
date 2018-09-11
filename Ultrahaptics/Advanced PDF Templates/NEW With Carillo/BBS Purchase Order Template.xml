@@ -1,13 +1,24 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
+  <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=523&amp;c=4570048&amp;h=e956f09345e7309bfe0c</#assign>
+  <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+  <#if subsidiary=="6">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=523&amp;c=4570048&amp;h=e956f09345e7309bfe0c</#assign>
+  </#if>
+ 
+  <#if subsidiary=="10">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=37129&amp;c=4570048&amp;h=bcd93492a694fefe18a9</#assign>
+  </#if>
+ 
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:250px; height:75px;" /> </#if></td>
+	<td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
@@ -25,22 +36,17 @@
 	<td align="right">&nbsp;</td>
 	</tr>
 	<tr>
-    <#if record.subsidiary == "Ultrahaptics North America Inc">
-	  <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
+	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Supplier Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.entity}<br/>${record.billaddress}<br/></span></td>
 	<td align="right" style="font-size:10pt"></td>
-      <#else>
-        <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
-	<td align="right" style="font-size:10pt"></td>
-    </#if>
+	<!--<td align="right" style="font-size:10pt"></td>-->
       
 	<#if record.subsidiary == "Ultrahaptics North America Inc">
-      <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>FEIN: 81-2170722<br />DE Corp ID: 6010492<br/><br/><b>Email:</b> ar@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
+      <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>FEIN: 81-2170722<br />DE Corp ID: 6010492<br/><br/><b>Email:</b> accounts@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
     <#else>
-    	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. GB 244 2098 18<br /><br/><b>Email:</b> ar@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
+    	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. GB 244 2098 18<br /><br/><b>Email:</b> accounts@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
     </#if>
-      
+  
 	</tr>
-      
 	<tr>
     <!--<<td align="right"></td>-->
 	<td align="right"></td>
@@ -75,26 +81,26 @@
 
         <macro id="nlfooter">
 
+          <hr />
+          
         <table style="width: 100%;">
-          <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
-          <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>${record.custbody_bbs_bank_account}</td></tr>
-          <tr><td>${record.custbody_bbs_bank_name}</td></tr>
-          <tr><td>Account Number: ${record.custbody_bbs_account_no}</td></tr>
-          <#if record.subsidiary == "Ultrahaptics North America Inc">
-             <tr><td>Routing Number: ${record.custbody_bbs_iban}</td></tr>
-          <#else>
-            <tr><td>Sort Code: ${record.custbody_bbs_sort_code}</td></tr>
-             <tr><td>IBAN: ${record.custbody_bbs_iban}</td></tr>
-          </#if>
-          <tr><td>Swift Code: ${record.custbody_bbs_bic}</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td>&nbsp;</td></tr>
+          <tr><td><b>Standard Terms and Conditions apply: http://www.ultrahaptics.com/purchasingtermsandconditions/</b></td></tr>
+          <tr><td><b>Invoices should quote the PO number above any any difference will result in delays in payment</b></td></tr>
+
           <tr><td>&nbsp;</td></tr>
         </table>
 
         <#assign regInfo>Company Registration No: 08781720. Registered Office: The West Wing, Glass Wharf, Bristol, BS2 0EL, United Kingdom.</#assign>
 
-        <#if record.subsidiary == "Ultrahaptics North America Inc">
+        <#if record.subsidiary.id == "8">
               <#assign regInfo>Registered Office: 2479 East Bayshore Road, Suite 280, Palo Alto, CA 94303, United States</#assign>
+        </#if>
+
+          <#if record.subsidiary.id == "10">
+              <#assign regInfo>Company Registration No: 11316246. Registered Office: The West Wing, Glass Wharf, Bristol, BS2 0EL, United Kingdom.</#assign>
         </#if>
 
         <table style="width: 100%;">
@@ -130,7 +136,7 @@
         td {
             padding: 0px;
             vertical-align: top;
-            font-size:10px;
+            font-size:9px;
         }
         b {
             font-weight: bold;
@@ -212,26 +218,28 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="9%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="29%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
 	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	<td colspan="2" rowspan="8" class="address">${record.custbody8}</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Purchase Order No.</b></td><td  align="right" style="font-size:8pt">${record.tranid}</td>
     </tr>
 	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td class="address">&nbsp;</td><td   align="left" style="font-size:10pt"><b>Purchase Order Date</b></td><td  align="right" style="font-size:8pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
   <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+	<td class="address">&nbsp;</td><td   align="left" style="font-size:10pt"><b>Reference</b></td><td  align="right" style="font-size:8pt">${record.memo}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+        <#if record.duedate?has_content>
+	<td class="address">&nbsp;</td><td   align="left" style="font-size:10pt"><b>Delivery Date</b></td><td  align="right" style="font-size:8pt">${record.duedate?string["dd MMM yyyy"]}</td>
+            </#if>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td></td><td></td>
@@ -246,62 +254,73 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
   </table>
+  <p/>
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
 	<tr >
-	<th colspan="12">Description</th>
-    <th align="center" colspan="3">Quantity</th>
-	<th align="right" colspan="4">Unit Price</th>
+	<th align="left" colspan="6">Description</th>
+    <th align="left" colspan="3">Manufacturer</th>
+	<th align="left" colspan="2">MPN</th>
+	<th align="center" colspan="2">Quantity</th>
+	<th align="center" colspan="2">Unit Price</th>
     <#if record.subsidiary == "Ultrahaptics North America Inc">
-      <th align="center" colspan="4">Sales Tax Code</th>
+       <th align="center" colspan="3">Sales Tax Code</th>
     <#else>
-      <th align="center" colspan="4">VAT Code</th>
+      <th align="center" colspan="2">VAT Code</th>
     </#if>
-	<th align="right" colspan="4">Amount(${record.currency})</th>
+	<th align="right" colspan="3">Amount(${record.currency})</th>
 	</tr>
 </thead>
 </#if>
-	<#assign itemType>${item.itemtype}</#assign>
-    <#if itemType=="InvtPart"><!-- This is a product order line -->
-      <#assign descriptionText>${item.custcol_trans_epc}&nbsp;${item.custcol_transc_epn}&nbsp;${item.serialnumbers}</#assign>
-    <#else> <!-- This is a services order line -->
-      <#assign descriptionText>${item.description}</#assign>
-    </#if>
 
   <tr>
-	<td colspan="12">${descriptionText}</td>
-    <td align="center" colspan="3">${item.quantity}</td>
-	<td align="right" colspan="4">${item.rate}</td>
-    <td align="center" colspan="4">${item.taxcode}</td>
-	<td align="right" colspan="4">${item.amount}</td>
+	<td align="left" colspan="6" margin-right="5px">${item.description}</td>
+    <td align="left" colspan="3" word-wrap="normal">${item.custcol_trans_mpn_manufacturer}</td>
+	<td align="left" colspan="2">${item.custcol_trans_mpn_mpn}</td>
+	<td align="center" colspan="2">${item.quantity}</td>
+	<td align="center" colspan="2">${item.rate}</td>
+    <#if record.subsidiary == "Ultrahaptics North America Inc">
+       <td align="center" colspan="3">${item.taxcode}</td>
+    <#else>
+       <td align="center" colspan="2">${item.taxcode}</td>
+    </#if>
+	<td align="right" colspan="3">${item.amount}</td>
 	</tr>
 	</#list><!-- end items --></table>
 </#if>
 
 <hr />
 <table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Subtotal</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
+	<td colspan="3">&nbsp;</td>
+	<td class="totalcell"  align="right"><b>Subtotal</b></td>
+	<td class="totalcell"  align="right">${record.subtotal}</td>
 	</tr>
 	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
+	<td colspan="3">&nbsp;</td>
     <#if record.subsidiary == "Ultrahaptics North America Inc">
-	    <td class="totalcell" align="right"><b>Sales Tax Total</b></td>
+	  <td class="totalcell" align="right"><b>Sales Tax Total</b></td>
     <#else>
       <td class="totalcell" align="right"><b>VAT Total</b></td>
     </#if>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
+	<td class="totalcell"  align="right">${record.taxtotal}</td>
 	</tr>
 	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Total (${record.currency})</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
+	<td colspan="3">&nbsp;</td>
+	<td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
+	<td class="totalcell"  align="right">${record.total}</td>
 	</tr>
 	<tr>
 	<td>&nbsp;</td>
 	</tr></table>
+  
+<#if (record.custbody5)?has_content>
+  	<hr />
+  	<table style="width: 100%;">
+		<tr><td><b>Special Instructions:</b>&nbsp;${record.custbody5}</td></tr>
+	</table>
+    <hr />
+</#if>
 </body>
 </pdf>

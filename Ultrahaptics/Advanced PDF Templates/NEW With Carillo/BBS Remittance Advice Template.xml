@@ -1,13 +1,25 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
+  
+<#assign logoInfo>?????</#assign>
+  <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+  <#if subsidiary=="6">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=523&amp;c=4570048&amp;h=e956f09345e7309bfe0c</#assign>
+  </#if>
+ 
+  <#if subsidiary=="10">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=37129&amp;c=4570048&amp;h=bcd93492a694fefe18a9</#assign>
+  </#if>
+ 
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
     <td align="right">&nbsp;</td>
     <td align="right">&nbsp;</td>
-    <td align="right"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:250px; height:75px;" /> </#if></td>
+    <td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
@@ -81,6 +93,10 @@
 
         <#if subsidiary=="Ultrahaptics North America Inc">
               <#assign regInfo>Company Registration No: 03975022. Registered Office: 60 State Street, STE700, Boston, MA, 02109.</#assign>
+        </#if>
+
+          <#if subsidiary=="Carrello Ltd">
+              <#assign regInfo>Company Registration No: 11316246. Registered Office: The West Wing, Glass Wharf, Bristol, BS2 0EL, United Kingdom.</#assign>
         </#if>
 
         <table style="width: 100%;">

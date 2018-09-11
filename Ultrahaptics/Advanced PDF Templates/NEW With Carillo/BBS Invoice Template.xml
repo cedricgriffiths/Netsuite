@@ -1,66 +1,78 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
+  
+  <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=523&amp;c=4570048&amp;h=e956f09345e7309bfe0c</#assign>
+  <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+  <#if subsidiary=="6">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=523&amp;c=4570048&amp;h=e956f09345e7309bfe0c</#assign>
+  </#if>
+ 
+  <#if subsidiary=="10">
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=37129&amp;c=4570048&amp;h=bcd93492a694fefe18a9</#assign>
+  </#if>
+ 
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:250px; height:75px;" /> </#if></td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
+  <td><span style="font-size:24px;">${record@title}</span></td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  </tr>
           </table>
     <table class="header" style="width: 100%;">
 
-	<tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
+  <tr>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  <td align="right">&nbsp;</td>
+  </tr>
+  <tr>
     <#if record.subsidiary == "Ultrahaptics North America Inc">
-	  <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
-	<td align="right" style="font-size:10pt"></td>
+    <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/></span></td>
+  <td align="right" style="font-size:10pt"></td>
       <#else>
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
-	<td align="right" style="font-size:10pt"></td>
+  <td align="right" style="font-size:10pt"></td>
     </#if>
       
-	<#if record.subsidiary == "Ultrahaptics North America Inc">
+  <#if record.subsidiary == "Ultrahaptics North America Inc">
       <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>FEIN: 81-2170722<br />DE Corp ID: 6010492<br/><br/><b>Email:</b> ar@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
     <#else>
-    	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. GB 244 2098 18<br /><br/><b>Email:</b> ar@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
+      <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. GB 244 2098 18<br /><br/><b>Email:</b> ar@ultrahaptics.com<br /><b>Tel:</b> +44 117 3259002 ext 609</td>
     </#if>
       
-	</tr>
+  </tr>
       
-	<tr>
+  <tr>
     <!--<<td align="right"></td>-->
-	<td align="right"></td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt"></td>-->
-	<td align="right" style="font-size:10pt"></td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr >
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+  <td align="right"></td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt"></td>-->
+  <td align="right" style="font-size:10pt"></td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+  <td align="right" style="font-size:10pt">&nbsp;</td>
+  </tr>
+  <tr>
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
+  <td align="right" style="font-size:10pt">&nbsp;</td>
+  </tr>
+  <tr >
+  <!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
     <td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
+  </tr>
     <tr style="font-size:10pt">
       <!--<td align="right">&nbsp;</td>-->
       <td align="right">&nbsp;</td>
@@ -93,20 +105,24 @@
 
         <#assign regInfo>Company Registration No: 08781720. Registered Office: The West Wing, Glass Wharf, Bristol, BS2 0EL, United Kingdom.</#assign>
 
-        <#if record.subsidiary == "Ultrahaptics North America Inc">
+        <#if record.subsidiary.id == "8">
               <#assign regInfo>Registered Office: 2479 East Bayshore Road, Suite 280, Palo Alto, CA 94303, United States</#assign>
+        </#if>
+          
+        <#if record.subsidiary.id == "10">
+              <#assign regInfo>Company Registration No: 11316246. Registered Office: The West Wing, Glass Wharf, Bristol, BS2 0EL, United Kingdom.</#assign>
         </#if>
 
         <table style="width: 100%;">
           <tr class="messagerow">
               <td align="left" class="message">${regInfo}</td>
-		  </tr>
+      </tr>
         </table>
 
-		<table class="footer" style="width: 100%;">
+    <table class="footer" style="width: 100%;">
           <tr>
-			<td align="right"><pagenumber/> of <totalpages/></td>
-		</tr>
+      <td align="right"><pagenumber/> of <totalpages/></td>
+    </tr>
         </table>
 
         </macro>
@@ -114,7 +130,7 @@
 
     <style type="text/css">table {
             <!--font-family: sans-serif;-->
-      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
             font-size: 9pt;
             table-layout: fixed;
         }
@@ -124,7 +140,7 @@
             padding: 0px;
             <!--background-color: #e3e3e3;-->
             border-bottom: 1px solid black;
-    		border-collapse: collapse;
+        border-collapse: collapse;
             <!--color: #333333;-->
         }
         td {
@@ -185,7 +201,7 @@
         }
         td.totalcell {
           border-bottom: 1px solid black;
-    		border-collapse: collapse;
+        border-collapse: collapse;
         }
       td.message{
         font-size: 8pt;
@@ -216,54 +232,54 @@
 
     <table style="width: 100%;">
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
-	</tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
-    </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+  <td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+  </tr>
+  <tr>
+  <td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+  </tr>
+  <tr>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
   <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
+    </tr>
+  <tr>
+  <td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Reference</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+  <td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+  <td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+  <td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+  <td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+  <td class="address">&nbsp;</td><td></td><td></td>
     </tr>
   </table>
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
-	<tr >
-	<th colspan="12">Description</th>
+  <tr >
+  <th colspan="12">Description</th>
     <th align="center" colspan="3">Quantity</th>
-	<th align="right" colspan="4">Unit Price</th>
+  <th align="right" colspan="4">Unit Price</th>
     <#if record.subsidiary == "Ultrahaptics North America Inc">
       <th align="center" colspan="4">Sales Tax Code</th>
     <#else>
       <th align="center" colspan="4">VAT Code</th>
     </#if>
-	<th align="right" colspan="4">Amount(${record.currency})</th>
-	</tr>
+  <th align="right" colspan="4">Amount(${record.currency})</th>
+  </tr>
 </thead>
 </#if>
-	<#assign itemType>${item.itemtype}</#assign>
+  <#assign itemType>${item.itemtype}</#assign>
     <#if itemType=="InvtPart"><!-- This is a product order line -->
       <#assign descriptionText>${item.custcol_trans_epc}&nbsp;${item.custcol_transc_epn}&nbsp;${item.serialnumbers}</#assign>
     <#else> <!-- This is a services order line -->
@@ -271,37 +287,37 @@
     </#if>
 
   <tr>
-	<td colspan="12">${descriptionText}</td>
+  <td colspan="12">${descriptionText}</td>
     <td align="center" colspan="3">${item.quantity}</td>
-	<td align="right" colspan="4">${item.rate}</td>
+  <td align="right" colspan="4">${item.rate}</td>
     <td align="center" colspan="4">${item.taxcode}</td>
-	<td align="right" colspan="4">${item.amount}</td>
-	</tr>
-	</#list><!-- end items --></table>
+  <td align="right" colspan="4">${item.amount}</td>
+  </tr>
+  </#list><!-- end items --></table>
 </#if>
 
 <hr />
 <table class="total" style="width: 100%;"><tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Subtotal</b></td>
-	<td class="totalcell" align="right">${record.subtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
+  <td colspan="4">&nbsp;</td>
+  <td class="totalcell" align="right"><b>Subtotal</b></td>
+  <td class="totalcell" align="right">${record.subtotal}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="4">&nbsp;</td>
     <#if record.subsidiary == "Ultrahaptics North America Inc">
-	    <td class="totalcell" align="right"><b>Sales Tax Total</b></td>
+      <td class="totalcell" align="right"><b>Sales Tax Total</b></td>
     <#else>
       <td class="totalcell" align="right"><b>VAT Total</b></td>
     </#if>
-	<td class="totalcell" align="right">${record.taxtotal}</td>
-	</tr>
-	<tr class="totalrow">
-	<td colspan="4">&nbsp;</td>
-	<td class="totalcell" align="right"><b>Total (${record.currency})</b></td>
-	<td class="totalcell" align="right">${record.total}</td>
-	</tr>
-	<tr>
-	<td>&nbsp;</td>
-	</tr></table>
+  <td class="totalcell" align="right">${record.taxtotal}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="4">&nbsp;</td>
+  <td class="totalcell" align="right"><b>Total (${record.currency})</b></td>
+  <td class="totalcell" align="right">${record.total}</td>
+  </tr>
+  <tr>
+  <td>&nbsp;</td>
+  </tr></table>
 </body>
 </pdf>
