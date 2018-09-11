@@ -63,114 +63,127 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 								{
 									//Load the sales order record & get the count of lines
 									//
-									var soRecord = nlapiLoadRecord('salesorder', createdfrom);
-									var lines = soRecord.getLineItemCount('item');
-									var soDiscount = soRecord.getFieldValue('discountitem');
+									var soRecord = null;
 									
-									//Only procede if the sale order has the correct discount on it
-									//
-									if(configs[soDiscount])
+									try
 										{
-											var configDiscountId = soDiscount;
-											var configShippingId = configs[soDiscount][0];
-											var configFromAccId = configs[soDiscount][1];
-											var configToAccId = configs[soDiscount][2];
+											soRecord = nlapiLoadRecord('salesorder', createdfrom);
+										}
+									catch(err)
+										{
+											soRecord = null;
+										}
+									
+									if(soRecord != null)
+										{
+											var lines = soRecord.getLineItemCount('item');
+											var soDiscount = soRecord.getFieldValue('discountitem');
 											
-											var shippingCost = Number(0);
-											
-											//Find the shipping cost on the sales order lines
+											//Only procede if the sale order has the correct discount on it
 											//
-											for (var int = 1; int <= lines; int++) 
+											if(configs[soDiscount])
 												{
-													var itemType = soRecord.getLineItemValue('item', 'itemtype', int);
-													var itemId = soRecord.getLineItemValue('item', 'item', int);
-												
-													if(itemType == 'OthCharge' && itemId == configShippingId)
-														{
-															shippingCost = Number(soRecord.getLineItemValue('item', 'amount', int));
-														}
-												}
-											
-											//See if shipping cost is actually on the fulfilment record
-											//
-											var fulfilmentLines = transactionRecord.getLineItemCount('item');
-											var fulfilmentHasShipping = false;
-											
-											for (var fulfilmentLine = 1; fulfilmentLine <= fulfilmentLines; fulfilmentLine++) 
-												{
-													var fulfilmentItemType = transactionRecord.getLineItemValue('item', 'itemtype', fulfilmentLine);
-													var fulfilmentItemId = transactionRecord.getLineItemValue('item', 'item', fulfilmentLine);
-												
-													if(fulfilmentItemType == 'OthCharge' && fulfilmentItemId == configShippingId)
-														{
-															fulfilmentHasShipping = true;
-														}
-												}
-											
-											//If the fulfillment does not have a shipping charge on it, then we zero the value
-											//
-											if(!fulfilmentHasShipping)
-												{
-													shippingCost = Number(0);
-												}
-											
-											//Loop through the standard GL lines
-											//
-											var shippingDone = false;
-											
-											for (var i=0; i<linecount; i++) 
-												{
-													//Get the line object
-													//
-													var line =  standardLines.getLine(i);
+													var configDiscountId = soDiscount;
+													var configShippingId = configs[soDiscount][0];
+													var configFromAccId = configs[soDiscount][1];
+													var configToAccId = configs[soDiscount][2];
 													
-													//Ignore the summary line or any non-posting lines
+													var shippingCost = Number(0);
+													
+													//Find the shipping cost on the sales order lines
 													//
-													if(line.isPosting() && line.getId() != 0)
+													for (var int = 1; int <= lines; int++) 
 														{
-															var account = line.getAccountId();
-															var debit = Number(line.getDebitAmount());
-															var location = line.getLocationId();
-															var classId = line.getClassId();
-															
-															//Find the relevant posting line by looking at the account id
-															//
-															if(account == configFromAccId)
+															var itemType = soRecord.getLineItemValue('item', 'itemtype', int);
+															var itemId = soRecord.getLineItemValue('item', 'item', int);
+														
+															if(itemType == 'OthCharge' && itemId == configShippingId)
 																{
-																	//Add new posting lines here
-																	//
-																	var newLine = customLines.addNewLine();
-																	newLine.setAccountId(parseInt(configFromAccId));
-																	newLine.setCreditAmount(debit);
-																	newLine.setLocationId(location);
-																	newLine.setMemo('Cost Of Warranty');
-																	newLine.setClassId(classId);
+																	shippingCost = Number(soRecord.getLineItemValue('item', 'amount', int));
+																}
+														}
+													
+													//See if shipping cost is actually on the fulfilment record
+													//
+													var fulfilmentLines = transactionRecord.getLineItemCount('item');
+													var fulfilmentHasShipping = false;
+													
+													for (var fulfilmentLine = 1; fulfilmentLine <= fulfilmentLines; fulfilmentLine++) 
+														{
+															var fulfilmentItemType = transactionRecord.getLineItemValue('item', 'itemtype', fulfilmentLine);
+															var fulfilmentItemId = transactionRecord.getLineItemValue('item', 'item', fulfilmentLine);
+														
+															if(fulfilmentItemType == 'OthCharge' && fulfilmentItemId == configShippingId)
+																{
+																	fulfilmentHasShipping = true;
+																}
+														}
+													
+													//If the fulfillment does not have a shipping charge on it, then we zero the value
+													//
+													if(!fulfilmentHasShipping)
+														{
+															shippingCost = Number(0);
+														}
+													
+													//Loop through the standard GL lines
+													//
+													var shippingDone = false;
+													
+													for (var i=0; i<linecount; i++) 
+														{
+															//Get the line object
+															//
+															var line =  standardLines.getLine(i);
+															
+															//Ignore the summary line or any non-posting lines
+															//
+															if(line.isPosting() && line.getId() != 0)
+																{
+																	var account = line.getAccountId();
+																	var debit = Number(line.getDebitAmount());
+																	var location = line.getLocationId();
+																	var classId = line.getClassId();
 																	
-																	var newLine = customLines.addNewLine();
-																	newLine.setAccountId(parseInt(configToAccId));
-																	newLine.setDebitAmount(debit);
-																	newLine.setLocationId(location);
-																	newLine.setMemo('Cost Of Warranty');
-																	newLine.setClassId(classId);
-																	
-																	//Add shipping posting lines here
+																	//Find the relevant posting line by looking at the account id
 																	//
-																	if(!shippingDone && shippingCost != 0)
+																	if(account == configFromAccId)
 																		{
-																			shippingDone = true;
-																		
+																			//Add new posting lines here
+																			//
 																			var newLine = customLines.addNewLine();
 																			newLine.setAccountId(parseInt(configFromAccId));
-																			newLine.setCreditAmount(shippingCost);
+																			newLine.setCreditAmount(debit);
 																			newLine.setLocationId(location);
-																			newLine.setMemo('Warranty Shipping');
+																			newLine.setMemo('Cost Of Warranty');
+																			newLine.setClassId(classId);
 																			
 																			var newLine = customLines.addNewLine();
 																			newLine.setAccountId(parseInt(configToAccId));
-																			newLine.setDebitAmount(shippingCost);
+																			newLine.setDebitAmount(debit);
 																			newLine.setLocationId(location);
-																			newLine.setMemo('Warranty Shipping');
+																			newLine.setMemo('Cost Of Warranty');
+																			newLine.setClassId(classId);
 																			
+																			//Add shipping posting lines here
+																			//
+																			if(!shippingDone && shippingCost != 0)
+																				{
+																					shippingDone = true;
+																				
+																					var newLine = customLines.addNewLine();
+																					newLine.setAccountId(parseInt(configFromAccId));
+																					newLine.setCreditAmount(shippingCost);
+																					newLine.setLocationId(location);
+																					newLine.setMemo('Warranty Shipping');
+																					
+																					var newLine = customLines.addNewLine();
+																					newLine.setAccountId(parseInt(configToAccId));
+																					newLine.setDebitAmount(shippingCost);
+																					newLine.setLocationId(location);
+																					newLine.setMemo('Warranty Shipping');
+																					
+																				}
 																		}
 																}
 														}
