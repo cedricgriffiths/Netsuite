@@ -115,6 +115,7 @@ function scheduled(type)
 					var lastLevelOneItem = '';
 					var totalQuantity = Number(0);
 					var totalCommitted = Number(0);
+					var totalUsedInBuild = Number(0);
 					var lowestCommitted = Number(99999);
 					
 					var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
@@ -204,10 +205,11 @@ function scheduled(type)
 											linesFullyCommitted++;
 										}
 									
-									//Total up the total quantity & committed quantity
+									//Total up the total quantity, committed quantity & the used in build quantity
 									//
 									totalQuantity += lineItemQuantity;
 									totalCommitted += (lineItemCommitted + lineItemUsedInBuild);
+									totalUsedInBuild += lineItemUsedInBuild;
 								}
 							
 							//Process the assembly special instructions
@@ -328,11 +330,16 @@ function scheduled(type)
 						//
 						var commitPercent = Number(0);
 						
-						if((totalQuantity - totalCommitted) >= 0)
-						{
-							commitPercent = Number((totalCommitted / totalQuantity) * 100.00).toFixed();
-						}
+						//if((totalQuantity - totalCommitted) >= 0)
+						//{
+						//	commitPercent = Number((totalCommitted / totalQuantity) * 100.00).toFixed();
+						//}
 					
+						if((totalQuantity - totalUsedInBuild) >= 0)
+						{
+							commitPercent = Number((lowestCommitted / (totalQuantity - totalUsedInBuild)) * 100.00).toFixed();
+						}
+						
 						var percentListValue = null;
 						
 						if (commitPercent >= 0 && commitPercent <= 25)
