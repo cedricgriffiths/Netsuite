@@ -661,7 +661,7 @@ function convertDataToHtml(_opsBoard, _now, _refreshTime)
 	var yesterdaysDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
 	var tomorrowsDate = new Date(_now.getFullYear(), _now.getMonth(), _now.getDate(), 0, 0, 0, 0);
 	yesterdaysDate.setDate(yesterdaysDate.getDate() - 1);
-	tomorrowsDate.setDate(yesterdaysDate.getDate() + 1);
+	tomorrowsDate.setDate(tomorrowsDate.getDate() + 1);
 
 	var yesterdaysCellCount = Number(0);
 	var tomorrowsCellCount = Number(0);
@@ -823,7 +823,7 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 			//See if the arrival date/time is before the date/time of the first cell
 			//If so, then ignore it
 			//
-			if(uobwArrivalDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime())
+			if(uobwArrivalDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime() || uobwDepartureDateTime.getTime() > _opsBoard[_opsKey][MAXOPSBOARDSIZE].cellDate.getTime())
 				{
 					//do nothing
 					//
@@ -995,7 +995,7 @@ function updateOpsBoardWithFlight(_opsBoard, _opsKey, _results, _type, _now)
 					//See if the arrival date/time is before the date/time of the first cell
 					//If so, then ignore it
 					//
-					if(uobwTheEndDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime())
+					if(uobwTheEndDateTime.getTime() < _opsBoard[_opsKey][1].cellDate.getTime() || uobwTheEndDateTime.getTime() > _opsBoard[_opsKey][MAXOPSBOARDSIZE].cellDate.getTime())
 						{
 							//do nothing
 							//
