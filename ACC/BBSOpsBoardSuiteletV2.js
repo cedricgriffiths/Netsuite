@@ -286,11 +286,13 @@ function suitelet(request, response)
 					case 2:
 						
 						var now = convertDateToUTC(new Date()); // work out the current date/time as UTC
+						var showNow = true;
 						
 						if(paramNowDate != null && paramNowDate != '')
 							{
 								now = nlapiStringToDate(paramNowDate);
 								now.setHours(12, 0, 0, 0);
+								showNow = false;
 							}
 						
 						var nowRounded = toHalfHour(new Date(now)); // round the current date/time to the half hour
@@ -334,9 +336,9 @@ function suitelet(request, response)
 										var opsBoardKeyActual = aircraft + '|' + 'ACTUAL';
 										var opsBoardKeyBlank = aircraft + '|' + 'BLANK';
 										
-										opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded); //Add an ESTIMATED line to the ops board
-										opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded); //Add an ACTUAL line to the ops board
-										opsBoard[opsBoardKeyBlank] = makeCellArray(startDate, endDate, nowRounded); //Add an BLANK line to the ops board
+										opsBoard[opsBoardKeyEstimated] = makeCellArray(startDate, endDate, nowRounded, showNow); //Add an ESTIMATED line to the ops board
+										opsBoard[opsBoardKeyActual] = makeCellArray(startDate, endDate, nowRounded, showNow); //Add an ACTUAL line to the ops board
+										opsBoard[opsBoardKeyBlank] = makeCellArray(startDate, endDate, nowRounded, showNow); //Add an BLANK line to the ops board
 									}
 								
 								//Now we have an empty ops board, we need to start to fill in the data by looping through the results
@@ -1171,7 +1173,7 @@ function getOpsSearchResults(_startDate, _endDate, _department)
 
 // Makes an array of objects that represents one complete row of ops board cells between the start & end dates
 //
-function makeCellArray(_startDate, _endDate, _nowDate)
+function makeCellArray(_startDate, _endDate, _nowDate, _showNow)
 {
 	var HALF_HOUR_IN_MS = 1800000;
 	
@@ -1182,7 +1184,7 @@ function makeCellArray(_startDate, _endDate, _nowDate)
 	
 	while (loopDate <= _endDate) 
 	{
-		cellArray.push(new opsCell(loopDate,(loopDate.getTime() == _nowDate.getTime() ? true : false)));
+		cellArray.push(new opsCell(loopDate,(loopDate.getTime() == _nowDate.getTime() && _showNow ? true : false)));
 	   
 		loopDate = new Date(loopDate.getTime() + HALF_HOUR_IN_MS);	
 	}
