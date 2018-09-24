@@ -239,6 +239,7 @@ function buildOutput(batchId)
 	columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
 	columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
 	columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+    columns[3] = new nlobjSearchColumn('name');
 	
 	var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);  // 10GU's
 	
@@ -267,6 +268,7 @@ function buildOutput(batchId)
 		//
 		var batchId = batchResults[int2].getId();
 		var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
+         var batchname = batchResults[int2].getValue('name');
 
 		//Find the works orders associated with this batch
 		//
@@ -521,7 +523,8 @@ function buildOutput(batchId)
 		xml += "<macro id=\"nlfooter\">";
 		
 		xml += "<table class=\"footer\" style=\"width: 100%;\">";
-		xml += "<tr><td align=\"left\" style=\"font-size:16px; vertical-align: middle;\">Ship Date: " + thisShipDateFormatted + "</td><td align=\"right\" style=\"font-size:32px; vertical-align: middle;\"><b>" + thisShipDay + "</b></td></tr>";
+		xml += "<tr><td align=\"left\" style=\"font-size:20px; vertical-align: middle;\">Ship Date: " + thisShipDateFormatted + "</td></tr>";
+		xml += "<tr><td align=\"right\" style=\"font-size:50px; vertical-align: middle;\"><b>" + thisShipDay + "</b></td></tr>";
 		xml += "</table>";
 		
 		xml += "</macro>";
@@ -531,19 +534,19 @@ function buildOutput(batchId)
 		xml += "<macro id=\"nlheader\">";
 		xml += "<table style=\"width: 100%\">";
 		xml += "<tr>";
-		xml += "<td align=\"center\" colspan=\"3\" style=\"font-size:12px; padding-bottom: 20px;\"><b>" + nlapiEscapeXML(batchDescription) + "</b></td>";
+		xml += "<td align=\"center\" colspan=\"3\" style=\"font-size:20px; padding-bottom: 30px;\"><b>" + nlapiEscapeXML(batchDescription) + "</b></td>";
 		xml += "</tr>";
 		
 		xml += "<tr>";
 		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
-		xml += "<td align=\"left\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-		xml += "<td align=\"right\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchId) + "</td>";
+		xml += "<td align=\"left\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + "%" + nlapiEscapeXML(batchId) + "\"/></td>";
+		xml += "<td align=\"right\" style=\"font-size:20px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchId) + "</td>";
 		xml += "</tr>";
-		
+
 		xml += "<tr>";
 		xml += "<td align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
 		xml += "<td align=\"left\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-		xml += "<td align=\"right\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+		xml += "<td align=\"right\" style=\"font-size:20px; padding-bottom: 10px;\"><b>" + nlapiEscapeXML(thisSalesOrder) + "</b></td>";
 		xml += "</tr>";
 		
 		
@@ -554,7 +557,7 @@ function buildOutput(batchId)
 		
 		//Body
 		//
-		xml += "<body header=\"nlheader\" header-height=\"120px\" footer=\"nlfooter\" footer-height=\"30px\" padding=\"0.4cm 0.4cm 0.4cm 0.4cm\" width=\"112mm\" height=\"112mm\">";
+		xml += "<body header=\"nlheader\" header-height=\"120px\" footer=\"nlfooter\" footer-height=\"60px\" padding=\"0.4cm 0.4cm 0.4cm 0.4cm\" width=\"112mm\" height=\"112mm\">";
 		
 
 

@@ -123,6 +123,8 @@ function createAssembliesScheduled(type)
 //SMI								var subsidiaryReocrd = nlapiLoadRecord('subsidiary', customerSubsidiary);
 //SMI								var subsidiaryDefaultLocation = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location');
 //SMI								var subsidiaryDefaultBin = subsidiaryReocrd.getFieldValue('custrecord_sw_default_location_bin');
+									var subsidiaryDefaultLocation = '1';
+									var subsidiaryDefaultBin = '1112';
 
 									var subsidiaryDefaultLocation = '1';
 									
@@ -199,8 +201,7 @@ function createAssembliesScheduled(type)
 //SMI												newParentRecord.setFieldValue('stockunit', 1);
 //SMI												newParentRecord.setFieldValue('subsidiary', customerSubsidiary);
 //SMI												newParentRecord.setFieldValue('taxschedule', 1);
-//SMI												newParentRecord.setFieldValue('usebins', 'T');
-/*SMI*/												newParentRecord.setFieldValue('usebins', 'F');
+													newParentRecord.setFieldValue('usebins', 'T');
 /*SMI*/												newParentRecord.setFieldValue('salestaxcode', 6);
 													newParentRecord.setFieldValue('location', subsidiaryDefaultLocation);
 													newParentRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
@@ -233,11 +234,11 @@ function createAssembliesScheduled(type)
 													
 													//Add a bin number to the assembly
 													//
-//SMI												newParentRecord.selectNewLineItem('binnumber');
-//SMI												newParentRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
-//SMI												newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-//SMI												newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-//SMI												newParentRecord.commitLineItem('binnumber', false);					
+													newParentRecord.selectNewLineItem('binnumber');
+													newParentRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
+													newParentRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+													newParentRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+													newParentRecord.commitLineItem('binnumber', false);					
 													
 													//Now save the assembly
 													//
@@ -334,8 +335,7 @@ function createAssembliesScheduled(type)
 //SMI																				newChildRecord.setFieldValue('stockunit', 1);
 //SMI																				newChildRecord.setFieldValue('subsidiary', customerSubsidiary);
 //SMI																				newChildRecord.setFieldValue('taxschedule', 1);
-/*SMI*/																				newChildRecord.setFieldValue('usebins', 'F');
-//SMI																				newChildRecord.setFieldValue('usebins', 'T');
+																					newChildRecord.setFieldValue('usebins', 'T');
 /*SMI*/																				newChildRecord.setFieldValue('salestaxcode', 6);
 																					newChildRecord.setFieldValue('location', subsidiaryDefaultLocation);
 																					newChildRecord.setFieldValue('preferredlocation', subsidiaryDefaultLocation);
@@ -391,7 +391,7 @@ function createAssembliesScheduled(type)
 //																						}
 //																					else
 //																						{
-//No longer required																		newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
+																					newChildRecord.setFieldValue('isspecialworkorderitem', 'T');
 //																						}
 //SMI																	
 																					newChildRecord.setFieldValue('haschildren', 'F');
@@ -409,11 +409,11 @@ function createAssembliesScheduled(type)
 										
 																					//Add a bin number to the assembly
 																					//
-//SMI																				newChildRecord.selectNewLineItem('binnumber');
-//SMI																				newChildRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
-//SMI																				newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
-//SMI																				newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
-//SMI																				newChildRecord.commitLineItem('binnumber', false);
+																					newChildRecord.selectNewLineItem('binnumber');
+																					newChildRecord.setCurrentLineItemValue('binnumber', 'location', subsidiaryDefaultLocation);
+																					newChildRecord.setCurrentLineItemValue('binnumber', 'binnumber', subsidiaryDefaultBin);
+																					newChildRecord.setCurrentLineItemValue('binnumber', 'preferredbin', 'T');
+																					newChildRecord.commitLineItem('binnumber', false);
 																					
 																					//Add components to the assembly
 																					//
