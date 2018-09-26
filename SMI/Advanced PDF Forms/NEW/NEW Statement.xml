@@ -39,39 +39,11 @@
         </macro>
       <macro id="nlfooter">
                   
-       		<#assign done>N</#assign>
-          
-          <#list statement.lines as line>
-            <#assign accno>${line.custbody_bbs_account_no}</#assign>
-            
-            <#if accno?length gt 0 && done=="N" >
-        <table style="width: 100%; font-size: 10pt; margin-top:0px;">
-          <tr>
-            <td style="padding: 0; padding-left: 50;">Bank Details for payments in ${statement.currency}:</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">${line.custbody_bbs_bank_account}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">${line.custbody_bbs_bank_name}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">Account Number: ${line.custbody_bbs_account_no}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">IBAN: ${line.custbody_bbs_iban}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">Swift Code: ${line.custbody_bbs_bic}</td></tr>
-          <tr>
-            <td style="padding: 0; padding-left: 50;">&nbsp;</td></tr>
-          
-        <#assign done>Y</#assign>
-        </table>
-    </#if>
-          </#list>  
-	<p/>
+       		
             <table style="width: 100%; font-size: 5pt; color:#888888; margin-top:0px;">
     <tr>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
-	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group.</td>
+	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group Ltd.</td>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
 	</tr>
     <tr>
@@ -226,13 +198,13 @@
           tr.pd-2{padding:2px}
 </style>
 </head>
-<body header="nlheader" header-height="125" footer="nlfooter" footer-height="170px" padding="0mm 0mm 0mm 0mm" size="A4">
+<body header="nlheader" header-height="125" footer="nlfooter" footer-height="30px" padding="0mm 0mm 0mm 0mm" size="A4">
     <!-- **************************************  DOCUMENT TITLE AND NUMBER **************************************  -->
 <table cellpadding="0"><tr>
 	<td align="center" colspan="1">&nbsp;</td>
 	<td align="left" class="fs32 c-dark" colspan="5">${record@title}</td>
 	<td align="right" class="fs16 c-dark ar " colspan="5" valign="middle">
-	<p align="right"><!-- statement date from statment generation -->${statement.trandate}</p>
+	<p align="right"><!-- statement date from statment generation -->Date ${statement.trandate}</p>
 	</td>
 	<td align="center" colspan="1">&nbsp;</td>
 	</tr></table>
@@ -273,7 +245,7 @@
 	<#if customer.parent?has_content><!--Child-->
 	<!-- account details -->
 	<th align="left" class="pb-0" colspan="3">
-	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${statement.accountnumber}</span><br />Acc Manager: &nbsp;<span class="normal">${statement.salesrep}</span><!-- if no data pulled through add ${statement.entity.salesrep} --></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc No.&nbsp;<span class="normal">${customer.custentity_bbs_legacy_accnumber}</span><br />Acc Manager: &nbsp;<span class="normal">${statement.salesrep}</span><!-- if no data pulled through add ${statement.entity.salesrep} --></p>
 	</th>
 	
 	<!-- Credit Limit -->
@@ -285,7 +257,7 @@
 	<#else><!-- Parent--> 
 	<!-- account details -->
 	<th align="left" class="pb-0 fs10" colspan="3">
-	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${statement.accountnumber}</span></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc No.&nbsp;<span class="normal">${customer.custentity_bbs_legacy_accnumber}</span></p>
 	</th>
 	
 	<!-- Credit Limit -->
@@ -427,9 +399,32 @@
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	<td colspan="10">
       <!--  **************************************  Payment Information **************************************  -->
-       
+      
+      <#assign done>N</#assign>
+          
+          <#list statement.lines as line>
+            <#assign accno>${line.custbody_bbs_account_no}</#assign>
+            
+            <#if accno?length gt 0 && done=="N" >
+      <table style="page-break-inside: avoid; width: 100%; margin-top:20px; "><tr>
+	<td align="left" class="fs10 c-dark" colspan="10" style="border-top:1px dotted #333333; padding-top:6px;">Payment details</td>
+	</tr>
+	<tr>
+	<td align="left" class="c-dark" colspan="10">${line.custbody_bbs_bank_name} | Sort Code: ${line.custbody_bbs_sort_code} | Acc no. ${line.custbody_bbs_account_no} | Bic: ${line.custbody_bbs_bic} | Iban: ${line.custbody_bbs_iban}</td>
+	</tr>
+  <tr>
+	<td align="left" colspan="10"><span style="color:#cf0a2c; font-weight:bold;">IMPORTANT:</span>&nbsp; Please supply a BACS remittance with all payments. <br/>Email all bank remittances to: <span class="c-dark bold fs10">creditcontrol@smigroupuk.com</span> quoting your account number <span class="c-dark bold fs10">${customer.custentity_bbs_legacy_accnumber}</span></td>
+	</tr>
+	<tr class="pd-0" style="margin:0px; padding:0px">
+	<td class="pd-0 fs4" colspan="10" style="border-bottom:1px dotted #333333;">&nbsp;</td>
+	</tr></table>
 
-
+    <#assign done>Y</#assign>
+	</#if>
+    </#list>
+      
+      
+      
 	</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>

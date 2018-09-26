@@ -37,7 +37,7 @@
             <table style="width: 100%; font-size: 5pt; color:#888888; margin-top:0px;">
     <tr>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
-	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group.</td>
+	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group Ltd.</td>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
 	</tr>
     <tr>
@@ -201,7 +201,7 @@
 	<td align="left" class="fs10 c-grey tt-sc" colspan="4">
 	<p align="left">Delivery Address</p>
 	</td>
-	<td align="right" class="fs10 c-dark ar" colspan="2" style="padding-right:2px;">${record.trandate@label} <b>${record.trandate}</b></td>
+	<td align="right" class="fs10 c-dark ar" colspan="2" style="padding-right:2px;">Order Date <b>${record.trandate}</b></td>
 	<td align="center" colspan="1">&nbsp;</td>
 	</tr>
 	<!-- Details -->
@@ -224,11 +224,11 @@
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	<!-- account details -->
 	<th align="left" class="pb-0" colspan="5">
-	<p align="left" style="padding-right:1px; line-height:12pt">Account No.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span><br />${record.otherrefnum@label}&nbsp;<span class="normal">${record.otherrefnum}</span></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Account No.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span> <!--<br />${record.otherrefnum@label}&nbsp;<span class="normal">${record.otherrefnum}</span>--></p>
 	</th>
 	<!-- Order ref details -->
 	<th align="right" class="pb-0" colspan="5">
-	<p align="right" style="padding-right:10px; line-height:12pt">Delivery Date&nbsp;<span class="normal">${record.duedate?string["dd MMM yyyy"]}</span><br />${record.tranid@label}&nbsp;<span class="normal">${record.tranid}</span></p>
+	<p align="right" style="padding-right:10px; line-height:12pt">Delivery Date&nbsp;<span class="normal">${record.duedate?string["dd MMM yyyy"]}</span><!-- <br />${record.tranid@label}&nbsp;<span class="normal">${record.tranid}</span> --></p>
 	</th>
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	</tr>
@@ -261,13 +261,13 @@
 	<!-- Item Code -->
 	<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${item.vendorname}</td>
   <!-- Item Description -->
-	<td align="left" class="fs-9 c-dark" colspan="5" style="border-right:2px solid #fffffff;">${item.item} ${item.description}</td>
+	<td align="left" class="fs-9 c-dark" colspan="5" style="border-right:2px solid #fffffff;">${item.item} <!--${item.description} --></td>
 	<!-- Pricing -->
 	<td align="center" colspan="3" style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ebebeb')}; ">
 	<table border="0" cellpadding="0" class="inner fs-9 c-dark" style="width: 100%;"><tr>
 		<td align="center" class="fs-9 c-dark">${item.quantity}</td>
 		<td align="right" class="fs-9 c-dark">${item.rate}</td>
-		<td align="right" class="fs-9 c-dark">${item.grossamt}<#if record.currency?contains("US Dollar")><span style="font-size:8px;">USD</span></#if></td>
+		<td align="right" class="fs-9 c-dark">${item.grossamt}</td>
 		</tr></table>
 	</td>
 	<!-- spacer -->
@@ -281,7 +281,7 @@
 	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
 	<!-- CONTENT GOES HERE -->
 	<td align="left" class="bold c-black" colspan="2" style="padding-top:10px;">${record.subtotal@label}</td>
-	<td align="right" class="normal c-black" colspan="1" style="padding-top:10px;">${record.subtotal}<#if record.currency?contains("US Dollar")><span style="font-size:8px;">USD</span></#if></td>
+	<td align="right" class="normal c-black" colspan="1" style="padding-top:10px;">${record.subtotal}</td>
 	<!-- spacer -->
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
@@ -290,7 +290,7 @@
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black" colspan="2">${record.shippingcost@label}</td>
-	<td align="right" class="normal c-black " colspan="1">${record.shippingcost}<#if record.currency?contains("US Dollar")><span style="font-size:8px;">USD</span></#if></td>
+	<td align="right" class="normal c-black " colspan="1">${record.shippingcost}</td>
 	<!-- spacer -->
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
@@ -299,7 +299,7 @@
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black " colspan="2">VAT</td>
-	<td align="right" class="normal c-black " colspan="1">${record.taxtotal}<#if record.currency?contains("US Dollar")><span style="font-size:8px;">USD</span></#if></td>
+	<td align="right" class="normal c-black " colspan="1">${record.taxtotal}</td>
 	<!-- spacer -->
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
@@ -310,7 +310,7 @@
 	<td colspan="3"><!--  ************************************** Totals and terms **************************************  -->
 	<table cellpadding="0" style="padding: 4px 0px;"><tr>
 		<td align="left" class="c-white fs16" valign="middle">${record.total@label}</td>
-		<td align="right" class="c-white fs12" valign="middle">${record.total}<#if record.currency?contains("US Dollar")><span style="font-size:8px;">USD</span></#if></td>
+		<td align="right" class="c-white fs12" valign="middle">${record.total}</td>
 		</tr></table>
 	</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>

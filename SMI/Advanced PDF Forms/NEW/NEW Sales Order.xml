@@ -34,7 +34,7 @@
             <table style="width: 100%; font-size: 5pt; color:#888888; margin-top:0px;">
     <tr>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
-	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group.</td>
+	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group Ltd.</td>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
 	</tr>
     <tr>
@@ -168,7 +168,7 @@
     <!-- **************************************  DOCUMENT TITLE AND NUMBER **************************************  -->
 <table cellpadding="0"><tr>
 	<td align="center" colspan="1">&nbsp;</td>
-	<td align="left" class="fs32 c-dark" colspan="8">Order Acknowledgement</td>
+	<td align="left" class="fs32 c-dark" colspan="8">Order Confirmation</td>
 	<td align="right" class="fs16 c-dark ar " colspan="3">
 	<p align="right">No.${record.tranid}</p>
 	</td>
@@ -206,7 +206,7 @@
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	<!-- account details -->
 	<th align="left" class="pb-0" colspan="3">
-	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span><br />Order Placed By:&nbsp;<span class="normal">${record.custbody_bbs_opportunity_contact. entityid}</span></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc No.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span><br />Order Placed By:&nbsp;<span class="normal">${record.custbody_bbs_opportunity_contact. entityid}</span></p>
 	</th>
 	<!-- Order ref details -->
 	<th align="left" class="pb-0" colspan="4">
@@ -248,7 +248,7 @@
 	<!-- Item Code -->
 	<!--<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${item.item}</td>-->
 	<!-- Item Description -->
-	<td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;">${item.item}<br/>${item.description}</td>
+    <td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
 	<!-- Pricing -->
 	<td align="center" colspan="3" style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')}; ">
 	<table border="0" cellpadding="0" class="inner fs-9 c-dark" style="width: 100%;"><tr>
@@ -348,7 +348,7 @@
 	</tr>
 	<tr>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="left" colspan="10"><span style="color:#cf0a2c; font-weight:bold;">IMPORTANT:</span>&nbsp; Please supply a BACS remittance with all payments. <br/>Email all bank remittances to: <span class="c-dark bold fs10">sales@smigroupuk.com</span> quoting your account number <span class="c-dark bold fs10">${record.entity.custentity_bbs_legacy_accnumber}</span></td>
+	<td align="left" colspan="10"><span style="color:#cf0a2c; font-weight:bold;">IMPORTANT:</span>&nbsp; Please supply a BACS remittance with all payments. <br/>Email all bank remittances to: <span class="c-dark bold fs10">creditcontrol@smigroupuk.com</span> quoting your account number <span class="c-dark bold fs10">${record.entity.custentity_bbs_legacy_accnumber}</span></td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
 	<tr class="pd-0" style="margin:0px; padding:0px">
