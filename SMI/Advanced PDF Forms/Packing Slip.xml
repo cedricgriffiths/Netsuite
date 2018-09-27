@@ -2,10 +2,10 @@
 <pdf>
 <head>
               <#assign regInfo>Company Registration No: 07644080. Registered Office: Corporate House, Haslemere, GU27 2QH, United Kingdom.</#assign>
-              <#assign emailInfo>creditcontrol@smigroupuk.com</#assign>
+              <#assign emailInfo>sales@smigroupuk.com</#assign>
               <#assign telInfo>01428 658333</#assign>
               <#assign vatInfo>GB 217 1244 96</#assign>
-              <#assign footerMsg>All goods remain the property of SMI Group Limited until paid in full.</#assign>
+              <#assign footerMsg>All goods remain the property of SMI Group Int Limited until paid in full.</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
     <macrolist>
         <macro id="nlheader">
@@ -34,7 +34,7 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"></span><br /><span class="nameandaddress" style="font-size:10pt"></span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.companyName}<br />${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${companyInformation.addressText}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
 	</tr>
           </table>
         </macro>
@@ -163,7 +163,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="4%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
@@ -175,14 +175,21 @@
 	<tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.tranid@label}</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
     </tr>
-	<tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>${record.trandate@label}</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
-    </tr>
+	
   <tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Ship Date</b></td><td align="right" style="font-size:10pt">${record.trandate?string["dd MMM yyyy"]}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${salesorder.entity.entityid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:9pt">${salesorder.entity.custentity_bbs_legacy_accnumber}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Order Placed By</b></td><td align="right" style="font-size:9pt">${salesorder.custbody_bbs_opportunity_contact.entityid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Sales Order No</b></td><td align="right" style="font-size:9pt">${salesorder.tranid}</td>
+    </tr>
+      <tr>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>PO</b></td><td align="right" style="font-size:9pt">${salesorder.otherrefnum}</td>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td></td><td></td>
@@ -191,45 +198,59 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
-    </tr>
-      <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+	<td>FAO ${salesorder.custbody_bbs_fao_salesorder}</td>
     </tr>
   </table>
   
-
+<p/>
     
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%; margin-top: 10px;">
 <thead>
 	<tr>
-	<th colspan="19">Description</th>
-	<th align="right" colspan="4">Ordered</th>
-    <th align="right" colspan="4">${salesorder.item[0].quantitybackordered@label}</th>
-	<th align="right" colspan="4">Shipped</th>
+	<th colspan="13"><br/>Item Description</th>
+	<th align="right" colspan="2"><br/>Ordered</th>
+    <th align="right" colspan="2">Back<br/>Ordered</th>
+	<th align="right" colspan="2"><br/>Shipped</th>
 	</tr>
 </thead>
 <#if record.showAddlItemsPackSlip == 'NONE'><!-- start items --><#list record.item as item><#list salesorder.item as tranline><#if tranline.line==item.orderline>
   <tr>
-	<td colspan="19">${item.description}</td>
-	<td align="right" colspan="4">${tranline.quantity}</td>
-    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
-	<td align="right" colspan="4">${item.quantity}</td>
+	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
+      <td colspan="13"><b>${item.custcol_bbs_sku}</b><br/>${item.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <#else>
+	<td colspan="13"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
+      </#if>
+      <td align="right" colspan="2">${tranline.quantity}</td>
+    <td align="right" colspan="2">${tranline.quantityremaining}</td>
+	<td align="right" colspan="2">${item.quantity}</td>
 	</tr>
 	</#if></#list></#list><!-- end items --><#elseif record.showAddlItemsPackSlip == 'ALL'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity></#if></#list>
   <tr>
-	<td colspan="19">${tranline.description}</td>
-	<td align="right" colspan="4">${tranline.quantity}</td>
-    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
-	<td align="right" colspan="4">${shipped}</td>
+	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
+      <td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <#else>
+	<td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
+      </#if>
+      <td align="right" colspan="2">${tranline.quantity}</td>
+    <td align="right" colspan="2">${tranline.quantityremaining}</td>
+    <#if shipped == 0>
+      <td align="right" colspan="2">&nbsp;</td>
+    <#else>    
+	<td align="right" colspan="2">${shipped}</td>
+    </#if>
+
 	</tr>
 	</#list><!-- end sales order items --><#elseif record.showAddlItemsPackSlip == 'UNFULFILLED'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#assign isInList=false><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity><#assign isInList=true></#if></#list><#if isInList || tranline.quantitybackordered != 0>
   <tr>
-	<td colspan="19">${tranline.description}</td>
-	<td align="right" colspan="4">${tranline.quantity}</td>
-    <td align="right" colspan="4">${tranline.quantitybackordered}</td>
+	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
+      <td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <#else>
+	<td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
+      </#if>
+      <td align="right" colspan="4">${tranline.quantity}</td>
+    <td align="right" colspan="2">${tranline.quantityremaining}</td>
 	<td align="right" colspan="4">${shipped}</td>
 	</tr>
 	</#if></#list><!-- end sales order items --></#if></table>
