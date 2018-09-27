@@ -1246,8 +1246,9 @@ function productionBatchSuitelet(request, response)
 					                   //"AND", 
 					                   ["type","anyof","WorkOrd"], 
 					                   "AND", 
-					                   ["custbody_bbs_wo_batch","anyof",batchId]
-					                   
+					                   ["custbody_bbs_wo_batch","anyof",batchId],
+					                   "AND", 
+					                   ["item.preferredbin","is","T"]				                   
 					                ];
 					
 					var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
