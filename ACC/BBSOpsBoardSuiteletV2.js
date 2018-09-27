@@ -273,7 +273,7 @@ function suitelet(request, response)
 						//Add a field to set the refresh time
 						//
 						var refreshField = form.addField('custpage_param_refresh', 'integer', 'Refresh Interval (Blank = no refresh)', null, 'custpage_grp_config');
-						refreshField.setDefaultValue('5');
+						refreshField.setDefaultValue('1');
 						
 						//Add a submit button to the form
 						//
@@ -1182,7 +1182,7 @@ function makeCellArray(_startDate, _endDate, _nowDate, _showNow)
 
 	cellArray.push(new opsInfoCell());
 	
-	while (loopDate <= _endDate) 
+	while (loopDate.getTime() <= _endDate.getTime()) 
 	{
 		cellArray.push(new opsCell(loopDate,(loopDate.getTime() == _nowDate.getTime() && _showNow ? true : false)));
 	   
