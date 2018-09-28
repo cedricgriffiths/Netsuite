@@ -185,7 +185,7 @@ function createAssembliesScheduled(type)
 															template += '-{custitem_bbs_item_size2}';
 														}
 													
-													template += ' {custitem_bbs_item_finish_ref}';
+													template += '-{custitem_bbs_item_finish_ref}';
 													
 													newParentRecord.setFieldValue('matrixtype', 'PARENT');
 													newParentRecord.setFieldValue('itemid', newParentName);
@@ -307,7 +307,7 @@ function createAssembliesScheduled(type)
 																			var newChildDescription = childSalesDescription + ' WITH ' + finishItemDescription;
 																				
 																			var childName = childRecord.getFieldValue('itemid');
-																			var newChildName = customerRef + ' ' + childName + ' ' + finishrefText;
+																			var newChildName = customerRef + '-' + childName + '-' + finishrefText;
 																			
 																			var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
 																			var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');

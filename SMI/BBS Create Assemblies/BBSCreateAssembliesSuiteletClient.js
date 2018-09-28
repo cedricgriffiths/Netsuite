@@ -433,7 +433,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 				if(filterValue != null && filterValue != '')
 					{
 						filterArray.push("AND");
-						filterArray.push(["salesdescription","contains",filterValue]);
+						filterArray.push(["description","contains",filterValue]);
 					}
 			
 				if(filterValue2 != null && filterValue2 != '')
@@ -446,7 +446,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 						filterArray, 
 						[
 						   new nlobjSearchColumn("itemid",null,null).setSort(false), 
-						   new nlobjSearchColumn("salesdescription",null,null)
+						   new nlobjSearchColumn("description",null,null)
 						]
 						);
 				
@@ -482,7 +482,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 						for (var int = 0; int < searchResultSet.length; int++) 
 							{
 								var baseParentId = searchResultSet[int].getId();
-								var baseParentText = searchResultSet[int].getValue('itemid') + ' - ' + searchResultSet[int].getValue('salesdescription');
+								var baseParentText = searchResultSet[int].getValue('itemid') + ' - ' + searchResultSet[int].getValue('description');
 								
 								nlapiInsertSelectOption('custpage_base_parent_select', baseParentId, baseParentText, false);
 							}
