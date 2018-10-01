@@ -26,7 +26,8 @@
 	var SEARCHCOLSECTORHYPERLINK = 18;
 	var RESOLUTIONWIDTH = '1800';
 	var RESOLUTIONHEIGHT = '1080';
-	var OPSBOARDVERSION = 'v2.0.0.1'
+	var OPSBOARDVERSION = 'v2.1.0.1';
+	var LEFTSCROLL = '1800';
 }
 
 function suitelet(request, response)
@@ -397,7 +398,7 @@ function suitelet(request, response)
 								
 								//Convert the data into html
 								//
-								html = convertDataToHtml(opsBoard, now, paramRefreshInterval);
+								html = convertDataToHtml(opsBoard, now, paramRefreshInterval, showNow);
 							}
 				
 						//Return the html to the client
@@ -556,7 +557,7 @@ function opsInfoCell()
 
 //Build the html from the ops board data
 //
-function convertDataToHtml(_opsBoard, _now, _refreshTime)
+function convertDataToHtml(_opsBoard, _now, _refreshTime, _showNow)
 {
 	var content = ''
 	
@@ -589,6 +590,15 @@ function convertDataToHtml(_opsBoard, _now, _refreshTime)
 	content += "<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js\"></script>";
 	content += "<script>";
 	content += "$(document).ready(function() {";
+	
+	//If we are showing the 'now' marker, then scroll this into view
+	//
+	//if(_showNow)
+	//	{
+			content += "var $tbody = $('tbody');";
+			content += "$tbody.scrollLeft(" + LEFTSCROLL + ");";
+	//	}
+	
 	content += "  $('tbody').scroll(function(e) { ";
 	content += "    $('thead').css(\"left\", -$(\"tbody\").scrollLeft()); ";
 	content += "    $('thead th:nth-child(1)').css(\"left\", $(\"tbody\").scrollLeft()); ";
