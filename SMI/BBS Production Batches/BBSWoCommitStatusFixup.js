@@ -105,6 +105,7 @@ function scheduled(type)
 					var newStatus = newRecord.getFieldValue('status');
 					var assemblyId = newRecord.getFieldValue('assemblyitem');
 					var itemCount = newRecord.getLineItemCount('item');
+					var woQuantity = Number(newRecord.getFieldValue('quantity'));
 					var linesToCommit = Number(0);
 					var linesFullyCommitted = Number(0);
 					var woFullFinishItem = '';
@@ -337,7 +338,8 @@ function scheduled(type)
 					
 						if((totalQuantity - totalUsedInBuild) >= 0)
 						{
-							commitPercent = Number((lowestCommitted / (totalQuantity - totalUsedInBuild)) * 100.00).toFixed();
+							//commitPercent = Number((lowestCommitted / (totalQuantity - totalUsedInBuild)) * 100.00).toFixed();
+							commitPercent = Number((lowestCommitted / (woQuantity - totalUsedInBuild)) * 100.00).toFixed();
 						}
 						
 						var percentListValue = null;
