@@ -505,7 +505,7 @@ function opsCell(_cellDate, _cellIsNow)
 					else
 						{
 							borders = 'border-color: black 1px solid;';
-							text = "<td align=\"center\" style=\"fnt-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";					
+							text = "<td align=\"center\" style=\"font-size: " + this.cellTextSize + ";background-color: " + this.cellBackgroundColour + "; color: " + this.cellTextColour + "; " + borders + "\">" + this.cellText + "</td>";					
 						}
 				}
 			
