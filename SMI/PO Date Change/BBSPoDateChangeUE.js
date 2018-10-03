@@ -130,7 +130,7 @@ function poDateChangeUE(type)
 //
 function poBeforeSubmit(type){
   
-	if(type == 'create' || type == 'edit'){
+	if(type == 'create'){
       
 		var supplierId = nlapiGetFieldValue('entity');
 		var today = new Date();
