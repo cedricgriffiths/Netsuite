@@ -780,9 +780,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							xml += "</tr>";
 							xml += "</thead>";
 							xml += "<tr>";
-							xml += "<td class=\"ordhead\" align=\"left\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].orderId + "\" target=\"_blank\">"   + orderedSalesOrderDetail[salesOrderKey].orderNumber + "</a></td>";
+							xml += "<td class=\"ordhead\" align=\"left\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].orderId + "\" target=\"_blank\">"   + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderNumber) + "</a></td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
-							xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderCustomer + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderCustomer) + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderShipDate + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal.toFixed(2) + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsFulfillable.toFixed(2) + "</td>";
@@ -817,12 +817,12 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 		
 							xml += "<tr>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineNumber + "</td>";
-							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + removePrefix(orderedSalesOrderDetail[salesOrderKey].lineItemText) + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + nlapiEscapeXML(removePrefix(orderedSalesOrderDetail[salesOrderKey].lineItemText)) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineOrdered.toFixed(2) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineFulfilled.toFixed(2) + "</td>";
-							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/workord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].lineWoId + "\" target=\"_blank\">"  + orderedSalesOrderDetail[salesOrderKey].lineWoNo + "</a></td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/workord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].lineWoId + "\" target=\"_blank\">"  + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].lineWoNo) + "</a></td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineWoPercentBuildableText + "</td>";
-							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/purchord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].linePoId + "\" target=\"_blank\">" + orderedSalesOrderDetail[salesOrderKey].linePoNo + "</a></td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/purchord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].linePoId + "\" target=\"_blank\">" + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].linePoNo) + "</a></td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].linePoDueDate + "</td>";
 							xml += "</tr>";
 							
