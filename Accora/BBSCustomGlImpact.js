@@ -151,19 +151,22 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																		{
 																			//Add new posting lines here
 																			//
-																			var newLine = customLines.addNewLine();
-																			newLine.setAccountId(parseInt(configFromAccId));
-																			newLine.setCreditAmount(debit);
-																			newLine.setLocationId(location);
-																			newLine.setMemo('Cost Of Warranty');
-																			newLine.setClassId(classId);
-																			
-																			var newLine = customLines.addNewLine();
-																			newLine.setAccountId(parseInt(configToAccId));
-																			newLine.setDebitAmount(debit);
-																			newLine.setLocationId(location);
-																			newLine.setMemo('Cost Of Warranty');
-																			newLine.setClassId(classId);
+																			if(debit != 0)
+																				{
+																					var newLine = customLines.addNewLine();
+																					newLine.setAccountId(parseInt(configFromAccId));
+																					newLine.setCreditAmount(debit);
+																					newLine.setLocationId(location);
+																					newLine.setMemo('Cost Of Warranty');
+																					newLine.setClassId(classId);
+																					
+																					var newLine = customLines.addNewLine();
+																					newLine.setAccountId(parseInt(configToAccId));
+																					newLine.setDebitAmount(debit);
+																					newLine.setLocationId(location);
+																					newLine.setMemo('Cost Of Warranty');
+																					newLine.setClassId(classId);
+																				}
 																			
 																			//Add shipping posting lines here
 																			//
