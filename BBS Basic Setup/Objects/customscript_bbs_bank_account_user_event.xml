@@ -1,0 +1,28 @@
+<usereventscript scriptid="customscript_bbs_bank_account_user_event">
+  <aftersubmitfunction>userEventAfterSubmit</aftersubmitfunction>
+  <beforeloadfunction></beforeloadfunction>
+  <beforesubmitfunction></beforesubmitfunction>
+  <description></description>
+  <isinactive>F</isinactive>
+  <name>BBS Bank Account User Event</name>
+  <notifyadmins>F</notifyadmins>
+  <notifyemails></notifyemails>
+  <notifyowner>T</notifyowner>
+  <notifyuser>F</notifyuser>
+  <scriptfile>[/SuiteScripts/BBSBankAccountUserEvent.js]</scriptfile>
+  <scriptdeployments>
+    <scriptdeployment scriptid="customdeploy_bbs_bank_account_user_event">
+      <allemployees>F</allemployees>
+      <allpartners>F</allpartners>
+      <allroles>T</allroles>
+      <audslctrole></audslctrole>
+      <eventtype></eventtype>
+      <executeinwebstore>T</executeinwebstore>
+      <isdeployed>T</isdeployed>
+      <loglevel>DEBUG</loglevel>
+      <recordtype>[scriptid=customrecord_bbs_bank_list]</recordtype>
+      <runasrole></runasrole>
+      <status>RELEASED</status>
+    </scriptdeployment>
+  </scriptdeployments>
+</usereventscript>
