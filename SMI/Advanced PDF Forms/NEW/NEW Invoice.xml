@@ -275,7 +275,14 @@
 	<!-- Item Code -->
     <!--<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b></td>-->
 	<!-- Item Description -->
-	<td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
+    
+    <#if item.custcol_bbs_contact_sales_lines?length gt 0>
+    <td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}<br/>ManPack Name: ${item.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
+	<#else>
+    <td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
+	</#if>
+    
+	<!--<td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>-->
 	<!-- Pricing -->
 	<td align="center" colspan="3" style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')}; ">
 	<table border="0" cellpadding="0" class="inner fs-9 c-dark" style="width: 100%;"><tr>

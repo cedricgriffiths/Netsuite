@@ -1,9 +1,6 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
-<#if .locale == "ru_RU">
-    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
-</#if>
     <macrolist>
         <macro id="nlheader">
             <!-- Header -->
@@ -19,7 +16,7 @@
 		</tr>
 		<tr style="padding: 1px 0px;">
 		<td align="left" colspan="1"><img height="10" src="https://system.eu2.netsuite.com/core/media/media.nl?id=24795&amp;c=4769170&amp;h=1e0a24f2d5d6f738d393" width="10" /></td>
-		<td algin="left" colspan="11" style="padding-left:5px;">&nbsp;creditcontrol@smigroupuk.com</td>
+		<td algin="left" colspan="11" style="padding-left:5px;">&nbsp;sales@smigroupuk.com</td>
 		</tr>
 		<tr style="padding: 1px 0px;">
 		<td align="left" colspan="1"><img height="10" src="https://system.eu2.netsuite.com/core/media/media.nl?id=24797&amp;c=4769170&amp;h=f2686d9110c88f2e484a" width="10" /></td>
@@ -37,7 +34,7 @@
             <table style="width: 100%; font-size: 5pt; color:#888888; margin-top:0px;">
     <tr>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
-	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group Ltd.</td>
+	<td align="center" colspan="10" style="padding: 0;">SMI Group is a trading name of the SMI Int. Group.</td>
 	<td align="right" colspan="1" style="padding: 0;">&nbsp;</td>
 	</tr>
     <tr>
@@ -47,21 +44,10 @@
 	</tr>
     </table>
         </macro>
-    </macrolist>    <style type="text/css">body{margin-top:0px; padding-top:0px;}
+    </macrolist>
+    <style type="text/css">body{margin-top:0px; padding-top:0px;}
       table {
-        <#if .locale == "zh_CN">
-            font-family: stsong, sans-serif;
-        <#elseif .locale == "zh_TW">
-            font-family: msung, sans-serif;
-        <#elseif .locale == "ja_JP">
-            font-family: heiseimin, sans-serif;
-        <#elseif .locale == "ko_KR">
-            font-family: hygothic, sans-serif;
-        <#elseif .locale == "ru_RU">
-            font-family: verdana;
-        <#else>
             font-family: sans-serif;
-        </#if>
             font-size: 8pt;
             table-layout: fixed;
         width:100%
@@ -76,7 +62,7 @@
             background-color: #333333;
             color: #ffffff;
         }
-              
+
         td {
             padding: 4px 6px;
             color:#868686;
@@ -137,9 +123,7 @@
                 border-bottom: 2px solid #333333;
                 padding-bottom:4px!important;
 }
-      
 
-      
         /* font styling*/
       
       td.fs4, span.fs4{font-size:4pt}
@@ -176,8 +160,7 @@
       td.pd-0, tr.pd-0{padding:0pxImportant;}
       td.pdtb-10{padding:10px 0px;}
       td.pdb-10{padding-bottom:10px;}
-      td.pdr-2{padding-right:2px}
-         .ma-t-10{margin-top:10px;}
+      td.pdr-2{padding-right:2px} .ma-t-10{margin-top:10px;}
       tr.pd-2{padding:2px}
 </style>
 </head>
@@ -185,7 +168,7 @@
     <!-- **************************************  DOCUMENT TITLE AND NUMBER **************************************  -->
 <table cellpadding="0"><tr>
 	<td align="center" colspan="1">&nbsp;</td>
-	<td align="left" class="fs32 c-dark" colspan="7">${record@title}</td>
+	<td align="left" class="fs32 c-dark" colspan="8">Quotation</td>
 	<td align="right" class="fs16 c-dark ar " colspan="3">
 	<p align="right">No.${record.tranid}</p>
 	</td>
@@ -195,25 +178,24 @@
 
 <table cellpadding="0" style="width: 100%; margin-top:10px;"><!-- Titles --><tr style="padding:5px">
 	<td align="center" colspan="1">&nbsp;</td>
-	<td align="left" class="fs10 c-grey tt-sc" colspan="4" style="padding-right:15px;">
-	<p align="left">${record.billaddress@label}</p>
-	</td>
-	<td align="left" class="fs10 c-grey tt-sc" colspan="4">
-	<p align="left">Delivery Address</p>
-	</td>
-	<td align="right" class="fs10 c-dark ar" colspan="2" style="padding-right:2px;">Order Date <b>${record.trandate}</b></td>
+	<td align="left" class="fs10 c-grey tt-sc" colspan="3">Invoice Address</td>
+	<td align="left" class="fs10 c-grey tt-sc" colspan="4">Delivery Address</td>
+	<td align="right" class="fs10 c-dark ar" colspan="3" style="padding-right:2px;">Quotation Date <b>${record.trandate}</b></td>
 	<td align="center" colspan="1">&nbsp;</td>
 	</tr>
 	<!-- Details -->
-	<tr style="padding-bottom:15px;">
+	<tr>
 	<td align="center" colspan="1">&nbsp;</td>
-	<td align="left" colspan="4" style="padding-right:8px;">
-	<p align="left">${record.billaddress}</p>
+	<td align="left" colspan="3" style="padding-right:8px;">${record.billaddress}</td>
+	<td align="left" colspan="4" style="">${record.shipaddress}</td>
+	<td align="right" colspan="3">
+	<table cellpadding="0" style="padding-bottom:10px; "><tr>
+		<td align="right" class="fs10 c-dark bold ar">Amount <!--${record.total@label}--></td>
+		</tr>
+		<tr>
+		<td align="right" class="fs26 c-dark bold ar">${record.total} </td>
+		</tr></table>
 	</td>
-	<td align="left" colspan="4">
-	<p align="left">${record.shipaddress}</p>
-	</td>
-	<td align="right" colspan="2">&nbsp;</td>
 	<td align="center" colspan="1">&nbsp;</td>
 	</tr></table>
 <!-- ************************************** ACCOUNT DETAILS ************************************** -->
@@ -224,15 +206,15 @@
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	<!-- account details -->
 	<th align="left" class="pb-0" colspan="3">
-	<p align="left" style="padding-right:1px; line-height:12pt">Account No.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span><br />${record.custbody_bbs_exftydate_po@label}&nbsp;<span class="normal">${record.custbody_bbs_exftydate_po}</span></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc no.&nbsp;<span class="normal">${record.entity.custentity_bbs_legacy_accnumber}</span></p>
 	</th>
 	<!-- Order ref details -->
-	<th align="left" class="pb-0" colspan="3">
-	<p align="left" style="padding-right:10px; line-height:12pt">${record.currency@label}&nbsp;<span class="normal">${record.currency}</span><br />${record.custbody_bbs_port@label}&nbsp;<span class="normal">${record.custbody_bbs_port}</span></p>
+	<th align="left" class="pb-0" colspan="4">
+	<p align="left" style="padding-right:10px; line-height:12pt">Requested By:&nbsp;<span class="normal">${record.custbody_bbs_opportunity_contact.entityid}</span></p>
 	</th>
-	<!-- Order ref details -->
+	<!-- Shipping and terms details -->
 	<th align="center" class="pb-0" colspan="3">
-	<p align="right" style="padding-right:10px; line-height:12pt">Delivery Date&nbsp;<span class="normal">${record.custbody_bbs_delivery_date_po?string["dd MMM yyyy"]}</span><br />${record.custbody_bbs_delmode_po@label}&nbsp;<span class="normal">${record.custbody_bbs_delmode_po}</span></p>
+	<p align="right" style="padding-right:1px;  line-height:12pt">Quoted By:&nbsp;<span class="normal">${record.custbody_bbs_cse_sales_transactions}</span> </p>
 	</th>
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	</tr>
@@ -245,34 +227,42 @@
 	<tr><!-- spacer -->
 	<th align="center" colspan="1">&nbsp;</th>
 	<!-- Item Code -->
-	<th align="left" class="underline" colspan="2">Supplier Code</th>
-    <!-- Item Description -->
-	<th align="left" class="underline" colspan="5">Description</th>
+	<!--<th align="left" class="underline" colspan="2">${item.item@label}</th>-->
+	<!-- Item Description -->
+	<th align="left" class="underline" colspan="7">${item.description@label}</th>
 	<!-- Pricing -->
-	<th align="center" class="underline" colspan="4" style="background-color:#ebebeb;">
+	<th align="center" class="underline" colspan="3" style="background-color:#ebebeb;">
 	<table border="0" cellpadding="0" style="width: 100%; padding-right:1px;"><tr>
 		<th align="center" class="med fs10 italic c-dark normal">${item.quantity@label}</th>
 		<th align="right" class="med fs10 italic c-dark normal">${item.rate@label}</th>
-		<th align="right" class="med fs10 italic c-dark normal">Amount</th>
+		<th align="right" class="med fs10 italic c-dark normal">${item.amount@label}</th>
 		</tr></table>
 	</th>
 	<!-- spacer -->
 	<th align="center" colspan="1">&nbsp;</th>
 	</tr>
 </thead>
-</#if><!-- ******************************* TABLE COLUMNS ********************************   --><tr style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')};  border-bottom: 2px solid #ffffff; "><!-- spacer -->
+</#if><!-- ******************************* TABLE COLUMNS ********************************   -->
+  <tr style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')};  border-bottom: 2px solid #ffffff; "><!-- spacer -->
 	<td align="center" colspan="1">&nbsp;</td>
 	<!-- Item Code -->
-	<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${item.vendorname}</td>
-  <!-- Item Description -->
-	<td align="left" class="fs-9 c-dark" colspan="5" style="border-right:2px solid #fffffff;">${item.item} <!-- ${item.description} --></td>
+	<!--<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${item.item}</td>-->
+	<!-- Item Description -->
+    
+    <#if item.custcol_bbs_contact_sales_lines?length gt 0>
+    <td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}<br/>ManPack Name: ${item.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
+	<#else>
+    <td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
+	</#if>
+    
+    
+	<!--<td align="left" class="fs-9 c-dark" colspan="7" style="border-right:2px solid #fffffff;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>-->
 	<!-- Pricing -->
-	<td align="center" colspan="4" style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ebebeb')}; ">
+	<td align="center" colspan="3" style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')}; ">
 	<table border="0" cellpadding="0" class="inner fs-9 c-dark" style="width: 100%;"><tr>
 		<td align="center" class="fs-9 c-dark">${item.quantity}</td>
 		<td align="right" class="fs-9 c-dark">${item.rate}</td>
-		<td align="right" class="fs-9 c-dark">${item.grossamt}
-      </td>
+		<td align="right" class="fs-9 c-dark">${item.amount}</td>
 		</tr></table>
 	</td>
 	<!-- spacer -->
@@ -281,41 +271,73 @@
 	</#list></table>
 <!-- end items --></#if><!--  **************************************  TABLE TOTALS COLUMN STARTS HERE **************************************  -->
 
-<table class="totals" style="page-break-inside: avoid; width: 100%; margin-top:0px;"><!-- ************ Sub total ************ --><tr class="med" style=""><!-- spacer -->
+<table class="totals" style="page-break-inside: avoid; width: 100%; margin-top:0px;">
+  
+  <!-- ************ Sub total ************ -->
+  <tr class="med" style="">
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
-	<!-- CONTENT GOES HERE -->
+    <td align="center" class="white fs12 black " colspan="7" style="padding:0px;" valign="middle"><p align="center">We look forward to receiving your order</p></td>
 	<td align="left" class="bold c-black" colspan="2" style="padding-top:10px;">${record.subtotal@label}</td>
-	<td align="right" class="normal c-black" colspan="2" style="padding-top:10px;">${record.subtotal}</td>
-	<!-- spacer -->
+	<td align="right" class="normal c-black" colspan="1" style="padding-top:10px;">${record.subtotal}</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+  </tr>
+  
+	<!-- ************ Discounts ************  -->
+  <#if record.discounttotal!=0>
+	<tr class="med">
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
+	<td align="left" class="bold c-black" colspan="2">${record.discounttotal@label}</td>
+	<td align="right" class="normal c-black" colspan="1">${record.discounttotal}</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
-	<!--  ************ Shipping ************  -->
-	<tr class="med"><!-- spacer -->
+  <#else>
+	<tr class="med" height="2px" style="padding:0px">
+	<td align="center" class="white" colspan="1" height="0px" style="padding:0px">&nbsp;</td>
+	<td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
+	<td align="left" colspan="2" height="0px" style="padding:0px">&nbsp;</td>
+	<td align="right" colspan="1" height="0px" style="padding:0px">&nbsp;</td>
+	<td align="center" class="white" colspan="1" height="0px" style="padding:0px">&nbsp;</td>
+	</tr>
+  </#if>
+    
+    <!--  ************ Shipping ************  -->
+	<tr class="med">
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
+    <td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black" colspan="2">${record.shippingcost@label}</td>
-	<td align="right" class="normal c-black " colspan="2">${record.shippingcost}</td>
-	<!-- spacer -->
+	<#if record.shippingcost!=0>
+	<td align="right" class="normal c-black " colspan="1">${record.shippingcost}</td>
+	<#else>
+	<td align="right" class="bold c-black fs10" colspan="1">FREE</td>
+	</#if><!-- spacer -->
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
+      
 	<!-- ************ VAT ************  -->
-	<tr class="med"><!-- spacer -->
+	<tr class="med">
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="center" class="white fs12 black italic" colspan="7" style="padding:0px;" valign="middle">&nbsp;</td>
+    <td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black " colspan="2">VAT</td>
-	<td align="right" class="normal c-black " colspan="2">${record.taxtotal}</td>
-	<!-- spacer -->
+	<td align="right" class="normal c-black " colspan="1">${record.taxtotal}</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
+
+	
+
+      
 	<!-- ************ Totals ************  -->
 	<tr class="dark bold fs10 c-white;">
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="center" class="c-dark fs9 white" colspan="7" style="" valign="middle">&nbsp;</td>
-	<td colspan="4"><!--  ************************************** Totals and terms **************************************  -->
+	<!--  ************************************** Points message **************************************  -->
+	<td align="center" class="c-dark fs9 white" colspan="7" style="" valign="middle"></td>
+	<td colspan="3"><!--  ************************************** Totals and terms **************************************  -->
 	<table cellpadding="0" style="padding: 4px 0px;"><tr>
 		<td align="left" class="c-white fs16" valign="middle">${record.total@label}</td>
-		<td align="right" class="c-white fs12" valign="middle">${record.total}</td>
+		<td align="right" class="c-white fs12" valign="middle">${record.total} </td>
+		</tr>
+		<tr>
+		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />${record.terms@label} ${record.entity.terms}</td>
 		</tr></table>
 	</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
