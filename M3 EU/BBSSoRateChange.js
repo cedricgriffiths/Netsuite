@@ -88,4 +88,39 @@ function itemRateValidateField(type, name, linenum)
     return true;
 }
 
-
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @param {String} type Sublist internal id
+ * @returns {Boolean} True to save line item, false to abort save
+ */
+function itemRateValidateLine(type)
+{
+	if(type == 'item')
+		{
+			var context = nlapiGetContext();
+			var usersRole = Number(context.getRole());
+	
+			if(usersRole == 3)
+				{
+					return true;
+				}
+			else
+				{
+					var currentAmount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
+					var currentRate = Number(nlapiGetCurrentLineItemValue('item', 'rate'));
+					var currentQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
+					
+					if((currentRate * currentQty) != currentAmount)
+						{
+							alert('You cannot change the item amount');
+							return false;
+						}
+					else
+						{
+							   return true;
+						}
+				}
+		}
+}
