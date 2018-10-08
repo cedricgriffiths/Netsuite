@@ -186,7 +186,7 @@
 <table cellpadding="0">
   <tr>
 	<td align="center" colspan="1">&nbsp;</td>
-	<td align="left" class="fs32 c-dark" colspan="7">${record@title}</td>
+	<td align="left" class="fs32 c-dark" colspan="7" style="color: #ff0000;">${record@title}</td>
 	<td align="right" class="fs16 c-dark ar " colspan="3">
 	<p align="right">No. ${record.tranid}</p>
 	</td>
