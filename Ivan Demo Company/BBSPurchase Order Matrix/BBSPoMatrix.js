@@ -15,10 +15,10 @@ const TOTAL = 999997;
 const UNITCOST = 999998;
 const TOTALCOST = 999999;
 const NOPARENTID = 999996;
-const COLOURID = 529;
-const SIZEID = 530;
-const LENGTHID = 1384;
-const EMAILINFO = 'ivan.griggs@brightbridgesolutions.com';
+const COLOURID = 441;
+const SIZEID = 442;
+const LENGTHID = 76;
+const EMAILINFO = 'andrew.cox@brightbridgesolutions.com';
 const TELINFO = '+44 (0) 330 133 5000'
 
 	
@@ -1125,9 +1125,9 @@ function matrixOutputSuitelet(request, response)
 				   new nlobjSearchColumn("amount",null,null), 
 				   new nlobjSearchColumn("salesdescription","item",null), 
 				   new nlobjSearchColumn("parent","item",null).setSort(false), 
-				   new nlobjSearchColumn("custitem_ig_item_colour","item",null), 
-				   new nlobjSearchColumn("custitem_ig_item_size","item",null), 
-				   new nlobjSearchColumn("custitem_ig_item_length","item",null), 
+				   new nlobjSearchColumn("custitem19","item",null), 
+				   new nlobjSearchColumn("custitem20","item",null), 
+				   //new nlobjSearchColumn("custitem_ig_item_length","item",null), 
 				   new nlobjSearchColumn("type","item",null)
 				]
 				);
@@ -1183,9 +1183,9 @@ function matrixOutputSuitelet(request, response)
 			var itemId = purchaseorderSearch[int].getValue("item",null,null);
 			var itemQty = Math.abs(Number(purchaseorderSearch[int].getValue("quantity",null,null)));
 			var itemRate = Math.abs(Number(purchaseorderSearch[int].getValue("rate",null,null)));
-			var itemColour = purchaseorderSearch[int].getValue("custitem_ig_item_colour","item",null);
-			var itemSize = purchaseorderSearch[int].getValue("custitem_ig_item_size","item",null);
-			var itemLength = purchaseorderSearch[int].getValue("custitem_ig_item_length","item",null);
+			var itemColour = purchaseorderSearch[int].getValue("custitem19","item",null);
+			var itemSize = purchaseorderSearch[int].getValue("custitem20","item",null);
+			var itemLength = ""; //purchaseorderSearch[int].getValue("custitem_ig_item_length","item",null);
 			
 			var itemLengthColour = (itemLength == null ? '' : itemLength) + '|' + (itemColour == null ? '' : itemColour);
 			
