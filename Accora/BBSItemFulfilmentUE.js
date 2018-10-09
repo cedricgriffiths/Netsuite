@@ -52,13 +52,15 @@ function itemFulfilmentAfterSubmit(type)
 						{
 							var salesOrderNo = nlapiLookupField('salesorder', salesOrderId, 'tranid', false);
 							var salesOrderLocation = nlapiLookupField('salesorder', salesOrderId, 'location', false);
-						
+							
 							if(salesOrderLocation == '7') //Only Orwell is required
 								{
 									for (var int = 1; int <= lines; int++) 
 										{
 											var item = record.getLineItemValue('item', 'item', int);
 											var itemType = record.getLineItemValue('item', 'itemtype', int);
+											var itemOrderLine = record.getLineItemValue('item', 'orderline', int);
+											
 											var isSerialItem = '';
 											
 											try
@@ -77,6 +79,35 @@ function itemFulfilmentAfterSubmit(type)
 													record.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serialNumber);
 												
 													updated = true;
+													
+													var salesOrderRecord = null;
+													
+													try
+														{
+															salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
+														}
+													catch(err)
+														{
+															salesOrderRecord = null;
+														}
+													
+													if(salesOrderRecord != null)
+														{
+															soLines = salesOrderRecord.getLineItemCount('item');
+															
+															for (var int2 = 1; int2 <= soLines; int2++) 
+																{
+																	var soLineNo = salesOrderRecord.getLineItemValue('item', 'line', int2);
+																	
+																	if(soLineNo == itemOrderLine)
+																		{
+																			salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serialNumber);
+																			nlapiSubmitRecord(salesOrderRecord, false, true);
+																			
+																			break;
+																		}
+																}
+														}
 												}
 										}
 									
