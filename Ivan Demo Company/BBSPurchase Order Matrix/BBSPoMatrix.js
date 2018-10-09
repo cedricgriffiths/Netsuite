@@ -1097,6 +1097,7 @@ function matrixOutputSuitelet(request, response)
 		var poTaxTotal= poRecord.getFieldValue('taxtotal');
 		var poTotal= poRecord.getFieldValue('total');
 		var poCurrency= poRecord.getFieldText('currency');
+		var exchangeRate = Number(poRecord.getFieldValue('exchangerate'));
 		
 		poMemo = nlapiEscapeXML((poMemo == null ? '' : poMemo));
 		poDueDate = (poDueDate == null ? '' : poDueDate);
@@ -1186,6 +1187,8 @@ function matrixOutputSuitelet(request, response)
 			var itemColour = purchaseorderSearch[int].getValue("custitem19","item",null);
 			var itemSize = purchaseorderSearch[int].getValue("custitem20","item",null);
 			var itemLength = ""; //purchaseorderSearch[int].getValue("custitem_ig_item_length","item",null);
+			
+			itemRate = (itemRate / exchangeRate).toFixed(2);
 			
 			var itemLengthColour = (itemLength == null ? '' : itemLength) + '|' + (itemColour == null ? '' : itemColour);
 			
@@ -1424,7 +1427,7 @@ function matrixOutputSuitelet(request, response)
 							//	}
 							//else
 							//	{
-									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Length</th>";
+									xml += "<th style=\"border: 1px solid lightgrey; border-collapse: collapse;\" colspan=\"2\">Colour/Size</th>";
 							//	}
 							
 							
