@@ -218,10 +218,14 @@ function salesOrderStatusSuitelet(request, response)
 			//=====================================================================
 			//
 							
-			//Add a field group for header info
+			//Add a field group for filter info
 			//
 			var fieldGroupHeader = form.addFieldGroup('custpage_grp_filters', 'Filters');
-						
+			
+			//Add a field group for filter info
+			//
+			var fieldGroupOutput = form.addFieldGroup('custpage_grp_output', 'Output Formatting');
+			
 			
 			//=====================================================================
 			// Fields creation
@@ -254,6 +258,10 @@ function salesOrderStatusSuitelet(request, response)
 			//
 			var woPercentageBuildableField = form.addField('custpage_wo_buildable_select', 'select', 'Works Order % Buildable', 'customlist_bbs_wo_percent_can_build', 'custpage_grp_filters');
 			
+			//Add an option to chnage the output format
+			//
+			var outputTypeField = form.addField('custpage_output_type', 'checkbox', 'Output As CSV', null, 'custpage_grp_output');
+			
 			//Add a submit button
 			//
 			form.addSubmitButton('Generate Sales Order Status');
@@ -278,16 +286,26 @@ function salesOrderStatusSuitelet(request, response)
 			var percentAvailFrom = Number(request.getParameter('custpage_pcent_avail_select_from').replace('%',''));
 			var percentAvailTo = Number(request.getParameter('custpage_pcent_avail_select_to').replace('%',''));
 			var woBuildable = request.getParameter('custpage_wo_buildable_select');
+			var outputTypeCSV = request.getParameter('custpage_output_type');
 			
 			// Build the output
 			//	
-			var file = buildOutput(soStartDate,soEndDate,shipStartDate,shipEndDate,percentAvailFrom,percentAvailTo,woBuildable);
+			var file = buildOutput(soStartDate,soEndDate,shipStartDate,shipEndDate,percentAvailFrom,percentAvailTo,woBuildable,outputTypeCSV);
 			
 			//Send back the output in the response message
 			//
-			response.setContentType('PDF', 'Sales Order Status', 'inline');
-			response.write(file.getValue());
-			
+			if(outputTypeCSV == "T")
+				{
+					var fileName = 'Sales Order Status Report.csv';
+					
+					response.setContentType('CSV', fileName, 'attachment');
+					response.write(file);
+				}
+			else
+				{
+					response.setContentType('PDF', 'Sales Order Status', 'inline');
+					response.write(file.getValue());
+				}
 		}
 }
 
@@ -296,7 +314,7 @@ function salesOrderStatusSuitelet(request, response)
 // Functions
 //=====================================================================
 //
-function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percentAvailFrom,_percentAvailTo,_woBuildable)
+function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percentAvailFrom,_percentAvailTo,_woBuildable,_outputTypeCSV)
 {
 	var salesOrderList = [];
 	var salesOrderDetail = {};
@@ -406,7 +424,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 					   new nlobjSearchColumn("quantity"), 
 					   new nlobjSearchColumn("quantitycommitted"), 
 					   new nlobjSearchColumn("quantityshiprecv"), 
-					    new nlobjSearchColumn("custcol_bbs_wo_id"), 
+					   new nlobjSearchColumn("custcol_bbs_wo_id"), 
 					   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build","CUSTCOL_BBS_WO_ID",null), 
 					   new nlobjSearchColumn("custbody_bbs_commitment_status","CUSTCOL_BBS_WO_ID",null),
 					   new nlobjSearchColumn("tranid","CUSTCOL_BBS_WO_ID",null),
@@ -423,6 +441,7 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 					for (var int = 0; int < salesorderLineSearch.length; int++) 
 						{
 							var salesOrderId = salesorderLineSearch[int].getId();
+							var searchOrderNumber = salesorderLineSearch[int].getValue("tranid");
 							var searchLineNumber = salesorderLineSearch[int].getValue("linesequencenumber");
 							var searchLineItemType = salesorderLineSearch[int].getValue("type","item");
 							var searchLineItemId = salesorderLineSearch[int].getValue("item");
@@ -492,12 +511,13 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 											
 											//Save the line information to an object
 											//
-											var lineDetails = new salesOrderInfo();
+											var lineDetails = new salesOrderInfo(salesOrderId, searchOrderNumber, null, null, null);
 											lineDetails.lineNumber = searchLineNumber;
 											lineDetails.lineItemId = searchLineItemId;
 											lineDetails.lineItemText = searchLineItemText;
 											lineDetails.lineOrdered = searchLineQuantity;
 											lineDetails.lineFulfilled = searchLineFulfilled;
+											lineDetails.lineCommitted = searchLineCommitted
 											lineDetails.lineWoNo = searchLineWoText;
 											lineDetails.lineWoId = searchLineWoId;
 											lineDetails.lineWoPercentBuildable = searchLineWoCanBuildId;
@@ -675,7 +695,10 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 	//
 	var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n";
 	
-						
+	//Start the csv off
+	//
+	var csv = '';
+	
 	//Header & style sheet
 	//
 	xml += "<pdf>"
@@ -791,6 +814,16 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							
 							xml += "</table>";
 						
+							csv += "\r\n";
+							csv += '"Sales Order","Order Date","Customer","Ship Date","# Items Ordered","# Items Fulfillable","% Available"\r\n';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderId + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderDate + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderCustomer + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderShipDate + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal.toFixed(2) + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderItemsFulfillable.toFixed(2) + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderPercentAvailable.toFixed(2) + '"\r\n';
+							
 						}
 					else
 						{
@@ -803,28 +836,47 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 									xml += "<table class=\"orddet\" style=\"margin-left: 70px; width: 100%; \">";
 									xml += "<thead>";
 									xml += "<tr>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"left\">Order<br/>Number</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"left\">Line<br/>Number</th>";
 									xml += "<th class=\"orddet\" colspan=\"3\" align=\"left\"><br/>Item</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\"><br/>Ordered</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\"><br/>Fulfilled</th>";
+									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\"><br/>Committed</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Works<br/>Order</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Works Order<br/>% Buildable</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">Purchase<br/>Order</th>";
 									xml += "<th class=\"orddet\" colspan=\"1\" align=\"right\">PO Due<br/>Date</th>";
 									xml += "</tr>";
 									xml += "</thead>";
+									
+									csv += "\r\n";
+									csv += '"","Sales Order","Line Number","Item","Ordered","Fulfilled","Committed","Works Order","Works Order % Buildable","Purchase Order","PO Due Date"\r\n';
+									
 								}
 		
 							xml += "<tr>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"left\">" + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderNumber) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].lineNumber + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"3\" align=\"left\">" + nlapiEscapeXML(removePrefix(orderedSalesOrderDetail[salesOrderKey].lineItemText)) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineOrdered.toFixed(2) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineFulfilled.toFixed(2) + "</td>";
+							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineCommitted.toFixed(2) + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/workord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].lineWoId + "\" target=\"_blank\">"  + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].lineWoNo) + "</a></td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].lineWoPercentBuildableText + "</td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\"><a href=\"/app/accounting/transactions/purchord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].linePoId + "\" target=\"_blank\">" + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].linePoNo) + "</a></td>";
 							xml += "<td class=\"orddet\" colspan=\"1\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].linePoDueDate + "</td>";
 							xml += "</tr>";
+							
+							csv += '"","' + orderedSalesOrderDetail[salesOrderKey].orderNumber + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineNumber + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineItemText + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineOrdered.toFixed(2) + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineFulfilled.toFixed(2) + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineCommitted.toFixed(2) + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineWoNo + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].lineWoPercentBuildableText + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].linePoNo + '",';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].linePoDueDate + '"\r\n';
 							
 							
 						}
@@ -860,11 +912,18 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 			xml += "</pdf>";
 		}
 	
-	//Convert to pdf using the BFO library
-	//
-	var pdfFileObject = nlapiXMLToPDF(xml);
-	
-	return pdfFileObject;
+	if(_outputTypeCSV == 'T')
+		{
+			return csv;
+		}
+	else
+		{
+			//Convert to pdf using the BFO library
+			//
+			var pdfFileObject = nlapiXMLToPDF(xml);
+			
+			return pdfFileObject;
+		}
 }
 
 
@@ -950,6 +1009,7 @@ function salesOrderInfo(_orderId, _orderNumber, _orderDate, _orderCustomer, _ord
 	this.lineItemText = '';
 	this.lineOrdered = Number(0);
 	this.lineFulfilled = Number(0);
+	this.lineCommitted = Number(0);
 	this.lineWoNo = '';
 	this.lineWoId = '';
 	this.lineWoPercentBuildable = '';
