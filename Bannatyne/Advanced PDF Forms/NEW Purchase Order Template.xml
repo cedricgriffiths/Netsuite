@@ -1,0 +1,290 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+
+<#assign cs = "£">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+
+
+<head>
+
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;"><tr>
+	<td>&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right" rowspan="8"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:160px; height:40px;" /> </#if></td>
+	</tr>
+	<tr><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td></tr>
+	<tr>
+      <td colspan="2"><span style="font-size:18px; color:red; font-weight: bold;">PURCHASE ORDER</span></td>
+      <td align="right">&nbsp;</td>
+    </tr>
+    <tr><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td></tr>
+	<tr><td rowspan="6"><span style="font-size:10px;">${record.custbody_subsidiary_address}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left" colspan="2" style="font-size:10px; font-weight: bold; margin-top: 10px;">Tel: 0344 477 4777</td></tr>
+	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Email: bannatyne@bannatyne.co.uk</td></tr>
+	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.bannatayne.co.uk</td></tr>
+    <tr><td align="left">&nbsp;</td></tr>
+	</table>
+
+    <table style="width: 100%; margin-top: 10px;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Supplier Details</td>
+	<td align="left">&nbsp;</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">ORDER NO:</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.billaddress}</td>
+    <td align="left">&nbsp;</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date:</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Required By:</td>
+	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.duedate}</td>
+	</tr>
+      
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Account No:</td>
+	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody4}</td>
+	</tr>
+
+	</table>
+</macro>
+    <macro id="nlfooter">
+
+	<table style="width: 100%;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To:</td>
+    <td align="left" rowspan="2" style="padding: 5px; font-size: 9px;">&nbsp;</td>
+	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
+	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.custbody_tbg_delivery_text}</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
+	<td align="right" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
+	</tr>
+
+    <tr>
+	<td align="left" rowspan="3" style="padding: 5px; font-size: 9px; color: red;">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">AMOUNT DUE:</td>
+	<td align="right"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+   	<tr>
+
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
+    
+	<table style="width: 100%;">
+	<tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
+	
+    <table style="width: 100%; margin-top: 10px;">
+	
+	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 7pt"><b>This purchase order is subject to Bannatyne's supplier terms and conditions which can be viewed, or downloaded, at http://www.bannatyne.co.uk/legal</b></td>
+	</tr>
+	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
+	</tr>
+    </table>
+
+<table class="footer" style="width: 100%;">
+  	<tr>
+    <td align="center" style="font-size: 6pt">REGISTERED OFFICE: Power House, Haughton Road, Darlington, DL1 1ST. VAT REGISTRATION NUMBER 302318452 COMPANY REGISTRATION NUMBER 3287770</td>
+	</tr>
+  	<tr>
+    <td align="right"><pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+        </macro>
+    </macrolist>
+  
+    <style type="text/css">table {
+            font-family: helvetica;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 0px;
+            vertical-align: middle;
+            font-size:12px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+        }
+        table.itemtable td {
+          font-size: 9pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 125%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+      td.message{
+        font-size: 6pt;
+        font-weight: bold;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+      white-space: pre;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="130px" padding="1cm 1cm 1cm 1cm" size="A4">
+
+<#if record.item?has_content>
+  <table class="itemtable" style="width: 100%;"><!-- start items -->
+    <#list record.item as item>
+      <#if item_index==0>
+        <thead>
+            <tr>
+            <th align="center" colspan="3" style="font-size: 8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;"><br/>${item.quantity@label}</th>
+            <th align="center" colspan="3" style="font-size: 8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;"><br/>${item.units@label}</th>
+            <th align="left"  colspan="8" style="font-size: 8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;"><br/>Supplier Code</th>
+            <th align="left"  colspan="13" style="font-size: 8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;"><br/>${item.item@label}</th>
+            <th align="right" colspan="4" style="font-size: 8px; background-color:#5b5c61; color:#ffffff;  border-right: 2px solid white; padding: 5px;">Unit<br/>Price</th>
+            <th align="right" colspan="4" style="font-size: 8px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">Total<br/>Price</th>
+            </tr>
+        </thead>
+      </#if>
+      
+<!--      <#if item.custcol_bbs_quote_discount?has_content>
+      	<#assign disc = item.custcol_bbs_quote_discount + "%">
+      <#else>
+      	<#assign disc = "">
+      </#if> -->
+      	
+          <tr>
+          <td align="center" colspan="3" line-height="150%" style="font-size: 10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
+          <td align="left"  colspan="3" style="font-size: 10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.units}</td>
+          <td align="left"  colspan="8" style="font-size: 10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><span class="itemname">${item.vendorname}</span></td>
+          <td align="left"  colspan="13" style="font-size: 10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><span class="itemname">${item.description}</span></td>
+          <td align="right" colspan="4" style="font-size: 10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${toCurrency(item.rate)}</td>
+          <td align="right" colspan="4" style="font-size: 10px; background-color:#ffffff; color:#000000; padding: 5px;">${item.amount}</td>
+          </tr>
+
+    </#list><!-- end items -->
+  </table>
+</#if>
+
+<hr />
+
+  <table style="width: 100%;">
+ 	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 8pt"><b>THE ABOVE PURCHASE ORDER NUMBER MUST BE QUOTED ON YOUR INVOICE, OR IT WILL BE REJECTED AND RETURNED TO YOU.</b></td>
+	</tr>
+  </table>
+  
+</body>
+</pdf>
