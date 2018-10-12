@@ -29,8 +29,25 @@ function checkAssemblyBeforeLoad(type, form, request)
 	
 	if (type == 'view')
 		{
-			form.setScript('customscript_bbs_chk_assm_global');
-			form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
+			var itemCount = nlapiGetLineItemCount('item');
+			var hasAssemblies = false;
+			
+			for (var int = 1; int <= itemCount; int++) 
+				{
+					var itemType = nlapiGetLineItemValue('item', 'itemtype', int);
+					
+					if(itemType == 'Assembly')
+						{
+							hasAssemblies = true;
+							break;
+						}
+				}
+			
+			if(hasAssemblies)
+				{
+					form.setScript('customscript_bbs_chk_assm_global');
+					form.addButton('custpage_but_chk_assm', 'Check Assemblies', 'gblCheckAssembly()');
+				}
 		}
 }
 

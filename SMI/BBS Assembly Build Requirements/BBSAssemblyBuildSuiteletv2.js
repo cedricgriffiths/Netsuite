@@ -91,11 +91,14 @@ function suitelet(request, response)
 		var sublist2Status = subList2.addField('custpage_sublist2_status', 'text', 'Status', null);
 		var sublist2Item = subList2.addField('custpage_sublist2_item', 'text', 'Item', null);
 		var sublist2ItemText = subList2.addField('custpage_sublist2_item_txt', 'text', 'Description', null);
+		var sublist2ItemStocked = subList2.addField('custpage_sublist2_item_stocked', 'checkbox', 'Stocked', null);
 		var sublist2Qty = subList2.addField('custpage_sublist2_qty', 'float', 'Qty Required', null);
 		var sublist2QtyAvail = subList2.addField('custpage_sublist2_qty_avail', 'float', 'Qty Available', null);
 		var sublist2QtyOnOrder = subList2.addField('custpage_sublist2_qty_onord', 'float', 'Qty On Order', null);
 		var sublist2QtyBackOrder = subList2.addField('custpage_sublist2_qty_back', 'float', 'Qty Back Ordered', null);
 		var sublist2QtyInTransit = subList2.addField('custpage_sublist2_qty_intran', 'float', 'Qty In Transit', null);
+		
+		sublist2ItemStocked.setDisplayType('disabled');
 		
 		if(mode == 'showmenu')
 			{
@@ -188,6 +191,7 @@ function suitelet(request, response)
 						], 
 						[
 						   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false), 
+						   new nlobjSearchColumn("custitem_bbs_item_stocked",null,"GROUP"), 
 						   new nlobjSearchColumn("locationquantityavailable",null,"SUM"), 
 						   new nlobjSearchColumn("locationquantitybackordered",null,"SUM"), 
 						   new nlobjSearchColumn("locationquantitycommitted",null,"SUM"), 
@@ -204,6 +208,7 @@ function suitelet(request, response)
 						for (var int2 = 0; int2 < itemSearch.length; int2++) 
 							{
 								var resultItemId = itemSearch[int2].getValue("internalid",null,"GROUP");
+								var resultItemStocked = itemSearch[int2].getValue("custitem_bbs_item_stocked",null,"GROUP");
 								var resultQtyAvail = itemSearch[int2].getValue("locationquantityavailable",null,"SUM");
 								var resultQtyBack = itemSearch[int2].getValue("locationquantitybackordered",null,"SUM");
 								var resultQtyCommit = itemSearch[int2].getValue("locationquantitycommitted",null,"SUM");
@@ -211,7 +216,7 @@ function suitelet(request, response)
 								var resultQtyOnHand = itemSearch[int2].getValue("locationquantityonhand",null,"SUM");
 								var resultQtyOnOrder = itemSearch[int2].getValue("locationquantityonorder",null,"SUM");
 								
-								itemQtyData[resultItemId] = [resultQtyAvail,resultQtyBack,resultQtyCommit,resultQtyInTran,resultQtyOnHand,resultQtyOnOrder];
+								itemQtyData[resultItemId] = [resultQtyAvail,resultQtyBack,resultQtyCommit,resultQtyInTran,resultQtyOnHand,resultQtyOnOrder,resultItemStocked];
 							}
 					}
 				
@@ -243,6 +248,7 @@ function suitelet(request, response)
 					subList2.setLineItemValue('custpage_sublist2_qty_onord', linenum, Number(itemQtyData[ordered[memberItem][0]][5]));
 					subList2.setLineItemValue('custpage_sublist2_qty_back', linenum, Number(itemQtyData[ordered[memberItem][0]][1]));
 					subList2.setLineItemValue('custpage_sublist2_qty_intran', linenum, Number(itemQtyData[ordered[memberItem][0]][3]));
+					subList2.setLineItemValue('custpage_sublist2_item_stocked', linenum, itemQtyData[ordered[memberItem][0]][6]);
 					
 					linenum++;
 				}
