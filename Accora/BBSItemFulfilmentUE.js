@@ -75,7 +75,7 @@ function itemFulfilmentAfterSubmit(type)
 											
 											if(isSerialItem == 'T')
 												{
-													var serialNumber = salesOrderNo + fulfilmentId + padding_left(int.toString(), '0', 3);
+													var serialNumber = salesOrderNo + '-' + fulfilmentId + '-' + padding_left(int.toString(), '0', 3);
 													
 													record.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serialNumber);
 												
