@@ -1,0 +1,141 @@
+/**
+ * Module Description
+ * 
+ * Version    Date            Author           Remarks
+ * 1.00       15 Oct 2018     cedricgriffiths
+ *
+ */
+
+/**
+ * @param {nlobjRequest} request Request object
+ * @param {nlobjResponse} response Response object
+ * @returns {Void} Any output is written via response object
+ */
+function suitelet(request, response)
+{
+	if (request.getMethod() == 'GET') 
+		{
+			//=============================================================================================
+			//Start of main code
+			//=============================================================================================
+			//
+			  
+			  
+			//Get request - so return a form for the user to process
+			//
+			
+			//Get parameters
+			//
+			var itemId = request.getParameter('itemid');
+			var itemName = request.getParameter('itemname');
+			
+			
+			// Create a form
+			//
+			var form = nlapiCreateForm('Poppulate Item Location Matrix', false);
+			form.setTitle('Populate Item Location Matrix');
+			
+			//Add a field group
+			//
+			form.addFieldGroup('custpage_group_main', 'Main', null);
+			
+			//Add a field to show the item we are processing
+			//
+			var cloverName = form.addField('custpage_form_clover_name', 'text', 'Clover Item', null, 'custpage_group_main');
+			cloverName.setDefaultValue(itemName);
+			cloverName.setDisplayType('disabled');
+			
+			//Add a field to hold the item id
+			//
+			var cloverId = form.addField('custpage_form_clover_id', 'text', 'Clover Item Id', null, 'custpage_group_main');
+			cloverId.setDefaultValue(itemId);
+			cloverId.setDisplayType('hidden');
+			
+			//Create the available location sublist
+			//
+			var subList1 = form.addSubList('custpage_sublist_locations', 'list', 'Available Locations', null);
+			subList1.setLabel('Available Locations');
+
+			//Add fields to the sublist
+			//
+			var sublist1Tick = subList1.addField('custpage_sublist1_tick', 'checkbox', 'Select', null);
+			var sublist1Location = subList1.addField('custpage_sublist1_location', 'text', 'Location', null);
+			var sublist1CloverCode = subList1.addField('custpage_sublist1_clover_code', 'text', 'Location Code', null);
+			var sublist1LocationId = subList1.addField('custpage_sublist1_location_id', 'text', 'Location Id', null);
+			sublist1LocationId.setDisplayType('hidden');
+			
+			//Find the location records
+			//
+			var customrecordbbs_clover_loc_tableSearch = nlapiSearchRecord("customrecordbbs_clover_loc_table",null,
+					[
+					], 
+					[
+					   new nlobjSearchColumn("custrecordbbs_location_3").setSort(false), 
+					   new nlobjSearchColumn("name")
+					]
+					);
+			
+			//Process the search results & populate the sublist
+			//
+			if(customrecordbbs_clover_loc_tableSearch)
+				{
+					var lineNumber = Number(1);
+					
+					for (var int = 0; int < customrecordbbs_clover_loc_tableSearch.length; int++) 
+						{
+							var resultsLocationId = customrecordbbs_clover_loc_tableSearch[int].getValue('custrecordbbs_location_3');
+							var resultsLocationText = customrecordbbs_clover_loc_tableSearch[int].getText('custrecordbbs_location_3');
+							var resultsCloverId = customrecordbbs_clover_loc_tableSearch[int].getValue('name');
+						
+							subList1.setLineItemValue('custpage_sublist1_location', lineNumber, resultsLocationText);
+							subList1.setLineItemValue('custpage_sublist1_clover_code', lineNumber, resultsCloverId);
+							subList1.setLineItemValue('custpage_sublist1_location_id', lineNumber, resultsLocationId);
+							
+							lineNumber++;
+						}
+				}
+			
+			//Add buttons
+			//
+			subList1.addMarkAllButtons();
+			form.addSubmitButton('Populate Item Location Matrix');
+			
+			//Return the form to the user
+			//
+			response.writePage(form);
+		}
+	else
+		{
+			//Process the returned form
+			//
+			var sublistCount = request.getLineItemCount('custpage_sublist_locations');
+			var cloverId = request.getParameter('custpage_form_clover_id');
+			
+			var parameterObject = {};
+			parameterObject['itemid'] = cloverId;
+			
+			var locationIds = [];
+			
+			for (var int2 = 1; int2 <= sublistCount; int2++) 
+				{
+					var sublistTicked = request.getLineItemValue('custpage_sublist_locations', 'custpage_sublist1_tick', int2);
+					
+					if(sublistTicked == 'T')
+						{
+							var sublistLocationId = request.getLineItemValue('custpage_sublist_locations', 'custpage_sublist1_location_id', int2);
+						
+							locationIds.push(sublistLocationId);
+						}
+				}
+			
+			parameterObject['locations'] = locationIds;
+			
+			var scheduleParams = {
+					custscript_bbs_param_object: JSON.stringify(parameterObject)
+					};
+		
+			nlapiScheduleScript('customscript_bbs_clover_matrix_scheduled', null, scheduleParams);
+
+			
+		}
+}
