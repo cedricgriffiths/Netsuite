@@ -42,6 +42,8 @@ function soLineDateFieldChanged(type, name, linenum)
 							//Add the lead time to today's date & convert back to a string
 							//
 							var newShipDate = nlapiAddDays(today, salesLeadTime);
+							//var newShipDate = calcWorkingDays(today, salesLeadTime);
+							
 							var newShipDateString = nlapiDateToString(newShipDate);
 							
 							//Update the ship date on the order header
@@ -50,4 +52,21 @@ function soLineDateFieldChanged(type, name, linenum)
 						}
 				}
 		}
+}
+
+function calcWorkingDays(fromDate, days) 
+{
+    var count = 0;
+    
+    while (count < days) 
+    	{
+        	fromDate.setDate(fromDate.getDate() + 1);
+        
+        	if (fromDate.getDay() != 0 && fromDate.getDay() != 6) // Skip weekends
+	            {
+	        		count++;
+	            }
+    	}
+    
+    return fromDate;
 }
