@@ -83,7 +83,7 @@ function suitelet(request, response)
 					
 					for (var int = 0; int < customrecordbbs_clover_loc_tableSearch.length; int++) 
 						{
-							var resultsLocationId = customrecordbbs_clover_loc_tableSearch[int].getValue('custrecordbbs_location_3');
+							var resultsLocationId = customrecordbbs_clover_loc_tableSearch[int].getId();
 							var resultsLocationText = customrecordbbs_clover_loc_tableSearch[int].getText('custrecordbbs_location_3');
 							var resultsCloverId = customrecordbbs_clover_loc_tableSearch[int].getValue('name');
 						
@@ -134,8 +134,8 @@ function suitelet(request, response)
 					custscript_bbs_param_object: JSON.stringify(parameterObject)
 					};
 		
-			nlapiScheduleScript('customscript_bbs_clover_matrix_scheduled', null, scheduleParams);
+			nlapiScheduleScript('customscript_bbs_clover_item_scheduled', null, scheduleParams);
 
-			
+			response.sendRedirect('RECORD', 'kititem', cloverId, false, null);
 		}
 }

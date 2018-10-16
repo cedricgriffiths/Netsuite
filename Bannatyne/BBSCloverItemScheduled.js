@@ -71,13 +71,17 @@ function scheduled(type)
 					
 					//Find & set the category for this location
 					//
+					matrixRecord.setFieldValue('custrecordbbs_category', itemCategory);
+					
 					var categoryId = getCategoryId(itemCategory, locations[int]);
-					matrixRecord.setFieldValue('custrecordbbs_category', categoryId);
+					matrixRecord.setFieldValue('custrecordbbs_category_id', categoryId);
 					
 					//Find & set the modifier group for this location
 					//
+					matrixRecord.setFieldValue('custrecordbbs_modifier_group', itemModifierGroup);
+					
 					var modifierGroupId = getModifierGroupId(itemModifierGroup, locations[int]);
-					matrixRecord.setFieldValue('custrecordbbs_modifier_group', modifierGroupId);
+					matrixRecord.setFieldValue('custrecordbbs_modif_group_ids', modifierGroupId);
 					
 					//Set the process status = new
 					//
@@ -100,14 +104,46 @@ function scheduled(type)
 
 function getModifierGroupId(_itemModifierGroup, _location)
 {
-	var modifierGroupId = null;
+	var modifierGroupId = '';
 	
+	var customrecordbbs_clover_modifier_groupSearch = nlapiSearchRecord("customrecordbbs_clover_modifier_group",null,
+			[
+			   ["custrecordbbs_clover_modifier_groups","anyof",_itemModifierGroup], 
+			   "AND", 
+			   ["custrecordbbs_merch_loc2","anyof",_location]
+			], 
+			[
+			   new nlobjSearchColumn("custrecordbbs_clover_mod_group_id")
+			]
+			);
+	
+	if(customrecordbbs_clover_modifier_groupSearch != null && customrecordbbs_clover_modifier_groupSearch.length > 0)
+	{
+		modifierGroupId = customrecordbbs_clover_modifier_groupSearch[0].getValue("custrecordbbs_clover_mod_group_id");
+	}
+
 	return modifierGroupId;
 }
 
 function getCategoryId(_itemCategory, _location)
 {
-	var categoryId = null;
+	var categoryId = '';
+	
+	var customrecord_bbs_cl_loc_subSearch = nlapiSearchRecord("customrecord_bbs_cl_loc_sub",null,
+			[
+			   ["custrecordbbs_category_7","anyof", _itemCategory], 
+			   "AND", 
+			   ["custrecordbbs_merch_loc","anyof", _location]
+			], 
+			[
+			   new nlobjSearchColumn("custrecordbbs_category_internal_id")
+			]
+			);
+	
+	if(customrecord_bbs_cl_loc_subSearch != null && customrecord_bbs_cl_loc_subSearch.length > 0)
+		{
+			categoryId = customrecord_bbs_cl_loc_subSearch[0].getValue("custrecordbbs_category_internal_id");
+		}
 	
 	return categoryId;
 }
@@ -116,5 +152,24 @@ function getRetailPrice(_itemRecord)
 {
 	var retailPrice = Number(0);
 	
+	//Read the price sublist based on the currency code
+	//
+	var priceSublist = 'price1';
+	
+	var priceLineCount = _itemRecord.getLineItemCount(priceSublist);
+	var quantityLevels = _itemRecord.getMatrixCount(priceSublist, 'price');
+	
+	for (var int2 = 1; int2 <= priceLineCount; int2++) 
+	{
+		var pricePriceLevel = _itemRecord.getLineItemValue(priceSublist, 'pricelevel', int2);
+		
+		if (pricePriceLevel == '1')
+			{
+				retailPrice = Number(_itemRecord.getLineItemMatrixValue(priceSublist, 'price', int2, 1));
+
+				break;
+			}
+	}
+
 	return retailPrice;
 }
