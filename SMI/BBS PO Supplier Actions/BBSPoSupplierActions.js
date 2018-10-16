@@ -32,3 +32,28 @@ function entityFieldChanged(type, name, linenum)
 				}
 		}
 }
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType 
+ * 
+ * @param {String} type Access mode: create, copy, edit
+ * @returns {Void}
+ */
+function purchasePageInit(type)
+{
+   if (type == 'edit')
+	   {
+		   var entityId = nlapiGetFieldValue('entity');
+			
+			if(entityId != null && entityId != '')
+				{
+					var entityActions = nlapiLookupField('vendor', entityId, 'custentity_bbsbuyeralert', false);
+					
+					if(entityActions != null && entityActions != '')
+						{
+							alert(entityActions);
+						}
+				}
+	   }
+}
