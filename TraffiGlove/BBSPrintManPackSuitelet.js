@@ -119,8 +119,8 @@ function buildOutput(salesOrderNumber)
 			   ["taxline","is","F"], 
 			   "AND", 
 			   ["shipping","is","F"], 
-			   "AND", 
-			   ["custcol_bbs_sales_line_contact","noneof","@NONE@"], 
+//			   "AND", 
+//			   ["custcol_bbs_sales_line_contact","noneof","@NONE@"], 
 			   "AND", 
 			   ["numbertext","is",salesOrderNumber],
 			   "AND",
@@ -175,10 +175,13 @@ function buildOutput(salesOrderNumber)
 					var printNotes = salesorderSearch[int].getValue('custbody_sw_on_manpack');
 					var salesEntityName = salesorderSearch[int].getValue("companyname","customer");
 					
-					//var entityRecord = nlapiLoadRecord('customer', salesEntityId);
-					
-					//var salesEntityName = entityRecord.getFieldValue('altname');
-					//var notesText = '';
+					if(salesContact == null || salesContact == '')
+						{
+							salesContact = 'Bulk';
+							salesContactName = 'Bulk';
+							salesContactEmpNo = '';
+							salesContactId = '99999999';
+						}
 					
 					var colon = salesItem.indexOf(' : ');
 					
@@ -189,15 +192,9 @@ function buildOutput(salesOrderNumber)
 					
 					if (printNotes == 'T')
 						{
-							//if(salesOrderRecord == null)
-							//	{
-							//		salesOrderRecord = nlapiLoadRecord('salesorder', salesId);
-							//	}
 							
-							//notes = salesOrderRecord.getFieldValue('memo');
 							notes = (notes == null ? '' : notes);
 							notes = nlapiEscapeXML(notes);
-							//notesText = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 							notes = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
 						}
 					else
