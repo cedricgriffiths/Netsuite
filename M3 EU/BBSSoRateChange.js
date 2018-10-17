@@ -123,4 +123,8 @@ function itemRateValidateLine(type)
 						}
 				}
 		}
+	else
+		{
+			return true;
+		}
 }
