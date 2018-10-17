@@ -19,6 +19,9 @@
  */
 function cloverItemAfterSubmit(type)
 {
+	var context = nlapiGetContext();
+	var executionContext = context.getExecutionContext();
+	
 	if (type == 'create')
 	{
 		var itemId = nlapiGetRecordId();
@@ -37,7 +40,7 @@ function cloverItemAfterSubmit(type)
 			}
 	}
 	
-	if (type == 'edit')
+	if (type == 'edit' && executionContext == 'userinterface')
 		{
 			var itemId = nlapiGetRecordId();
 			var newRecord = nlapiGetNewRecord();
@@ -64,7 +67,7 @@ function cloverItemAfterSubmit(type)
 					parameterObject['newretailprice'] = newRetailPrice;
 					
 					var scheduleParams = {
-								custscript_bbs_param_object: JSON.stringify(parameterObject)
+								custscript_bbs_param_object_matrix: JSON.stringify(parameterObject)
 							};
 			
 					nlapiScheduleScript('customscript_bbs_clover_matrix_update', null, scheduleParams);
