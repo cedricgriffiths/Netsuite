@@ -47,15 +47,15 @@ function cloverAfterSubmit(type)
 					
 					switch(currentType)
 						{
-							case 'customrecordbbs_clover_category_list':
+							case 'customrecord_bbs_cl_loc_sub':
 								
-								externalId = isNull(cloverRecord.getFieldValue('name'),'') + isNull(cloverRecord.getFieldText('custrecordbbs_merch_location'),'');
+								externalId = isNull(cloverRecord.getFieldText('custrecordbbs_category_7'),'') + isNull(cloverRecord.getFieldText('custrecordbbs_merch_loc'),'');
 								
 								break;
 								
 							case 'customrecordbbs_clover_modifier_group':
 
-								externalId = isNull(cloverRecord.getFieldValue('name'),'') + isNull(cloverRecord.getFieldText('custrecordbbs_merch_loc2'),'');
+								externalId = isNull(cloverRecord.getFieldText('custrecordbbs_clover_modifier_groups'),'') + isNull(cloverRecord.getFieldText('custrecordbbs_merch_loc2'),'');
 								
 								break;
 								
@@ -67,12 +67,7 @@ function cloverAfterSubmit(type)
 								
 							case 'customrecordbbs_item_locatin_matrix':
 
-								locationId = cloverRecord.getFieldValue('custrecordbbs_location_2');
-								
-								if(locationId != null && locationId != '')
-									{
-										merchantId = isNull(nlapiLookupField('location', locationId, 'custrecordbbs_clover_merchant_id', false));
-									}
+								merchantId = cloverRecord.getFieldText('custrecordbbs_merchant_location');
 								
 								itemId = cloverRecord.getFieldValue('custrecord_bbs_item');
 								
@@ -83,13 +78,13 @@ function cloverAfterSubmit(type)
 												   ["internalid","anyof",itemId]
 												], 
 												[
-												   new nlobjSearchColumn("itemid")
+												   new nlobjSearchColumn("description")
 												]
 												);
 										
 										if(itemSearch && itemSearch.length == 1)
 											{
-												itemName = itemSearch[0].getValue("itemid");
+												itemName = itemSearch[0].getValue("description");
 											}
 									}
 								
