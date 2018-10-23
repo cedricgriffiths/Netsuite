@@ -95,7 +95,14 @@ function cloverAfterSubmit(type)
 					
 					cloverRecord.setFieldValue('externalid', externalId);
 					
-					nlapiSubmitRecord(cloverRecord, false, true);
+					try
+						{
+							nlapiSubmitRecord(cloverRecord, false, true);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error saving clover record after updating externalid (' + currentType + ') (' + currentId + ')', err.message);
+						}
 				}
 		}
 }

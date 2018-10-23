@@ -24,7 +24,7 @@ function CloverFieldChanged(type, name, linenum)
 		{
 			var locationId = nlapiGetFieldValue('custrecordbbs_merchant_location');
 			var categoryId = nlapiGetFieldValue('custrecordbbs_category');
-			var modifierId = nlapiGetFieldValue('custrecordbbs_modifier_group');
+			var modifierId = nlapiGetFieldValues('custrecordbbs_modifier_group');
 			
 			var cloverCategoryId = getCategoryId(categoryId, locationId);
 			var cloverModifierId = getModifierGroupId(modifierId, locationId);
@@ -54,7 +54,13 @@ function getModifierGroupId(_itemModifierGroup, _location)
 			
 			if(customrecordbbs_clover_modifier_groupSearch != null && customrecordbbs_clover_modifier_groupSearch.length > 0)
 			{
-				modifierGroupId = customrecordbbs_clover_modifier_groupSearch[0].getValue("custrecordbbs_clover_mod_group_id");
+				for (var int = 0; int < customrecordbbs_clover_modifier_groupSearch.length; int++) 
+					{
+						modifierGroupId += customrecordbbs_clover_modifier_groupSearch[int].getValue("custrecordbbs_clover_mod_group_id");
+						modifierGroupId += ',';
+					}
+				
+				modifierGroupId = modifierGroupId.substring(0,modifierGroupId.length - 1);
 			}
 	}
 	
