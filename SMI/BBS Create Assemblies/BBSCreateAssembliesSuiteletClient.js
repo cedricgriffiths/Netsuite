@@ -341,6 +341,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 					
 					//Read through the list & add any rows that match the previous search to the select list
 					//
+					var finishRefSet = false;
+					
 					if(searchResultSet !=  null)
 						{
 							for (var int = 0; int < searchResultSet.length; int++) 
@@ -354,6 +356,8 @@ function createAssembliesFieldChanged(type, name, linenum)
 												{
 													nlapiInsertSelectOption('custpage_finish_ref_select', finishRefId, finishRefName, true);
 													
+													finishRefSet = true;
+													
 													//Save the selected finish item for later retrieval in the POST section
 													//
 													nlapiSetFieldValue('custpage_finishref_id_param', finishRefId, false, true);
@@ -366,6 +370,11 @@ function createAssembliesFieldChanged(type, name, linenum)
 											
 										}
 								}
+						}
+					
+					if(!finishRefSet)
+						{
+							alert("No Finish Ref (" + impliedFinishRef + ") Found In List Of Finishes, Please Update The Finish Ref List & Start Again!")
 						}
 				}
 			
