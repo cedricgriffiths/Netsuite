@@ -326,7 +326,8 @@ function buildOutputV2(salesOrderNumber)
 			   new nlobjSearchColumn("entityid","custcol_bbs_contact_sales_lines",null).setSort(false),	//Then by contact
 			   new nlobjSearchColumn("companyname","customer",null),
 			   new nlobjSearchColumn("custbody_delivery_methods_so",null,null),
-			   new nlobjSearchColumn("custbody_bbs_picking_notes_so",null,null)
+			   new nlobjSearchColumn("custbody_bbs_picking_notes_so",null,null),
+			   new nlobjSearchColumn("shipaddress","customer",null)
 			]
 			);
 
@@ -364,13 +365,20 @@ function buildOutputV2(salesOrderNumber)
 					var printNotes = 'T'; //salesorderSearch[int].getValue('custbody_sw_on_manpack');
 					var salesEntityName = salesorderSearch[int].getValue("companyname","customer");
 					var salesDelMethod = salesorderSearch[int].getText('custbody_delivery_methods_so');
+					var customerAddress = salesorderSearch[int].getValue("shipaddress","customer");
 					
-					var thisShipDay = (nlapiStringToDate(salesShipDate)).format('D');
-					var thisShipDateFormatted = (nlapiStringToDate(salesShipDate)).format('d F Y');
+					var thisShipDay = '';
+					var thisShipDateFormatted = '';
 					
+					if(salesShipDate != null && salesShipDate != '')
+						{
+							thisShipDay = (nlapiStringToDate(salesShipDate)).format('D');
+							thisShipDateFormatted = (nlapiStringToDate(salesShipDate)).format('d F Y');
+						}
+
 					//Get the customer's address
 					//
-					var customerAddress = nlapiLookupField('customer', salesEntityId, 'shipaddress', false);
+					//var customerAddress = nlapiLookupField('customer', salesEntityId, 'shipaddress', false);
 					if (customerAddress)
 					{
 						customerAddress = nlapiEscapeXML(customerAddress);

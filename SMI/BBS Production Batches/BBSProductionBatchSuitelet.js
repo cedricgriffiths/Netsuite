@@ -1445,7 +1445,7 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<tr>";
 					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
 					xmlPb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 40px;\" colspan=\"3\">" + nlapiEscapeXML(batchId) + "</td>";
+					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(batchId) + "</td>";
 					xmlPb += "</tr>";
 					
 					xmlPb += "<tr>";
@@ -1456,7 +1456,7 @@ function productionBatchSuitelet(request, response)
 					xmlPb += "<tr>";
 					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
 					xmlPb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 40px;\" colspan=\"3\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
 					xmlPb += "</tr>";
 					
 					xmlPb += "<tr>";
@@ -1604,8 +1604,8 @@ function productionBatchSuitelet(request, response)
 												finishedItems[thisFinishedItem][3] = finishedItemComponents;
 												
 												
-												if(firstInventoryItem && woAssemblyParent != '')
-													{
+												//if(firstInventoryItem && woAssemblyParent != '')
+												//	{
 														xmlPb += "<tr>";
 														xmlPb += "<td colspan=\"2\">&nbsp;</td>";
 														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
@@ -1619,7 +1619,7 @@ function productionBatchSuitelet(request, response)
 														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
 														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
 														xmlPb += "</tr>";
-													}
+												//	}
 												
 												/*
 												xmlPb += "<tr>";
@@ -1775,7 +1775,7 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<tr>";
 					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
 					xmlCb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 40px;\" colspan=\"3\">" + nlapiEscapeXML(batchId) + "</td>";
+					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(batchId) + "</td>";
 					xmlCb += "</tr>";
 					
 					xmlCb += "<tr>";
@@ -1786,7 +1786,7 @@ function productionBatchSuitelet(request, response)
 					xmlCb += "<tr>";
 					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
 					xmlCb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 40px;\" colspan=\"3\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
 					xmlCb += "</tr>";
 					
 					xmlCb += "<tr>";
