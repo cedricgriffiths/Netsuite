@@ -148,6 +148,11 @@ function buildReport(selectedContract) {
 	var LogoURL = nlapiEscapeXML(LogoFile.getURL());
 	var currencySymbol = companyConfig.getFieldValue("displaysymbol");
 
+    if(currencySymbol == null || currencySymbol == '')
+	    {
+	      	currencySymbol = '£';
+	    }
+    
 	var bbAddress = "BrightBridge Solutions Limited<br/>Fosseway Suite<br/>High Cross Business Park<br/>Coventry Road<br/>Sharnford<br/>LE10 3PG<br/>United Kingdom<br/>VAT Number 213 9382 13";
 
 	// Load the contract header record
