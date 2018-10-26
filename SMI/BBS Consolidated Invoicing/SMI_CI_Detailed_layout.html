@@ -37,6 +37,21 @@
 	<#return tmpText>
 </#function>
 
+
+<#assign AccMgr>${invoiceline[0].salesrep}</#assign>
+<#assign LegacyAccNo>${invoiceline[0].customer.custentity_bbs_legacy_accnumber}</#assign>
+<#assign PayTerms>${invoiceline[0].customer.terms}</#assign>
+
+<#list invoiceline as item>
+	<#if item.custbody_bbs_bank_name?length gt 0>
+		<#assign BankName>${item.custbody_bbs_bank_name}</#assign>
+		<#assign BankSortCode>${item.custbody_bbs_sort_code}</#assign>
+		<#assign BankAccountNo>${item.custbody_bbs_account_no}</#assign>
+		<#assign BankBic>${item.custbody_bbs_bic}</#assign>
+		<#assign BankIban>${item.custbody_bbs_iban}</#assign>
+	</#if>
+</#list>
+
 <head>
 
     <macrolist>
@@ -208,7 +223,7 @@
       tr.pd-2{padding:2px}
 </style>
 </head>
-<body header="nlheader" header-height="125" footer="nlfooter" footer-height="20" padding="0mm 0mm 0mm 0mm" size="A4">
+<body header="nlheader" header-height="125" footer="nlfooter" footer-height="30" padding="5mm 0mm 0mm 0mm" size="A4">
     <!-- **************************************  DOCUMENT TITLE AND NUMBER **************************************  -->
 <table cellpadding="0">
   <tr>
@@ -324,11 +339,11 @@
 	<th align="center" class="pb-0" colspan="1">&nbsp;</th>
 	<!-- account details -->
 	<th align="left" class="pb-0" colspan="3">
-	<p align="left" style="padding-right:1px; line-height:12pt">Acc No.&nbsp;<span class="normal"></span><br /><span class="normal"></span></p>
+	<p align="left" style="padding-right:1px; line-height:12pt">Acc No.&nbsp;<span class="normal">${LegacyAccNo}</span><br /><span class="normal"></span></p>
 	</th>
 	<!-- Order ref details -->
 	<th align="left" class="pb-0" colspan="4">
-	<p align="left" style="padding-right:10px; line-height:12pt">Account Manager:&nbsp;<span class="normal"></span></p>
+	<p align="left" style="padding-right:10px; line-height:12pt">Account Manager:&nbsp;<span class="normal">${AccMgr}</span></p>
 	</th>
 	<!-- Shipping and terms details -->
 	<th align="center" class="pb-0" colspan="3">
@@ -354,7 +369,7 @@
 	<th align="center" class="underline" colspan="3" style="background-color:#ebebeb;">
 	<table border="0" cellpadding="0" style="width: 100%; padding-right:1px;"><tr>
 		<th align="center" class="med fs10 italic c-dark normal">${item.quantity@label}</th>
-		<th align="right" class="med fs10 italic c-dark normal">${item.rate@label}</th>
+		<th align="right" class="med fs10 italic c-dark normal">Unit Price</th>
 		<th align="right" class="med fs10 italic c-dark normal">${item.amount@label}</th>
 		</tr></table>
 	</th>
@@ -413,7 +428,10 @@
 	<td align="center" class="white" colspan="1">&nbsp;</td>
     <td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black" colspan="2">Shipping</td>
+	
 	<td align="right" class="normal c-black " colspan="1">${toCurrency(ci.custrecord_nsts_ci_pdf_shipping_handling)}</td>
+	
+
 
 <!-- spacer -->
 	<td align="center" class="white" colspan="1">&nbsp;</td>
@@ -442,7 +460,7 @@
 		<td align="right" class="c-white fs12" valign="middle">${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)} </td>
 		</tr>
 		<tr>
-		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Terms:</td>
+		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Terms: ${PayTerms}</td>
 		</tr>
       	<tr>
 		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Payment Due By: </td>
@@ -460,7 +478,7 @@
 	</tr>
 	<tr>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
-	<td align="left" class="c-dark" colspan="10"> | Sort Code:  | Acc no.  | Bic:  | Iban: </td>
+	<td align="left" class="c-dark" colspan="10">${BankName} | Sort Code: ${BankSortCode} | Acc no. ${BankAccountNo} | Bic: ${BankBic} | Iban: ${BankIban}</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
 	</tr>
   <tr>
