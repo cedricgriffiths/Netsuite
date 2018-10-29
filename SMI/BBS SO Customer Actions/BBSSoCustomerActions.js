@@ -42,6 +42,16 @@ function entityFieldChanged(type, name, linenum)
  */
 function salesPageInit(type)
 {
+	if (type == 'create')
+	   {
+			var entityId = nlapiGetFieldValue('entity');
+		
+			if(entityId != null && entityId != '')
+				{
+					nlapiSetFieldValue('shipaddresslist', '', true, true);
+				}
+	   }
+	
    if (type == 'edit' || type == 'create')
 	   {
 		   var entityId = nlapiGetFieldValue('entity');
