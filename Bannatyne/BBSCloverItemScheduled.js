@@ -27,79 +27,134 @@ function scheduled(type)
 	//
 	var itemId = parameterObject['itemid'];
 	var locations = parameterObject['locations'];
+	var recordType = parameterObject['recordtype'];
 	var itemRecord = null;
 	
-	//Read the item record
-	//
-	try
+	switch(recordType)
 		{
-			itemRecord = nlapiLoadRecord('kititem', itemId);
-		}
-	catch(err)
-		{
-			itemRecord = null;
+			case 'customrecordbbs_clover_category_list2':
+				
+				//Loop through all of the locations
+				//
+				for (var int = 0; int < locations.length; int++) 
+					{
+						var record = nlapiCreateRecord('customrecord_bbs_cl_loc_sub');
+						record.setFieldValue('custrecordbbs_category_7', itemId);
+						record.setFieldValue('custrecordbbs_merch_loc', locations[int]);
+						
+						try
+							{
+								nlapiSubmitRecord(record, true, true);
+							}
+						catch(err)
+							{
+								nlapiLogExecution('ERROR', 'Error Saving Clover Category Location Record', err.message);
+							}
+					}
+				
+				break;
+				
+			case 'customrecordbbs_modifier_groups':
+				
+				//Loop through all of the locations
+				//
+				for (var int = 0; int < locations.length; int++) 
+					{
+						var record = nlapiCreateRecord('customrecordbbs_clover_modifier_group');
+						record.setFieldValue('custrecordbbs_clover_modifier_groups', itemId);
+						record.setFieldValue('custrecordbbs_merch_loc2', locations[int]);
+						record.setFieldValue('custrecord_bbs_new2', 'T');
+						
+						try
+							{
+								nlapiSubmitRecord(record, true, true);
+							}
+						catch(err)
+							{
+								nlapiLogExecution('ERROR', 'Error Saving Clover Modifier Group Location Record', err.message);
+							}
+					}
+				
+				break;
+				
+			case 'kititem':
+		
+				//Read the item record
+				//
+				try
+					{
+						itemRecord = nlapiLoadRecord('kititem', itemId);
+					}
+				catch(err)
+					{
+						itemRecord = null;
+					}
+				
+				if(itemRecord)
+					{
+						//Get item details
+						//
+						var itemCategory = itemRecord.getFieldValue('custitembbs_clover_category_list');
+						var itemModifierGroup = itemRecord.getFieldValue('custitembbs_modifier_group');
+					
+						//Find the retail price
+						//
+						var itemPrice = getRetailPrice(itemRecord);
+						
+						//Loop through all of the locations
+						//
+						for (var int = 0; int < locations.length; int++) 
+							{
+								var matrixRecord = nlapiCreateRecord('customrecordbbs_item_locatin_matrix');
+								
+								//Set the item
+								//
+								matrixRecord.setFieldValue('custrecord_bbs_item', itemId);
+								
+								//Set the location
+								//
+								matrixRecord.setFieldValue('custrecordbbs_merchant_location', locations[int]);
+								
+								//Set the retail price
+								//
+								matrixRecord.setFieldValue('custrecordbbs_retail_price', itemPrice);
+								
+								//Find & set the category for this location
+								//
+								matrixRecord.setFieldValue('custrecordbbs_category', itemCategory);
+								
+								var categoryId = getCategoryId(itemCategory, locations[int]);
+								matrixRecord.setFieldValue('custrecordbbs_category_id', categoryId);
+								
+								//Find & set the modifier group for this location
+								//
+								matrixRecord.setFieldValue('custrecordbbs_modifier_group', itemModifierGroup);
+								
+								var modifierGroupId = getModifierGroupId(itemModifierGroup, locations[int]);
+								matrixRecord.setFieldValue('custrecordbbs_modif_group_ids', modifierGroupId);
+								
+								//Set the process status = new
+								//
+								matrixRecord.setFieldValue('custrecordbbs_process_status', '1');
+								
+								
+								//Submit the matrix record
+								//
+								try
+									{
+										nlapiSubmitRecord(matrixRecord, true, true);
+									}
+								catch(err)
+									{
+										nlapiLogExecution('ERROR', 'Error Saving Clover Item Location Matrix Record', err.message);
+									}
+							}
+					}
+				
+				break;
 		}
 	
-	if(itemRecord)
-		{
-			//Get item details
-			//
-			var itemCategory = itemRecord.getFieldValue('custitembbs_clover_category_list');
-			var itemModifierGroup = itemRecord.getFieldValue('custitembbs_modifier_group');
-		
-			//Find the retail price
-			//
-			var itemPrice = getRetailPrice(itemRecord);
-			
-			//Loop through all of the locations
-			//
-			for (var int = 0; int < locations.length; int++) 
-				{
-					var matrixRecord = nlapiCreateRecord('customrecordbbs_item_locatin_matrix');
-					
-					//Set the item
-					//
-					matrixRecord.setFieldValue('custrecord_bbs_item', itemId);
-					
-					//Set the location
-					//
-					matrixRecord.setFieldValue('custrecordbbs_merchant_location', locations[int]);
-					
-					//Set the retail price
-					//
-					matrixRecord.setFieldValue('custrecordbbs_retail_price', itemPrice);
-					
-					//Find & set the category for this location
-					//
-					matrixRecord.setFieldValue('custrecordbbs_category', itemCategory);
-					
-					var categoryId = getCategoryId(itemCategory, locations[int]);
-					matrixRecord.setFieldValue('custrecordbbs_category_id', categoryId);
-					
-					//Find & set the modifier group for this location
-					//
-					matrixRecord.setFieldValue('custrecordbbs_modifier_group', itemModifierGroup);
-					
-					var modifierGroupId = getModifierGroupId(itemModifierGroup, locations[int]);
-					matrixRecord.setFieldValue('custrecordbbs_modif_group_ids', modifierGroupId);
-					
-					//Set the process status = new
-					//
-					matrixRecord.setFieldValue('custrecordbbs_process_status', '1');
-					
-					
-					//Submit the matrix record
-					//
-					try
-						{
-							nlapiSubmitRecord(matrixRecord, true, true);
-						}
-					catch(err)
-						{
-							nlapiLogExecution('ERROR', 'Error Saving Clover Item Location Matrix Record', err.message);
-						}
-				}
-		}
+	
 }
 
 function getModifierGroupId(_itemModifierGroup, _location)

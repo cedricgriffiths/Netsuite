@@ -28,6 +28,7 @@ function cloverItemAfterSubmit(type)
 		var newRecord = nlapiGetNewRecord();
 		var itemName = newRecord.getFieldValue('itemid');
 		var cloverItem = newRecord.getFieldValue('custitem_bbs_clover_item');
+		var recordType = newRecord.getRecordType();
 		
 		if(cloverItem == 'T')
 			{
@@ -35,6 +36,7 @@ function cloverItemAfterSubmit(type)
 				
 				params['itemid'] = itemId;
 				params['itemname'] = itemName;
+				params['recordtype'] = recordType;
 				
 				nlapiSetRedirectURL('SUITELET', 'customscript_bbs_clover_item_suitelet', 'customdeploy_bbs_clover_item_suitelet', null, params);
 			}

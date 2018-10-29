@@ -28,12 +28,43 @@ function suitelet(request, response)
 			//
 			var itemId = request.getParameter('itemid');
 			var itemName = request.getParameter('itemname');
+			var recordType = request.getParameter('recordtype');
 			
+			var formTitle = '';
+			var buttonTitle = '';
+			var fieldTitle = '';
+			
+			switch(recordType)
+				{
+					case 'kititem':
+				
+							formTitle = 'Populate Item Location Matrix';
+							buttonTitle = 'Finish';
+							fieldTitle = 'Clover Item';
+							
+							break;
+							
+					case 'customrecordbbs_clover_category_list2':
+						
+						formTitle = 'Populate Clover Category Locations';
+						buttonTitle = 'Finish';
+						fieldTitle = 'Clover Category';
+						
+						break;
+						
+					case 'customrecordbbs_modifier_groups':
+						
+						formTitle = 'Populate Clover Modifier Groups Locations';
+						buttonTitle = 'Finish';
+						fieldTitle = 'Clover Modifier Group';
+						
+						break;
+				}
 			
 			// Create a form
 			//
-			var form = nlapiCreateForm('Poppulate Item Location Matrix', false);
-			form.setTitle('Populate Item Location Matrix');
+			var form = nlapiCreateForm(formTitle, false);
+			form.setTitle(formTitle);
 			
 			//Add a field group
 			//
@@ -41,7 +72,7 @@ function suitelet(request, response)
 			
 			//Add a field to show the item we are processing
 			//
-			var cloverName = form.addField('custpage_form_clover_name', 'text', 'Clover Item', null, 'custpage_group_main');
+			var cloverName = form.addField('custpage_form_clover_name', 'text', fieldTitle, null, 'custpage_group_main');
 			cloverName.setDefaultValue(itemName);
 			cloverName.setDisplayType('disabled');
 			
@@ -50,6 +81,12 @@ function suitelet(request, response)
 			var cloverId = form.addField('custpage_form_clover_id', 'text', 'Clover Item Id', null, 'custpage_group_main');
 			cloverId.setDefaultValue(itemId);
 			cloverId.setDisplayType('hidden');
+			
+			//Add a field to hold the record type
+			//
+			var cloverRecordType = form.addField('custpage_form_record_type', 'text', 'Clover Record Type', null, 'custpage_group_main');
+			cloverRecordType.setDefaultValue(recordType);
+			cloverRecordType.setDisplayType('hidden');
 			
 			//Create the available location sublist
 			//
@@ -68,6 +105,7 @@ function suitelet(request, response)
 			//
 			var customrecordbbs_clover_loc_tableSearch = nlapiSearchRecord("customrecordbbs_clover_loc_table",null,
 					[
+					 	["isinactive","is","F"]
 					], 
 					[
 					   new nlobjSearchColumn("custrecordbbs_location_3").setSort(false), 
@@ -98,7 +136,7 @@ function suitelet(request, response)
 			//Add buttons
 			//
 			subList1.addMarkAllButtons();
-			form.addSubmitButton('Populate Item Location Matrix');
+			form.addSubmitButton(buttonTitle);
 			
 			//Return the form to the user
 			//
@@ -110,9 +148,11 @@ function suitelet(request, response)
 			//
 			var sublistCount = request.getLineItemCount('custpage_sublist_locations');
 			var cloverId = request.getParameter('custpage_form_clover_id');
+			var recordType = request.getParameter('custpage_form_record_type');
 			
 			var parameterObject = {};
 			parameterObject['itemid'] = cloverId;
+			parameterObject['recordtype'] = recordType;
 			
 			var locationIds = [];
 			
@@ -136,6 +176,6 @@ function suitelet(request, response)
 		
 			nlapiScheduleScript('customscript_bbs_clover_item_scheduled', null, scheduleParams);
 
-			response.sendRedirect('RECORD', 'kititem', cloverId, false, null);
+			response.sendRedirect('RECORD', recordType, cloverId, false, null);
 		}
 }
