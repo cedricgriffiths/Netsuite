@@ -248,7 +248,7 @@
 <table cellpadding="0" style="width: 100%; margin-top:10px;"><!-- Titles --><tr style="padding:5px">
 	<td align="center" colspan="1">&nbsp;</td>
 	<td align="left" class="fs10 c-grey tt-sc" colspan="3">Invoice Address</td>
-	<td align="left" class="fs10 c-grey tt-sc" colspan="4">Delivery Address</td>
+	<td align="left" class="fs10 c-grey tt-sc" colspan="4"></td>
 	<td align="right" class="fs10 c-dark ar" colspan="3" style="padding-right:2px;">Invoice Date <b>${ci.custrecord_nsts_ci_date}</b></td>
 	<td align="center" colspan="1">&nbsp;</td>
 	</tr>
@@ -290,7 +290,7 @@
 
 </td>
 	<td align="left" colspan="4" style="">
-<#if customer.shipattention?has_content>
+<!--  <#if customer.shipattention?has_content>
 		${customer.shipattention}<br/>
 		</#if>
 		<#if customer.shipaddressee?has_content>
@@ -319,7 +319,7 @@
 
 		<#if customer.shipzip?has_content>
 		${customer.shipzip}<br/>
-		</#if>
+		</#if> -->
 </td>
 	<td align="right" colspan="3">
 	<table cellpadding="0" style="padding-bottom:10px; "><tr>
@@ -460,10 +460,10 @@
 		<td align="right" class="c-white fs12" valign="middle">${toCurrency(ci.custrecord_nsts_ci_pdf_itemtotal,true)} </td>
 		</tr>
 		<tr>
-		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Terms: ${PayTerms}</td>
+		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Terms: ${ci.custrecord_nsts_ci_term}</td>
 		</tr>
       	<tr>
-		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Payment Due By: </td>
+		<td class="c-white fs9 normal" colspan="2" style="border-top:1px dotted #ffffff;"><br />Payment Due By: ${ci.custrecord_nsts_ci_tran_duedate}</td>
 		</tr>
       </table>
 	</td>
