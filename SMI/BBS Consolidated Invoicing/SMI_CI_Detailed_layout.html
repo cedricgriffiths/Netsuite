@@ -380,8 +380,17 @@
 </#if><!-- ******************************* TABLE COLUMNS ********************************   -->
   <tr style="background-color: ${((item_index % 2)==0)?string('#f6f6f6', '#ffffff')};  border-bottom: 2px solid #ffffff; "><!-- spacer -->
 	<td align="center" colspan="1">&nbsp;</td>
+	
+	<#assign tranId = item.custbody_bbs_created_from_fulfillment?replace("Item Fulfillment #","")>
+	
+	<#if tranId?length lt 5>
+		<#assign tranId = item.tranid>
+	</#if>
+	
 	<!-- Item Code -->
-    <td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${item.tranid}</td>
+	<td align="left" class="fs-9 c-dark" colspan="2" style="border-right:2px solid #fffffff;">${tranId}</td>
+
+    
 	<!-- Item Description -->
     
     <td align="left" class="fs-9 c-dark" colspan="5" style="border-right:2px solid #fffffff;">${item.item}</td>
