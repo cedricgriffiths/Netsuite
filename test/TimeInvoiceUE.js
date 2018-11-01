@@ -39,10 +39,39 @@ function afterSumbitUpdateTimeTracking(type)
 	        //if it's selected on the invoice, update its custom field
 	        if (timeSelected == 'T')
 	        	{
-	                 nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice', currentRecordId );
-	                 nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_qty', timeQuantity );
-	                 nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_rate', timeRate );
-	                 nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_amt', timeAmount );
+	        		var timeRecord = null;
+	        		
+	        		try
+		        		{
+		        			timeRecord = nlapiLoadRecord('timebill', timeRecId);
+		        		}
+	        		catch(err)
+		        		{
+	        				timeRecord = null;
+		        		}
+	        		
+	        		if(timeRecord)
+	        			{
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice', currentRecordId);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_qty', timeQuantity);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_rate', timeRate);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_amt', timeAmount);
+		        			
+		        			try
+			        			{
+			        				nlapiSubmitRecord(timeRecord, false, true);
+			        			}
+		        			catch(err)
+			        			{
+			        				nlapiLogExecution('ERROR', 'Error updating time bill record', err.message);
+			        			}
+	        			}
+	        		
+	                 //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice', currentRecordId );
+	                 //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_qty', timeQuantity );
+	                 //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_rate', timeRate );
+	                 //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_amt', timeAmount );
+	                 
 	        	}
 	        else
 	            {
@@ -52,10 +81,25 @@ function afterSumbitUpdateTimeTracking(type)
 		            
 		            if (invoiceNoSet != null)
 		            	{
-		                	nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice', null ); 
-		                	nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_qty', null );
-			                nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_rate', null );
-			                nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_amt', null );
+			            	timeRecord.setFieldValue('custcol_bbs_related_invoice', null);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_qty', null);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_rate', null);
+		        			timeRecord.setFieldValue('custcol_bbs_related_invoice_amt', null);
+		        			
+		        			try
+			        			{
+			        				nlapiSubmitRecord(timeRecord, false, true);
+			        			}
+		        			catch(err)
+			        			{
+			        				nlapiLogExecution('ERROR', 'Error updating time bill record', err.message);
+			        			}
+		            	
+		            	
+		                	//nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice', null ); 
+		                	//nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_qty', null );
+			                //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_rate', null );
+			                //nlapiSubmitField('timebill', timeRecId, 'custcol_bbs_related_invoice_amt', null );
 		            	}
 	            }
         }
