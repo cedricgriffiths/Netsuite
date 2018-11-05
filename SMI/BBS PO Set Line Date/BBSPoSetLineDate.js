@@ -36,3 +36,27 @@ function setLineDateBeforeSubmit(type)
 				}
 		}
 }
+
+function setLineDateAfterSubmit(type)
+{
+	if(type == 'create')
+		{
+			var newPoRecord = nlapiGetNewRecord();
+			var newPoId = newPoRecord.getId();
+			newPoRecord = nlapiLoadRecord('purchaseorder', newPoId);
+			
+			var receiveByDate = newPoRecord.getFieldValue('duedate');
+			
+			if(receiveByDate != null && receiveByDate != '')
+				{
+					var lines = newPoRecord.getLineItemCount('item');
+					
+					for (var int = 1; int <= lines; int++) 
+						{
+							newPoRecord.setLineItemValue('item', 'expectedreceiptdate', int, receiveByDate);
+						}
+					
+					nlapiSubmitRecord(newPoRecord, false, true);
+				}
+		}
+}
