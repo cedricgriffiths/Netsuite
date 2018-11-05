@@ -183,23 +183,28 @@ function suitelet(request, response)
 					itemIdArray.push(ordered[memberItem][0]);
 				}
 				
-				var itemSearch = nlapiSearchRecord("item",null,
-						[
-						   ["internalid","anyof",itemIdArray], 
-						   "AND", 
-						   ["inventorylocation.makeinventoryavailable","is","T"]
-						], 
-						[
-						   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false), 
-						   new nlobjSearchColumn("custitem_bbs_item_stocked",null,"GROUP"), 
-						   new nlobjSearchColumn("locationquantityavailable",null,"SUM"), 
-						   new nlobjSearchColumn("locationquantitybackordered",null,"SUM"), 
-						   new nlobjSearchColumn("locationquantitycommitted",null,"SUM"), 
-						   new nlobjSearchColumn("locationquantityintransit",null,"SUM"), 
-						   new nlobjSearchColumn("locationquantityonhand",null,"SUM"), 
-						   new nlobjSearchColumn("locationquantityonorder",null,"SUM")
-						]
-						);
+				var itemSearch = null;
+				
+				if(itemIdArray.length > 0)
+					{
+						itemSearch = nlapiSearchRecord("item",null,
+								[
+								   ["internalid","anyof",itemIdArray], 
+								   "AND", 
+								   ["inventorylocation.makeinventoryavailable","is","T"]
+								], 
+								[
+								   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false), 
+								   new nlobjSearchColumn("custitem_bbs_item_stocked",null,"GROUP"), 
+								   new nlobjSearchColumn("locationquantityavailable",null,"SUM"), 
+								   new nlobjSearchColumn("locationquantitybackordered",null,"SUM"), 
+								   new nlobjSearchColumn("locationquantitycommitted",null,"SUM"), 
+								   new nlobjSearchColumn("locationquantityintransit",null,"SUM"), 
+								   new nlobjSearchColumn("locationquantityonhand",null,"SUM"), 
+								   new nlobjSearchColumn("locationquantityonorder",null,"SUM")
+								]
+								);
+					}
 				
 				var itemQtyData = {};
 				
