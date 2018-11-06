@@ -83,7 +83,7 @@ function serialNumbersAS(type)
 											
 											if(soLineNo == itemOrderLine)
 												{
-													salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serialNumber);
+													salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serials);
 													nlapiSubmitRecord(salesOrderRecord, false, true);
 													
 													break;
