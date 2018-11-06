@@ -417,7 +417,7 @@
     <td align="center" class="white fs12 black italic" colspan="7"  style="padding:0px;" valign="middle">&nbsp;</td>
 	<td align="left" class="bold c-black" colspan="2" style="padding-top:10px;">Subtotal</td>
 	<#assign subTotal=ci.custrecord_nsts_ci_pdf_subtotal + ci.custrecord_nsts_ci_pdf_discount + ci.custrecord_nsts_ci_pdf_tax>
-	<td align="right" class="normal c-black" colspan="1" style="padding-top:10px;">${toCurrency(subTotal)}</td>
+	<td align="right" class="normal c-black" colspan="1" style="padding-top:10px;">${toCurrency(ci.custrecord_nsts_ci_pdf_subtotal)}</td>
 	<td align="center" class="white" colspan="1">&nbsp;</td>
   </tr>
   
