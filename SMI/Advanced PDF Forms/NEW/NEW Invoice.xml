@@ -394,5 +394,28 @@
 	<td class="pd-0 fs4" colspan="10" style="border-bottom:1px dotted #333333;">&nbsp;</td>
 	<td align="center" class="white pd-0 fs4" colspan="1">&nbsp;</td>
 	</tr></table>
+	
+<!--  **************************************  Order Notes **************************************  -->
+<#if record.message?length gt 0>
+ 
+<table style="page-break-inside: avoid; width: 100%; margin-top:20px; "><tr>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td align="left" class="fs10 c-dark" colspan="10" style="border-top:1px dotted #333333; padding-top:6px;">Notes</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+	
+	<tr>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	<td align="left" class="c-dark" colspan="10">${record.message}</td>
+	<td align="center" class="white" colspan="1">&nbsp;</td>
+	</tr>
+
+	<tr class="pd-0" style="margin:0px; padding:0px">
+	<td align="center" class="white pd-0 fs4" colspan="1">&nbsp;</td>
+	<td class="pd-0 fs4" colspan="10" style="border-bottom:1px dotted #333333;">&nbsp;</td>
+	<td align="center" class="white pd-0 fs4" colspan="1">&nbsp;</td>
+	</tr></table>
+</#if>	
+	
 </body>
 </pdf>

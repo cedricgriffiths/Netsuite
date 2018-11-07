@@ -7,17 +7,19 @@
               <#assign vatInfo>GB 217 1244 96</#assign>
               <#assign footerMsg>All goods remain the property of SMI Group Int Limited until paid in full.</#assign>
               <#assign logoInfo>${companyInformation.logoUrl}</#assign>
+  		      <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=28389&amp;c=4769170&amp;h=522ca49b340b83b6386a</#assign>
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;">
     <tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+	<td align="right">&nbsp;</td>
+	<td colspan="2" align="left"><img src="${logoInfo}" style="float: right; width:175px; height:75px;" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">Delivery Note</span></td>
+	<td colspan="2"><span style="font-size:24px;">Delivery Note</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -198,7 +200,7 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
       <tr>
-	<td>FAO ${salesorder.custbody_bbs_fao_salesorder}</td>
+	<td>FAO: ${salesorder.custbody_bbs_fao_salesorder}</td>
     </tr>
   </table>
   
@@ -218,45 +220,56 @@
 <#if record.showAddlItemsPackSlip == 'NONE'><!-- start items --><#list record.item as item><#list salesorder.item as tranline><#if tranline.line==item.orderline>
   <tr>
 	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
-      <td colspan="13"><b>${item.custcol_bbs_sku}</b><br/>${item.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <td colspan="13" style="margin-top: 5px;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
       <#else>
-	<td colspan="13"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
+	<td colspan="13" style="margin-top: 5px;"><b>${item.custcol_bbs_sku}</b><br/>${item.description}</td>
       </#if>
-      <td align="right" colspan="2">${tranline.quantity}</td>
-    <td align="right" colspan="2">${tranline.quantityremaining}</td>
-	<td align="right" colspan="2">${item.quantity}</td>
+      <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>
+    <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
+	<td align="right" colspan="2" style="margin-top: 5px;">${item.quantity}</td>
 	</tr>
 	</#if></#list></#list><!-- end items --><#elseif record.showAddlItemsPackSlip == 'ALL'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity></#if></#list>
   <tr>
 	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
-      <td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <td colspan="13" style="margin-top: 5px;"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
       <#else>
-	<td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
+	<td colspan="13" style="margin-top: 5px;"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
       </#if>
-      <td align="right" colspan="2">${tranline.quantity}</td>
-    <td align="right" colspan="2">${tranline.quantityremaining}</td>
+      <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantity}</td>
+    <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
     <#if shipped == 0>
-      <td align="right" colspan="2">&nbsp;</td>
+      <td align="right" colspan="2" style="margin-top: 5px;">&nbsp;</td>
     <#else>    
-	<td align="right" colspan="2">${shipped}</td>
+	<td align="right" colspan="2" style="margin-top: 5px;">${shipped}</td>
     </#if>
 
 	</tr>
 	</#list><!-- end sales order items --><#elseif record.showAddlItemsPackSlip == 'UNFULFILLED'><!-- start items from sales order --><#list salesorder.item as tranline><#assign shipped=0><#assign isInList=false><#list record.item as item><#if tranline.line==item.orderline><#assign shipped=item.quantity><#assign isInList=true></#if></#list><#if isInList || tranline.quantitybackordered != 0>
   <tr>
 	<#if tranline.custcol_bbs_contact_sales_lines?length gt 0>
-      <td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines}</td>
+      <td colspan="13" style="margin-top: 5px;"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}<br/>Manpack Name: ${tranline.custcol_bbs_contact_sales_lines?keep_after(":")}</td>
       <#else>
-	<td colspan="13"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
+	<td colspan="13" style="margin-top: 5px;"><b>${tranline.custcol_bbs_sku}</b><br/>${tranline.description}</td>
       </#if>
-      <td align="right" colspan="4">${tranline.quantity}</td>
-    <td align="right" colspan="2">${tranline.quantityremaining}</td>
-	<td align="right" colspan="4">${shipped}</td>
+      <td align="right" colspan="4" style="margin-top: 5px;">${tranline.quantity}</td>
+    <td align="right" colspan="2" style="margin-top: 5px;">${tranline.quantityremaining}</td>
+	<td align="right" colspan="4" style="margin-top: 5px;">${shipped}</td>
 	</tr>
 	</#if></#list><!-- end sales order items --></#if></table>
 </#if>
 
 <hr />
+  
+ <#if salesorder.message?length gt 0>
+ 
+ <table style="width: 100%;">
+ 
+ <tr><td class="addressheader"><b>Notes</b></td></tr>
+ <tr><td class="address">${salesorder.message}</td></tr>
+ 
+ </table>
+
+ </#if>
   
 </body>
 </pdf>
