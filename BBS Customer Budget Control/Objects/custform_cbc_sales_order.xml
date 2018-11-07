@@ -2,7 +2,7 @@
   <name>CBC Sales Order</name>
   <recordType>SALESORDER</recordType>
   <inactive>F</inactive>
-  <preferred>T</preferred>
+  <preferred>F</preferred>
   <mainFields>
     <fieldGroup scriptid="primaryinformation">
       <label>Primary Information</label>
@@ -157,7 +157,7 @@
         <field>
           <id>EXCLUDECOMMISSION</id>
           <label>Exclude Commissions</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -255,7 +255,7 @@
         <field>
           <id>CLASS</id>
           <label>Class</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -264,7 +264,7 @@
         <field>
           <id>LOCATION</id>
           <label>Location</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -273,7 +273,7 @@
         <field>
           <id>[scriptid=custbody_cseg_bbs_project]</id>
           <label>Project</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -291,7 +291,7 @@
         <field>
           <id>[scriptid=custbody_cseg_bbs_segment]</id>
           <label>Business Segment</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -300,7 +300,7 @@
         <field>
           <id>[scriptid=custbody_cseg_bbs_region]</id>
           <label>Region</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -317,7 +317,7 @@
         <field>
           <id>INTERCOTRANSACTION</id>
           <label>Paired Intercompany Transaction</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -326,7 +326,7 @@
         <field>
           <id>INTERCOSTATUS</id>
           <label>Intercompany Status</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -337,27 +337,9 @@
     <defaultFieldGroup>
       <fields position="MIDDLE">
         <field>
-          <id>DRACCOUNT</id>
-          <label>Deferred Revenue Reclassification Account</label>
-          <visible>T</visible>
-          <mandatory>F</mandatory>
-          <displayType>NORMAL</displayType>
-          <columnBreak>F</columnBreak>
-          <sameRowAsPrevious>F</sameRowAsPrevious>
-        </field>
-        <field>
-          <id>FXACCOUNT</id>
-          <label>Foreign Currency Adjustment Revenue Account</label>
-          <visible>T</visible>
-          <mandatory>F</mandatory>
-          <displayType>NORMAL</displayType>
-          <columnBreak>F</columnBreak>
-          <sameRowAsPrevious>F</sameRowAsPrevious>
-        </field>
-        <field>
           <id>ONETIME</id>
           <label>One Time</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -375,7 +357,7 @@
         <field>
           <id>RECURMONTHLY</id>
           <label>Monthly</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -393,7 +375,7 @@
         <field>
           <id>RECURANNUALLY</id>
           <label>Annually</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -402,7 +384,7 @@
         <field>
           <id>[scriptid=custbody_bbs_case_number]</id>
           <label>Case Number</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
@@ -454,8 +436,8 @@
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
         <field>
-          <id>[scriptid=custbody_wrm_claimnumber]</id>
-          <label>Claim Number</label>
+          <id>[scriptid=custbody_bbs_items_total_weight]</id>
+          <label>Order Weight</label>
           <visible>F</visible>
           <mandatory>F</mandatory>
           <displayType>DISABLED</displayType>
@@ -463,20 +445,20 @@
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
         <field>
-          <id>[scriptid=custbody_wrm_replacementso]</id>
-          <label>Replacement SO No.</label>
+          <id>[scriptid=custbody_bbs_total_no_items]</id>
+          <label>Total Items</label>
           <visible>F</visible>
           <mandatory>F</mandatory>
-          <displayType>INLINETEXT</displayType>
+          <displayType>DISABLED</displayType>
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
         <field>
-          <id>[scriptid=custbody_wrm_so_returnauthorization]</id>
-          <label>Return Authorization</label>
+          <id>[scriptid=custbody_bbs_wo_batch]</id>
+          <label>Production Batch</label>
           <visible>F</visible>
           <mandatory>F</mandatory>
-          <displayType>INLINETEXT</displayType>
+          <displayType>NORMAL</displayType>
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
@@ -494,7 +476,7 @@
             <field>
               <id>COUPONCODE</id>
               <label>Coupon Code</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -503,7 +485,7 @@
             <field>
               <id>PROMOCODE</id>
               <label>Promotion</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -512,7 +494,7 @@
             <field>
               <id>DISCOUNTITEM</id>
               <label>Discount Item</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -521,7 +503,16 @@
             <field>
               <id>DISCOUNTRATE</id>
               <label>Rate</label>
-              <visible>T</visible>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>GIFTCERT</id>
+              <label>Gift Certificate</label>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -612,7 +603,7 @@
             <column>
               <id>REVRECSCHEDULE</id>
               <label>Rev. Rec. Schedule</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>AMOUNT</id>
@@ -622,7 +613,7 @@
             <column>
               <id>REVRECSTARTDATE</id>
               <label>Rev. Rec. Start Date</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>TERMINMONTHS</id>
@@ -632,7 +623,7 @@
             <column>
               <id>REVRECENDDATE</id>
               <label>Rev. Rec. End Date</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>DEFERREVREC</id>
@@ -662,7 +653,7 @@
             <column>
               <id>COMMITMENTFIRM</id>
               <label>Commitment Confirmed</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>ORDERPRIORITY</id>
@@ -710,6 +701,11 @@
               <visible>F</visible>
             </column>
             <column>
+              <id>GIFTCERTFIELDS</id>
+              <label>Gift Certificate</label>
+              <visible>F</visible>
+            </column>
+            <column>
               <id>LOCATION</id>
               <label>Location</label>
               <visible>F</visible>
@@ -722,11 +718,6 @@
             <column>
               <id>CREATEPO</id>
               <label>Create PO</label>
-              <visible>T</visible>
-            </column>
-            <column>
-              <id>ALTSALESAMT</id>
-              <label>Alt. Sales</label>
               <visible>T</visible>
             </column>
             <column>
@@ -762,12 +753,12 @@
             <column>
               <id>FROMJOB</id>
               <label>Project Item</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>ISESTIMATE</id>
               <label>Billable Estimate</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>AMOUNTRECOGNIZED</id>
@@ -777,7 +768,7 @@
             <column>
               <id>COSTESTIMATETYPE</id>
               <label>Cost Estimate Type</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>COSTESTIMATERATE</id>
@@ -787,22 +778,17 @@
             <column>
               <id>COSTESTIMATE</id>
               <label>Est. Extended Cost</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>ESTGROSSPROFIT</id>
               <label>Est. Gross Profit</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>ESTGROSSPROFITPERCENT</id>
               <label>Est. Gross Profit Percent</label>
-              <visible>T</visible>
-            </column>
-            <column>
-              <id>FREEGIFTPROMOTION</id>
-              <label>Free Gift Promotion</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_nondeductible_account]</id>
@@ -810,14 +796,19 @@
               <visible>F</visible>
             </column>
             <column>
+              <id>FREEGIFTPROMOTION</id>
+              <label>Free Gift Promotion</label>
+              <visible>F</visible>
+            </column>
+            <column>
               <id>[scriptid=custcol_statistical_value]</id>
               <label>Statistical Value</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_5892_eutriangulation]</id>
               <label>EU Triangulation</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_expense_code_of_supply]</id>
@@ -827,7 +818,7 @@
             <column>
               <id>[scriptid=custcol_statistical_procedure_sale]</id>
               <label>Statistical Procedure for Sales</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_statistical_procedure_purc]</id>
@@ -847,7 +838,7 @@
             <column>
               <id>[scriptid=custcol_scm_customerpartnumber]</id>
               <label>Customer Part Number</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_bbs_opp_linecost]</id>
@@ -877,22 +868,22 @@
             <column>
               <id>[scriptid=custcol_bbs_coo]</id>
               <label>Country of Origin</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_bbs_commodity_code]</id>
               <label>Commodity Code</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_bbs_ext_description]</id>
               <label>Extended Description</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_emirate]</id>
               <label>Emirate</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_cseg_bbs_project]</id>
@@ -902,12 +893,12 @@
             <column>
               <id>[scriptid=custcol_cseg_bbs_product_ty]</id>
               <label>Product Type</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_cseg_bbs_segment]</id>
               <label>Business Segment</label>
-              <visible>T</visible>
+              <visible>F</visible>
             </column>
             <column>
               <id>[scriptid=custcol_cseg_bbs_region]</id>
@@ -935,18 +926,23 @@
               <visible>F</visible>
             </column>
             <column>
-              <id>[scriptid=custcol_wrm_reg_warrantyreg]</id>
-              <label>Register Warranty</label>
+              <id>[scriptid=custcol_bbs_item_weight]</id>
+              <label>Item Weight</label>
               <visible>F</visible>
             </column>
             <column>
-              <id>[scriptid=custcol_wrm_reg_warrantyterms]</id>
-              <label>Warranty Terms</label>
+              <id>[scriptid=custcol_gridoe_link]</id>
+              <label>Link</label>
               <visible>F</visible>
             </column>
             <column>
-              <id>[scriptid=custcol_wrm_reg_warrantyexpire]</id>
-              <label>Original Warranty Expiration</label>
+              <id>[scriptid=custcol_gridoe_hidden_itemid]</id>
+              <label>Grid Item Id</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_gridoe_item]</id>
+              <label>Grid Template</label>
               <visible>F</visible>
             </column>
           </columns>
@@ -958,7 +954,20 @@
       <label>Promotions</label>
       <visible>T</visible>
       <fieldGroups>
-        <defaultFieldGroup/>
+        <defaultFieldGroup>
+          <fields position="MIDDLE">
+            <field>
+              <id>AUTOMATICALLYAPPLYPROMOTIONS</id>
+              <label>Automatically apply promotions</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>UNCHECKED</checkBoxDefault>
+            </field>
+          </fields>
+        </defaultFieldGroup>
       </fieldGroups>
       <subItems/>
     </tab>
@@ -1085,7 +1094,7 @@
             <field>
               <id>HANDLINGTAXCODE</id>
               <label>Handling Tax Code</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1094,7 +1103,7 @@
             <field>
               <id>HANDLINGTAX1RATE</id>
               <label>Handling Tax Rate</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1103,7 +1112,7 @@
             <field>
               <id>HANDLINGTAX2RATE</id>
               <label>Handling Tax Rate 2</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1149,6 +1158,15 @@
               <id>[scriptid=custbody_bbs_custreqshipdate]</id>
               <label>Requested Ship Date</label>
               <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_order_size]</id>
+              <label>Order Size</label>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1209,7 +1227,7 @@
             <field>
               <id>BILLINGSCHEDULE</id>
               <label>Billing Schedule</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1226,7 +1244,7 @@
             <field>
               <id>BILLADDRESSLIST</id>
               <label>Bill To Select</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1235,7 +1253,7 @@
             <field>
               <id>BILLADDRESS</id>
               <label>Bill To</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1249,7 +1267,7 @@
         <subTab>
           <id>TRANSACTIONPAYMENT</id>
           <label>Payment</label>
-          <visible>T</visible>
+          <visible>F</visible>
           <fieldGroups>
             <defaultFieldGroup>
               <fields position="MIDDLE">
@@ -1265,7 +1283,7 @@
                 <field>
                   <id>PAYMENTMETHOD</id>
                   <label>Payment Method</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1274,7 +1292,7 @@
                 <field>
                   <id>CREDITCARD</id>
                   <label>Credit Card Select</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1283,7 +1301,7 @@
                 <field>
                   <id>PAYPALSTATUS</id>
                   <label>PayPal Status</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1292,7 +1310,7 @@
                 <field>
                   <id>PAYPALAUTHID</id>
                   <label>Authorization ID</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1301,7 +1319,7 @@
                 <field>
                   <id>PAYPALORDERID</id>
                   <label>PayPal Order ID</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1310,7 +1328,7 @@
                 <field>
                   <id>CCNUMBER</id>
                   <label>Credit Card #</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1319,7 +1337,7 @@
                 <field>
                   <id>CCSECURITYCODE</id>
                   <label>CSC</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1328,7 +1346,7 @@
                 <field>
                   <id>CCEXPIREDATE</id>
                   <label>Expires (MM/YYYY)</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1346,7 +1364,7 @@
                 <field>
                   <id>CCNAME</id>
                   <label>Name on Card</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1355,7 +1373,7 @@
                 <field>
                   <id>CCSTREET</id>
                   <label>Card Street</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1364,7 +1382,7 @@
                 <field>
                   <id>CCZIPCODE</id>
                   <label>Card Zip Code</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1373,7 +1391,7 @@
                 <field>
                   <id>CUSTOMERCODE</id>
                   <label>Customer Code</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1382,7 +1400,7 @@
                 <field>
                   <id>CREDITCARDPROCESSOR</id>
                   <label>Payment Processing Profile</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1391,7 +1409,7 @@
                 <field>
                   <id>GETAUTH</id>
                   <label>Get Authorization</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1401,7 +1419,7 @@
                 <field>
                   <id>PAYPALTRANID</id>
                   <label>PayPal Tran. ID</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1410,7 +1428,7 @@
                 <field>
                   <id>CCAPPROVED</id>
                   <label>Credit Card Approved</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1420,7 +1438,7 @@
                 <field>
                   <id>PNREFNUM</id>
                   <label>P/N Ref.</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1429,7 +1447,7 @@
                 <field>
                   <id>AUTHCODE</id>
                   <label>Auth. Code</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1438,7 +1456,7 @@
                 <field>
                   <id>CCAVSSTREETMATCH</id>
                   <label>AVS Street Match</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1447,7 +1465,7 @@
                 <field>
                   <id>CCAVSZIPMATCH</id>
                   <label>AVS Zip Match</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1456,7 +1474,7 @@
                 <field>
                   <id>CCSECURITYCODEMATCH</id>
                   <label>CSC Match</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1465,7 +1483,7 @@
                 <field>
                   <id>IGNORECSC</id>
                   <label>Ignore CSC</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1492,7 +1510,7 @@
                 <field>
                   <id>ISRECURRINGPAYMENT</id>
                   <label>Recurring Payment</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1501,7 +1519,16 @@
                 <field>
                   <id>SOFTDESCRIPTOR</id>
                   <label>Soft Descriptor</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
+                  <mandatory>F</mandatory>
+                  <displayType>NORMAL</displayType>
+                  <columnBreak>F</columnBreak>
+                  <sameRowAsPrevious>F</sameRowAsPrevious>
+                </field>
+                <field>
+                  <id>PAYMENTOPERATION</id>
+                  <label>Payment Operation</label>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1510,12 +1537,18 @@
               </fields>
             </defaultFieldGroup>
           </fieldGroups>
-          <subLists/>
+          <subLists>
+            <subList>
+              <id>GIFTCERTREDEMPTION</id>
+              <label>Gift Certificate</label>
+              <visible>F</visible>
+            </subList>
+          </subLists>
         </subTab>
         <subList>
           <id>BILLINGSCHEDULE</id>
           <label>Schedule</label>
-          <visible>T</visible>
+          <visible>F</visible>
         </subList>
       </subItems>
     </tab>
@@ -1587,7 +1620,7 @@
             <field>
               <id>VATREGNUM</id>
               <label>Tax ID</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1602,28 +1635,9 @@
           <singleColumn>T</singleColumn>
           <fields position="MIDDLE">
             <field>
-              <id>REVRECONREVCOMMITMENT</id>
-              <label>Rev Rec on Rev Commit.</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
-            </field>
-            <field>
               <id>REVENUESTATUS</id>
               <label>Revenue Status</label>
-              <visible>T</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-            </field>
-            <field>
-              <id>REVCOMMITSTATUS</id>
-              <label>Rev. Commit. Status</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1632,7 +1646,7 @@
             <field>
               <id>RECOGNIZEDREVENUE</id>
               <label>Recognized Revenue</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1641,7 +1655,7 @@
             <field>
               <id>DEFERREDREVENUE</id>
               <label>Deferred Revenue</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1685,7 +1699,7 @@
             <field>
               <id>TOTALCOSTESTIMATE</id>
               <label>Est. Extended Cost</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1694,7 +1708,7 @@
             <field>
               <id>ESTGROSSPROFIT</id>
               <label>Est. Gross Profit</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1703,7 +1717,7 @@
             <field>
               <id>ESTGROSSPROFITPERCENT</id>
               <label>Est. Gross Profit Percent</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1716,7 +1730,7 @@
             <field>
               <id>[scriptid=custbody_bbs_so_approve]</id>
               <label>Sales Order Approval</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1791,7 +1805,7 @@
                 <field>
                   <id>MESSAGESEL</id>
                   <label>Select Message</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1800,7 +1814,7 @@
                 <field>
                   <id>MESSAGE</id>
                   <label>Customer Message</label>
-                  <visible>T</visible>
+                  <visible>F</visible>
                   <mandatory>F</mandatory>
                   <displayType>NORMAL</displayType>
                   <columnBreak>F</columnBreak>
@@ -1865,7 +1879,7 @@
         <subList>
           <id>CASES</id>
           <label>Support Cases</label>
-          <visible>T</visible>
+          <visible>F</visible>
         </subList>
       </subItems>
     </tab>
@@ -1881,7 +1895,7 @@
     <tab>
       <id>MILESTONES</id>
       <label>Milestones</label>
-      <visible>T</visible>
+      <visible>F</visible>
       <fieldGroups>
         <defaultFieldGroup/>
       </fieldGroups>
@@ -1931,7 +1945,7 @@
             <field>
               <id>[scriptid=custbody_bbs_bankdetails]</id>
               <label>Payment Bank</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1940,7 +1954,7 @@
             <field>
               <id>[scriptid=custbody_bbs_despatch_hold]</id>
               <label>Despatch Hold</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1950,7 +1964,7 @@
             <field>
               <id>[scriptid=custbody_bbs_sendemail]</id>
               <label>Send Email</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1969,7 +1983,7 @@
             <field>
               <id>[scriptid=custbody_bbs_inv_address]</id>
               <label>Default Billing Address</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -1978,7 +1992,7 @@
             <field>
               <id>[scriptid=custbody_bbs_design_file]</id>
               <label>Design File</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2002,6 +2016,15 @@
               <columnBreak>F</columnBreak>
               <sameRowAsPrevious>F</sameRowAsPrevious>
             </field>
+            <field>
+              <id>[scriptid=custbody_bbs_commitment_status]</id>
+              <label>Commitment Status</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
           </fields>
         </defaultFieldGroup>
       </fieldGroups>
@@ -2010,7 +2033,7 @@
     <tab>
       <id>[scriptid=custtab_16_3776644_208]</id>
       <label>Tax Reporting</label>
-      <visible>T</visible>
+      <visible>F</visible>
       <fieldGroups>
         <defaultFieldGroup>
           <fields position="MIDDLE">
@@ -2036,7 +2059,7 @@
             <field>
               <id>[scriptid=custbody_4110_customregnum]</id>
               <label>Customs Registration Number</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2045,7 +2068,7 @@
             <field>
               <id>[scriptid=custbody_notc]</id>
               <label>Nature of Transaction Code</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2054,7 +2077,7 @@
             <field>
               <id>[scriptid=custbody_mode_of_transport]</id>
               <label>Mode of Transport</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2063,7 +2086,7 @@
             <field>
               <id>[scriptid=custbody_delivery_terms]</id>
               <label>Delivery Terms</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2081,7 +2104,7 @@
             <field>
               <id>[scriptid=custbody_transaction_region]</id>
               <label>Region of Origin</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2100,7 +2123,7 @@
             <field>
               <id>[scriptid=custbody_regime_code_of_supply]</id>
               <label>Regime Code of Supply</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2119,7 +2142,7 @@
             <field>
               <id>[scriptid=custbody_date_of_taxable_supply]</id>
               <label>Date of Taxable Supply</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2137,7 +2160,7 @@
             <field>
               <id>[scriptid=custbody_refno_originvoice]</id>
               <label>Reference No. of Original Invoice</label>
-              <visible>T</visible>
+              <visible>F</visible>
               <mandatory>F</mandatory>
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
@@ -2166,226 +2189,197 @@
       <id>SALESREP</id>
     </field>
   </quickViewFields>
-  <buttons>
-    <standardButtons>
+  <actionbar>
+    <buttons>
       <button>
         <id>APPROVE</id>
         <label>Approve</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>RETURN</id>
         <label>Authorize Return</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>AUTOFILL</id>
         <label>Auto Fill</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>BILLREMAINING</id>
         <label>Bill Remaining</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CANCELORDER</id>
         <label>Cancel Order</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CLEARSPLITS</id>
         <label>Clear Splits</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CLOSEREMAINING</id>
         <label>Close</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>REVCOMM</id>
         <label>Commit Revenue</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CREATEDEPOSIT</id>
         <label>Create Deposit</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CREATEAUTHORIZATION</id>
         <label>Create Payment Authorization</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>CREATEPICKUP</id>
         <label>Create Pickup</label>
         <visible>T</visible>
-        <style>BUTTON</style>
-      </button>
-      <button>
-        <id>DELETE</id>
-        <label>Delete</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>EMAIL</id>
-        <label>Email</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>FAX</id>
-        <label>Fax</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>PROCESS</id>
         <label>Fulfill</label>
         <visible>T</visible>
-        <style>BUTTON</style>
-      </button>
-      <button>
-        <id>GLIMPACT</id>
-        <label>GL Impact</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>GOTOREGISTER</id>
-        <label>Go To Register</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>MAKECOPY</id>
-        <label>Make Copy</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>UPDATEREVREC</id>
         <label>Manage Revenue Recognition</label>
         <visible>T</visible>
-        <style>BUTTON</style>
-      </button>
-      <button>
-        <id>MEMORIZE</id>
-        <label>Memorize</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>NEW</id>
-        <label>New</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>NEXTBILL</id>
         <label>Next Bill</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
-        <id>PRINT</id>
-        <label>Print</label>
+        <id>ITEM_ADDPROJECTITEMS</id>
+        <label/>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>PRINTLABEL</id>
-        <label>Print Label</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>PRINTPICKTICK</id>
-        <label>Print Picking Ticket</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>REJECT</id>
         <label>Reject</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>REQUESTFULFILLMENT</id>
         <label>Request Fulfillment</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
       <button>
         <id>RESETTER</id>
         <label>Reset</label>
         <visible>T</visible>
-        <style>BUTTON</style>
-      </button>
-      <button>
-        <id>SUBMITACCEPTDEPOSIT</id>
-        <label>Save &amp; Accept Deposit</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>SUBMITACCEPTPAYMENTAUTHORIZATION</id>
         <label>Save &amp; Accept Payment Authorization</label>
         <visible>T</visible>
-        <style>BUTTON</style>
-      </button>
-      <button>
-        <id>SAVEEMAIL</id>
-        <label>Save &amp; Email</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITFULFILL</id>
-        <label>Save &amp; Fulfill</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITNEW</id>
-        <label>Save &amp; New</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SAVEPRINT</id>
-        <label>Save &amp; Print</label>
-        <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>ACTIVITYHISTORY</id>
-        <label>Show Activity</label>
-        <visible>T</visible>
-        <style>MENU</style>
       </button>
       <button>
         <id>UPDATEVSOE</id>
         <label>Update VSOE</label>
         <visible>T</visible>
-        <style>BUTTON</style>
       </button>
-    </standardButtons>
-  </buttons>
+    </buttons>
+    <menu>
+      <menuitem>
+        <id>delete</id>
+        <label>Delete</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>email</id>
+        <label>Email</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>fax</id>
+        <label>Fax</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>glimpact</id>
+        <label>GL Impact</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>gotoregister</id>
+        <label>Go To Register</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>makecopy</id>
+        <label>Make Copy</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>memorize</id>
+        <label>Memorize</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>new</id>
+        <label>New</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>print</id>
+        <label>Print</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>printlabel</id>
+        <label>Print Label</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>printpicktick</id>
+        <label>Print Picking Ticket</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>submitacceptdeposit</id>
+        <label>Save &amp; Accept Deposit</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>saveemail</id>
+        <label>Save &amp; Email</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>submitfulfill</id>
+        <label>Save &amp; Fulfill</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>submitnew</id>
+        <label>Save &amp; New</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>saveprint</id>
+        <label>Save &amp; Print</label>
+        <visible>T</visible>
+      </menuitem>
+      <menuitem>
+        <id>activityhistory</id>
+        <label>Show Activity</label>
+        <visible>T</visible>
+      </menuitem>
+    </menu>
+  </actionbar>
   <disclaimer/>
   <address/>
   <allowAddMultiple>T</allowAddMultiple>

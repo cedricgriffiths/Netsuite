@@ -17,9 +17,9 @@
       <allroles>T</allroles>
       <audslctrole></audslctrole>
       <eventtype></eventtype>
-      <executeinwebstore>T</executeinwebstore>
+      <executeinwebstore>F</executeinwebstore>
       <isdeployed>T</isdeployed>
-      <loglevel>DEBUG</loglevel>
+      <loglevel>ERROR</loglevel>
       <recordtype>SALESORDER</recordtype>
       <runasrole>ADMINISTRATOR</runasrole>
       <status>RELEASED</status>

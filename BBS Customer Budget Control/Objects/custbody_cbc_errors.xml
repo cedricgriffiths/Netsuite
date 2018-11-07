@@ -5,6 +5,7 @@
   <bodybom>F</bodybom>
   <bodycustomerpayment>F</bodycustomerpayment>
   <bodydeposit>F</bodydeposit>
+  <bodydepositapplication>F</bodydepositapplication>
   <bodyexpensereport>F</bodyexpensereport>
   <bodyinventoryadjustment>F</bodyinventoryadjustment>
   <bodyitemfulfillment>F</bodyitemfulfillment>

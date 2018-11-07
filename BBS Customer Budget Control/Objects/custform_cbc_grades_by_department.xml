@@ -206,57 +206,50 @@
     </tab>
   </tabs>
   <quickViewFields/>
-  <buttons>
-    <standardButtons>
-      <button>
-        <id>DELETE</id>
+  <actionbar>
+    <buttons/>
+    <menu>
+      <menuitem>
+        <id>delete</id>
         <label>Delete</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>MAKECOPY</id>
+      </menuitem>
+      <menuitem>
+        <id>makecopy</id>
         <label>Make Copy</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>NEW</id>
+      </menuitem>
+      <menuitem>
+        <id>new</id>
         <label>New</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>PRINT</id>
+      </menuitem>
+      <menuitem>
+        <id>print</id>
         <label>Print</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITCOPY</id>
+      </menuitem>
+      <menuitem>
+        <id>submitcopy</id>
         <label>Save &amp; Copy</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITNEW</id>
+      </menuitem>
+      <menuitem>
+        <id>submitnew</id>
         <label>Save &amp; New</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITNEXT</id>
+      </menuitem>
+      <menuitem>
+        <id>submitnext</id>
         <label>Save &amp; Next</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-      <button>
-        <id>SUBMITAS</id>
+      </menuitem>
+      <menuitem>
+        <id>submitas</id>
         <label>Save As</label>
         <visible>T</visible>
-        <style>MENU</style>
-      </button>
-    </standardButtons>
-  </buttons>
+      </menuitem>
+    </menu>
+  </actionbar>
   <editingInList>T</editingInList>
 </entryForm>

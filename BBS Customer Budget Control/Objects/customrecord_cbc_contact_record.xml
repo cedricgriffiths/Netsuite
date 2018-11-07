@@ -9,6 +9,7 @@
   <allowquickadd>F</allowquickadd>
   <allowquicksearch>F</allowquicksearch>
   <allowuiaccess>T</allowuiaccess>
+  <customsegment></customsegment>
   <description></description>
   <enabledle>T</enabledle>
   <enablekeywords>T</enablekeywords>

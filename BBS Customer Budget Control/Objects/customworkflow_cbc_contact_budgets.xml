@@ -1,8 +1,5 @@
 <workflow scriptid="customworkflow_cbc_contact_budgets">
   <description></description>
-  <initcondition></initcondition>
-  <initconditionformula></initconditionformula>
-  <initconditioninbuilder>F</initconditioninbuilder>
   <initcontexts>USERINTERFACE</initcontexts>
   <initeventtypes></initeventtypes>
   <initoncreate>T</initoncreate>
@@ -11,11 +8,15 @@
   <inittriggertype></inittriggertype>
   <isinactive>F</isinactive>
   <islogenabled>F</islogenabled>
-  <keephistory>T</keephistory>
+  <keephistory>ALWAYS</keephistory>
   <name>CBC Contact Budgets</name>
   <recordtypes>[scriptid=customrecord_cbc_contact_record]</recordtypes>
   <releasestatus>RELEASED</releasestatus>
   <runasadmin>F</runasadmin>
+  <initcondition>
+    <formula></formula>
+    <type>VISUAL_BUILDER</type>
+  </initcondition>
   <workflowstates>
     <workflowstate scriptid="workflowstate2314">
       <description></description>
@@ -26,56 +27,95 @@
       <workflowactions triggertype="ONENTRY">
         <setdisplaytypeaction scriptid="workflowaction13235">
           <clienttriggerfields></clienttriggerfields>
-          <conditionformula>({custrecord_cbc_contact_budget_type.id}!=3 or ({custrecord_cbc_contact_budget_type.id} is null))</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <displaytype>HIDDEN</displaytype>
           <eventtypes>CREATE|EDIT</eventtypes>
           <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula><![CDATA["CBC Budget Management Type" NOT IN ("CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Budget Management Type1</name>
+                <selectrecordtype>[scriptid=customlist_cbc_budget_management_type]</selectrecordtype>
+                <value>[scriptid=customlist_cbc_budget_management_type.val_70354_t1403018_930]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </setdisplaytypeaction>
       </workflowactions>
       <workflowactions triggertype="BEFORELOAD">
         <setdisplaytypeaction scriptid="workflowaction13240">
           <clienttriggerfields></clienttriggerfields>
-          <conditionformula></conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <displaytype>DISABLED</displaytype>
           <eventtypes>EDIT</eventtypes>
           <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</field>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula></formula>
+            <type>VISUAL_BUILDER</type>
+          </initcondition>
         </setdisplaytypeaction>
       </workflowactions>
       <workflowactions triggertype="AFTERFIELDEDIT">
         <setdisplaytypeaction scriptid="workflowaction13234">
           <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
-          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=3</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <displaytype>HIDDEN</displaytype>
           <eventtypes></eventtypes>
           <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula><![CDATA["CBC Budget Management Type" NOT IN ("CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Budget Management Type1</name>
+                <selectrecordtype>[scriptid=customlist_cbc_budget_management_type]</selectrecordtype>
+                <value>[scriptid=customlist_cbc_budget_management_type.val_70354_t1403018_930]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </setdisplaytypeaction>
         <setdisplaytypeaction scriptid="workflowaction13236">
           <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
-          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)==3</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <displaytype>NORMAL</displaytype>
           <eventtypes></eventtypes>
           <field>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_item_alloc_type]</field>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula><![CDATA["CBC Budget Management Type" IN ("CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Budget Management Type1</name>
+                <selectrecordtype>[scriptid=customlist_cbc_budget_management_type]</selectrecordtype>
+                <value>[scriptid=customlist_cbc_budget_management_type.val_70354_t1403018_930]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </setdisplaytypeaction>
         <setfieldvalueaction scriptid="workflowaction13237">
           <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
-          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=3</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <eventtypes></eventtypes>
@@ -94,28 +134,67 @@
           <valueselect></valueselect>
           <valuetext></valuetext>
           <valuetype>STATIC</valuetype>
+          <initcondition>
+            <formula><![CDATA["CBC Budget Management Type" NOT IN ("CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Budget Management Type1</name>
+                <selectrecordtype>[scriptid=customlist_cbc_budget_management_type]</selectrecordtype>
+                <value>[scriptid=customlist_cbc_budget_management_type.val_70354_t1403018_930]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </setfieldvalueaction>
         <returnusererroraction scriptid="workflowaction13239">
           <clienttriggerfields>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</clienttriggerfields>
-          <conditionformula>nlapiGetFieldValue(&apos;custrecord_cbc_contact_budget_type&apos;)!=nlapiLookupField(&apos;contact&apos;,nvl(nullIfEmpty(nlapiGetFieldValue(&apos;custrecord_cbc_contact_id&apos;)),-1),&apos;custentity_cbc_contact_budget_type&apos;,false)</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <errortext>You cannot select a different budget type from that which is on the contact record</errortext>
           <eventtypes></eventtypes>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula><![CDATA["CBC Budget Management Type" NOT IN ("CBC Contact:CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Contact:CBC Budget Management Type1</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_id]:[scriptid=custentity_cbc_contact_budget_type]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </returnusererroraction>
       </workflowactions>
       <workflowactions triggertype="BEFORESUBMIT">
         <returnusererroraction scriptid="workflowaction13241">
           <clienttriggerfields></clienttriggerfields>
-          <conditionformula>({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id}!={custrecord_cbc_contact_budget_type.id} or ({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id} is null and {custrecord_cbc_contact_budget_type.id} is not null) or ({custrecord_cbc_contact_id.custentity_cbc_contact_budget_type.id} is not null and {custrecord_cbc_contact_budget_type.id} is null))</conditionformula>
-          <conditioninbuilder>F</conditioninbuilder>
           <conditionsavedsearch></conditionsavedsearch>
           <contexttypes></contexttypes>
           <errortext>You cannot select a different budget type from that which is on the contact record</errortext>
           <eventtypes>CREATE|EDIT</eventtypes>
           <isinactive>F</isinactive>
+          <initcondition>
+            <formula><![CDATA["CBC Contact:CBC Budget Management Type" NOT IN ("CBC Budget Management Type1")]]></formula>
+            <type>VISUAL_BUILDER</type>
+            <parameters>
+              <parameter>
+                <name>CBC Contact:CBC Budget Management Type</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_id]:[scriptid=custentity_cbc_contact_budget_type]</value>
+              </parameter>
+              <parameter>
+                <name>CBC Budget Management Type1</name>
+                <value>[scriptid=customrecord_cbc_contact_record.custrecord_cbc_contact_budget_type]</value>
+              </parameter>
+            </parameters>
+          </initcondition>
         </returnusererroraction>
       </workflowactions>
     </workflowstate>
