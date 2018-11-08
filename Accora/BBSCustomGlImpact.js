@@ -144,6 +144,8 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																	var debit = Number(line.getDebitAmount());
 																	var location = line.getLocationId();
 																	var classId = line.getClassId();
+																	var departmentId = line.getDepartmentId();
+																	var customSegId = line.getSegmentValueId('cseg_bbs_sector_uk');
 																	
 																	//Find the relevant posting line by looking at the account id
 																	//
@@ -156,16 +158,20 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																					var newLine = customLines.addNewLine();
 																					newLine.setAccountId(parseInt(configFromAccId));
 																					newLine.setCreditAmount(debit);
-																					newLine.setLocationId(location);
 																					newLine.setMemo('Cost Of Warranty');
+																					newLine.setLocationId(location);
 																					newLine.setClassId(classId);
+																					newLine.setDepartmentId(departmentId);
+																					newLine.setSegmentValueId('cseg_bbs_sector_uk', customSegId);
 																					
 																					var newLine = customLines.addNewLine();
 																					newLine.setAccountId(parseInt(configToAccId));
 																					newLine.setDebitAmount(debit);
-																					newLine.setLocationId(location);
 																					newLine.setMemo('Cost Of Warranty');
+																					newLine.setLocationId(location);
 																					newLine.setClassId(classId);
+																					newLine.setDepartmentId(departmentId);
+																					newLine.setSegmentValueId('cseg_bbs_sector_uk', customSegId);
 																				}
 																			
 																			//Add shipping posting lines here
@@ -177,15 +183,20 @@ function customizeGlImpact(transactionRecord, standardLines, customLines, book)
 																					var newLine = customLines.addNewLine();
 																					newLine.setAccountId(parseInt(configFromAccId));
 																					newLine.setCreditAmount(shippingCost);
-																					newLine.setLocationId(location);
 																					newLine.setMemo('Warranty Shipping');
+																					newLine.setLocationId(location);
+																					newLine.setClassId(classId);
+																					newLine.setDepartmentId(departmentId);
+																					newLine.setSegmentValueId('cseg_bbs_sector_uk', customSegId);
 																					
 																					var newLine = customLines.addNewLine();
 																					newLine.setAccountId(parseInt(configToAccId));
 																					newLine.setDebitAmount(shippingCost);
-																					newLine.setLocationId(location);
 																					newLine.setMemo('Warranty Shipping');
-																					
+																					newLine.setLocationId(location);
+																					newLine.setClassId(classId);
+																					newLine.setDepartmentId(departmentId);
+																					newLine.setSegmentValueId('cseg_bbs_sector_uk', customSegId);
 																				}
 																		}
 																}
