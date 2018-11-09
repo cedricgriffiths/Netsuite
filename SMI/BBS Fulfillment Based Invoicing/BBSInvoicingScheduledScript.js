@@ -87,8 +87,9 @@ function invoicingScheduled(type)
 									
 									for (var int2 = 1; int2 <= invLines; int2++) 
 										{
-											//invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
-											invoiceRecord.setLineItemValue('item', 'quantity', int2, 0);
+											invoiceRecord.selectLineItem('item', int2);
+											invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
+											invoiceRecord.commitLineItem('item', false);
 										}
 									
 									//Loop through the fulfilment lines looking for the corresponding lines on the invoice
@@ -97,6 +98,8 @@ function invoicingScheduled(type)
 									
 									for (var int3 = 1; int3 <= ffLines; int3++) 
 										{
+											//Get the fulfilment line no & the quantity
+											//
 											var ffOrderLineNumber = fulfilmentRecord.getLineItemValue('item', 'orderline', int3);
 											var ffQuantity = Number(fulfilmentRecord.getLineItemValue('item', 'quantity', int3));
 										
@@ -106,19 +109,20 @@ function invoicingScheduled(type)
 												{
 													var InvOrderLineNumber = invoiceRecord.getLineItemValue('item', 'orderline', int4);
 												
+													//Found a matching line on the invoice
+													//
 													if(InvOrderLineNumber == ffOrderLineNumber)
 														{
-															invoiceRecord.setLineItemValue('item', 'quantity', int4, ffQuantity);
+															//Get the invoice item rate & the invoice vat rate
 															var invRate = Number(invoiceRecord.getLineItemValue('item', 'rate', int4));
-															var invAmount = invRate * ffQuantity;
-															var invEstUnitCost = Number(invoiceRecord.getLineItemValue('item', 'costestimaterate', int4));
-															var invEstExtendedCost = invEstUnitCost * ffQuantity;
+															var vatRate = Number((invoiceRecord.getLineItemValue('item', 'taxrate1', int4)).replace('%',''));
 															
-															invoiceRecord.setLineItemValue('item', 'amount', int4, invAmount);
-															invoiceRecord.setLineItemValue('item', 'costestimate', int4, invEstExtendedCost);
-															
-															
-															
+															//Set invoice values
+															//
+															invoiceRecord.selectLineItem('item', int4);
+															invoiceRecord.setCurrentLineItemValue('item', 'quantity', ffQuantity);
+															invoiceRecord.commitLineItem('item', false);
+		
 															break;
 														}
 												}
