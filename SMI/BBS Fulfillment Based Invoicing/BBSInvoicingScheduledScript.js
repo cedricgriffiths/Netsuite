@@ -87,9 +87,17 @@ function invoicingScheduled(type)
 									
 									for (var int2 = 1; int2 <= invLines; int2++) 
 										{
-											invoiceRecord.selectLineItem('item', int2);
-											invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
-											invoiceRecord.commitLineItem('item', false);
+											try
+												{
+													invoiceRecord.selectLineItem('item', int2);
+													invoiceRecord.setCurrentLineItemValue('item', 'quantity', 0);
+													invoiceRecord.commitLineItem('item', false);
+												}
+											catch(err)
+												{
+													//Do nothing if we cannot set the quantity to zero.
+													//This will be because the amount on the line is zero
+												}
 										}
 									
 									//Loop through the fulfilment lines looking for the corresponding lines on the invoice
@@ -119,10 +127,18 @@ function invoicingScheduled(type)
 															
 															//Set invoice values
 															//
-															invoiceRecord.selectLineItem('item', int4);
-															invoiceRecord.setCurrentLineItemValue('item', 'quantity', ffQuantity);
-															invoiceRecord.commitLineItem('item', false);
-		
+															try
+																{
+																	invoiceRecord.selectLineItem('item', int4);
+																	invoiceRecord.setCurrentLineItemValue('item', 'quantity', ffQuantity);
+																	invoiceRecord.commitLineItem('item', false);
+																}	
+															catch(err)
+																{
+																	//Do nothing if we cannot set the quantity to zero.
+																	//This will be because the amount on the line is zero
+																}
+															
 															break;
 														}
 												}
