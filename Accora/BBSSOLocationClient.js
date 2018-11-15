@@ -31,9 +31,14 @@ function salesOrderFieldChanged(type, name, linenum)
 		 	
 		 	var lines = Number(nlapiGetLineItemCount('item'));
 		 	
-		 	if(lines == 0)
+		 	if(lines != 0)
 		 		{
-		 			nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+		 			for (var int = 1; int <= lines; int++) 
+			 			{
+							nlapiSelectLineItem('item', int);
+							nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+							nlapiCommitLineItem('item');
+						}
 		 		}
 		 }
 }
@@ -48,8 +53,25 @@ function salesOrderFieldChanged(type, name, linenum)
  */
 function SalesOrderValidateLine(type)
 {
+	var mainLocation = nlapiGetFieldValue('location');
+    
 	var lineLocation = nlapiGetCurrentLineItemValue('item', 'location');
 	
+	if(lineLocation == null || lineLocation == '')
+		{
+			if(mainLocation != null && mainLocation != '')
+			   	 {
+			   	 	nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+			   	 	return true;
+			   	 }
+			else
+				{
+					alert("Please enter a value for location");
+					return false;
+				}
+		}
+	
+	/*
 	if(lineLocation == null || lineLocation == '')
 		{
 			alert("Please enter a value for location");
@@ -59,4 +81,5 @@ function SalesOrderValidateLine(type)
 		{
 			return true;
 		}
+		*/
 }
