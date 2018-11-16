@@ -77,9 +77,9 @@ function classificationsBeforeSubmit(type)
 										{
 											var lineBusinessLine = newrecord.getLineItemValue('item', 'department', int);
 											var lineServiceType = newrecord.getLineItemValue('item', 'class', int);
-											var lineSourceMarket = newrecord.getLineItemValue('item', 'csegsm', int);
-											var lineDestinationMarket = newrecord.getLineItemValue('item', 'csegdm', int);
-											var lineBookingReference = newrecord.getLineItemValue('item', 'csegbkref', int);
+											var lineSourceMarket = newrecord.getLineItemValue('item', 'custcol_csegsm', int);
+											var lineDestinationMarket = newrecord.getLineItemValue('item', 'custcol_csegdm', int);
+											var lineBookingReference = newrecord.getLineItemValue('item', 'custcol_csegbkref', int);
 										
 											message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Item Line ' + int + ': Please enter a value for Business Line\n' : '');
 											message += (lineServiceType == null || lineServiceType == '' ? 'Item Line ' + int + ': Please enter a value for Service Type\n' : '');
@@ -95,9 +95,9 @@ function classificationsBeforeSubmit(type)
 										{
 											var lineBusinessLine = newrecord.getLineItemValue('expense', 'department', int);
 											var lineServiceType = newrecord.getLineItemValue('expense', 'class', int);
-											var lineSourceMarket = newrecord.getLineItemValue('expense', 'csegsm', int);
-											var lineDestinationMarket = newrecord.getLineItemValue('expense', 'csegdm', int);
-											var lineBookingReference = newrecord.getLineItemValue('expense', 'csegbkref', int);
+											var lineSourceMarket = newrecord.getLineItemValue('expense', 'custcol_csegsm', int);
+											var lineDestinationMarket = newrecord.getLineItemValue('expense', 'custcol_csegdm', int);
+											var lineBookingReference = newrecord.getLineItemValue('expense', 'custcol_csegbkref', int);
 										
 											message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Expense Line ' + int + ': Please enter a value for Business Line\n' : '');
 											message += (lineServiceType == null || lineServiceType == '' ? 'Expense Line ' + int + ': Please enter a value for Service Type\n' : '');

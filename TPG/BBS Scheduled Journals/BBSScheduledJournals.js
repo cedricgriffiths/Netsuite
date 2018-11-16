@@ -6,12 +6,31 @@
  *
  */
 
+var salesAccGroup = null;
+var salesAccFIT = null;
+var salesAccMICE = null;
+var salesAccB2C = null;
+	
+var cosAccGroup = null;
+var cosAccFIT = null;
+var cosAccMICE = null;
+var cosAccB2C = null;
+	
+var deferredRevenueAcc = null;
+var deferredCostsAcc = null;
+	
+	
 /**
  * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
  * @returns {Void}
  */
 function scheduled(type) 
 {
+	Number.prototype.round = function(places) 
+		{
+			return +(Math.round(this + "e+" + places)  + "e-" + places);
+		}
+	
 	//Get todays date as a string
 	//
 	var todaysDate = new Date();
@@ -21,23 +40,23 @@ function scheduled(type)
 	//Get the parameters
 	//
 	var context = nlapiGetContext();
-	var salesAccGroup = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_group');
-	var salesAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_fit');
-	var salesAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_mice');
-	var salesAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_b2c');
+	salesAccGroup = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_group');
+	salesAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_fit');
+	salesAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_mice');
+	salesAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_b2c');
 	
-	var cosAccGroup = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_group');
-	var cosAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_fit');
-	var cosAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_mice');
-	var cosAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_b2c');
+	cosAccGroup = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_group');
+	cosAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_fit');
+	cosAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_mice');
+	cosAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_b2c');
 	
-	var deferredRevenueAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_revenue_acc');
-	var deferredCostsAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_costs_acc');
+	deferredRevenueAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_revenue_acc');
+	deferredCostsAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_costs_acc');
 	
 	
 	//Create the search
 	//
-	var transactionSearch = nlapiCreateSearch("transaction",null,
+	var transactionSearch = nlapiCreateSearch("transaction",
 			[
 			   ["type","anyof","VendCred","VendBill","CustInvc","CustCred"], 
 			   "AND", 
@@ -53,21 +72,22 @@ function scheduled(type)
 			   "AND", 
 			   ["custcol_bbs_journal_posted","is","F"], 
 			   "AND", 
-			   ["line.csegbkref.custrecord_arrival_date","onorbefore",today]
+			   ["custcol_csegbkref.custrecord_arrival_date","onorbefore",today]
 			], 
 			[
-			   new nlobjSearchColumn("subsidiary").setSort(false), 
-			   new nlobjSearchColumn("tranid"), 
+			   new nlobjSearchColumn("tranid").setSort(false), 
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("department"), 
 			   new nlobjSearchColumn("class"), 
-			   new nlobjSearchColumn("line.csegdm"), 
-			   new nlobjSearchColumn("line.csegsm"), 
-			   new nlobjSearchColumn("line.csegbkref"), 
+			   new nlobjSearchColumn("custcol_csegsm"), 
+			   new nlobjSearchColumn("custcol_csegdm"), 
+			   new nlobjSearchColumn("custcol_csegbkref"), 
 			   new nlobjSearchColumn("currency"), 
 			   new nlobjSearchColumn("exchangerate"), 
 			   new nlobjSearchColumn("fxamount"), 
-			   new nlobjSearchColumn("formulacurrency").setFormula("{fxamount} *  {exchangerate}")
+			   new nlobjSearchColumn("formulacurrency").setFormula("{fxamount} *  {exchangerate}"), 
+			   new nlobjSearchColumn("subsidiary"), 
+			   new nlobjSearchColumn("line")
 			]
 			);
 	
@@ -87,17 +107,23 @@ function scheduled(type)
 					
 					var subsidiary = transactionSearchResults[int].getValue("subsidiary");
 					var documentNumber = transactionSearchResults[int].getValue("tranid");
-					var tranType = transactionSearchResults[int].getValue("type");
 					var businessLine = transactionSearchResults[int].getValue("department");
 					var serviceType = transactionSearchResults[int].getValue("class");
-					var destinationMarket = transactionSearchResults[int].getValue("line.csegdm");
-					var sourceMarket = transactionSearchResults[int].getValue("line.csegsm");
-					var bookingReference = transactionSearchResults[int].getValue("line.csegbkref");
-					var currency = transactionSearchResults[int].getValue("currency");
+					var destinationMarket = transactionSearchResults[int].getValue("custcol_csegdm");
+					var sourceMarket = transactionSearchResults[int].getValue("custcol_csegsm");
+					var bookingReference = transactionSearchResults[int].getValue("custcol_csegbkref");
+					//var currency = transactionSearchResults[int].getValue("currency");
 					var exchangeRate = Number(transactionSearchResults[int].getValue("exchangerate"));
-					var amount = Number(transactionSearchResults[int].getValue("fxamount"));
+					var amount = Math.abs(Number(transactionSearchResults[int].getValue("fxamount")));
+					var transactionLineNo = Number(transactionSearchResults[int].getValue("line"));
+					var transactionId = Number(transactionSearchResults[int].getId());
+					var transactionType = transactionSearchResults[int].getValue("type");
 					
-					amount = amount * exchangeRate;
+					amount = (amount * exchangeRate).round(2);
+					
+					//Get the currency from the subsidiary
+					//
+					var currency = nlapiLookupField('subsidiary', subsidiary, 'currency', false);
 					
 					//Create the journal
 					//
@@ -108,16 +134,17 @@ function scheduled(type)
 					journalRecord.setFieldValue('subsidiary', subsidiary);
 					journalRecord.setFieldValue('trandate', today);
 					journalRecord.setFieldValue('currency', currency);
-					journalRecord.setFieldValue('postingperiod', periodNumber);
+					//journalRecord.setFieldValue('exchangerate', exchangeRate);
+					//journalRecord.setFieldValue('postingperiod', periodNumber);
 					
 					//Work out what account we should use
 					//
 					var salesAcc = null;
 					var cogsAcc = null;
 					
-					switch (tranType)
+					switch (transactionType)
 						{
-							case 'invoice':
+							case 'CustInvc':
 								salesAcc = getSalesAccount(businessLine);
 								
 								journalRecord.selectNewLineItem('line');
@@ -125,10 +152,10 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -136,15 +163,15 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_segbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
 								
-							case 'vendorbill':
+							case 'VendBill':
 								cogsAcc = getCogsAccount(businessLine);
 								
 								journalRecord.selectNewLineItem('line');
@@ -152,10 +179,10 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -163,15 +190,15 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
 								
-							case 'creditmemo':
+							case 'CustCred':
 								salesAcc = getSalesAccount(businessLine);
 								
 								journalRecord.selectNewLineItem('line');
@@ -179,10 +206,10 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -190,15 +217,15 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
 								
-							case 'vendorcredit':
+							case 'VendCred':
 								cogsAcc = getCogsAccount(businessLine);
 								
 								journalRecord.selectNewLineItem('line');
@@ -206,10 +233,10 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -217,15 +244,17 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
 						}
 					
+					//Save the journal
+					//
 					var journalId = null;
 					
 					try
@@ -235,8 +264,13 @@ function scheduled(type)
 					catch(err)
 						{
 							journalId = null;
+							var message = err.message;
 							nlapiLogExecution('ERROR', 'Error creating journal', err.message);
 						}
+					
+					//If the journal saved ok, then update the line to say we have processed it
+					//
+					
 				}
 		}
 }
@@ -342,7 +376,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 100)
+	if(remaining < 200)
 		{
 			nlapiYieldScript();
 		}

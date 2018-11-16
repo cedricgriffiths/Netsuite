@@ -17,9 +17,9 @@ function classificationsValidateLine(type)
 {
 	var lineBusinessLine = nlapiGetCurrentLineItemValue(type, 'department');
 	var lineServiceType = nlapiGetCurrentLineItemValue(type, 'class');
-	var lineSourceMarket = nlapiGetCurrentLineItemValue(type, 'csegsm');
-	var lineDestinationMarket = nlapiGetCurrentLineItemValue(type, 'csegdm');
-	var lineBookingReference = nlapiGetCurrentLineItemValue(type, 'csegbkref');
+	var lineSourceMarket = nlapiGetCurrentLineItemValue(type, 'custcol_csegsm');
+	var lineDestinationMarket = nlapiGetCurrentLineItemValue(type, 'custcol_csegdm');
+	var lineBookingReference = nlapiGetCurrentLineItemValue(type, 'custcol_csegbkref');
 	
 	var message = '';
 	
@@ -55,9 +55,9 @@ function classificationsSaveRecord()
 		{
 			var lineBusinessLine = nlapiGetLineItemValue('item', 'department', int);
 			var lineServiceType = nlapiGetLineItemValue('item', 'class', int);
-			var lineSourceMarket = nlapiGetLineItemValue('item', 'csegsm', int);
-			var lineDestinationMarket = nlapiGetLineItemValue('item', 'csegdm', int);
-			var lineBookingReference = nlapiGetLineItemValue('item', 'csegbkref', int);
+			var lineSourceMarket = nlapiGetLineItemValue('item', 'custcol_csegsm', int);
+			var lineDestinationMarket = nlapiGetLineItemValue('item', 'custcol_csegdm', int);
+			var lineBookingReference = nlapiGetLineItemValue('item', 'custcol_csegbkref', int);
 		
 			message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Line ' + int + ': Please enter a value for Business Line\n' : '');
 			message += (lineServiceType == null || lineServiceType == '' ? 'Line ' + int + ': Please enter a value for Service Type\n' : '');
