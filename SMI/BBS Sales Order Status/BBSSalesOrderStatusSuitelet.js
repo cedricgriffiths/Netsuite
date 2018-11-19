@@ -793,8 +793,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							xml += "<table class=\"ordhead\" style=\"width: 100%;\">";
 							xml += "<thead>";
 							xml += "<tr style=\"background-color: #e3e3e3;\">";
-							xml += "<th align=\"left\">Sales<br/>Order</th>";
-							xml += "<th colspan=\"2\" align=\"left\">Order<br/>Date</th>";
+							xml += "<th colspan=\"2\" align=\"left\">Sales<br/>Order</th>";
+							xml += "<th colspan=\"2\" align=\"left\">Order<br/>Id</th>";
+							xml += "<th colspan=\"4\" align=\"left\">Order<br/>Date</th>";
 							xml += "<th colspan=\"4\" align=\"left\"><br/>Customer</th>";
 							xml += "<th colspan=\"2\" align=\"left\">Ship<br/>Date</th>";
 							xml += "<th colspan=\"2\" align=\"right\"># Items<br/>Ordered</th>";
@@ -803,8 +804,9 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							xml += "</tr>";
 							xml += "</thead>";
 							xml += "<tr>";
-							xml += "<td class=\"ordhead\" align=\"left\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].orderId + "\" target=\"_blank\">"   + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderNumber) + "</a></td>";
-							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\"><a href=\"/app/accounting/transactions/salesord.nl?id=" + orderedSalesOrderDetail[salesOrderKey].orderId + "\" target=\"_blank\">"   + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderNumber) + "</a></td>";
+							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderId + "</td>";
+							xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderDate + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"4\" align=\"left\">" + nlapiEscapeXML(orderedSalesOrderDetail[salesOrderKey].orderCustomer) + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"left\">" + orderedSalesOrderDetail[salesOrderKey].orderShipDate + "</td>";
 							xml += "<td class=\"ordhead\" colspan=\"2\" align=\"right\">" + orderedSalesOrderDetail[salesOrderKey].orderItemsTotal.toFixed(2) + "</td>";
@@ -815,7 +817,8 @@ function buildOutput(_soStartDate,_soEndDate,_shipStartDate,_shipEndDate,_percen
 							xml += "</table>";
 						
 							csv += "\r\n";
-							csv += '"Sales Order","Order Date","Customer","Ship Date","# Items Ordered","# Items Fulfillable","% Available"\r\n';
+							csv += '"Sales Order","Order Id","Order Date","Customer","Ship Date","# Items Ordered","# Items Fulfillable","% Available"\r\n';
+							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderNumber + '",';
 							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderId + '",';
 							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderDate + '",';
 							csv += '"' + orderedSalesOrderDetail[salesOrderKey].orderCustomer + '",';
