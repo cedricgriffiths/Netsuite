@@ -76,6 +76,7 @@ function scheduled(type)
 			], 
 			[
 			   new nlobjSearchColumn("tranid").setSort(false), 
+			   new nlobjSearchColumn("transactionnumber"), 
 			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("department"), 
 			   new nlobjSearchColumn("class"), 
@@ -87,7 +88,8 @@ function scheduled(type)
 			   new nlobjSearchColumn("fxamount"), 
 			   new nlobjSearchColumn("formulacurrency").setFormula("{fxamount} *  {exchangerate}"), 
 			   new nlobjSearchColumn("subsidiary"), 
-			   new nlobjSearchColumn("line")
+			   new nlobjSearchColumn("line"), 
+			   new nlobjSearchColumn("lineuniquekey")
 			]
 			);
 	
@@ -107,6 +109,7 @@ function scheduled(type)
 					
 					var subsidiary = transactionSearchResults[int].getValue("subsidiary");
 					var documentNumber = transactionSearchResults[int].getValue("tranid");
+					var transactionNumber = transactionSearchResults[int].getValue("transactionnumber");
 					var businessLine = transactionSearchResults[int].getValue("department");
 					var serviceType = transactionSearchResults[int].getValue("class");
 					var destinationMarket = transactionSearchResults[int].getValue("custcol_csegdm");
@@ -116,7 +119,8 @@ function scheduled(type)
 					var exchangeRate = Number(transactionSearchResults[int].getValue("exchangerate"));
 					var amount = Math.abs(Number(transactionSearchResults[int].getValue("fxamount")));
 					var transactionLineNo = Number(transactionSearchResults[int].getValue("line"));
-					var transactionId = Number(transactionSearchResults[int].getId());
+					var transactionId = transactionSearchResults[int].getId();
+					var transactionUniqueKey = transactionSearchResults[int].getValue("lineuniquekey");
 					var transactionType = transactionSearchResults[int].getValue("type");
 					
 					amount = (amount * exchangeRate).round(2);
@@ -182,7 +186,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -193,7 +197,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -236,7 +240,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -247,7 +251,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -270,7 +274,84 @@ function scheduled(type)
 					
 					//If the journal saved ok, then update the line to say we have processed it
 					//
-					
+					if(journalId != null)
+						{
+							//Load the source transaction record
+							//
+							var sourceTransactionRecord = null;
+							
+							try
+								{
+									sourceTransactionRecord = nlapiLoadRecord(translateType(transactionType), transactionId);
+								}
+							catch(err)
+								{
+									sourceTransactionRecord = null;
+									nlapiLogExecution('ERROR', 'Error loading source transaction', err.message);
+								}
+							
+							//Have we got the source transaction record?
+							//
+							if(sourceTransactionRecord)
+								{
+									var transactionItemLines = sourceTransactionRecord.getLineItemCount('item');
+									var transactionExpenseLines = sourceTransactionRecord.getLineItemCount('expense');
+								
+									//Loop through the item lines
+									//
+									if(transactionItemLines != null && transactionItemLines != '')
+										{
+											for (var int2 = 1; int2 <= transactionItemLines; int2++) 
+												{
+													var lineUniqueKey = sourceTransactionRecord.getLineItemValue('item', 'lineuniquekey', int2);
+													
+													if(lineUniqueKey == transactionUniqueKey)
+														{
+															sourceTransactionRecord.setLineItemValue('item', 'custcol_bbs_journal_posted', int2, 'T');
+															break;
+														}
+												}
+										}
+									
+									//Loop through the expense lines
+									//
+									if(transactionExpenseLines != null && transactionExpenseLines != '')
+										{
+											for (var int3 = 1; int3 <= transactionExpenseLines; int3++) 
+												{
+													var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'lineuniquekey', int3);
+													
+													if(lineUniqueKey == transactionUniqueKey)
+														{
+															sourceTransactionRecord.setLineItemValue('expense', 'custcol_bbs_journal_posted', int3, 'T');
+															break;
+														}
+												}
+										}
+									
+									//See if we can update the source transaction record to say we have posted the journal
+									//
+									try
+										{
+											nlapiSubmitRecord(sourceTransactionRecord, false, true);
+										}
+									catch(err)
+										{
+											nlapiLogExecution('ERROR', 'Error updating source transaction, deleting created journal', err.message);
+										
+											//If we cannot update the original transaction the we should delete the journal we created
+											//
+											try
+												{
+													nlapiDeleteRecord('journalentry', journalId);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Cannot remove newly create journal', err.message);
+												}
+										}
+								}
+						}
 				}
 		}
 }
@@ -282,6 +363,36 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
+function translateType(_transactionType)
+{
+	var realTransactionType = null;
+	
+	switch(_transactionType)
+		{
+			case 'CustInvc':
+				
+				realTransactionType = 'invoice';
+				break;
+				
+			case 'VendBill':
+				
+				realTransactionType = 'vendorbill';
+				break;
+				
+			case 'CustCred':
+				
+				realTransactionType = 'creditmemo';
+				break;
+				
+			case 'VendCred':
+				
+				realTransactionType = 'vendorcredit';
+				break;	
+		}
+	
+	return realTransactionType;
+}
+
 function libGetPeriod(periodDate)
 {
 	var returnValue = '';
@@ -320,22 +431,22 @@ function getCogsAccount(_businessLine)
 		{
 			case '1': //FIT
 				
-				returnedAccount = cogsAccFIT;
+				returnedAccount = cosAccFIT;
 				break;
 				
 			case '2': //MICE
 				
-				returnedAccount = cogsAccMICE;
+				returnedAccount = cosAccMICE;
 				break;
 				
 			case '3': //Group
 				
-				returnedAccount = cogsAccGroup;
+				returnedAccount = cosAccGroup;
 				break;
 				
 			case '4': //B2C
 				
-				returnedAccount = cogsAccB2C;
+				returnedAccount = cosAccB2C;
 				break;
 		}
 	
