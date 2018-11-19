@@ -70,6 +70,10 @@ function SalesOrderValidateLine(type)
 					return false;
 				}
 		}
+	else
+		{
+			return true;
+		}
 	
 	/*
 	if(lineLocation == null || lineLocation == '')
