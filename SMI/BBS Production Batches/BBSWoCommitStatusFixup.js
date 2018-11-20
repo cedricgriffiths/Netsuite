@@ -118,6 +118,7 @@ function scheduled(type)
 					var totalCommitted = Number(0);
 					var totalUsedInBuild = Number(0);
 					var lowestCommitted = Number(99999);
+					var logoQuantity = Number(0);
 					
 					var originalCommitmentStatus = newRecord.getFieldValue('custbody_bbs_commitment_status');
 						
@@ -142,6 +143,7 @@ function scheduled(type)
 									woLogo = lineItemItemId;
 									woLogoType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
 									machine = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_machine', false);
+									logoQuantity += lineItemQuantity;
 								}
 							
 //SMI						//Get the process type from the item record
@@ -321,6 +323,9 @@ function scheduled(type)
 							{
 								newRecord.setFieldValue('custbody_bbs_wo_logo_type', woLogoType);
 							}
+						
+						newRecord.setFieldValue('custbody_bbs_wo_logo_qty', logoQuantity);
+						
 					
 						//Set the lowest committed value
 						//
