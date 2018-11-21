@@ -37,7 +37,10 @@ function suitelet(request, response)
 			switch(recordType)
 				{
 					case 'kititem':
-				
+					case 'inventoryitem':
+					case 'noninventoryitem':
+					case 'serviceitem':
+					
 							formTitle = 'Populate Item Location Matrix';
 							buttonTitle = 'Finish';
 							fieldTitle = 'Clover Item';

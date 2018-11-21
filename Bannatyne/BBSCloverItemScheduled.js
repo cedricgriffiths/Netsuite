@@ -78,12 +78,15 @@ function scheduled(type)
 				break;
 				
 			case 'kititem':
+			case 'inventoryitem':
+			case 'noninventoryitem':
+			case 'serviceitem':
 		
 				//Read the item record
 				//
 				try
 					{
-						itemRecord = nlapiLoadRecord('kititem', itemId);
+						itemRecord = nlapiLoadRecord(recordType, itemId);
 					}
 				catch(err)
 					{
@@ -161,22 +164,25 @@ function getModifierGroupId(_itemModifierGroup, _location)
 {
 	var modifierGroupId = '';
 	
-	var customrecordbbs_clover_modifier_groupSearch = nlapiSearchRecord("customrecordbbs_clover_modifier_group",null,
-			[
-			   ["custrecordbbs_clover_modifier_groups","anyof",_itemModifierGroup], 
-			   "AND", 
-			   ["custrecordbbs_merch_loc2","anyof",_location]
-			], 
-			[
-			   new nlobjSearchColumn("custrecordbbs_clover_mod_group_id")
-			]
-			);
+	if(_itemModifierGroup != null && _itemModifierGroup != '')
+		{
+			var customrecordbbs_clover_modifier_groupSearch = nlapiSearchRecord("customrecordbbs_clover_modifier_group",null,
+					[
+					   ["custrecordbbs_clover_modifier_groups","anyof",_itemModifierGroup], 
+					   "AND", 
+					   ["custrecordbbs_merch_loc2","anyof",_location]
+					], 
+					[
+					   new nlobjSearchColumn("custrecordbbs_clover_mod_group_id")
+					]
+					);
+			
+			if(customrecordbbs_clover_modifier_groupSearch != null && customrecordbbs_clover_modifier_groupSearch.length > 0)
+			{
+				modifierGroupId = customrecordbbs_clover_modifier_groupSearch[0].getValue("custrecordbbs_clover_mod_group_id");
+			}
+		}
 	
-	if(customrecordbbs_clover_modifier_groupSearch != null && customrecordbbs_clover_modifier_groupSearch.length > 0)
-	{
-		modifierGroupId = customrecordbbs_clover_modifier_groupSearch[0].getValue("custrecordbbs_clover_mod_group_id");
-	}
-
 	return modifierGroupId;
 }
 
