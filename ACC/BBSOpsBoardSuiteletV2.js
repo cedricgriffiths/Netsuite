@@ -403,6 +403,16 @@ function suitelet(request, response)
 				
 						//Return the html to the client
 						//
+						try
+							{
+								var contextUser = nlapiGetContext().getName();
+								nlapiLogExecution('AUDIT', 'Ops Board Launched', contextUser);
+							}
+						catch(err)
+							{
+							
+							}
+						
 						response.write(html);
 						
 						break;
