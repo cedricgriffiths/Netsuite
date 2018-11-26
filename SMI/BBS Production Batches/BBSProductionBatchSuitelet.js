@@ -254,6 +254,8 @@ function productionBatchSuitelet(request, response)
 		var salesOrderId = request.getParameter('salesorderid');
 		var woBuildPercentText = request.getParameter('wobildpercenttext');
 		var woBuildPercentId = request.getParameter('wobildpercentid');
+		var soStartDate = request.getParameter('sostartdate');
+		var soEndDate = request.getParameter('soenddate');
 		
 		// Create a form
 		//
@@ -554,6 +556,12 @@ function productionBatchSuitelet(request, response)
 										salesOrderField.addSelectOption(salesOrderId, salesOrderNumber, false);
 									}
 							}
+						
+						var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
+						var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
+						soStartDateField.setDefaultValue(todayString);
+						soEndDateField.setDefaultValue(todayString);
+						
 					}
 				else
 					{
@@ -650,6 +658,23 @@ function productionBatchSuitelet(request, response)
 						var salesOrderField = form.addField('custpage_sales_order_select', 'text', 'Sales Order', null, 'custpage_grp2');
 						salesOrderField.setDisplayType('disabled');
 						salesOrderField.setDefaultValue(salesOrderText);
+						
+						var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
+						soStartDateField.setDisplayType('disabled');
+						
+						if(soStartDate != '')
+							{
+								soStartDateField.setDefaultValue(soStartDate);
+							}
+						
+						var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
+						soEndDateField.setDisplayType('disabled');
+						
+						if(soEndDate != '')
+							{
+								soEndDateField.setDefaultValue(soEndDate);
+							}
+						
 					}
 				else
 					{
@@ -784,6 +809,16 @@ function productionBatchSuitelet(request, response)
 				if(woBuildPercentId != '')
 					{
 						filterArray.push("AND",["custbody_bbs_wo_percent_can_build","anyof",woBuildPercentId]);
+					}
+				
+				if(soStartDate != '')
+					{
+						filterArray.push("AND",["createdfrom.trandate","onorafter",soStartDate]);
+					}
+			
+				if(soEndDate != '')
+					{
+						filterArray.push("AND",["createdfrom.trandate","onorbefore",soEndDate]);
 					}
 				
 				var woSearch = nlapiCreateSearch("transaction", filterArray, 
@@ -994,6 +1029,8 @@ function productionBatchSuitelet(request, response)
 				var salesOrderText = request.getParameter('custpage_sales_order_text');
 				var woBuildPercentId = request.getParameter('custpage_wo_build_percent_select');
 				var woBuildPercentText = request.getParameter('custpage_wo_build_percent_text');
+				var soStartDate = request.getParameter('custpage_so_start_date');
+				var soEndDate = request.getParameter('custpage_so_end_date');
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//
@@ -1021,6 +1058,8 @@ function productionBatchSuitelet(request, response)
 				params['salesordertext'] = salesOrderText;
 				params['wobildpercentid'] = woBuildPercentId;
 				params['wobildpercenttext'] = woBuildPercentText;
+				params['sostartdate'] = soStartDate;
+				params['soenddate'] = soEndDate;
 				
 				response.sendRedirect('SUITELET','customscript_bbs_assign_wo_suitelet', 'customdeploy_bbs_assign_wo_suitelet', null, params);
 				
