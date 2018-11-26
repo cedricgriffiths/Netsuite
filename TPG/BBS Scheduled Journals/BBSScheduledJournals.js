@@ -101,6 +101,11 @@ function scheduled(type)
 	//
 	if(transactionSearchResults != null && transactionSearchResults.length > 0)
 		{
+			var lastTransactionId = '';
+			var lastTransactionType = '';
+			var journalRecord = null;
+			var uniqueLineIds = {};
+			
 			//Loop through the results & process
 			//
 			for (var int = 0; int < transactionSearchResults.length; int++) 
@@ -125,21 +130,53 @@ function scheduled(type)
 					
 					amount = (amount * exchangeRate).round(2);
 					
-					//Get the currency from the subsidiary
+					//Has the transaction number changed
 					//
-					var currency = nlapiLookupField('subsidiary', subsidiary, 'currency', false);
+					if(transactionId != lastTransactionId)
+						{
+							//If we have a journal to save, then save it
+							//
+							if(journalRecord != null)
+								{
+									//Commit the previous journal
+									//
+									saveJournal(journalRecord, lastTransactionType, lastTransactionId, uniqueLineIds);
+								}
+							
+							//Save the transaction number & type
+							//
+							lastTransactionId = transactionId;
+							lastTransactionType = transactionType;
+							
+							//Clear out the list of unique line id's
+							//
+							for ( var uniqueLineId in uniqueLineIds) 
+								{
+									delete uniqueLineIds[uniqueLineId];
+								}
+							
+							//Get the currency from the subsidiary
+							//
+							var currency = nlapiLookupField('subsidiary', subsidiary, 'currency', false);
+							
+							//Create the journal
+							//
+							journalRecord = nlapiCreateRecord('journalentry', {recordmode: 'dynamic'});
+							
+							//Header values
+							//
+							journalRecord.setFieldValue('subsidiary', subsidiary);
+							journalRecord.setFieldValue('trandate', today);
+							journalRecord.setFieldValue('currency', currency);
+							journalRecord.setFieldValue('custbody_bbs_system_generated','T');
+							
+							//journalRecord.setFieldValue('exchangerate', exchangeRate);
+							//journalRecord.setFieldValue('postingperiod', periodNumber);
+						}
 					
-					//Create the journal
+					//Save the unique line id, so we can update it to say we have created a journal later
 					//
-					var journalRecord = nlapiCreateRecord('journalentry', {recordmode: 'dynamic'});
-					
-					//Header values
-					//
-					journalRecord.setFieldValue('subsidiary', subsidiary);
-					journalRecord.setFieldValue('trandate', today);
-					journalRecord.setFieldValue('currency', currency);
-					//journalRecord.setFieldValue('exchangerate', exchangeRate);
-					//journalRecord.setFieldValue('postingperiod', periodNumber);
+					uniqueLineIds[transactionUniqueKey] = transactionUniqueKey;
 					
 					//Work out what account we should use
 					//
@@ -159,7 +196,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -169,8 +207,9 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_segbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -186,7 +225,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -197,7 +237,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -213,7 +254,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -224,7 +266,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -240,7 +283,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -251,108 +295,17 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
 						}
-					
-					//Save the journal
-					//
-					var journalId = null;
-					
-					try
-						{
-							journalId = nlapiSubmitRecord(journalRecord, true, true);
-						}
-					catch(err)
-						{
-							journalId = null;
-							var message = err.message;
-							nlapiLogExecution('ERROR', 'Error creating journal', err.message);
-						}
-					
-					//If the journal saved ok, then update the line to say we have processed it
-					//
-					if(journalId != null)
-						{
-							//Load the source transaction record
-							//
-							var sourceTransactionRecord = null;
-							
-							try
-								{
-									sourceTransactionRecord = nlapiLoadRecord(translateType(transactionType), transactionId);
-								}
-							catch(err)
-								{
-									sourceTransactionRecord = null;
-									nlapiLogExecution('ERROR', 'Error loading source transaction', err.message);
-								}
-							
-							//Have we got the source transaction record?
-							//
-							if(sourceTransactionRecord)
-								{
-									var transactionItemLines = sourceTransactionRecord.getLineItemCount('item');
-									var transactionExpenseLines = sourceTransactionRecord.getLineItemCount('expense');
-								
-									//Loop through the item lines
-									//
-									if(transactionItemLines != null && transactionItemLines != '')
-										{
-											for (var int2 = 1; int2 <= transactionItemLines; int2++) 
-												{
-													var lineUniqueKey = sourceTransactionRecord.getLineItemValue('item', 'lineuniquekey', int2);
-													
-													if(lineUniqueKey == transactionUniqueKey)
-														{
-															sourceTransactionRecord.setLineItemValue('item', 'custcol_bbs_journal_posted', int2, 'T');
-															break;
-														}
-												}
-										}
-									
-									//Loop through the expense lines
-									//
-									if(transactionExpenseLines != null && transactionExpenseLines != '')
-										{
-											for (var int3 = 1; int3 <= transactionExpenseLines; int3++) 
-												{
-													var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'lineuniquekey', int3);
-													
-													if(lineUniqueKey == transactionUniqueKey)
-														{
-															sourceTransactionRecord.setLineItemValue('expense', 'custcol_bbs_journal_posted', int3, 'T');
-															break;
-														}
-												}
-										}
-									
-									//See if we can update the source transaction record to say we have posted the journal
-									//
-									try
-										{
-											nlapiSubmitRecord(sourceTransactionRecord, false, true);
-										}
-									catch(err)
-										{
-											nlapiLogExecution('ERROR', 'Error updating source transaction, deleting created journal', err.message);
-										
-											//If we cannot update the original transaction the we should delete the journal we created
-											//
-											try
-												{
-													nlapiDeleteRecord('journalentry', journalId);
-												}
-											catch(err)
-												{
-													nlapiLogExecution('ERROR', 'Cannot remove newly create journal', err.message);
-												}
-										}
-								}
-						}
 				}
+			
+			//Save the last journal record
+			//
+			saveJournal(journalRecord, lastTransactionType, lastTransactionId, uniqueLineIds);
 		}
 }
 
@@ -363,6 +316,103 @@ function scheduled(type)
 //=============================================================================================
 //=============================================================================================
 //
+function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniqueLineIds)
+{
+	//Save the journal
+	//
+	var journalId = null;
+	
+	try
+		{
+			journalId = nlapiSubmitRecord(_journalRecord, true, true);
+		}
+	catch(err)
+		{
+			journalId = null;
+			var message = err.message;
+			nlapiLogExecution('ERROR', 'Error creating journal', err.message);
+		}
+	
+	//If the journal saved ok, then update the line to say we have processed it
+	//
+	if(journalId != null)
+		{
+			//Load the source transaction record
+			//
+			var sourceTransactionRecord = null;
+			
+			try
+				{
+					sourceTransactionRecord = nlapiLoadRecord(translateType(_transactionType), _transactionNumber);
+				}
+			catch(err)
+				{
+					sourceTransactionRecord = null;
+					nlapiLogExecution('ERROR', 'Error loading source transaction', err.message);
+				}
+			
+			//Have we got the source transaction record?
+			//
+			if(sourceTransactionRecord)
+				{
+					var transactionItemLines = sourceTransactionRecord.getLineItemCount('item');
+					var transactionExpenseLines = sourceTransactionRecord.getLineItemCount('expense');
+				
+					//Loop through the item lines
+					//
+					if(transactionItemLines != null && transactionItemLines != '')
+						{
+							for (var int2 = 1; int2 <= transactionItemLines; int2++) 
+								{
+									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('item', 'lineuniquekey', int2);
+									
+									if(_uniqueLineIds[lineUniqueKey])
+										{
+											sourceTransactionRecord.setLineItemValue('item', 'custcol_bbs_journal_posted', int2, 'T');
+										}
+								}
+						}
+					
+					//Loop through the expense lines
+					//
+					if(transactionExpenseLines != null && transactionExpenseLines != '')
+						{
+							for (var int3 = 1; int3 <= transactionExpenseLines; int3++) 
+								{
+									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('expense', 'lineuniquekey', int3);
+									
+									if(_uniqueLineIds[lineUniqueKey])
+										{
+											sourceTransactionRecord.setLineItemValue('expense', 'custcol_bbs_journal_posted', int3, 'T');
+										}
+								}
+						}
+					
+					//See if we can update the source transaction record to say we have posted the journal
+					//
+					try
+						{
+							nlapiSubmitRecord(sourceTransactionRecord, false, true);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error updating source transaction, deleting created journal', err.message);
+						
+							//If we cannot update the original transaction the we should delete the journal we created
+							//
+							try
+								{
+									nlapiDeleteRecord('journalentry', journalId);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Cannot remove newly create journal', err.message);
+								}
+						}
+				}
+		}	
+}
+
 function translateType(_transactionType)
 {
 	var realTransactionType = null;
