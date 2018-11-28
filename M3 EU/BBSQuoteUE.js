@@ -31,7 +31,7 @@ function quoteBeforeSubmit(type)
 			if(allowedProbabilities.indexOf(newProbability) == -1)
 				{
 					
-					throw nlapiCreateError('BBS_INVALID_PROBABILITY', 'Invalid Probability (' + newProbability + ') on Quote ' + newQuoteNumber + '. Valid values are 1.0%, 10.0%, 25.0%, 50.0%, 75.0% & 99.0%', true);
+					throw nlapiCreateError('BBS_INVALID_PROBABILITY', 'Invalid Probability (' + newProbability + ') on ' + newQuoteNumber + '. Valid values are 1.0%, 10.0%, 25.0%, 50.0%, 75.0% & 99.0%', true);
 				}
 			
 		}
