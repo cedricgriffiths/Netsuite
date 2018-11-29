@@ -31,8 +31,8 @@ function cbcCustomerItemsSuitelet(request, response){
 		var custCurrencyParam = request.getParameter('custcurrency');
 		var gradeIdParam = request.getParameter('gradeid');
 		var gradeTxtParam = request.getParameter('gradetxt');
-		var budgetIdParam = request.getParameter('budgetid');
-		var budgetTxtParam = request.getParameter('budgettxt');
+		//var budgetIdParam = request.getParameter('budgetid');
+		//var budgetTxtParam = request.getParameter('budgettxt');
 		var baseParentsParam = request.getParameter('baseparents');
 		var sessionParam = request.getParameter('session');
 		
@@ -83,13 +83,13 @@ function cbcCustomerItemsSuitelet(request, response){
 		
 		//Budget Type
 		//
-		var budgetTypeIdField = form.addField('custpage_budget_id_param', 'text', 'budget type id');
-		budgetTypeIdField.setDisplayType('hidden');
-		budgetTypeIdField.setDefaultValue(budgetIdParam);
+		//var budgetTypeIdField = form.addField('custpage_budget_id_param', 'text', 'budget type id');
+		//budgetTypeIdField.setDisplayType('hidden');
+		//budgetTypeIdField.setDefaultValue(budgetIdParam);
 		
-		var budgetTypeTxtField = form.addField('custpage_budget_txt_param', 'text', 'budget type text');
-		budgetTypeTxtField.setDisplayType('hidden');
-		budgetTypeTxtField.setDefaultValue(budgetTxtParam);
+		//var budgetTypeTxtField = form.addField('custpage_budget_txt_param', 'text', 'budget type text');
+		//budgetTypeTxtField.setDisplayType('hidden');
+		//budgetTypeTxtField.setDefaultValue(budgetTxtParam);
 		
 		//Base Parent
 		//
@@ -122,7 +122,7 @@ function cbcCustomerItemsSuitelet(request, response){
 		
 		//Add a field group for finish
 		//
-		var fieldGroupGradeBudget = form.addFieldGroup('custpage_grp_grade_budget', 'Grade & Budget');
+		var fieldGroupGradeBudget = form.addFieldGroup('custpage_grp_grade_budget', 'Grade');
 		fieldGroupGradeBudget.setSingleColumn(false);
 		
 		//Add a field group for parent item
@@ -165,8 +165,8 @@ function cbcCustomerItemsSuitelet(request, response){
 					
 					//Add a select field to pick the budget from
 					//
-					var budgetField = form.addField('custpage_budget_type_select', 'select', 'CBC Budget Type', 'customlist_cbc_budget_management_type', 'custpage_grp_grade_budget');
-					budgetField.setMandatory(true);
+					//var budgetField = form.addField('custpage_budget_type_select', 'select', 'CBC Budget Type', 'customlist_cbc_budget_management_type', 'custpage_grp_grade_budget');
+					//budgetField.setMandatory(true);
 					
 					
 					//Add a filter field to limit the base parent
@@ -210,68 +210,26 @@ function cbcCustomerItemsSuitelet(request, response){
 					//Add fields to show the previous selections
 					//
 					var customerField = form.addField('custpage_customer_select', 'text', 'Customer', null, 'custpage_grp_customer');
-					var finishProcessItemField = form.addField('custpage_grade_select', 'text', 'Finish Process Item', null, 'custpage_grp_grade_budget');
-					var finishRefField = form.addField('custpage_budget_type_select', 'text', 'Finish Ref', null, 'custpage_grp_grade_budget');
+					var gradeField = form.addField('custpage_grade_select', 'text', 'Grade', null, 'custpage_grp_grade_budget');
+					//var budgetField = form.addField('custpage_budget_type_select', 'text', 'Budget Type', null, 'custpage_grp_grade_budget');
 					var baseParentField = form.addField('custpage_base_parent_select', 'textarea', 'Base Parent Items', null, 'custpage_grp_parent');
 					
 					//Disable the fields from entry
 					//
 					customerField.setDisplayType('disabled');
-					finishProcessItemField.setDisplayType('disabled');
-					finishRefField.setDisplayType('disabled');
+					gradeField.setDisplayType('disabled');
+					//budgetField.setDisplayType('disabled');
 					baseParentField.setDisplayType('disabled');
 					
 					//Set the default values
 					customerField.setDefaultValue(custTxtParam);
-					finishProcessItemField.setDefaultValue(gradeTxtParam);
-					finishRefField.setDefaultValue(budgetTxtParam);
+					gradeField.setDefaultValue(gradeTxtParam);
+					//budgetField.setDefaultValue(budgetTxtParam);
 					
 					//Create a tab for the sublists
 					//
 					var childItemsTab = form.addTab('custpage_child_items_tab', 'Child Items');
 					childItemsTab.setLabel('Child Items');
-					
-					//var dummyTab = form.addTab('custpage_dummy_tab', '');
-					//form.addField('custpage_dummy_2', 'text', 'Dummy 2', null, 'custpage_dummy_tab');
-					
-					
-					//Read the finish record
-					//
-					var finishRecord = nlapiLoadRecord('assemblyitem', gradeIdParam);
-					var finishCost = Number(0);
-					var finishPrice = Number(0);
-					
-					//Calculate the cost of the finish
-					//
-					if(finishRecord)
-						{
-							//finishCost = Number(finishRecord.getFieldValue('custitem_bbs_item_cost'));
-						
-							var finishMembers = finishRecord.getLineItemCount('member');
-							
-							for (var finishMemberLine = 1; finishMemberLine <= finishMembers; finishMemberLine++) 
-								{
-									var memberId = finishRecord.getLineItemValue('member', 'item', finishMemberLine);
-									var memberQuantity = Number(finishRecord.getLineItemValue('member', 'quantity', finishMemberLine));
-									var memberType = finishRecord.getLineItemValue('member', 'sitemtype', finishMemberLine);
-									var memberCost = Number(0);
-									
-									switch(memberType)
-										{
-											case 'InvtPart':
-												
-												memberCost = Number(nlapiLookupField('inventoryitem', memberId, 'averagecost', false)) * memberQuantity;
-												break;
-												
-											case 'NonInvtPart':
-												
-												memberCost = Number(nlapiLookupField('noninventoryitem', memberId, 'cost', false)) * memberQuantity;
-												break;
-										}
-									
-									finishCost += memberCost;
-								}
-						}
 					
 					//Get the session data
 					//
@@ -287,7 +245,7 @@ function cbcCustomerItemsSuitelet(request, response){
 					//
 					var baseParents = JSON.parse(baseParentsParam);
 
-					baseParentField.setDisplaySize(80, (Object.keys(baseParents)).length);
+					baseParentField.setDisplaySize(90, (Object.keys(baseParents)).length);
 					
 					var baseParentString = '';
 					
@@ -302,25 +260,23 @@ function cbcCustomerItemsSuitelet(request, response){
 							//
 							var subtabId = 'custpage_subtab_' + baseParentId.toString();
 							var sublistId = 'custpage_sublist_' + baseParentId.toString();
-							var fieldId = 'custpage_def_sales_' + baseParentId.toString();
-							var fieldFinishPriceId = 'custpage_fin_price_' + baseParentId.toString();
+							var allocFieldId = 'custpage_def_alloc_' + baseParentId.toString();
+							var pointsFieldId = 'custpage_def_points_' + baseParentId.toString();
 							
 							var subtab = form.addSubTab(subtabId, baseParents[baseParentId], 'custpage_child_items_tab');
-							form.addField(fieldId, 'currency', 'Sales Price', null, subtabId);
-							
-							var finishPriceField = form.addField(fieldFinishPriceId, 'currency', 'Customer Finish Price', null, subtabId);
-							finishPriceField.setDisplayType('disabled');
-							finishPriceField.setDefaultValue(finishPrice.toFixed(2));
+							form.addField(allocFieldId, 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type', subtabId);
+							form.addField(pointsFieldId, 'integer', 'Points', null, subtabId);
 							
 							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], subtabId);
 							sublist.addMarkAllButtons();
 							sublist.setLabel(baseParents[baseParentId]);
 							
-							var buttionFunction = "updateSalesPrice('" + baseParentId.toString() + "')";
-							sublist.addButton(sublistId + '_update', 'Update Sales Prices', buttionFunction);
+							var buttonFunction = "updateAllocationType('" + baseParentId.toString() + "')";
+							sublist.addButton(sublistId + '_update_alloc', 'Update Allocation Type', buttonFunction);
 							
-							var buttionFunction = "calculateSalesPrice('" + baseParentId.toString() + "')";
-							sublist.addButton(sublistId + '_calculate', 'Calculate Sales Prices', buttionFunction);
+							var buttonFunction2 = "updatePoints('" + baseParentId.toString() + "')";
+							sublist.addButton(sublistId + '_update_points', 'Update Points', buttonFunction2);
+							
 							
 							sublist.addRefreshButton();
 							
@@ -331,24 +287,13 @@ function cbcCustomerItemsSuitelet(request, response){
 							var sublistFieldOpt2 = sublist.addField(sublistId + '_opt2', 'text', 'Colour', null);
 							var sublistFieldOpt3 = sublist.addField(sublistId + '_opt3', 'text', 'Size1', null);
 							var sublistFieldOpt4 = sublist.addField(sublistId + '_opt4', 'text', 'Size2', null);
-							var sublistFieldCost = sublist.addField(sublistId + '_cost', 'currency', 'Cost', null);
-							var sublistFieldSales = sublist.addField(sublistId + '_sales', 'currency', 'Sales Price', null);
-							var sublistFieldMargin = sublist.addField(sublistId + '_margin', 'text', 'Margin', null);
-//SMI						var sublistFieldMin = sublist.addField(sublistId + '_min', 'integer', 'Min Stock', null);
-//SMI						var sublistFieldMax = sublist.addField(sublistId + '_max', 'integer', 'Max Stock', null);
-//SMI						var sublistFieldWeb = sublist.addField(sublistId + '_web', 'checkbox', 'Web Product', null);
-							
-/*SMI*/						var sublistFieldOpt2Id = sublist.addField(sublistId + '_opt2_id', 'text', 'Colour Id', null);
-							
+							var sublistFieldAlloc = sublist.addField(sublistId + '_alloc', 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type');
+							var sublistFieldPoints = sublist.addField(sublistId + '_points', 'integer', 'Points', null);
 							
 							//Set entry fields
 							//
-							sublistFieldSales.setDisplayType('entry');
-							sublistFieldSales.setMandatory(true);
-							sublistFieldMargin.setDisplayType('entry');
-//SMI						sublistFieldMin.setDisplayType('entry');
-//SMI						sublistFieldMax.setDisplayType('entry');
-/*SMI*/						sublistFieldOpt2Id.setDisplayType('hidden');
+							sublistFieldAlloc.setDisplayType('entry');
+							sublistFieldPoints.setDisplayType('entry');
 							
 							//Hide the id field
 							//
@@ -356,7 +301,28 @@ function cbcCustomerItemsSuitelet(request, response){
 							
 							//Read the base parent record
 							//
-							var baseParentRecord = nlapiLoadRecord('inventoryitem', baseParentId);
+							var baseParentRecord = null;
+							
+							try
+								{
+									baseParentRecord = nlapiLoadRecord('inventoryitem', baseParentId);
+								}
+							catch(err)
+								{
+									baseParentRecord = null;
+								}
+							
+							if(baseParentRecord == null)
+								{
+									try
+										{
+											baseParentRecord = nlapiLoadRecord('assemblyitem', baseParentId);
+										}
+									catch(err)
+										{
+											baseParentRecord = null;
+										}
+								}
 							
 							if(baseParentRecord)
 								{
@@ -397,13 +363,9 @@ function cbcCustomerItemsSuitelet(request, response){
 									//Search for the matrix children
 									//
 									var matrixChildFilter = [
-															   ["type","anyof","InvtPart"], 
-															   "AND", 
 															   ["matrixchild","is","T"], 
 															   "AND", 
 															   ["internalid","anyof",matrixIds], 
-															   //"AND", 
-															   //["ispreferredvendor","is","T"],
 															   "AND", 
 															   ["isinactive","is","F"]
 															];
@@ -411,23 +373,23 @@ function cbcCustomerItemsSuitelet(request, response){
 									//Add additional filters based on colour, size1 & size2
 									//
 									if(parentFiltersColour.length > 0)
-									{
-										matrixChildFilter.push("AND", ["custitem_bbs_item_colour","anyof",parentFiltersColour]);
-									}
+										{
+											matrixChildFilter.push("AND", ["custitem_bbs_item_colour","anyof",parentFiltersColour]);
+										}
 								
 									if(parentFiltersSize1.length > 0)
-									{
-										matrixChildFilter.push("AND", ["custitem_bbs_item_size1","anyof",parentFiltersSize1]);
-									}
+										{
+											matrixChildFilter.push("AND", ["custitem_bbs_item_size1","anyof",parentFiltersSize1]);
+										}
 								
 									if(parentFiltersSize2.length > 0)
-									{
-										matrixChildFilter.push("AND", ["custitem_bbs_item_size2","anyof",parentFiltersSize2]);
-									}
+										{
+											matrixChildFilter.push("AND", ["custitem_bbs_item_size2","anyof",parentFiltersSize2]);
+										}
 								
 									//Run the search
 									//
-									var matrixChildSearch = nlapiSearchRecord("inventoryitem",null,
+									var matrixChildSearch = nlapiSearchRecord("item",null,
 											matrixChildFilter, 
 											[
 											   new nlobjSearchColumn("itemid",null,null), 
@@ -436,7 +398,6 @@ function cbcCustomerItemsSuitelet(request, response){
 											   new nlobjSearchColumn("type",null,null), 
 											   new nlobjSearchColumn("baseprice",null,null), 
 											   new nlobjSearchColumn("averagecost",null,null), 
-											   //new nlobjSearchColumn("vendorcost",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_category",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_colour",null,null), 
 											   new nlobjSearchColumn("custitem_bbs_item_size1",null,null), 
@@ -466,8 +427,6 @@ function cbcCustomerItemsSuitelet(request, response){
 													var matrixOpt2Id = matrixChildSearch[int3].getValue('custitem_bbs_item_colour');
 													var matrixOpt3Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size1');
 													var matrixOpt4Id = matrixChildSearch[int3].getValue('custitem_bbs_item_size2');
-													//var matrixCost = Number(matrixChildSearch[int3].getValue('vendorcost')) + finishCost;
-													var matrixCost = Number(matrixChildSearch[int3].getValue('averagecost')) + finishCost;
 													
 													//Build up the list of available colours & sizes
 													//
@@ -485,9 +444,6 @@ function cbcCustomerItemsSuitelet(request, response){
 													sublist.setLineItemValue(sublistId + '_opt2', sublistLine, matrixOpt2);
 													sublist.setLineItemValue(sublistId + '_opt3', sublistLine, matrixOpt3);
 													sublist.setLineItemValue(sublistId + '_opt4', sublistLine, matrixOpt4);
-													sublist.setLineItemValue(sublistId + '_cost', sublistLine, matrixCost);
-													sublist.setLineItemValue(sublistId + '_opt2_id', sublistLine, matrixOpt2Id);
-													
 												}
 										}
 									
@@ -574,8 +530,8 @@ function cbcCustomerItemsSuitelet(request, response){
 				custCurrencyParam = request.getParameter('custpage_cust_currency_param');
 				gradeIdParam = request.getParameter('custpage_grade_id_param');
 				gradeTxtParam = request.getParameter('custpage_grade_txt_param');
-				budgetIdParam = request.getParameter('custpage_budget_id_param');
-				budgetTxtParam = request.getParameter('custpage_budget_txt_param');
+				//budgetIdParam = request.getParameter('custpage_budget_id_param');
+				//budgetTxtParam = request.getParameter('custpage_budget_txt_param');
 				baseParentsParam = request.getParameter('custpage_baseparents_param');
 				sessionParam = request.getParameter('custpage_session_param');
 				
@@ -586,10 +542,10 @@ function cbcCustomerItemsSuitelet(request, response){
 				params['custtxt'] = custTxtParam;
 				params['custpricelevel'] = custPriceLevelParam;
 				params['custcurrency'] = custCurrencyParam;
-				params['finishid'] = gradeIdParam;
-				params['finishtxt'] = gradeTxtParam;
-				params['finishrefid'] = budgetIdParam;
-				params['finishreftxt'] = budgetTxtParam;
+				params['gradeid'] = gradeIdParam;
+				params['gradetxt'] = gradeTxtParam;
+				//params['budgetid'] = budgetIdParam;
+				//params['budgettxt'] = budgetTxtParam;
 				params['baseparents'] = baseParentsParam;
 				params['session'] = sessionParam;
 				params['stage'] = stage + 1;
@@ -641,14 +597,10 @@ function cbcCustomerItemsSuitelet(request, response){
 						if (ticked == 'T')
 							{
 								var item = request.getLineItemValue(sublistId, sublistId + '_id', int);
-								var salesPrice = request.getLineItemValue(sublistId, sublistId + '_sales', int);
-//SMI							var minStock = request.getLineItemValue(sublistId, sublistId + '_min', int);
-//SMI							var maxStock = request.getLineItemValue(sublistId, sublistId + '_max', int);
-//SMI							var webProduct = request.getLineItemValue(sublistId, sublistId + '_web', int);
-/*SMI*/							var colourId = request.getLineItemValue(sublistId, sublistId + '_opt2_id', int);
-								
-//SMI							var data = [item,salesPrice,minStock,maxStock,webProduct];
-								var data = [item,salesPrice,colourId];
+								var allocationType = request.getLineItemValue(sublistId, sublistId + '_alloc', int);
+								var points = request.getLineItemValue(sublistId, sublistId + '_points', int);
+								var name = request.getLineItemValue(sublistId, sublistId + '_name', int);
+								var data = [item,allocationType,points,name];
 								
 								//Build up the parent & child object
 								//
@@ -660,13 +612,12 @@ function cbcCustomerItemsSuitelet(request, response){
 				//Now we have the parent & child object we need to pass it to the scheduled script
 				//
 				var scheduleParams = {
-							custscript_bbs_parent_child: JSON.stringify(parentAndChild), 
-							custscript_bbs_customer_id: custIdParam,
-							custscript_bbs_finish_id: gradeIdParam,
-							custscript_bbs_finishref_id: budgetIdParam,
+							custscript_bbs_cbc_parent_child: JSON.stringify(parentAndChild), 
+							custscript_bbs_cbc_customer_id: custIdParam,
+							custscript_bbs_cbc_grade_id: gradeIdParam
 							};
 				
-				nlapiScheduleScript('customscript_bbs_create_assem_scheduled', null, scheduleParams);
+				nlapiScheduleScript('customscript_bbs_create_cust_items_sh', null, scheduleParams);
 
 				//Call the next stage
 				//

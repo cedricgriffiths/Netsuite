@@ -49,6 +49,10 @@ function invoicingScheduled(type)
 			
 			if(fulfilmentRecord)
 				{
+					//Get the shipping cost from the fulfilment
+					//
+					var fulfimentShippingCost = Number(fulfilmentRecord.getFieldValue('shippingcost'));
+					
 					//Get the sales order (10 GU's)
 					//
 					var salesOrderId = fulfilmentRecord.getFieldValue('createdfrom');
@@ -88,6 +92,7 @@ function invoicingScheduled(type)
 									invoiceRecord.setFieldValue('custbody_bbs_created_from_fulfillment',ffidsParam[int]);
 									invoiceRecord.setFieldValue('shipcarrier', orderShipCarrier);
 									invoiceRecord.setFieldValue('shipmethod', orderShipMethod);
+									invoiceRecord.setFieldValue('shippingcost', fulfimentShippingCost);
 									
 									//Loop through the invoice lines setting the quantities to zero
 									//

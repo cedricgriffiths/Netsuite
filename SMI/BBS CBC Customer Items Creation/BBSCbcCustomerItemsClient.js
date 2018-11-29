@@ -207,15 +207,15 @@ function customerItemsFieldChanged(type, name, linenum)
 
 
 
-//Function called by the update sales price button
+//Function called by the update allocation button
 //
-function updateSalesPrice(baseParentId)
+function updateAllocationType(baseParentId)
 {
 	var sublistId = 'custpage_sublist_' + baseParentId.toString();
 	var lines = nlapiGetLineItemCount(sublistId);
-	var fieldId = 'custpage_def_sales_' + baseParentId.toString();
+	var fieldId = 'custpage_def_alloc_' + baseParentId.toString();
 	
-	var salesPrice = nlapiGetFieldValue(fieldId);
+	var allocType = nlapiGetFieldValue(fieldId);
 	
 	for (var int = 1; int <= lines; int++) 
 		{
@@ -223,28 +223,28 @@ function updateSalesPrice(baseParentId)
 			
 			if(ticked == 'T')
 				{
-					nlapiSetLineItemValue(sublistId, sublistId + '_sales', int, salesPrice);
-					
-					var costFieldName = sublistId + '_cost';
-					var marginFieldName = sublistId + '_margin';
-						
-					var sales = salesPrice;
-					var cost = nlapiGetLineItemValue(sublistId, costFieldName, int);
-							
-					if(!isNaN(sales) && !isNaN(cost))
-						{
-							sales = Number(sales);
-							cost = Number(cost);
-								
-							var margin = null;
-							
-							if(sales != null && sales != '' && sales != 0)
-								{
-									margin = (((sales - cost) / sales) * 100.00).toFixed(2) + '%';
-								}
-							
-							nlapiSetLineItemValue(sublistId, marginFieldName, int, margin);
-						}
+					nlapiSetLineItemValue(sublistId, sublistId + '_alloc', int, allocType);
+				}	
+		}
+}
+
+//Function called by the update points button
+//
+function updatePoints(baseParentId)
+{
+	var sublistId = 'custpage_sublist_' + baseParentId.toString();
+	var lines = nlapiGetLineItemCount(sublistId);
+	var fieldId = 'custpage_def_points_' + baseParentId.toString();
+	
+	var allocType = nlapiGetFieldValue(fieldId);
+	
+	for (var int = 1; int <= lines; int++) 
+		{
+			var ticked = nlapiGetLineItemValue(sublistId, sublistId + '_tick', int);
+			
+			if(ticked == 'T')
+				{
+					nlapiSetLineItemValue(sublistId, sublistId + '_points', int, allocType);
 				}	
 		}
 }
