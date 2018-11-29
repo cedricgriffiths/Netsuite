@@ -35,4 +35,45 @@ function quoteBeforeSubmit(type)
 				}
 			
 		}
+	
+	if(type == 'editforecast' || type == 'edit')
+		{
+			//Get the current record
+			//
+			var quoteNewRecord = nlapiGetNewRecord();
+			var recordType = quoteNewRecord.getRecordType();
+			
+			//Make sure we are working with a quote (estimate)
+			//
+			if(recordType == 'estimate')
+				{
+					//Get the related opportunity & the include in forecast flag
+					//
+					var opportunity = quoteNewRecord.getFieldValue('opportunity');
+					var include =  quoteNewRecord.getFieldValue('includeinforecast');
+					
+					//If we have a related opportunity & 
+					if(opportunity != null && opportunity != '' && include == 'T')
+						{
+							var opportunityDate = nlapiLookupField('opportunity', opportunity, 'expectedclosedate', false);
+							var quoteDate = quoteNewRecord.getFieldValue('expectedclosedate');
+
+							if(opportunityDate != quoteDate)
+								{
+									nlapiSubmitField('opportunity', opportunity, 'expectedclosedate', quoteDate, false)
+								}
+						}
+				}
+		}
 }
+
+
+
+
+
+
+
+
+
+
+
