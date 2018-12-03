@@ -85,8 +85,8 @@ function qtyCheckSaveRecord()
 		{
 			var lines = nlapiGetLineItemCount('item');
 			var faults = false;
-			
-			for (var int = 0; int < array.length; int++) 
+		
+			for (var int = 1; int <= lines; int++) 
 				{
 					var itemId = nlapiGetLineItemValue('item', 'item', int);
 					var itemType = nlapiGetLineItemValue('item', 'itemtype', int);
