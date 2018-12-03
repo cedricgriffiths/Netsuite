@@ -12,6 +12,11 @@
 function checkVbVsPoWA() 
 {
 
+	Number.prototype.round = function(places) 
+	{
+	  return +(Math.round(this + "e+" + places)  + "e-" + places);
+	}
+	
 	var warnings = '';
 	    	
 	var poItemsDesc = {};		//Item description
@@ -179,11 +184,11 @@ function checkVbVsPoWA()
 			    					//
 			    					if(!poItemsTbbVal[lineItem])
 			    						{
-			    							poItemsTbbVal[lineItem] = ((lineQtyRec - (lineQtyBil - thisVbItemsQty[lineItem])) * lineQtyRate);
+			    							poItemsTbbVal[lineItem] = ((lineQtyRec - (lineQtyBil - thisVbItemsQty[lineItem])) * lineQtyRate).round(2);
 			    						}
 			    					else
 			    						{
-			    							poItemsTbbVal[lineItem] += ((lineQtyRec - (lineQtyBil - thisVbItemsQty[lineItem])) * lineQtyRate);
+			    							poItemsTbbVal[lineItem] += ((lineQtyRec - (lineQtyBil - thisVbItemsQty[lineItem])) * lineQtyRate).round(2);
 			    						}
 			    					
 			    					//Accumulate the quantities
