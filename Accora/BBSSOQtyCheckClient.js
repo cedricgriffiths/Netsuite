@@ -6,17 +6,6 @@
  *
  */
 
-/**
- * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
- * @appliedtorecord recordType
- *   
- * @returns {Boolean} True to continue save, false to abort save
- */
-function qtyCheckSaveRecord()
-{
-
-    return true;
-}
 
 /**
  * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
@@ -82,6 +71,52 @@ function qtyCheckValidateLine(type)
     return true;
 }
 
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @returns {Boolean} True to continue save, false to abort save
+ */
+function qtyCheckSaveRecord()
+{
+	var subsidiary = nlapiGetFieldValue('subsidiary');
+	
+	if(subsidiary == 5)
+		{
+			var lines = nlapiGetLineItemCount('item');
+			var faults = false;
+			
+			for (var int = 0; int < array.length; int++) 
+				{
+					var itemId = nlapiGetLineItemValue('item', 'item', int);
+					var itemType = nlapiGetLineItemValue('item', 'itemtype', int);
+					var itemQty = Number(nlapiGetLineItemValue('item', 'quantity', int));
+					
+					var itemSerialised = itemIsSerialised(itemId, itemType);
+					
+					if(itemSerialised && itemQty > 1)
+						{
+							faults = true;
+						}
+				}
+			
+			if(faults)
+				{
+					alert('Item quantity must be "1" for a serial numbered item');
+					return false;
+				}
+			else
+				{
+					return true;
+				}
+		}
+	else
+		{
+			return true;
+		}
+}
+
+
 function itemIsSerialised(item, itemType)
 {
 	var returnValue = false;
@@ -89,7 +124,16 @@ function itemIsSerialised(item, itemType)
 	
 	if(thisItemType != null)
 		{
-			var isSerialItem = nlapiLookupField(thisItemType, item, 'custitem_serial_numbered', false);
+			var isSerialItem = 'F';
+			
+			try
+				{
+					isSerialItem = nlapiLookupField(thisItemType, item, 'custitem_serial_numbered', false);
+				}
+			catch(err)
+				{
+				 	isSerialItem = 'F';
+				}
 			
 			if(isSerialItem == 'T')
 				{
