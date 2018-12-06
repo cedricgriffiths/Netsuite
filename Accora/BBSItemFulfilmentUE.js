@@ -103,7 +103,15 @@ function itemFulfilmentAfterSubmit(type)
 																	if(soLineNo == itemOrderLine)
 																		{
 																			salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serialNumber);
-																			nlapiSubmitRecord(salesOrderRecord, false, true);
+																			
+																			try
+																				{
+																					nlapiSubmitRecord(salesOrderRecord, false, true);
+																				}
+																			catch(err)
+																				{
+																					nlapiLogExecution('ERROR', 'Error saving sales order', err.message);
+																				}
 																			
 																			break;
 																		}

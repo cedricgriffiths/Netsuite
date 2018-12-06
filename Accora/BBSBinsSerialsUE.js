@@ -29,6 +29,8 @@ function serialNumbersAS(type)
 				{
 					var count = thisRecord.getLineItemCount('item');
 					var salesOrderId = thisRecord.getFieldValue('createdfrom');
+					var serialCount = Number(0);   
+					var thisRecordUpdated = false;
 					
 					for (var int = 1; int <= count; int++) 
 						{
@@ -39,7 +41,6 @@ function serialNumbersAS(type)
 							if (rec)
 								{
 									var invcount = rec.getLineItemCount('inventoryassignment');  
-									var serialCount = Number(0);   
 									
 									  for(var x = 1; x <=invcount ; x++) 
 										  {
@@ -58,42 +59,56 @@ function serialNumbersAS(type)
 										  }
 								}
 							
-							thisRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serials);
-							
-							//Update the sales order with the serial numbers
-							//
-							var salesOrderRecord = null;
-							
-							try
+							if(serialCount > 0)
 								{
-									salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
-								}
-							catch(err)
-								{
-									salesOrderRecord = null;
-								}
-							
-							if(salesOrderRecord != null)
-								{
-									var soLines = salesOrderRecord.getLineItemCount('item');
+									thisRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int, serials);
+									thisRecordUpdated = true;
 									
-									for (var int2 = 1; int2 <= soLines; int2++) 
+									//Update the sales order with the serial numbers
+									//
+									var salesOrderRecord = null;
+									
+									try
 										{
-											var soLineNo = salesOrderRecord.getLineItemValue('item', 'line', int2);
+											salesOrderRecord = nlapiLoadRecord('salesorder', salesOrderId);
+										}
+									catch(err)
+										{
+											salesOrderRecord = null;
+										}
+									
+									if(salesOrderRecord != null)
+										{
+											var soLines = salesOrderRecord.getLineItemCount('item');
 											
-											if(soLineNo == itemOrderLine)
+											for (var int2 = 1; int2 <= soLines; int2++) 
 												{
-													salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serials);
-													nlapiSubmitRecord(salesOrderRecord, false, true);
+													var soLineNo = salesOrderRecord.getLineItemValue('item', 'line', int2);
 													
-													break;
+													if(soLineNo == itemOrderLine)
+														{
+															salesOrderRecord.setLineItemValue('item', 'custcol_serial_numbers_udi', int2, serials);
+															
+															try
+																{
+																	nlapiSubmitRecord(salesOrderRecord, false, true);
+																}
+															catch(err)
+																{
+																	nlapiLogExecution('ERROR', 'Error saving sales order', err.message);
+																}
+															
+															break;
+														}
 												}
 										}
 								}
-							
 						}
 					
-					nlapiSubmitRecord(thisRecord, false, true);
+					if(thisRecordUpdated)
+						{
+							nlapiSubmitRecord(thisRecord, false, true);
+						}
 				}
 		}
 }	
