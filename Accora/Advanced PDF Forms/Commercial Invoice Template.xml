@@ -1,0 +1,319 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+        <#assign subsidiaryName>${record.subsidiary.name[record.subsidiary.name?index_of(":")+1..]}</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+        <#assign regInfo>xxxxx</#assign>
+        <#assign emailInfo>xxxxx</#assign>
+        <#assign logoInfo>xxxxx</#assign>
+  		<#assign telInfo>xxxxx</#assign>
+        <#assign faxInfo>xxxxx</#assign>
+        <#assign vatInfo>xxxxx</#assign>
+        <#assign webInfo>xxxxx</#assign>
+  
+        <#if subsidiary="5"> <!-- 5 is Ltd -->
+              <#assign regInfo>Company Registration No: 4915604. Registered Office: Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP, United Kingdom.</#assign>
+              <#assign emailInfo>info@accora.uk.com</#assign>
+              <#assign telInfo>01223 206100</#assign>
+              <#assign faxInfo>01223 206120</#assign>
+              <#assign vatInfo>GB 823 5324 47</#assign>
+          	  <#assign webInfo>www.accora.uk.com</#assign>
+              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a</#assign>
+        </#if>
+  
+        <#if subsidiary="1"> <!-- 1 is Inc-->
+              <#assign regInfo>Registered Office: 6720B Rockledge Drive - Suite 750, Bethesda, MD 20817. United States of America.</#assign>
+              <#assign emailInfo>billing@accora.us.com</#assign>
+              <#assign telInfo>301-560-2400</#assign>
+              <#assign faxInfo> </#assign>
+              <#assign vatInfo>81-5245319</#assign>
+              <#assign webInfo>www.accora.us.com</#assign>
+              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a</#assign>
+        </#if>
+  
+      <macrolist>
+        <macro id="nlheader">
+              <table class="header" style="width: 100%;">
+  				<tr>
+  					<td align="left" colspan="2" style="font-size:14pt"><b>${subsidiaryName}</b></td>
+  					<td align="right" width="50" style="font-size:8pt">&nbsp;</td>
+  					<td align="left" width="150" style="padding-left: 5px;">&nbsp;</td>
+  					<td align="left">&nbsp;</td>
+  					<td rowspan="6" align="top-right"><img src="${logoInfo}" style="float:top-right; width:170px; height:115px; margin: 1px;" /></td>
+  				</tr>
+               
+  				<tr>
+  					<td align="left" colspan="2" rowspan="6" style="padding-bottom: 1em;"><span class="nameandaddress">${record.custbody_subsidiary_address}</span></td>
+  					<td align="right" width="50" style="font-size:8pt">Tel:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt">${telInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="right" width="50" style="font-size:8pt">Email:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${emailInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="right" width="50" style="font-size:8pt">Web:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${webInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="right" width="50" style="font-size:8pt"><#if subsidiary="5">VAT<#else>Tax</#if> ID:</td>
+  					<td align="left" width="150" style="padding-left: 5px; font-size:8pt;">${vatInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                </tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+  				</tr>
+			</table>
+
+			<table class="header" style="width: 100%;">
+            	<tr>
+                  <td align="left" colspan="2" ><b>Shipped From</b></td>
+				</tr>
+
+				<tr>
+					<td align="left" colspan="2" rowspan="10">${subsidiaryName}<br/>${record.custbody_subsidiary_address}</td>
+					<td align="left" colspan="2" rowspan="10" style="padding-bottom: 1em;">
+                      	<table>
+                        	<tr>
+                      			<td align="center" width="400px" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 2px; ">SHIP DATE</td>
+								<td align="center" width="400px" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">SALES ORDER No.</td>
+							</tr>
+                          	<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black;">${record.shipdate}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black;">${record.tranid}</td>
+							</tr>
+              				<tr>
+								<td align="center" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white;padding: 2px;">ORDER REFERENCE</td>
+								<td align="center" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">COMMERCIAL TERMS</td>
+							</tr>
+              				<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black; ">${record.otherrefnum}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; ">${record.custpage_delivery_terms}</td>
+							</tr>
+              				<tr>
+								<td align="center" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white;padding: 2px;">REASON FOR EXPORT</td>
+								<td align="center" style="vertical-align: middle; font-size:10px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black;">&nbsp;</td>
+							</tr>
+              				<tr>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-left: 1px solid black; border-bottom: 1px solid black;">${record.custbody_bbs_exp_reason}</td>
+								<td align="center"  style="vertical-align: middle; font-size:10px; border-right: 1px solid black; border-bottom: 1px solid black;">&nbsp;</td>
+							</tr>
+                      	</table>
+                  </td>
+				</tr>
+             </table>
+          
+      		<table class="header" style="width: 100%;">
+                <tr>
+					<td align="left" colspan="2" style="padding-top: 1em;"><b>Deliver To</b></td>
+				</tr>
+              	<tr>
+					<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td>
+                    <td align="center" colspan="2" style="font-size:18px;"><b><#if record.discountitem?has_content>${record.discountitem}&nbsp;</#if>Commercial Invoice</b></td>
+				</tr>
+			</table>
+        </macro>
+        
+        <macro id="nlfooter">
+        <table style="width: 100%;">
+          <tr class="messagerow">
+              <td align="center" class="message" style="padding-bottom: 1em;">${regInfo}</td>
+
+      		</tr>
+        </table>
+
+    <table class="footer" style="width: 100%;">
+          <tr>
+      <td align="right"><pagenumber/> of <totalpages/></td>
+    </tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+          font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 9pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+        border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:9px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+			font-size: 10pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+        border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="400px" footer="nlfooter" footer-height="20px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+    
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead >
+  <tr >
+  	<th align="left" colspan="3" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 3px; ">Item Code</th>
+  	<th align="left" colspan="8" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 3px; ">Item Description</th>
+  	<th align="center" colspan="2" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 3px;">Commodity<br/>Code</th>
+  	<th align="center" colspan="1" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 3px;">Qty.</th>
+  	<th align="right" colspan="2" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid white; padding: 3px;">Unit Price</th>
+  	<th align="right" colspan="2" style="font-size: 9px; background-color:#5b5c61; color:#ffffff; border-right: 1px solid black; padding: 3px;">Amount</th>
+  </tr>
+</thead>
+</#if>
+
+  <#assign partNo>${item.custcol_item_code_for_print}</#assign>
+  <tr>
+<td align="left" colspan="3"  style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px;  padding-right: 5px; padding-bottom: 5px; padding-top: 5px;"><b>${partNo}</b></td>
+  <td align="left" colspan="8"  style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;" >${item.description}<br/>Unit Weight : ${item.custcol_bbs_weight} ${item.custcol_bbs_weight_unit}<br/>Country Of Origin : ${item.custcol_bbs_country_of_origin}</td>
+  <td align="left" colspan="2"  style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;" >${item.custcol_bbs_commodity_code}</td>
+  <td align="center" colspan="1" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-bottom: 5px; padding-top: 5px;">${item.quantity}</td>
+  <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.rate}</td>
+  <td align="right" colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black; padding-right: 5px; padding-bottom: 5px; padding-top: 5px;">${item.amount}</td>
+  </tr>
+  </#list><!-- end items --></table>
+</#if>
+
+
+<table class="total" style="width: 100%;"><tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Subtotal</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.subtotal}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell" align="right"><b>Shipping (${record.shipmethod})</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;"> ${record.shippingcost} </td>
+  </tr>
+  <!--
+  <tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell" align="right"><b><#if subsidiary="5">VAT<#else>Tax</#if> Total</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.taxtotal}</td>
+  </tr>
+  -->
+  <tr class="totalrow">
+  <td colspan="3">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
+  <td class="totalcell"  align="right" style="padding-right: 5px;">${record.total}</td>
+  </tr>
+    <tr>
+  <td></td>
+  </tr>
+  </table>
+  
+  <p/>
+  <table style="page-break-inside: avoid; width: 100%;">
+    <tr>
+      <td align="left" colspan="2" style="border: 1px solid black; padding-left: 5px; height: 50px;"><b>Declaration Statement:</b><br/>${record.custbody_acc_salestrandelnotes}</td>
+    </tr>
+ 	<tr>
+      <td style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; height: 20px;"><b>Total Number Of Packages:</b></td>
+      <td style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; height: 20px;"><b>Total Weight (Kg):</b></td>
+    </tr>
+    <tr>
+      <td style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; height: 50px;"><b>Shipper's Signature:</b></td>
+      <td style="border-right: 1px solid black; border-bottom: 1px solid black; padding-left: 5px; height: 50px;"><b>Date:</b></td>
+    </tr>
+  </table>
+</body>
+</pdf>

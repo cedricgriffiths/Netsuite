@@ -265,7 +265,7 @@ function buildOutput(fulfillmentId)
 							
 			//Body
 			//
-			xml += "<body padding=\"0.1cm 0.4cm 0.1cm 0.4cm\" width=\"89mm\" height=\"36mm\">";
+			xml += "<body padding=\"0.2cm 0.2cm 0.1cm 0.2cm\" width=\"89mm\" height=\"36mm\">";
 							
 			var lines = fulfillmentRecord.getLineItemCount('item');
 			var salesOrderId = fulfillmentRecord.getFieldValue('createdfrom');
@@ -295,7 +295,7 @@ function buildOutput(fulfillmentId)
 					if(serialNumber != null && serialNumber != '')
 						{
 							
-							for (var int2 = 0; int2 < 2; int2++) 
+							for (var int2 = 0; int2 < 3; int2++) 
 								{
 									if(firstTime)
 										{
@@ -309,7 +309,7 @@ function buildOutput(fulfillmentId)
 									xml += "<table>";
 								
 									xml += "<tr >";
-									xml += "<td colspan=\"2\"><b>" + itemName + "</b></td>";
+									xml += "<td style=\"font-size: 7px;\" colspan=\"2\"><b>" + itemName + "</b></td>";
 									xml += "<td>&nbsp;</td>";
 									xml += "</tr>";
 									
