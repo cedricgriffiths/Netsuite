@@ -491,15 +491,17 @@ function productionBatchSuitelet(request, response)
 						filterArray.push("AND",["item.custitem_bbs_item_stocked","anyof",stockFlag]);
 					}
 			
-				if(productType != '')
+				//Search by product type except if the product type filter is set to 'glass spec'
+				//
+				if(productType != '' && productType != '5')
 					{
 						filterArray.push("AND",["item.custitem_bbs_item_product_type","anyof",productType]);
 					}
 				
-//				if(glassSpec != '')
-//					{
-//						filterArray.push("AND",["custbody_bbs_commitment_status","anyof",glassSpec]);
-//					}
+				if(glassSpec != '')
+					{
+						filterArray.push("AND",["item.custitem_bbs_glass_spec","anyof",glassSpec]);
+					}
 				
 				if(startDate != '')
 					{
@@ -520,6 +522,7 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("custitem_bbs_item_thickness","item",null), 
 						   new nlobjSearchColumn("custitem_bbs_item_stocked","item",null), 
 						   new nlobjSearchColumn("custitem_bbs_item_product_type","item",null), 
+						   new nlobjSearchColumn("custitem_bbs_glass_spec","item",null), 
 						   new nlobjSearchColumn("quantity",null,null), 
 						   new nlobjSearchColumn("datecreated",null,null), 
 						   new nlobjSearchColumn("createdfrom",null,null),
@@ -575,7 +578,7 @@ function productionBatchSuitelet(request, response)
 						subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
 						
 						subList.setLineItemValue('custpage_sublist_product_type', line, searchResultSet[int].getText('custitem_bbs_item_product_type', 'item'));
-	//					subList.setLineItemValue('custpage_sublist_glass_spec', line, searchResultSet[int].getText('custbody_bbs_wo_stockflag'));
+						subList.setLineItemValue('custpage_sublist_glass_spec', line, searchResultSet[int].getText('custitem_bbs_glass_spec'));
 						subList.setLineItemValue('custpage_sublist_thickness', line, searchResultSet[int].getText('custitem_bbs_item_thickness', 'item'));
 						subList.setLineItemValue('custpage_sublist_stock_flag', line, (searchResultSet[int].getValue("custitem_bbs_item_stocked","item") == 'T' ? 'Yes' : 'No'));
 						
