@@ -30,7 +30,11 @@ function(serverWidget, record) {
     	//
       	var shipStatus = currentRec.getValue({fieldId: 'shipstatus'});
       	
-      	if(shipStatus != null && shipStatus != '' && shipStatus == 'A')
+      	//Get the subsidiary
+      	//
+      	var subsidiary = currentRec.getValue({fieldId: 'subsidiary'});
+      	
+      	if(shipStatus != null && shipStatus != '' && shipStatus == 'A' && subsidiary == '5')
       		{
 		    	var hideFld = scriptContext.form.addField({
 		    		id:'custpage_hide_buttons',
@@ -41,6 +45,8 @@ function(serverWidget, record) {
 		    	var scr = "";
 		    	scr += 'jQuery("#markpacked").hide();';
 		    	scr += 'jQuery("#tdbody_markpacked").hide();';
+		    	scr += 'jQuery("#secondarymarkpacked").hide();';
+		    	scr += 'jQuery("#tdbody_secondarymarkpacked").hide();';
 		    	
 		    	//push the script into the field so that it fires and does its handy work
 		    	hideFld.defaultValue = "<script>jQuery(function($){require([], function(){" + scr + ";})})</script>"
