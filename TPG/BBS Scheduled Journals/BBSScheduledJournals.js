@@ -10,11 +10,13 @@ var salesAccGroup = null;
 var salesAccFIT = null;
 var salesAccMICE = null;
 var salesAccB2C = null;
+var salesAccInterCo = null;
 	
 var cosAccGroup = null;
 var cosAccFIT = null;
 var cosAccMICE = null;
 var cosAccB2C = null;
+var cosAccInterCo = null;
 	
 var deferredRevenueAcc = null;
 var deferredCostsAcc = null;
@@ -44,11 +46,13 @@ function scheduled(type)
 	salesAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_fit');
 	salesAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_mice');
 	salesAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_b2c');
+	salesAccInterCo = context.getSetting('SCRIPT', 'custscript_bbs_sales_acc_inco');
 	
 	cosAccGroup = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_group');
 	cosAccFIT = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_fit');
 	cosAccMICE = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_mice');
 	cosAccB2C = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_b2c');
+	cosAccInterCo = context.getSetting('SCRIPT', 'custscript_bbs_cogs_acc_inco');
 	
 	deferredRevenueAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_revenue_acc');
 	deferredCostsAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_costs_acc');
@@ -89,7 +93,9 @@ function scheduled(type)
 			   new nlobjSearchColumn("formulacurrency").setFormula("{fxamount} *  {exchangerate}"), 
 			   new nlobjSearchColumn("subsidiary"), 
 			   new nlobjSearchColumn("line"), 
-			   new nlobjSearchColumn("lineuniquekey")
+			   new nlobjSearchColumn("lineuniquekey"), 
+			   new nlobjSearchColumn("representingsubsidiary","customer",null), 
+			   new nlobjSearchColumn("representingsubsidiary","vendor",null)
 			]
 			);
 	
@@ -127,6 +133,8 @@ function scheduled(type)
 					var transactionId = transactionSearchResults[int].getId();
 					var transactionUniqueKey = transactionSearchResults[int].getValue("lineuniquekey");
 					var transactionType = transactionSearchResults[int].getValue("type");
+					var custRepresentingSubsidiary = transactionSearchResults[int].getValue("representingsubsidiary","customer");
+					var suppRepresentingSubsidiary = transactionSearchResults[int].getValue("representingsubsidiary","vendor");
 					
 					amount = (amount * exchangeRate).round(2);
 					
@@ -186,7 +194,7 @@ function scheduled(type)
 					switch (transactionType)
 						{
 							case 'CustInvc':
-								salesAcc = getSalesAccount(businessLine);
+								salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
 								
 								journalRecord.selectNewLineItem('line');
 								journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
@@ -215,7 +223,7 @@ function scheduled(type)
 								break;
 								
 							case 'VendBill':
-								cogsAcc = getCogsAccount(businessLine);
+								cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 								
 								journalRecord.selectNewLineItem('line');
 								journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
@@ -244,7 +252,7 @@ function scheduled(type)
 								break;
 								
 							case 'CustCred':
-								salesAcc = getSalesAccount(businessLine);
+								salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
 								
 								journalRecord.selectNewLineItem('line');
 								journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
@@ -273,7 +281,7 @@ function scheduled(type)
 								break;
 								
 							case 'VendCred':
-								cogsAcc = getCogsAccount(businessLine);
+								cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 								
 								journalRecord.selectNewLineItem('line');
 								journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
@@ -473,63 +481,75 @@ function libGetPeriod(periodDate)
 	return returnValue;
 }
 
-function getCogsAccount(_businessLine)
+function getCogsAccount(_businessLine, _suppRepresentingSubsidiary)
 {
 	var returnedAccount = null;
 	
-	switch(_businessLine)
+	if(_suppRepresentingSubsidiary != null && _suppRepresentingSubsidiary != '')
 		{
-			case '1': //FIT
-				
-				returnedAccount = cosAccFIT;
-				break;
-				
-			case '2': //MICE
-				
-				returnedAccount = cosAccMICE;
-				break;
-				
-			case '3': //Group
-				
-				returnedAccount = cosAccGroup;
-				break;
-				
-			case '4': //B2C
-				
-				returnedAccount = cosAccB2C;
-				break;
+			returnedAccount = cosAccInterCo;
 		}
-	
+	else
+		{
+			switch(_businessLine)
+				{
+					case '1': //FIT
+						
+						returnedAccount = cosAccFIT;
+						break;
+						
+					case '2': //MICE
+						
+						returnedAccount = cosAccMICE;
+						break;
+						
+					case '3': //Group
+						
+						returnedAccount = cosAccGroup;
+						break;
+						
+					case '4': //B2C
+						
+						returnedAccount = cosAccB2C;
+						break;
+				}
+		}
 	return returnedAccount;
 }
 
-function getSalesAccount(_businessLine)
+function getSalesAccount(_businessLine, _custRepresentingSubsidiary)
 {
 	var returnedAccount = null;
 	
-	switch(_businessLine)
+	if(_custRepresentingSubsidiary != null && _custRepresentingSubsidiary != '')
 		{
-			case '1': //FIT
-				
-				returnedAccount = salesAccFIT;
-				break;
-				
-			case '2': //MICE
-				
-				returnedAccount = salesAccMICE;
-				break;
-				
-			case '3': //Group
-				
-				returnedAccount = salesAccGroup;
-				break;
-				
-			case '4': //B2C
-				
-				returnedAccount = salesAccB2C;
-				break;
+			returnedAccount = salesAccInterCo;
 		}
-	
+	else
+		{
+			switch(_businessLine)
+				{
+					case '1': //FIT
+						
+						returnedAccount = salesAccFIT;
+						break;
+						
+					case '2': //MICE
+						
+						returnedAccount = salesAccMICE;
+						break;
+						
+					case '3': //Group
+						
+						returnedAccount = salesAccGroup;
+						break;
+						
+					case '4': //B2C
+						
+						returnedAccount = salesAccB2C;
+						break;
+				}
+		}
 	return returnedAccount;
 }
 
