@@ -1,28 +1,65 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
 <pdf>
 <head>
+  
+   <#assign cs = "¥">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+      
+  <#setting date_format="dd MMM yyyy"/>
+  
+        <#assign subsidiary>${statement.subsidiary}</#assign>
         <#assign regInfo>?????</#assign>
         <#assign emailInfo>?????</#assign>
         <#assign telInfo>?????</#assign>
         <#assign vatInfo>?????</#assign>
         <#assign logoInfo>?????</#assign>
+  		<#assign webInfo>xxxxx</#assign>
+  
+        <#if subsidiary=="Accora Limited"> <!-- 5 is Ltd -->
+              <#assign regInfo>Company Registration No: 4915604. Registered Office: Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@accora.uk.com</#assign>
+              <#assign telInfo>01223 206100</#assign>
+              <#assign faxInfo>01223 206120</#assign>
+              <#assign vatInfo>GB 823 5324 47</#assign>
+          	  <#assign webInfo>www.accora.uk.com</#assign>
+              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a</#assign>
+          	  <#assign cs = "£">
+        </#if>
+  
+        <#if subsidiary=="Accora Inc."> <!-- 1 is Inc-->
+              <#assign regInfo>Registered Office: 6720B Rockledge Drive - Suite 750, Bethesda, MD 20817. United States of America.</#assign>
+              <#assign emailInfo>billing@accora.us.com</#assign>
+              <#assign telInfo>301-560-2400</#assign>
+              <#assign faxInfo> </#assign>
+              <#assign vatInfo>81-5245319</#assign>
+              <#assign webInfo>www.accora.us.com</#assign>
+              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a</#assign>
+              <#assign cs = "$">
+        </#if>
+
   
         <#assign aging2 = statement.aging2?c?number>
   		<#assign aging3 = statement.aging3?c?number>
   		<#assign aging4 = statement.aging4?c?number>
   		<#assign aging5 = statement.aging5?c?number>
 		<#assign aging = aging2 + aging3 + aging4 + aging5>
-  
-        <#assign subsidiary>${statement.subsidiary}</#assign>
-
-        <#if subsidiary=="XXXXXX">
-              <#assign regInfo>Company Registration No: 99999999. Registered Office: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX, United Kingdom.</#assign>
-              <#assign emailInfo>sales@XXXXXXXXXX.co.uk</#assign>
-              <#assign telInfo>999999999999</#assign>
-              <#assign vatInfo>GB 999 999 999</#assign>
-              <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=600&amp;c=4810497&amp;h=7cff3197e0d67148de3d</#assign>
-        </#if>
-  
 
           
           <#assign done>N</#assign>
@@ -40,86 +77,467 @@
 
     <macrolist>
         <macro id="nlheader">
-            <table class="header" style="width: 100%;"><tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
-	</tr>
-	<tr><td>&nbsp;</td></tr>
-	<tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr></table>
+          
+           <table class="header" style="width: 100%;">
+  				<tr>
+  					<td align="left" colspan="2" style="font-size:14pt"><b>${statement.subsidiary}</b></td>
+  					<td align="left" width="50" style="font-size:8pt">&nbsp;</td>
+  					<td align="left" width="150" style="padding-left: 5px;">&nbsp;</td>
+  					<td align="left">&nbsp;</td>
+  					<td rowspan="6" align="top-right"><img src="${logoInfo}" style="float:top-right; width:170px; height:115px; margin: 1px;" /></td>
+  				</tr>
+               
+  				<tr>
+  					<td align="left" colspan="2" rowspan="6" style="padding-bottom: 1em;"><span class="nameandaddress">${compadr}</span></td>
+  					<td align="left" width="35" style="font-size:8pt">Tel:</td>
+  					<td align="left" width="150" style="font-size:8pt">${telInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+     
+                <tr>
+  					<td align="left" width="20" style="font-size:8pt">Email:</td>
+  					<td align="left" width="100" style="font-size:8pt;">${emailInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left" width="35" style="font-size:8pt">Web:</td>
+  					<td align="left" width="150" style="font-size:8pt;">${webInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+                  <td align="left" width="35" style="font-size:8pt"><#if subsidiary =="Accora Limited">VAT<#else>Tax</#if> ID:</td>
+  					<td align="left" width="150" style="font-size:8pt;">${vatInfo}</td>
+  					<td align="left">&nbsp;</td>
+  				</tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                </tr>
+                <tr>
+  					<td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+                    <td align="left">&nbsp;</td>
+  				</tr>
+			</table>
 
-<table class="header" style="width: 100%;"><tr>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	<td align="right">&nbsp;</td>
-	</tr>
-	<tr>
-	<td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${statement.billaddress}<br/>VAT Number: ${statement.vatregnum}</span></td>
-	<td align="right" style="font-size:10pt"></td>
-	
-	<td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${compadr}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
-	</tr>
-	<tr>
-    <!--<<td align="right"></td>-->
-	<td align="right"></td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt"></td>-->
-	<td align="right" style="font-size:10pt"></td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr>
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-	<td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-	<tr >
-	<!--<<td align="right" style="font-size:10pt">&nbsp;</td>-->
-    <td align="right" style="font-size:10pt">&nbsp;</td>
-	</tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-    <tr style="font-size:10pt">
-      <!--<td align="right">&nbsp;</td>-->
-      <td align="right">&nbsp;</td>
-      </tr>
-          </table>
+			<table class="header" style="width: 100%;">
+            	<tr>
+                  <td align="left" colspan="2" ><b>Invoice Address</b></td>
+					
+				</tr>
+
+				<tr>
+					<td align="left" colspan="2" rowspan="10">${statement.billaddress}</td>
+					<td align="left" colspan="2" rowspan="10" style="padding-bottom: 1em;"></td>
+				</tr>
+             </table>
+          
+      		<table class="header" style="width: 100%;">
+              <tr>
+                    <td align="right" colspan="2" style="font-size:18px; margin-right: 100px;"><b>Statement</b></td>
+				</tr>
+			</table>
         </macro>
+ 
         <macro id="nlfooter">
-          
- 		<#assign done>N</#assign>
-          
-          <#list statement.lines as line>
-            <#assign accno>${line.custbody_bbs_account_no}</#assign>
-            
-            <#if accno?length gt 0 && done=="N" >
-        <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
-          <tr><td>${line.custbody_bbs_bank_account}</td></tr>
-          <tr><td>${line.custbody_bbs_bank_name}</td></tr>
-          <tr><td>Account Number: ${line.custbody_bbs_account_no}</td></tr>
-          <tr><td>Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
-          <tr><td>IBAN: ${line.custbody_bbs_iban}</td></tr>
-          <tr><td>Swift Code: ${line.custbody_bbs_bic}</td></tr>
-          <tr><td>&nbsp;</td></tr>
-          
-        <#assign done>Y</#assign>
+     
+
+           <table style="width: 100%">
+             <tr>
+               <td align="center">All transactions are subject to our standard terms and conditions of sale, a copy of which is available on request or from our <#if subsidiary =="Accora Limited"><a href ="https://accora.uk.com/files_mce/terms_of_sale.pdf" target="_blank"> website</a> <#else><a href="https://accora.us.com/files_mce/terms_of_sale.pdf" target="_blank"> website</a></#if></td>
+             </tr>
+             <tr><td align="center">Until payment has been received in full, title of the goods shall remain the property of Accora</td></tr>
+  
+          </table>
+ 
+<#if subsidiary =="Accora Inc.">  
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>  
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="4" style="font-size:11pt;"><b>Bank Details For Payments:</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7"></td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b></b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
         </table>
-    </#if>
-          </#list>  
-        
-        <table style="width: 100%;">
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="4">Accora Inc.</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Bank Name: Capital One</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b></b></td>
+  </tr>
+                  <tr>
+                    <td colspan="4">6720B Rockledge Drive</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Name: Accora Inc</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b></b></td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Suite 750</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Routing Number: 065000090</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b></b></td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Bethesda MD 20817</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Number: 1360874245</b> </td>
+                    <td>&nbsp;</td>
+                    <td><b></b></td>
+  </tr>
+                  <tr>
+                    <td colspan="4">United States</td>
+  </tr>
+ </table>
+<#elseif subsidiary =="Accora Limited" && statement.currency= "GBP">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Bank Details For Payments:</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7"></td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b></b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="4">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Sort Code: 404301</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Number: 21558978</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="2"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="4">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="4"><b>IBAN: GB09HBUK40430121558978</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2"></td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+ <#elseif subsidiary =="Accora Limited" && statement.currency== "EUR">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Bank Details For Payments:</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7"></td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b></b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="4">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Sort Code: 401276</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Number: 73938028</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="4"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="4">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="4"><b>IBAN: GB35HBUK40127673938028</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2"></td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+<#elseif subsidiary =="Accora Limited" && statement.currency == "USD">
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Bank Details For Payments:</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7"></td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b></b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>
+<table style="width: 100%; margin-top:5px;">
+                  <tr>
+                    <td colspan="4">Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Bank Name: HSBC</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Name: Accora Limited</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="2">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Sort Code: 401276</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="4"><b>Account Number: 3936312</b> </td>
+                    <td>&nbsp;</td>
+                    <td colspan="2"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="4">Cambridge</td>
+					<td>&nbsp;</td>
+                    <td colspan="4"><b>BIC: HBUKGB4B</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="4">United Kingdom</td>
+					<td>&nbsp;</td>
+                    <td colspan="4"><b>IBAN: GB98HBUK40127673936312</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+  <tr>
+                    <td colspan="2">SG8 5QP</td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+    <tr>
+                    <td colspan="2"></td>
+					<td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+ </table>
+<#else>
+<hr style="border: none; border-top: 1px dotted black; margin-left: -90px; width: 120%;"></hr>
+  
+   
+<table style="width: 100%;">
+                  <tr>
+                    <td colspan="3" style="font-size:11pt;"><b>Bank Details For Payments:</b></td>
+                  </tr>
+       		    <tr>
+                  <td style="font-size:9pt;" colspan="7">Please ensure the document no. on your invoice is shown as a reference for your payment. If paying this invoice via bank transfer please pay into the correct currency account.</td>
+                  </tr>
+                    <tr>
+                      <td style="font-size:10pt; margin-top:5px;" colspan="7"><b>Bank Account Details:</b></td>
+  </tr>
+  <tr>
+                      <td style="font-size:10pt;" colspan="7">&nbsp;</td>
+  </tr>
+        </table>     
+ <table style="width: 100%; font-size:6pt; margin-top:5px;">
+                     <tr>
+                    <td colspan="3">&nbsp;</td>
+                    <td></td>
+                    <td colspan="5" style="font-size:8pt;"><b>GBP Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:8pt;"><b>EURO Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:8pt;"><b>USD Bank Account:</b></td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Accora Ltd.</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Bank Name: HSBC</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Charter House</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act. Name: Accora Limited</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Barrington Road</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 404301</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 401276</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Sort Code: 401276</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b></b></td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Orwell</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 21558978</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 73938028</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">Act.No.: 3936312</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;"><b></b> </td>
+  </tr>
+                  <tr>
+                    <td colspan="3">Cambridge</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td colspan="5" style="font-size:7pt;">BIC: HBUKGB4B</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+  </tr>
+                     <tr>
+                    <td colspan="3">SG8 5QP</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB09HBUK40430121558978</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB35HBUK40127673938028</td>
+                       <td>&nbsp;</td>
+                       <td colspan="5" style="font-size:6pt;">IBAN: GB98HBUK40127673936312</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+  </tr>
+                        <tr>
+                       <td colspan="3"></td>
+                       <td>&nbsp;</td>
+                       <td colspan="5"></td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+                       <td>&nbsp;</td>
+  </tr>
+   </table> 
+</#if>  
+  
+  
+        <table style="width: 100%; padding: 10px;">
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
+              <td align="center" class="message">${regInfo}</td>
 		  </tr>
         </table>
 
@@ -228,7 +646,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="9%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="17%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
   
     <table style="width: 100%;">
     <tr>
@@ -255,36 +673,39 @@
   
   
     <#if statement.lines?has_content>
-<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+      <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
 <thead>
 	<tr>
 	<th colspan="3">${line.datecol@label}</th>
-	<th colspan="12">${line.description@label}</th>
+	<th colspan="9">${line.description@label}</th>
+    <th colspan="3">Due Date</th>
 	<th align="right" colspan="3">Debit</th>
 	<th align="right" colspan="4">Credit</th>
       <th align="right" colspan="4">${line.balance@label}</th>
 	</tr>
 </thead>
-</#if><tr>
+</#if>
+        <tr>
 	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
-	<td colspan="12">${line.description}</td>
-	<td align="right" colspan="3">${line.charge}</td>
+	<td colspan="9">${line.description}</td>
+    <td colspan="3">${line.duedate}</td>
+    <td align="right" colspan="3">${line.charge}</td>
 	<td align="right" colspan="4">${line.payment}</td>
 	<td align="right" colspan="4">${line.balance}</td>
-	</tr>
+        </tr>
 	</#list><!-- end items --></table>
 
-<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
-	<th>${statement.aging1@label}</th>
-	<th>Overdue</th>
-	<th>${statement.agingbal@label}</th>
+<table class="aging" align="right" style="width: 40%; margin-top: 20px; " >
+  <tr style="border-bottom: 1px solid black;">
+	<td align="right"><b>Total Due</b></td>
+  	<td align="right">${statement.agingbal}</td>
 	</tr>
-	<tr>
-	<td>${statement.aging1}</td>
-	<td>${aging?string.currency}</td>
-	<td>${statement.agingbal}</td>
-	</tr>
-      </table>
+<tr style="border-bottom: 1px solid black;">
+	<td align="right"><b>Overdue</b></td>
+  <td align="right">${toCurrency(aging)}</td>
+  </tr>
+    </table>
+
 </#if></body></pdf></#list><#else><pdf><head></head><body>
 
 <p>Please use Single Currency Advanced Printing Template</p>

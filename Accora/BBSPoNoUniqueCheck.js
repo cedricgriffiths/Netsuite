@@ -73,8 +73,8 @@ function poFieldChanged(type, name, linenum)
 			//
 			if(transactionSearch != null && transactionSearch.length > 0)
 				{
-					alert('Purchase Order Number ' + currentPoNo + " Has Already Been Used. Please Re-Enter");
-					nlapiSetFieldValue('otherrefnum', '', false, true);
+					alert('WARNING - Purchase Order Number ' + currentPoNo + " Has Already Been Used On Another Transaction");
+					//nlapiSetFieldValue('otherrefnum', '', false, true);
 				}
 		}
 }
