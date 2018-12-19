@@ -17,64 +17,67 @@
  */
 function poFieldChanged(type, name, linenum)
 {
-	//Get the current record id & the current po num,ber
-	//
-	var currentId = nlapiGetRecordId();
-	var currentPoNo = nlapiGetFieldValue('otherrefnum');
-	var currentType = '';
-	
-	switch(nlapiGetRecordType())
+	if(name == 'otherrefnum')
 		{
-			case 'salesorder':
-				currentType = 'SalesOrd';
-				break;
-				
-			case 'estimate':
-				currentType = 'Estimate';
-				break;
-				
-			case 'invoice':
-				currentType = 'CustInvc';
-				break;
-				
-		}
-	
-	//Check to see if we have a po number
-	//
-	if(currentPoNo != null && currentPoNo != '')
-		{
-			//Basic filter
+			//Get the current record id & the current po num,ber
 			//
-			var filters = [
-						   //["type","anyof","Estimate","CustInvc","SalesOrd"], 
-						   ["type","anyof",currentType], 
-						   "AND", 
-						   ["mainline","is","T"], 
-						   "AND", 
-						   ["poastext","is",currentPoNo]
-						];
+			var currentId = nlapiGetRecordId();
+			var currentPoNo = nlapiGetFieldValue('otherrefnum');
+			var currentType = '';
 			
-			//If the current id is not -1 (new record) then exclude it from the serach
-			//
-			if(currentId != null && currentId != '' && currentId != '-1')
+			switch(nlapiGetRecordType())
 				{
-					filters.push("AND", ["internalid","noneof",currentId]);
+					case 'salesorder':
+						currentType = 'SalesOrd';
+						break;
+						
+					case 'estimate':
+						currentType = 'Estimate';
+						break;
+						
+					case 'invoice':
+						currentType = 'CustInvc';
+						break;
+						
 				}
 			
-			//Do the search
+			//Check to see if we have a po number
 			//
-			var transactionSearch = nlapiSearchRecord("transaction",null, filters, 
-					[
-					   new nlobjSearchColumn("tranid")
-					]
-					);
-			
-			//Have we found anything, if so it must be a duplicate
-			//
-			if(transactionSearch != null && transactionSearch.length > 0)
+			if(currentPoNo != null && currentPoNo != '')
 				{
-					alert('WARNING - Purchase Order Number ' + currentPoNo + " Has Already Been Used On Another Transaction");
-					//nlapiSetFieldValue('otherrefnum', '', false, true);
+					//Basic filter
+					//
+					var filters = [
+								   //["type","anyof","Estimate","CustInvc","SalesOrd"], 
+								   ["type","anyof",currentType], 
+								   "AND", 
+								   ["mainline","is","T"], 
+								   "AND", 
+								   ["poastext","is",currentPoNo]
+								];
+					
+					//If the current id is not -1 (new record) then exclude it from the serach
+					//
+					if(currentId != null && currentId != '' && currentId != '-1')
+						{
+							filters.push("AND", ["internalid","noneof",currentId]);
+						}
+					
+					//Do the search
+					//
+					var transactionSearch = nlapiSearchRecord("transaction",null, filters, 
+							[
+							   new nlobjSearchColumn("tranid")
+							]
+							);
+					
+					//Have we found anything, if so it must be a duplicate
+					//
+					if(transactionSearch != null && transactionSearch.length > 0)
+						{
+							alert('WARNING - Purchase Order Number ' + currentPoNo + " Has Already Been Used On Another Transaction");
+							//nlapiSetFieldValue('otherrefnum', '', false, true);
+						}
 				}
 		}
 }
