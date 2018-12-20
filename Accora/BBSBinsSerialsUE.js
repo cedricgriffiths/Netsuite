@@ -29,7 +29,6 @@ function serialNumbersAS(type)
 				{
 					var count = thisRecord.getLineItemCount('item');
 					var salesOrderId = thisRecord.getFieldValue('createdfrom');
-					var serialCount = Number(0);   
 					var thisRecordUpdated = false;
 					
 					for (var int = 1; int <= count; int++) 
@@ -37,6 +36,7 @@ function serialNumbersAS(type)
 							var serials = "";
 							var itemOrderLine = thisRecord.getLineItemValue('item', 'orderline', int);
 							var rec = thisRecord.viewLineItemSubrecord('item', 'inventorydetail', int);
+							var serialCount = Number(0);   
 							
 							if (rec)
 								{
