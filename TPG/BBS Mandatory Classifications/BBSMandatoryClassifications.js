@@ -20,13 +20,22 @@ function classificationsValidateLine(type)
 	var lineSourceMarket = nlapiGetCurrentLineItemValue(type, 'custcol_csegsm');
 	var lineDestinationMarket = nlapiGetCurrentLineItemValue(type, 'custcol_csegdm');
 	var lineBookingReference = nlapiGetCurrentLineItemValue(type, 'custcol_csegbkref');
-	
 	var message = '';
 	
 	message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Please enter a value for Business Line\n' : '');
 	message += (lineServiceType == null || lineServiceType == '' ? 'Please enter a value for Service Type\n' : '');
 	message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Please enter a value for Source Market\n' : '');
-	message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Please enter a value for Destination Market\n' : '');
+	
+	var recordType = nlapiGetRecordType();
+	if(recordType == 'SalesOrd' || recordType == 'CustInvc' || recordType == 'CustCred')
+		{
+			
+		}
+	else
+		{
+			message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Please enter a value for Destination Market\n' : '');
+		}
+	
 	message += (lineBookingReference == null || lineBookingReference == '' ? 'Please enter a value for Booking Reference\n' : '');
 	
 	if(message != '')
@@ -50,6 +59,7 @@ function classificationsSaveRecord()
 {
 	var message = '';
 	var lines = nlapiGetLineItemCount('item');
+	var recordType = nlapiGetRecordType();
 	
 	for (var int = 1; int <= lines; int++) 
 		{
@@ -62,7 +72,16 @@ function classificationsSaveRecord()
 			message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Line ' + int + ': Please enter a value for Business Line\n' : '');
 			message += (lineServiceType == null || lineServiceType == '' ? 'Line ' + int + ': Please enter a value for Service Type\n' : '');
 			message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Line ' + int + ': Please enter a value for Source Market\n' : '');
-			message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Line ' + int + ': Please enter a value for Destination Market\n' : '');
+			
+			if(recordType == 'SalesOrd' || recordType == 'CustInvc' || recordType == 'CustCred')
+				{
+					
+				}
+			else
+				{
+					message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Line ' + int + ': Please enter a value for Destination Market\n' : '');
+				}
+			
 			message += (lineBookingReference == null || lineBookingReference == '' ? 'Line ' + int + ': Please enter a value for Booking Reference\n' : '');
 		}
 	
