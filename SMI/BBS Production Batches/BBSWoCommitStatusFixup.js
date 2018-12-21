@@ -383,7 +383,14 @@ function scheduled(type)
 						
 						//Finally submit the works order
 						//
-						nlapiSubmitRecord(newRecord, false, true);					
+						try
+							{
+								nlapiSubmitRecord(newRecord, false, true);	
+							}
+						catch(err)
+							{
+								nlapiLogExecution('ERROR', 'Error updating works order', err.message);
+							}
 				}
 		}
 	
@@ -427,7 +434,14 @@ function scheduled(type)
 									salesOrderRecord.setLineItemValue('item', 'custcol_bbs_wo_id', int, woId);
 								}
 							
-							nlapiSubmitRecord(salesOrderRecord, false, true);
+							try
+								{
+									nlapiSubmitRecord(salesOrderRecord, false, true);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error updating sales order', err.message);
+								}
 						}
 				}
 		}
