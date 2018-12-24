@@ -84,7 +84,16 @@ function classificationsBeforeSubmit(type)
 											message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Item Line ' + int + ': Please enter a value for Business Line\n' : '');
 											message += (lineServiceType == null || lineServiceType == '' ? 'Item Line ' + int + ': Please enter a value for Service Type\n' : '');
 											message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Item Line ' + int + ': Please enter a value for Source Market\n' : '');
-											message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Item Line ' + int + ': Please enter a value for Destination Market\n' : '');
+											
+											if(recordType == 'salesorder' || recordType == 'invoice' || recordType == 'creditmemo')
+												{
+													
+												}
+											else
+												{
+													message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Item Line ' + int + ': Please enter a value for Destination Market\n' : '');
+												}
+											
 											message += (lineBookingReference == null || lineBookingReference == '' ? 'Item Line ' + int + ': Please enter a value for Booking Reference\n' : '');
 										}
 								}
@@ -102,7 +111,16 @@ function classificationsBeforeSubmit(type)
 											message += (lineBusinessLine == null || lineBusinessLine == '' ? 'Expense Line ' + int + ': Please enter a value for Business Line\n' : '');
 											message += (lineServiceType == null || lineServiceType == '' ? 'Expense Line ' + int + ': Please enter a value for Service Type\n' : '');
 											message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Expense Line ' + int + ': Please enter a value for Source Market\n' : '');
-											message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Expense Line ' + int + ': Please enter a value for Destination Market\n' : '');
+											
+											if(recordType == 'salesorder' || recordType == 'invoice' || recordType == 'creditmemo')
+												{
+													
+												}
+											else
+												{
+													message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Expense Line ' + int + ': Please enter a value for Destination Market\n' : '');
+												}
+											
 											message += (lineBookingReference == null || lineBookingReference == '' ? 'Expense Line ' + int + ': Please enter a value for Booking Reference\n' : '');
 										}
 								}

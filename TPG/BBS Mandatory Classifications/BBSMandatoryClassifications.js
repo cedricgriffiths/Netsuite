@@ -27,7 +27,7 @@ function classificationsValidateLine(type)
 	message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Please enter a value for Source Market\n' : '');
 	
 	var recordType = nlapiGetRecordType();
-	if(recordType == 'SalesOrd' || recordType == 'CustInvc' || recordType == 'CustCred')
+	if(recordType == 'salesorder' || recordType == 'invoice' || recordType == 'creditmemo')
 		{
 			
 		}
@@ -73,7 +73,7 @@ function classificationsSaveRecord()
 			message += (lineServiceType == null || lineServiceType == '' ? 'Line ' + int + ': Please enter a value for Service Type\n' : '');
 			message += (lineSourceMarket == null || lineSourceMarket == '' ? 'Line ' + int + ': Please enter a value for Source Market\n' : '');
 			
-			if(recordType == 'SalesOrd' || recordType == 'CustInvc' || recordType == 'CustCred')
+			if(recordType == 'salesorder' || recordType == 'invoice' || recordType == 'creditmemo')
 				{
 					
 				}
