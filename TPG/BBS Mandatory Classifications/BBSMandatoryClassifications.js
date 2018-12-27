@@ -36,7 +36,7 @@ function classificationsValidateLine(type)
 			message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Please enter a value for Destination Market\n' : '');
 		}
 	
-	message += (lineBookingReference == null || lineBookingReference == '' ? 'Please enter a value for Booking Reference\n' : '');
+	message += (lineBookingReference == null || lineBookingReference == '' ? 'Please enter a value for Project\n' : '');
 	
 	if(message != '')
 		{
@@ -82,7 +82,7 @@ function classificationsSaveRecord()
 					message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Line ' + int + ': Please enter a value for Destination Market\n' : '');
 				}
 			
-			message += (lineBookingReference == null || lineBookingReference == '' ? 'Line ' + int + ': Please enter a value for Booking Reference\n' : '');
+			message += (lineBookingReference == null || lineBookingReference == '' ? 'Line ' + int + ': Please enter a value for Project\n' : '');
 		}
 	
 	if(message != '')

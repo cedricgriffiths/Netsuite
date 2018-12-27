@@ -94,7 +94,7 @@ function classificationsBeforeSubmit(type)
 													message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Item Line ' + int + ': Please enter a value for Destination Market\n' : '');
 												}
 											
-											message += (lineBookingReference == null || lineBookingReference == '' ? 'Item Line ' + int + ': Please enter a value for Booking Reference\n' : '');
+											message += (lineBookingReference == null || lineBookingReference == '' ? 'Item Line ' + int + ': Please enter a value for Project\n' : '');
 										}
 								}
 							
@@ -121,7 +121,7 @@ function classificationsBeforeSubmit(type)
 													message += (lineDestinationMarket == null || lineDestinationMarket == '' ? 'Expense Line ' + int + ': Please enter a value for Destination Market\n' : '');
 												}
 											
-											message += (lineBookingReference == null || lineBookingReference == '' ? 'Expense Line ' + int + ': Please enter a value for Booking Reference\n' : '');
+											message += (lineBookingReference == null || lineBookingReference == '' ? 'Expense Line ' + int + ': Please enter a value for Project\n' : '');
 										}
 								}
 						
