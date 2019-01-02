@@ -71,5 +71,69 @@ function assemblyBuildAS(type)
 								}
 						}
 				}
+			
+			
+			//TODO modify this to create a lot number based on the w/o number
+			
+			/* 
+			 
+			//Get the inventory detail sub-record for the assembly build
+			//
+			var invDetail = newRecord.viewSubrecord('inventorydetail');
+			
+			//If the sub-record is empty, then we need to populate it
+			//
+			if(invDetail == null)
+				{
+					//Load the build record & get the required data from it
+					//
+					var buildRecord = nlapiLoadRecord(newType, newId);
+					var assemblyId = buildRecord.getFieldValue('item');
+					var buildLocation = buildRecord.getFieldValue('location');
+					var buildQuantity = buildRecord.getFieldValue('quantity');
+					
+					//Get the item record relating to the assembly
+					//
+					var itemRecord = nlapiLoadRecord('assemblyitem', assemblyId);
+					var binCount = itemRecord.getLineItemCount('binnumber');
+					
+					var componentBin = '';
+					
+					//Find the preferred bin for the locxation in question
+					//
+					for (var int5 = 1; int5 <= binCount; int5++) 
+					{
+						var binPreferred = itemRecord.getLineItemValue('binnumber', 'preferredbin', int5);
+						var binLocation = itemRecord.getLineItemValue('binnumber', 'location', int5);
+						
+						if(binPreferred == 'T' && binLocation == buildLocation)
+							{
+								componentBin = itemRecord.getLineItemValue('binnumber', 'binnumber', int5);
+								break;
+							}
+					}
+					
+					//If we have found a bin, then create the sub-record
+					//
+					if(componentBin != '')
+						{
+							var invDetailSubRecord = buildRecord.createSubrecord('inventorydetail');
+							invDetailSubRecord.selectNewLineItem('inventoryassignment');
+							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'quantity', buildQuantity);
+							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'binnumber', componentBin);
+							invDetailSubRecord.commitLineItem('inventoryassignment');
+							invDetailSubRecord.commit();
+							
+							try
+			  					{
+									nlapiSubmitRecord(buildRecord, false, true);
+			  					}
+		  					catch(err)
+			  					{
+		  							nlapiLogExecution('DEBUG', 'Error saving assembly build record', err.message);
+			  					}
+						}
+				}
+			*/
 		}
 }
