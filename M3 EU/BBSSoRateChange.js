@@ -97,6 +97,11 @@ function itemRateValidateField(type, name, linenum)
  */
 function itemRateValidateLine(type)
 {
+	Number.prototype.round = function(places) 
+		{
+			return +(Math.round(this + "e+" + places)  + "e-" + places);
+		}
+
 	if(type == 'item')
 		{
 			var context = nlapiGetContext();
@@ -111,8 +116,9 @@ function itemRateValidateLine(type)
 					var currentAmount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
 					var currentRate = Number(nlapiGetCurrentLineItemValue('item', 'rate'));
 					var currentQty = Number(nlapiGetCurrentLineItemValue('item', 'quantity'));
+					var newAmount = (currentRate * currentQty).round(2);
 					
-					if((currentRate * currentQty) != currentAmount)
+					if(newAmount != currentAmount)
 						{
 							alert('You cannot change the item amount');
 							return false;
