@@ -95,7 +95,10 @@ function scheduled(type)
 			   new nlobjSearchColumn("line"), 
 			   new nlobjSearchColumn("lineuniquekey"), 
 			   new nlobjSearchColumn("representingsubsidiary","customer",null), 
-			   new nlobjSearchColumn("representingsubsidiary","vendor",null)
+			   new nlobjSearchColumn("representingsubsidiary","vendor",null),
+			   new nlobjSearchColumn("internalid","customer",null), 
+			   new nlobjSearchColumn("internalid","vendor",null),
+			   new nlobjSearchColumn("custcol_csegbbs_sales_dept")
 			]
 			);
 	
@@ -135,6 +138,9 @@ function scheduled(type)
 					var transactionType = transactionSearchResults[int].getValue("type");
 					var custRepresentingSubsidiary = transactionSearchResults[int].getValue("representingsubsidiary","customer");
 					var suppRepresentingSubsidiary = transactionSearchResults[int].getValue("representingsubsidiary","vendor");
+					var custInternalId = transactionSearchResults[int].getValue("internalid","customer");
+					var suppInternalId = transactionSearchResults[int].getValue("internalid","vendor");
+					var salesDepartment = transactionSearchResults[int].getValue("custcol_csegbbs_sales_dept");
 					
 					amount = (amount * exchangeRate).round(2);
 					
@@ -206,6 +212,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -218,6 +226,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -235,6 +245,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -247,6 +258,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -264,6 +276,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -276,6 +290,8 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
@@ -293,6 +309,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
 								journalRecord.commitLineItem('line'); 
 								
 								journalRecord.selectNewLineItem('line');
@@ -305,6 +322,7 @@ function scheduled(type)
 								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
 								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
 								journalRecord.commitLineItem('line'); 
 								
 								break;
