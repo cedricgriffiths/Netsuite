@@ -124,7 +124,8 @@ function suitelet(request, response)
 					
 					linenum++;
 				}
-				
+			
+
 			//Fill out the component summary sublist
 			//
 			linenum = 1;
@@ -237,12 +238,34 @@ function suitelet(request, response)
 //
 function explodeBom(topLevelAssemblyId, bomList, componentSummary, level, requiredQty, topLevel, itemId, itemQty)
 {
-	var assemblyRecord = nlapiLoadRecord('assemblyitem', topLevelAssemblyId);
 	
+	//var assemblyRecord = nlapiLoadRecord('assemblyitem', topLevelAssemblyId);
+	
+	var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
+			[
+			   ["type","anyof","Assembly"], 
+			   "AND", 
+			   ["internalid","anyof",topLevelAssemblyId]
+			], 
+			[
+			   new nlobjSearchColumn("itemid").setSort(false), 
+			   new nlobjSearchColumn("description"),
+			   new nlobjSearchColumn("itemid","memberItem",null), 
+			   new nlobjSearchColumn("description","memberItem",null), 
+			   new nlobjSearchColumn("internalid","memberItem",null), 
+			   new nlobjSearchColumn("memberquantity"), 
+			   new nlobjSearchColumn("memberitemsource"), 
+			   new nlobjSearchColumn("type","memberItem",null)
+			]
+			);
+
 	if(topLevel)
 		{
-			var topLevelDescription = assemblyRecord.getFieldValue('description');
-			var topLevelItemId = assemblyRecord.getFieldValue('itemid');
+			//var topLevelDescription = assemblyRecord.getFieldValue('description');
+			//var topLevelItemId = assemblyRecord.getFieldValue('itemid');
+		
+			var topLevelDescription = assemblyitemSearch[0].getValue("description");
+			var topLevelItemId = assemblyitemSearch[0].getValue("itemid");
 		
 			var topLevelData = [0,itemId,topLevelItemId,topLevelDescription,'',itemQty,'Assembly',''];
 		
@@ -250,43 +273,81 @@ function explodeBom(topLevelAssemblyId, bomList, componentSummary, level, requir
 		
 		}
 	
+	for (var int = 0; int < assemblyitemSearch.length; int++) 
+		{
+			var memberItem = assemblyitemSearch[int].getValue("internalid","memberItem");
+			var memberItemText = assemblyitemSearch[int].getValue("itemid","memberItem");
+			var memberDesc = assemblyitemSearch[int].getValue("description","memberItem");
+			var memberUnit = '';
+			var memberQty = Number(assemblyitemSearch[int].getValue("memberquantity")) * requiredQty;
+			var memberType = assemblyitemSearch[int].getValue("type","memberItem");
+			var memberSource = assemblyitemSearch[int].getValue("memberitemsource");
+	
+			var lineData = [level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource];
+			
+			bomList.push(lineData);
+			
+			//We only want inventory items in the component summary
+			//
+			if (memberType == 'InvtPart')
+				{
+					if(!componentSummary[memberItem])
+						{
+							componentSummary[memberItemText] = [memberItem,memberItemText,memberQty];
+						}
+					else
+						{
+							componentSummary[memberItemText][2] += memberQty;
+						}
+				}
+			
+			//If we have found another assembly, then explode that as well
+			//
+			if(memberType == 'Assembly')
+				{
+					explodeBom(memberItem, bomList, componentSummary, level + 1, requiredQty, false, null, null);
+				}
+		}
+	
+	/*
 	var memberCount = assemblyRecord.getLineItemCount('member');
 	
 	for (var int = 1; int <= memberCount; int++) 
-	{
-		var memberItem = assemblyRecord.getLineItemValue('member', 'item', int);
-		var memberItemText = assemblyRecord.getLineItemText('member', 'item', int);
-		var memberDesc = assemblyRecord.getLineItemValue('member', 'memberdescr', int);
-		var memberUnit = assemblyRecord.getLineItemValue('member', 'memberunit', int);
-		var memberQty = Number(assemblyRecord.getLineItemValue('member', 'quantity', int)) * requiredQty;
-		var memberType = assemblyRecord.getLineItemValue('member', 'sitemtype', int);
-		var memberSource = assemblyRecord.getLineItemValue('member', 'itemsource', int);
-
-		var lineData = [level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource];
-		
-		bomList.push(lineData);
-		
-		//We only want inventory items in the component summary
-		//
-		if (memberType == 'InvtPart')
-			{
-				if(!componentSummary[memberItem])
-					{
-						componentSummary[memberItemText] = [memberItem,memberItemText,memberQty];
-					}
-				else
-					{
-						componentSummary[memberItemText][2] += memberQty;
-					}
-			}
-		
-		//If we have found another assembly, then explode that as well
-		//
-		if(memberType == 'Assembly')
-			{
-				explodeBom(memberItem, bomList, componentSummary, level + 1, requiredQty, false, null, null);
-			}
-	}
+		{
+			var memberItem = assemblyRecord.getLineItemValue('member', 'item', int);
+			var memberItemText = assemblyRecord.getLineItemText('member', 'item', int);
+			var memberDesc = assemblyRecord.getLineItemValue('member', 'memberdescr', int);
+			var memberUnit = assemblyRecord.getLineItemValue('member', 'memberunit', int);
+			var memberQty = Number(assemblyRecord.getLineItemValue('member', 'quantity', int)) * requiredQty;
+			var memberType = assemblyRecord.getLineItemValue('member', 'sitemtype', int);
+			var memberSource = assemblyRecord.getLineItemValue('member', 'itemsource', int);
+	
+			var lineData = [level,memberItem,memberItemText,memberDesc,memberUnit,memberQty,memberType,memberSource];
+			
+			bomList.push(lineData);
+			
+			//We only want inventory items in the component summary
+			//
+			if (memberType == 'InvtPart')
+				{
+					if(!componentSummary[memberItem])
+						{
+							componentSummary[memberItemText] = [memberItem,memberItemText,memberQty];
+						}
+					else
+						{
+							componentSummary[memberItemText][2] += memberQty;
+						}
+				}
+			
+			//If we have found another assembly, then explode that as well
+			//
+			if(memberType == 'Assembly')
+				{
+					explodeBom(memberItem, bomList, componentSummary, level + 1, requiredQty, false, null, null);
+				}
+		}
+		*/
 }
 
 //Get the url of the item record
