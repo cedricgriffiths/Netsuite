@@ -72,10 +72,6 @@ function assemblyBuildAS(type)
 						}
 				}
 			
-			
-			//TODO modify this to create a lot number based on the w/o number
-			
-			/* 
 			 
 			//Get the inventory detail sub-record for the assembly build
 			//
@@ -91,36 +87,16 @@ function assemblyBuildAS(type)
 					var assemblyId = buildRecord.getFieldValue('item');
 					var buildLocation = buildRecord.getFieldValue('location');
 					var buildQuantity = buildRecord.getFieldValue('quantity');
+					var buildCreatedFrom = buildRecord.getFieldValue('createdfrom');
 					
-					//Get the item record relating to the assembly
-					//
-					var itemRecord = nlapiLoadRecord('assemblyitem', assemblyId);
-					var binCount = itemRecord.getLineItemCount('binnumber');
-					
-					var componentBin = '';
-					
-					//Find the preferred bin for the locxation in question
-					//
-					for (var int5 = 1; int5 <= binCount; int5++) 
-					{
-						var binPreferred = itemRecord.getLineItemValue('binnumber', 'preferredbin', int5);
-						var binLocation = itemRecord.getLineItemValue('binnumber', 'location', int5);
-						
-						if(binPreferred == 'T' && binLocation == buildLocation)
-							{
-								componentBin = itemRecord.getLineItemValue('binnumber', 'binnumber', int5);
-								break;
-							}
-					}
-					
-					//If we have found a bin, then create the sub-record
-					//
-					if(componentBin != '')
+					if(buildCreatedFrom != null && buildCreatedFrom != '')
 						{
+							var woNumber = nlapiLookupField('workorder', buildCreatedFrom, 'tranid', false);
+							
 							var invDetailSubRecord = buildRecord.createSubrecord('inventorydetail');
 							invDetailSubRecord.selectNewLineItem('inventoryassignment');
 							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'quantity', buildQuantity);
-							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'binnumber', componentBin);
+							invDetailSubRecord.setCurrentLineItemValue('inventoryassignment', 'issueinventorynumber', woNumber);
 							invDetailSubRecord.commitLineItem('inventoryassignment');
 							invDetailSubRecord.commit();
 							
@@ -134,6 +110,5 @@ function assemblyBuildAS(type)
 			  					}
 						}
 				}
-			*/
 		}
 }

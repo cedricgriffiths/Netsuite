@@ -31,6 +31,7 @@ function clientFieldChanged(type, name, linenum)
 				}
 			else
 				{
+					nlapiSetFieldValue('custpage_glass_spec_select', '0', true, true);
 					nlapiSetFieldDisplay('custpage_glass_spec_select', false);
 				}
 		}
@@ -47,16 +48,27 @@ function clientFieldChanged(type, name, linenum)
 
 	if (name == 'custpage_stockflag_select')
 		{
-			nlapiSetFieldValue('custpage_stockflag_text', (nlapiGetFieldValue(name) == 'T' ? 'Yes' : 'No'), false, true);
+			var radioValue = nlapiGetFieldValue(name);
+			
+			switch(radioValue)
+				{
+					case 'T':
+						nlapiSetFieldValue('custpage_stockflag_text', 'Yes', false, true);
+						break;
+						
+					case 'F':
+						nlapiSetFieldValue('custpage_stockflag_text', 'No', false, true);
+						break;
+						
+					case 'E':
+						nlapiSetFieldValue('custpage_stockflag_text', 'Either', false, true);
+						break;
+				}
 		}
 }
 
 function clientSaveRecord()
 {
-	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
-	
-	nlapiLogExecution('DEBUG', 'Batch Size', MAX_BATCH_SIZE);
-	
 	var stage = nlapiGetFieldValue('custpage_stage');
 	var returnStatus = false;
 	var message = '';
