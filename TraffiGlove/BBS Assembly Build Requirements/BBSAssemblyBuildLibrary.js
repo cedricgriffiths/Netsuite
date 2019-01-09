@@ -17,15 +17,18 @@ function libCheckAssembly()
 			if(itemType == 'Assembly')
 				{
 					var itemId = nlapiGetLineItemValue('item', 'item', int);
-					var itemQty = nlapiGetLineItemValue('item', 'quantity', int);
-				
+					var itemQty = Number(nlapiGetLineItemValue('item', 'quantity', int));
+					var itemQtyCommitted = Number(nlapiGetLineItemValue('item', 'quantitycommitted', int));
+					
+					var outstandingQuantity = itemQty - itemQtyCommitted;
+					
 					if(!assemblyItems[itemId])
 						{
-							assemblyItems[itemId] = Number(itemQty);
+							assemblyItems[itemId] = Number(outstandingQuantity);
 						}
 					else
 						{
-							assemblyItems[itemId] += Number(itemQty);
+							assemblyItems[itemId] += Number(outstandingQuantity);
 						}
 				}
 		}

@@ -15,103 +15,105 @@
 function suitelet(request, response)
 {
 	if (request.getMethod() == 'GET') 
-	{
-		//=============================================================================================
-		//Prototypes
-		//=============================================================================================
-		//
-		String.prototype.repeat = function(count) 
-			{
-		    	if (count < 1) return '';
-		    	
-		    	var result = '', pattern = this.valueOf();
-		    	
-		    	while (count > 1) 
-		    	{
-		    		if (count & 1) result += pattern;
-		    		
-		    		count >>>= 1, pattern += pattern;
-		    	}
-		    	
-		    	return result + pattern;
-			};
-		  
-
-		//=============================================================================================
-		//Start of main code
-		//=============================================================================================
-		//
-		  
-		  
-		//Get request - so return a form for the user to process
-		//
-		
-		//Get parameters
-		//
-		var itemsParam = request.getParameter('items');
-		var mode = request.getParameter('mode');
+		{
+			//=============================================================================================
+			//Prototypes
+			//=============================================================================================
+			//
+			String.prototype.repeat = function(count) 
+				{
+			    	if (count < 1) return '';
+			    	
+			    	var result = '', pattern = this.valueOf();
+			    	
+			    	while (count > 1) 
+			    	{
+			    		if (count & 1) result += pattern;
+			    		
+			    		count >>>= 1, pattern += pattern;
+			    	}
+			    	
+			    	return result + pattern;
+				};
+			  
+	
+			//=============================================================================================
+			//Start of main code
+			//=============================================================================================
+			//
+			  
+			  
+			//Get request - so return a form for the user to process
+			//
 			
-		//Re-hydrate the json object
-		//
-		var items = JSON.parse(itemsParam);
-		
-		// Create a form
-		//
-		var form = nlapiCreateForm('Assembly Build Requirements', true);
-		form.setTitle('Assembly Build Checking For Sales Order');
-		
-		var tab = form.addTab('custpage_tab_components', 'Assembly Components');
-		tab.setLabel('Assembly Components');
-		
-		var subList2 = form.addSubList('custpage_sublist_summary', 'list', 'Components Summary', 'custpage_tab_components');
-		subList2.setLabel('Base Item Summary');
-		
-		var subList1 = form.addSubList('custpage_sublist_comps', 'list', 'Assembly Components', 'custpage_tab_components');
-		subList1.setLabel('Assembly Components');
-		
-		var sublist1Level = subList1.addField('custpage_sublist1_level', 'text', 'Level', null);
-		var sublist1ItemUrl = subList1.addField('custpage_sublist1_item_url', 'url', 'View', null);
-		var sublist1Item = subList1.addField('custpage_sublist1_item', 'text', 'Item', null);
-		var sublist1ItemText = subList1.addField('custpage_sublist1_item_txt', 'text', 'Description', null);
-		var sublist1Type = subList1.addField('custpage_sublist1_type', 'text', 'Type', null);
-		var sublist1Unit = subList1.addField('custpage_sublist1_unit', 'text', 'Unit', null);
-		var sublist1Qty = subList1.addField('custpage_sublist1_qty', 'float', 'Qty Required', null);
-		
-		sublist1ItemUrl.setLinkText('View');
-		 
-		
-		var sublist2Status = subList2.addField('custpage_sublist2_status', 'text', 'Status', null);
-		var sublist2Item = subList2.addField('custpage_sublist2_item', 'text', 'Item', null);
-		var sublist2ItemText = subList2.addField('custpage_sublist2_item_txt', 'text', 'Description', null);
-		var sublist2ItemStocked = subList2.addField('custpage_sublist2_item_stocked', 'checkbox', 'Stocked', null);
-		var sublist2Qty = subList2.addField('custpage_sublist2_qty', 'float', 'Qty Required', null);
-		var sublist2QtyAvail = subList2.addField('custpage_sublist2_qty_avail', 'float', 'Qty Available', null);
-		var sublist2QtyOnOrder = subList2.addField('custpage_sublist2_qty_onord', 'float', 'Qty On Order', null);
-		var sublist2QtyBackOrder = subList2.addField('custpage_sublist2_qty_back', 'float', 'Qty Back Ordered', null);
-		var sublist2QtyInTransit = subList2.addField('custpage_sublist2_qty_intran', 'float', 'Qty In Transit', null);
-		
-		sublist2ItemStocked.setDisplayType('disabled');
-		
-		var bomList = new Array();
-		var lineNo = Number(0);
-		var level = Number(1);
-		var componentSummary = {};
-
-		//Loop round the assembly items
-		//
-		for ( var itemId in items) 
-			{
-				var itemQty = Number(items[itemId]);
+			//Get parameters
+			//
+			var itemsParam = request.getParameter('items');
+			var mode = request.getParameter('mode');
 				
-				level = Number(1);
-				explodeBom(itemId, bomList, componentSummary, level, itemQty, true, itemId, itemQty) ;		
-			}
-		
+			//Re-hydrate the json object
+			//
+			var items = JSON.parse(itemsParam);
+			
+			// Create a form
+			//
+			var form = nlapiCreateForm('Assembly Build Requirements', true);
+			form.setTitle('Assembly Build Checking For Sales Order');
+			
+			var tab = form.addTab('custpage_tab_components', 'Assembly Components');
+			tab.setLabel('Assembly Components');
+			
+			var subList2 = form.addSubList('custpage_sublist_summary', 'list', 'Components Summary', 'custpage_tab_components');
+			subList2.setLabel('Base Item Summary');
+			
+			var subList1 = form.addSubList('custpage_sublist_comps', 'list', 'Assembly Components', 'custpage_tab_components');
+			subList1.setLabel('Assembly Components');
+			
+			var sublist1Level = subList1.addField('custpage_sublist1_level', 'text', 'Level', null);
+			var sublist1ItemUrl = subList1.addField('custpage_sublist1_item_url', 'url', 'View', null);
+			var sublist1Item = subList1.addField('custpage_sublist1_item', 'text', 'Item', null);
+			var sublist1ItemText = subList1.addField('custpage_sublist1_item_txt', 'text', 'Description', null);
+			var sublist1Type = subList1.addField('custpage_sublist1_type', 'text', 'Type', null);
+			var sublist1Unit = subList1.addField('custpage_sublist1_unit', 'text', 'Unit', null);
+			var sublist1Qty = subList1.addField('custpage_sublist1_qty', 'float', 'Qty Required', null);
+			
+			sublist1ItemUrl.setLinkText('View');
+			 
+			
+			var sublist2Status = subList2.addField('custpage_sublist2_status', 'text', 'Status', null);
+			var sublist2Item = subList2.addField('custpage_sublist2_item', 'text', 'Item', null);
+			var sublist2ItemText = subList2.addField('custpage_sublist2_item_txt', 'text', 'Description', null);
+			var sublist2ItemStocked = subList2.addField('custpage_sublist2_item_stocked', 'checkbox', 'Stocked', null);
+			var sublist2Qty = subList2.addField('custpage_sublist2_qty', 'float', 'Qty Required', null);
+			var sublist2QtyAvail = subList2.addField('custpage_sublist2_qty_avail', 'float', 'Qty Available', null);
+			var sublist2QtyOnOrder = subList2.addField('custpage_sublist2_qty_onord', 'float', 'Qty On Order', null);
+			var sublist2QtyBackOrder = subList2.addField('custpage_sublist2_qty_back', 'float', 'Qty Back Ordered', null);
+			var sublist2QtyInTransit = subList2.addField('custpage_sublist2_qty_intran', 'float', 'Qty In Transit', null);
+			
+			sublist2ItemStocked.setDisplayType('disabled');
+			
+			var bomList = new Array();
+			var lineNo = Number(0);
+			var level = Number(1);
+			var componentSummary = {};
+	
+			//Loop round the assembly items
+			//
+			
+			for ( var itemId in items) 
+				{
+					var itemQty = Number(items[itemId]);
+					
+					level = Number(1);
+					explodeBom(itemId, bomList, componentSummary, level, itemQty, true, itemId, itemQty) ;		
+				}
+			
+			
 			//Fill out the bom components sublist on the suitelet form
 			//
 			var linenum = 1;
 			var filler = '__';
-				
+					
 			for (var int = 0; int < bomList.length; int++) 
 				{ 
 					subList1.setLineItemValue('custpage_sublist1_level', linenum, filler.repeat(Number(bomList[int][0])) + Number(bomList[int][0]).toString());			
@@ -121,29 +123,37 @@ function suitelet(request, response)
 					subList1.setLineItemValue('custpage_sublist1_unit', linenum, bomList[int][4]);
 					subList1.setLineItemValue('custpage_sublist1_type', linenum, bomList[int][6]);
 					subList1.setLineItemValue('custpage_sublist1_qty', linenum, bomList[int][5]);
-					
+						
 					linenum++;
 				}
+				
 			
-
 			//Fill out the component summary sublist
 			//
 			linenum = 1;
-				
+			var itemIdArray = [];
+			
+			/*
+			
 			var ordered = {};
 			Object.keys(componentSummary).sort().forEach(function(key) {
 			  ordered[key] = componentSummary[key];
 			});
-				
-			var itemIdArray = [];
+					
 				
 			for ( var memberItem in ordered) 
 				{
 					itemIdArray.push(ordered[memberItem][0]);
 				}
+			*/
+			
+			for ( var memberItem in componentSummary) 
+				{
+					itemIdArray.push(componentSummary[memberItem][0]);
+				}
 				
 			var itemSearch = null;
-				
+					
 			if(itemIdArray.length > 0)
 				{
 					itemSearch = nlapiSearchRecord("item",null,
@@ -153,7 +163,7 @@ function suitelet(request, response)
 							   ["inventorylocation.makeinventoryavailable","is","T"]
 							], 
 							[
-							   new nlobjSearchColumn("internalid",null,"GROUP").setSort(false), 
+							   new nlobjSearchColumn("internalid",null,"GROUP"), 
 							   new nlobjSearchColumn("custitem_bbs_item_stocked",null,"GROUP"), 
 							   new nlobjSearchColumn("locationquantityavailable",null,"SUM"), 
 							   new nlobjSearchColumn("locationquantitybackordered",null,"SUM"), 
@@ -183,18 +193,19 @@ function suitelet(request, response)
 							itemQtyData[resultItemId] = [resultQtyAvail,resultQtyBack,resultQtyCommit,resultQtyInTran,resultQtyOnHand,resultQtyOnOrder,resultItemStocked];
 						}
 				}
-				
-				
-			for ( var memberItem in ordered) 
+					
+			//for ( var memberItem in ordered) 
+			for ( var memberItem in componentSummary) 
 				{
 					var memberData = componentSummary[memberItem];
-					
+						
 					//Determine the qty available in stock
 					//
 					var qtyAvailable = Number(0);
-					
-					qtyAvailable = Number(itemQtyData[ordered[memberItem][0]][0]);
-					
+						
+					//qtyAvailable = Number(itemQtyData[ordered[memberItem][0]][0]);
+					qtyAvailable = Number(itemQtyData[componentSummary[memberItem][0]][0]);
+						
 					if (Number(memberData[2]) > qtyAvailable)
 						{
 							subList2.setLineItemValue('custpage_sublist2_status', linenum, 'Insufficient Stock');
@@ -203,16 +214,21 @@ function suitelet(request, response)
 						{
 							subList2.setLineItemValue('custpage_sublist2_status', linenum, 'Ok');
 						}
-					
 					subList2.setLineItemValue('custpage_sublist2_item', linenum, memberData[1]);
-					subList2.setLineItemValue('custpage_sublist2_item_txt', linenum, nlapiLookupField('item', memberData[0], 'description', false));
+					//subList2.setLineItemValue('custpage_sublist2_item_txt', linenum, nlapiLookupField('item', memberData[0], 'description', false));
+					subList2.setLineItemValue('custpage_sublist2_item_txt', linenum, memberData[3]);
 					subList2.setLineItemValue('custpage_sublist2_qty', linenum, memberData[2]);
 					subList2.setLineItemValue('custpage_sublist2_qty_avail', linenum, qtyAvailable);
+						
+					//subList2.setLineItemValue('custpage_sublist2_qty_onord', linenum, Number(itemQtyData[ordered[memberItem][0]][5]));
+					//subList2.setLineItemValue('custpage_sublist2_qty_back', linenum, Number(itemQtyData[ordered[memberItem][0]][1]));
+					//subList2.setLineItemValue('custpage_sublist2_qty_intran', linenum, Number(itemQtyData[ordered[memberItem][0]][3]));
+					//subList2.setLineItemValue('custpage_sublist2_item_stocked', linenum, itemQtyData[ordered[memberItem][0]][6]);
 					
-					subList2.setLineItemValue('custpage_sublist2_qty_onord', linenum, Number(itemQtyData[ordered[memberItem][0]][5]));
-					subList2.setLineItemValue('custpage_sublist2_qty_back', linenum, Number(itemQtyData[ordered[memberItem][0]][1]));
-					subList2.setLineItemValue('custpage_sublist2_qty_intran', linenum, Number(itemQtyData[ordered[memberItem][0]][3]));
-					subList2.setLineItemValue('custpage_sublist2_item_stocked', linenum, itemQtyData[ordered[memberItem][0]][6]);
+					subList2.setLineItemValue('custpage_sublist2_qty_onord', linenum, Number(itemQtyData[componentSummary[memberItem][0]][5]));
+					subList2.setLineItemValue('custpage_sublist2_qty_back', linenum, Number(itemQtyData[componentSummary[memberItem][0]][1]));
+					subList2.setLineItemValue('custpage_sublist2_qty_intran', linenum, Number(itemQtyData[componentSummary[memberItem][0]][3]));
+					subList2.setLineItemValue('custpage_sublist2_item_stocked', linenum, itemQtyData[componentSummary[memberItem][0]][6]);
 					
 					linenum++;
 				}
@@ -240,6 +256,8 @@ function explodeBom(topLevelAssemblyId, bomList, componentSummary, level, requir
 {
 	
 	//var assemblyRecord = nlapiLoadRecord('assemblyitem', topLevelAssemblyId);
+	
+	nlapiLogExecution('DEBUG', topLevelAssemblyId + ' Remaining Usage', nlapiGetContext().getRemainingUsage());
 	
 	var assemblyitemSearch = nlapiSearchRecord("assemblyitem",null,
 			[
@@ -293,7 +311,7 @@ function explodeBom(topLevelAssemblyId, bomList, componentSummary, level, requir
 				{
 					if(!componentSummary[memberItem])
 						{
-							componentSummary[memberItemText] = [memberItem,memberItemText,memberQty];
+							componentSummary[memberItemText] = [memberItem,memberItemText,memberQty,memberDesc];
 						}
 					else
 						{
