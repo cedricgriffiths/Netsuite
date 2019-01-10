@@ -114,6 +114,10 @@ function buildWoSuitelet(request, response)
 				
 				var productionBatchNameField = form.addField('custpage_prod_batch_name', 'text', 'Production Batch Name', null, 'custpage_grp_batch');
 				productionBatchNameField.setDisplayType('disabled');
+				productionBatchNameField.setLayoutType('normal', 'startcol');
+				
+				var productionBatchStatusField = form.addField('custpage_prod_batch_status', 'text', 'Production Batch Status', null, 'custpage_grp_batch');
+				productionBatchStatusField.setDisplayType('disabled');
 				
 				
 				//=====================================================================
@@ -151,6 +155,7 @@ function buildWoSuitelet(request, response)
 				var sublistFieldWoDate = sublist.addField('custpage_sublist_wo_date', 'text', 'Date', null);
 				var sublistFieldWoName = sublist.addField('custpage_sublist_wo_name', 'text', 'Works Order #', null);
 				var sublistFieldWoItem = sublist.addField('custpage_sublist_wo_item', 'text', 'Item', null);
+				var sublistFieldWoItem = sublist.addField('custpage_sublist_wo_item_desc', 'text', 'Description', null);
 				var sublistFieldWoCustomer = sublist.addField('custpage_sublist_wo_customer', 'text', 'Customer', null);
 				var sublistFieldWoQuantity = sublist.addField('custpage_sublist_wo_quantity', 'text', 'Quantity', null);
 				var sublistFieldWoStatus = sublist.addField('custpage_sublist_wo_status', 'text', 'Status', null);
@@ -169,14 +174,16 @@ function buildWoSuitelet(request, response)
 				var sessionData = libGetSessionData(sessionParam);
 				var filters = JSON.parse(sessionData);
 				
-				//Get the data for the sublist
+				//Get the data for the sublist (works orders in-process, planned or released)
 				//
 				if(filters != null)
 					{
 						var filterArray =  [
 											   ["type","anyof","WorkOrd"], 
 											   "AND", 
-											   ["mainline","is","T"]
+											   ["mainline","is","T"], 
+											   "AND", 
+											   ["status","anyof","WorkOrd:D","WorkOrd:A","WorkOrd:B"]
 											];
 						
 						if(filters['batchid'] != '')
@@ -188,7 +195,7 @@ function buildWoSuitelet(request, response)
 								filterArray.push("AND",["custbody_bbs_wo_batch","anyof","-1"]);
 							}
 						
-						var workorderSearch = nlapiSearchRecord("workorder",null,
+						var workorderSearch = nlapiCreateSearch("workorder",
 								filterArray, 
 								[
 								   new nlobjSearchColumn("tranid").setSort(false), 
@@ -198,39 +205,39 @@ function buildWoSuitelet(request, response)
 								   new nlobjSearchColumn("item"), 
 								   new nlobjSearchColumn("altname","customer",null), 
 								   new nlobjSearchColumn("quantity"), 
-								   new nlobjSearchColumn("statusref")
+								   new nlobjSearchColumn("statusref"),
+								   new nlobjSearchColumn("salesdescription","item",null)
 								]
 								);
 						
-						var searchResultSet = getResults(fulfillmentSearch);
+						var searchResultSet = getResults(workorderSearch);
 						
 						//Populate the sublist
 						//
 						for (var int = 0; int < searchResultSet.length; int++) 
 							{
-								var ffIntId = searchResultSet[int].getId();
-								var ffDocNo = searchResultSet[int].getValue('tranid');
-								var ffCustName = searchResultSet[int].getText('entity');
-								var ffCreatedFrom = searchResultSet[int].getText('createdfrom');
-								var ffSubsidiary = searchResultSet[int].getText('subsidiary');
-								var ffDate = searchResultSet[int].getValue('trandate');
-								var ffCurrency = searchResultSet[int].getText('currency');
-								var ffMemo = searchResultSet[int].getValue('memo');
-								var ffSoStatus = searchResultSet[int].getText('status','createdfrom');
-								var ffSoShipdate = searchResultSet[int].getValue('shipdate','createdfrom');
+								var woIntId = searchResultSet[int].getId();
+								var woDocNo = searchResultSet[int].getValue('tranid');
+								var woCustName = searchResultSet[int].getText('entity');
+								var woCustAltName = searchResultSet[int].getValue("altname","customer");
+								var woItem = searchResultSet[int].getText('item');
+								var woItemDescription = searchResultSet[int].getValue("salesdescription",'item');
+								var woDate = searchResultSet[int].getValue('trandate');
+								var woQuantity = searchResultSet[int].getValue('quantity');
+								var woMemo = searchResultSet[int].getValue('memo');
+								var woStatus = searchResultSet[int].getText('statusref');
 								
 								var sublistLine = int + 1;
+						
+								sublist.setLineItemValue('custpage_sublist_wo_date', sublistLine, woDate);
+								sublist.setLineItemValue('custpage_sublist_wo_name', sublistLine, woDocNo);
+								sublist.setLineItemValue('custpage_sublist_wo_item', sublistLine, woItem);
+								sublist.setLineItemValue('custpage_sublist_wo_item_desc', sublistLine, woItemDescription);
+								sublist.setLineItemValue('custpage_sublist_wo_customer', sublistLine, woCustName);
+								sublist.setLineItemValue('custpage_sublist_wo_quantity', sublistLine, woQuantity);
+								sublist.setLineItemValue('custpage_sublist_wo_status', sublistLine, woStatus);
+								sublist.setLineItemValue('custpage_sublist_wo_id', sublistLine, woIntId);
 								
-								sublist.setLineItemValue('custpage_sublist_customer_subsid', sublistLine, ffSubsidiary);
-								sublist.setLineItemValue('custpage_sublist_customer_name', sublistLine, ffCustName);
-								sublist.setLineItemValue('custpage_sublist_sales_order', sublistLine, ffCreatedFrom);
-								sublist.setLineItemValue('custpage_sublist_fulfil_no', sublistLine, ffDocNo);
-								sublist.setLineItemValue('custpage_sublist_fulfil_date', sublistLine, ffDate);
-								sublist.setLineItemValue('custpage_sublist_fulfil_id', sublistLine, ffIntId);
-								sublist.setLineItemValue('custpage_sublist_fulfil_memo', sublistLine, ffMemo);
-								sublist.setLineItemValue('custpage_sublist_fulfil_currency', sublistLine, ffCurrency);
-								sublist.setLineItemValue('custpage_sublist_so_status', sublistLine, ffSoStatus);
-								sublist.setLineItemValue('custpage_sublist_so_shipdate', sublistLine, ffSoShipdate);
 								
 							}
 					}
@@ -238,7 +245,7 @@ function buildWoSuitelet(request, response)
 				
 				//Add a submit button
 				//
-				form.addSubmitButton('Generate Invoices');
+				form.addSubmitButton('Build Works Orders');
 		
 				break;
 				
@@ -258,7 +265,7 @@ function buildWoSuitelet(request, response)
 				var messageField = form.addField('custpage_message', 'textarea', 'Message', null, null);
 				messageField.setDisplaySize(120, 4);
 				messageField.setDisplayType('readonly');
-				messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the invoice creation process has completed.');
+				messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the works order build process has completed.');
 			
 				libClearSessionData(sessionParam);
 				
@@ -287,33 +294,46 @@ function buildWoSuitelet(request, response)
 					
 				//Retrieve the parameters from the form fields
 				//
-				var lineCount = request.getLineItemCount('custpage_sublist_fulfils');
-				var ffIds = [];
+				var lineCount = request.getLineItemCount('custpage_sublist_wo');
+				var woIds = [];
+				var woTicked = Number(0);
 				
 				for (var int2 = 1; int2 <= lineCount; int2++) 
 					{
-						var ticked = request.getLineItemValue('custpage_sublist_fulfils', 'custpage_sublist_tick', int2);
+						var ticked = request.getLineItemValue('custpage_sublist_wo', 'custpage_sublist_tick', int2);
 					
 						//Look for ticked lines
 						//
 						if (ticked == 'T')
 							{
-								var custId = request.getLineItemValue('custpage_sublist_fulfils', 'custpage_sublist_fulfil_id', int2);
-								ffIds.push(custId);
+								var woId = request.getLineItemValue('custpage_sublist_wo', 'custpage_sublist_wo_id', int2);
+								woIds.push(woId);
+								woTicked++;
 							}
 					}
 				
+				//Get the batch & operator id from the form
+				//
+				var batchId = request.getParameter('custpage_prod_batch_id');
+				var operatorId = request.getParameter('custpage_operator_id');
+				var operatorName = request.getParameter('custpage_operator_name');
+				
+				//Update the batch status to show it is awaiting works order completion
+				//
+				nlapiSubmitField('customrecord_bbs_assembly_batch', batchId, 'custrecord_bbs_batch_status', '2', false);
+				
+				//Set up the parameters & call the scheduled script to build the works orders
+				//
 				var parameterObject = {};
-				parameterObject['ffids'] = ffIds;
+				parameterObject['woids'] = woIds;
+				parameterObject['wocount'] = lineCount;
+				parameterObject['woticked'] = woTicked;
+				parameterObject['operatorid'] = operatorId;
+				parameterObject['operatorname'] = operatorName;
+				parameterObject['batchid'] = batchId;
 				
-				var invDateValue = request.getParameter('custpage_inv_date');
-				var invPeriodValue = request.getParameter('custpage_inv_period');
-				
-				parameterObject['date'] = invDateValue;
-				parameterObject['period'] = invPeriodValue;
-				
-				var scheduleParams = {custscript_bbs_invoicing_params: JSON.stringify(parameterObject)};
-				nlapiScheduleScript('customscript_bbs_invoicing_scheduled', null, scheduleParams);
+				var scheduleParams = {custscript_bbs_wo_build_params: JSON.stringify(parameterObject)};
+				nlapiScheduleScript('customscript_bbs_wo_build_scheduled', null, scheduleParams);
 
 				//Call the next stage
 				//
