@@ -142,7 +142,7 @@ function scheduled(type)
 								{
 									woLogo = lineItemItemId;
 									woLogoType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
-									machine = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_machine', false);
+									machine = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_machine', true);
 									logoQuantity += lineItemQuantity;
 								}
 							

@@ -710,7 +710,9 @@ function productionBatchSuitelet(request, response)
 				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
-				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Qty Required', null);
+				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
+				var listBuilt = subList.addField('custpage_sublist_built', 'integer', 'Built', null);
+				var listBuildable = subList.addField('custpage_sublist_buildable', 'integer', 'Buildable', null);
 				var listShipDate = subList.addField('custpage_sublist_ship_date', 'text', 'Ship Date', null);
 				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
 				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
@@ -842,7 +844,8 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("otherrefnum","createdFrom",null),
 						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null),
 						   new nlobjSearchColumn("shipdate","createdFrom",null),
-						   new nlobjSearchColumn("custbody_bbs_cse_sales_transactions","createdFrom",null)
+						   new nlobjSearchColumn("custbody_bbs_cse_sales_transactions","createdFrom",null),
+						   new nlobjSearchColumn("built")
 						]
 						);
 						
@@ -884,6 +887,8 @@ function productionBatchSuitelet(request, response)
 					subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
 					subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
 					subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
+					subList.setLineItemValue('custpage_sublist_built', line, searchResultSet[int].getValue('built'));
+					subList.setLineItemValue('custpage_sublist_buildable', line, (Number(searchResultSet[int].getValue('quantity')) - Number(searchResultSet[int].getValue('built'))).toString());
 					subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
 					subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
 					subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
