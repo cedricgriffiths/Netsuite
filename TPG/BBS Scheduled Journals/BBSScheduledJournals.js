@@ -98,7 +98,7 @@ function scheduled(type)
 			   new nlobjSearchColumn("representingsubsidiary","vendor",null),
 			   new nlobjSearchColumn("internalid","customer",null), 
 			   new nlobjSearchColumn("internalid","vendor",null),
-			   new nlobjSearchColumn("custcol_csegbbs_sales_dept")
+			   new nlobjSearchColumn("custcol_cseg_sales_dept")
 			]
 			);
 	
@@ -140,7 +140,7 @@ function scheduled(type)
 					var suppRepresentingSubsidiary = transactionSearchResults[int].getValue("representingsubsidiary","vendor");
 					var custInternalId = transactionSearchResults[int].getValue("internalid","customer");
 					var suppInternalId = transactionSearchResults[int].getValue("internalid","vendor");
-					var salesDepartment = transactionSearchResults[int].getValue("custcol_csegbbs_sales_dept");
+					var salesDepartment = transactionSearchResults[int].getValue("custcol_cseg_sales_dept");
 					
 					amount = (amount * exchangeRate).round(2);
 					
@@ -197,135 +197,142 @@ function scheduled(type)
 					var salesAcc = null;
 					var cogsAcc = null;
 					
-					switch (transactionType)
+					try
 						{
-							case 'CustInvc':
-								salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
-								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
-								journalRecord.commitLineItem('line'); 
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
-								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
-								journalRecord.commitLineItem('line'); 
-								
-								break;
-								
-							case 'VendBill':
-								cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
-								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
-								journalRecord.commitLineItem('line'); 
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
-								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
-								journalRecord.commitLineItem('line'); 
-								
-								break;
-								
-							case 'CustCred':
-								salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
-								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
-								journalRecord.commitLineItem('line'); 
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
-								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbbs_sales_dept', salesDepartment);
-								journalRecord.commitLineItem('line'); 
-								
-								break;
-								
-							case 'VendCred':
-								cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
-								journalRecord.setCurrentLineItemValue('line', 'debit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
-								journalRecord.commitLineItem('line'); 
-								
-								journalRecord.selectNewLineItem('line');
-								journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
-								journalRecord.setCurrentLineItemValue('line', 'credit', amount);
-								journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
-								journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
-								journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
-								//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
-								journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
-								journalRecord.commitLineItem('line'); 
-								
-								break;
+							switch (transactionType)
+								{
+									case 'CustInvc':
+										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
+										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.commitLineItem('line'); 
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
+										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+										
+									case 'VendBill':
+										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.commitLineItem('line'); 
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+										
+									case 'CustCred':
+										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
+										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.commitLineItem('line'); 
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
+										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+										
+									case 'VendCred':
+										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.commitLineItem('line'); 
+										
+										journalRecord.selectNewLineItem('line');
+										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
+										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegsm', sourceMarket);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_csegbkref', bookingReference);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
+										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
+										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.commitLineItem('line'); 
+										
+										break;
+								}
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error processing transaction id ' + transactionId, err.message);
 						}
 				}
 			
