@@ -140,6 +140,7 @@ function createAssembliesScheduled(type)
 									//Get data from the finish item
 									//
 									var finishItemDescription = finishRecord.getFieldValue('description');
+									var finishSpecInstructions = finishRecord.getFieldValue('custitem_bbs_special_instructions_item');
 									var newParentDescription = parentSalesDescription + ' WITH ' + finishItemDescription;
 									
 									//Initialise the new parent id
@@ -312,6 +313,8 @@ function createAssembliesScheduled(type)
 																			var childColour = childRecord.getFieldValue('custitem_bbs_item_colour');
 																			var childSize1 = childRecord.getFieldValue('custitem_bbs_item_size1');
 																			var childSize2 = childRecord.getFieldValue('custitem_bbs_item_size2');
+																			var childClass = childRecord.getFieldValue('class');
+																			var childSpecInstructions = childRecord.getFieldValue('custitem_bbs_special_instructions_item');
 																			
 																			try
 																				{
@@ -342,6 +345,7 @@ function createAssembliesScheduled(type)
 																					newChildRecord.setFieldValue('matchbilltoreceipt', 'T');
 //SMI																				newChildRecord.setFieldValue('custitem_sw_base_parent', parent);
 																					newChildRecord.setFieldValue('description', newChildDescription);
+																					newChildRecord.setFieldValue('class', childClass);
 																					
 																					//Copy in the custom fields
 																					//
