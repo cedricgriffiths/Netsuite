@@ -471,7 +471,7 @@ function cbcCustomerItemsSuitelet(request, response){
 
 					//Add a submit button
 					//
-					form.addSubmitButton('Create Assemblies');
+					form.addSubmitButton('Create Customer Items');
 					
 					break;
 					
@@ -491,7 +491,7 @@ function cbcCustomerItemsSuitelet(request, response){
 					var messageField = form.addField('custpage_message', 'textarea', 'Message', null, null);
 					messageField.setDisplaySize(120, 4);
 					messageField.setDisplayType('readonly');
-					messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the assembly creation process has completed.');
+					messageField.setDefaultValue('An email will be sent to ' + emailAddress + ' when the customer item creation process has completed.');
 				
 					libClearSessionData(sessionParam);
 					

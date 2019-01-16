@@ -12,6 +12,8 @@
  */
 function scheduled(type) 
 {
+	nlapiLogExecution('DEBUG', 'Starting', '');
+	
 	var assemblyitemSearch = getResults(nlapiCreateSearch("assemblyitem",
 			[
 			   ["type","anyof","Assembly"], 
@@ -24,28 +26,34 @@ function scheduled(type)
 			], 
 			[
 			   new nlobjSearchColumn("internalid").setSort(false),
-			   new nlobjSearchColumn("itemid"), 
-			   new nlobjSearchColumn("displayname"), 
-			   new nlobjSearchColumn("description"), 
-			   new nlobjSearchColumn("class"), 
-			   new nlobjSearchColumn("memberitem"), 
+			   //new nlobjSearchColumn("itemid"), 
+			   //new nlobjSearchColumn("displayname"), 
+			   //new nlobjSearchColumn("description"), 
+			   //new nlobjSearchColumn("class"), 
+			   //new nlobjSearchColumn("memberitem"), 
 			   new nlobjSearchColumn("class","memberItem",null)
 			]
 			));
+	
+	nlapiLogExecution('DEBUG', 'Record count = ', assemblyitemSearch.length);
 	
 	if(assemblyitemSearch != null && assemblyitemSearch.length > 0)
 		{
 			for (var int = 0; int < assemblyitemSearch.length; int++) 
 				{
+					if(int%10 == 0)
+						{
+							checkResources();
+						}
+					
 					var assemblyId = assemblyitemSearch[int].getId();
 					var componentCategory = assemblyitemSearch[int].getValue("class","memberItem");
 					
 					nlapiSubmitField('assemblyitem', assemblyId, 'class', componentCategory, false);
-					
-					checkUsage();
 				}
-		
 		}
+	
+	nlapiLogExecution('DEBUG', 'Finished', '');
 }
 
 //=====================================================================
@@ -72,7 +80,7 @@ function getResults(search)
 				{
 						start += 1000;
 						end += 1000;
-		
+						
 						var moreSearchResultSet = searchResult.getResults(start, end);
 						resultlen = moreSearchResultSet.length;
 		
@@ -82,12 +90,13 @@ function getResults(search)
 	return searchResultSet;
 }
 
-function checkUsage()
+function checkResources()
 {
-	var usage = Number(nlapiGetContext().getRemainingUsage());
+	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(usage < 200)
+	if(remaining < 500)
 		{
-			nlapiYieldScript();
+			var yieldState = nlapiYieldScript();
+			nlapiLogExecution('DEBUG', 'Yield Status', yieldState.status + ' ' + yieldState.size + ' ' +  yieldState.reason + ' ' + yieldState.information);
 		}
 }
