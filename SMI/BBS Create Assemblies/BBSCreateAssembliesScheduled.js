@@ -469,6 +469,18 @@ function createAssembliesScheduled(type)
 																					//
 																					var newchildId = nlapiSubmitRecord(newChildRecord, true, true);
 																					
+																					//Add special bom instructions
+																					//
+																					if(childSpecInstructions != null && childSpecInstructions != '')
+																						{
+																							addBomInstructions(newchildId, child, childSpecInstructions);
+																						}
+																					
+																					if(finishSpecInstructions != null && finishSpecInstructions != '')
+																						{
+																							addBomInstructions(newchildId, finishId, finishSpecInstructions);
+																						}
+																				
 																					//Add the sales price and the record id to the list of all child item prices
 																					//
 																					allChildPricing[newchildId] = salesPrice;
@@ -687,4 +699,73 @@ function padding_left(s, c, n)
 	return s;
 }
 
+//Routine for adding BOM special instructions
+//
+function addBomInstructions(_bomItem, _bomMember, _instructions)
+{
+	var specInstrId = checkMVF(_bomItem, _bomMember);
+	
+	if(specInstrId != null)
+		{
+			try
+				{
+					nlapiSubmitField('customrecord_bbs_bom_fields', specInstrId, 'custrecord_bbs_custom_field_1', _instructions, false);
+				}
+			catch(err)
+				{
+					nlapiLogExecution('ERROR', 'Error updating bom special instructions record', err.message);
+				}
+		}
+	else
+        {
+            var rec = nlapiCreateRecord('customrecord_bbs_bom_fields');
+            rec.setFieldValue('custrecord_bbs_bom_item', _bomItem);
+            rec.setFieldValue('custrecord_bbs_bom_member', _bomMember);
+            rec.setFieldValue('custrecord_bbs_custom_field_1', _instructions);
+            
+            try
+            	{
+            		nlapiSubmitRecord(rec);
+            	}
+            catch(err)
+				{
+					nlapiLogExecution('ERROR', 'Error creating bom special instructions record', err.message);
+				}
+        }
+}
 
+function checkMVF(item, member)
+{
+	if(item != null && item != '' && member != null && member != '')
+		{
+		    var itemFilters = new Array();
+		    itemFilters[0] = new nlobjSearchFilter('custrecord_bbs_bom_item', null, 'is', item);
+		    itemFilters[1] = new nlobjSearchFilter('custrecord_bbs_bom_member', null, 'is', member);
+		    
+		    var itemColumns = new Array();
+		    itemColumns[0] = new nlobjSearchColumn('internalid', null, null);
+		    
+		    var searchresults = nlapiSearchRecord('customrecord_bbs_bom_fields', null, itemFilters, itemColumns);
+		
+		    if (numRows(searchresults) > 0) 
+			    {
+			        return searchresults[0].getValue('internalid');
+			        
+			    }
+		    else
+			    {
+			        return null;
+			    }
+		}
+}
+
+function numRows(obj){
+    var ctr = 0;
+
+    for (var k in obj){
+        if (obj.hasOwnProperty(k)){
+            ctr++;
+        }
+    }
+    return ctr;
+}

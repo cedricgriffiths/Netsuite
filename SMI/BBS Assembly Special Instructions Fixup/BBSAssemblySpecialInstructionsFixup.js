@@ -31,6 +31,8 @@ function scheduled(type)
 			//
 			for (var int = 0; int < itemSearch.length; int++) 
 				{
+					checkResources();
+					
 					var itemId = itemSearch[int].getId();
 					var itemInstructions = itemSearch[int].getValue("custitem_bbs_special_instructions_item");
 					
@@ -54,6 +56,8 @@ function scheduled(type)
 						{
 							for (var int2 = 0; int2 < assemblyitemSearch.length; int2++) 
 								{
+									checkResources();
+								
 									var bomItem = assemblyitemSearch[int2].getId();
 									var bomMember = assemblyitemSearch[int2].getValue("memberitem");
 									
@@ -73,9 +77,7 @@ function scheduled(type)
 								        }
 								}
 						}
-					
 				}
-		
 		}
 }
 
@@ -113,4 +115,15 @@ function numRows(obj){
         }
     }
     return ctr;
+}
+
+function checkResources()
+{
+	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
+	
+	if(remaining < 500)
+		{
+			var yieldState = nlapiYieldScript();
+			nlapiLogExecution('DEBUG', 'Yield Status', yieldState.status + ' ' + yieldState.size + ' ' +  yieldState.reason + ' ' + yieldState.information);
+		}
 }
