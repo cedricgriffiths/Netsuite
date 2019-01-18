@@ -236,7 +236,6 @@ function productionBatchSuitelet(request, response)
 		var stockFlagText = request.getParameter('stockflagtext');
 		
 		stage = (stage == null || stage == '' || stage == 0 ? 1 : stage);
-		stockFlagText = (stockFlagText == '' ? 'Either' : stockFlagText);
 		
 		// Create a form
 		//
@@ -313,13 +312,8 @@ function productionBatchSuitelet(request, response)
 				var producttypeField = form.addField('custpage_product_type_select', 'select', 'Product Type', 'customlist_bbs_item_product_type','custpage_grp2');
 				var glassspecField = form.addField('custpage_glass_spec_select', 'select', 'Glass Spec', null,'custpage_grp2');
 				var thicknessField = form.addField('custpage_thickness_select', 'select', 'Thickness', 'customlist_bbs_item_thickness','custpage_grp2');
+				var stockflagField = form.addField('custpage_stockflag_select', 'select', 'Stock / Processed', 'customlist_bbs_item_stock_processed','custpage_grp2');
 				
-				var stockflagLabel = form.addField('custpage_stockflag_label', 'label', 'Stocked?', null,'custpage_grp2').setLayoutType('startrow');
-				var stockflagField = form.addField('custpage_stockflag_select', 'radio', 'Yes', 'T','custpage_grp2').setLayoutType('midrow');
-				var stockflagField = form.addField('custpage_stockflag_select', 'radio', 'No', 'F','custpage_grp2').setLayoutType('midrow');
-				var stockflagField = form.addField('custpage_stockflag_select', 'radio', 'Either', 'E','custpage_grp2').setLayoutType('endrow');
-				
-				form.getField('custpage_stockflag_select', 'E' ).setDefaultValue( 'E' );
 				
 				//Hide the glass spec by default
 				//
@@ -407,7 +401,7 @@ function productionBatchSuitelet(request, response)
 				thicknessField.setDisplayType('disabled');
 				thicknessField.setDefaultValue(thicknessText);
 
-				var stockflagField = form.addField('custpage_stockflag_select', 'text', 'stockflag', null, 'custpage_grp2');
+				var stockflagField = form.addField('custpage_stockflag_select', 'text', 'Stock / Processed', null, 'custpage_grp2');
 				stockflagField.setDisplayType('disabled');
 				stockflagField.setDefaultValue(stockFlagText);
 				
@@ -457,7 +451,7 @@ function productionBatchSuitelet(request, response)
 				var listProductType = subList.addField('custpage_sublist_product_type', 'text', 'Product Type', null);
 				var listGlassSpec = subList.addField('custpage_sublist_glass_spec', 'text', 'Glass Spec', null);
 				var listThickness = subList.addField('custpage_sublist_thickness', 'text', 'Thickness', null);
-				var listStockFlag = subList.addField('custpage_sublist_stock_flag', 'text', 'Stock Flag', null);
+				var listStockFlag = subList.addField('custpage_sublist_stock_flag', 'text', 'Stock / Processed', null);
 				
 				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
 				listId.setDisplayType('hidden');
@@ -494,7 +488,7 @@ function productionBatchSuitelet(request, response)
 						filterArray.push("AND",["item.custitem_bbs_item_thickness","anyof",thickness]);
 					}
 				
-				if(stockFlag != 'E' && stockFlag != '')
+				if(stockFlag != '')
 					{
 						filterArray.push("AND",["item.custitem_bbs_item_stocked","is",stockFlag]);
 					}
@@ -587,7 +581,7 @@ function productionBatchSuitelet(request, response)
 						subList.setLineItemValue('custpage_sublist_product_type', line, searchResultSet[int].getText('custitem_bbs_item_product_type', 'item'));
 						subList.setLineItemValue('custpage_sublist_glass_spec', line, searchResultSet[int].getText('custitem_bbs_glass_spec'));
 						subList.setLineItemValue('custpage_sublist_thickness', line, searchResultSet[int].getText('custitem_bbs_item_thickness', 'item'));
-						subList.setLineItemValue('custpage_sublist_stock_flag', line, (searchResultSet[int].getValue("custitem_bbs_item_stocked","item") == 'T' ? 'Yes' : 'No'));
+						subList.setLineItemValue('custpage_sublist_stock_flag', line, searchResultSet[int].getText("custitem_bbs_item_stocked","item"));
 						
 					}
 		
@@ -700,7 +694,6 @@ function productionBatchSuitelet(request, response)
 				var stockflagtext = request.getParameter('custpage_stockflag_text');
 				var otherrefnum = request.getParameter('custpage_stockflag_text');
 				
-				stockflagtext = (stockflagtext == null || stockflagtext == '' ? 'Either' : stockflagtext);
 				
 				//Build up the parameters so we can call this suitelet again, but move it on to the next stage
 				//

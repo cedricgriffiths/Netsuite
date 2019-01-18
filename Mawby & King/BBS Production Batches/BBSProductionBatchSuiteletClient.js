@@ -48,22 +48,7 @@ function clientFieldChanged(type, name, linenum)
 
 	if (name == 'custpage_stockflag_select')
 		{
-			var radioValue = nlapiGetFieldValue(name);
-			
-			switch(radioValue)
-				{
-					case 'T':
-						nlapiSetFieldValue('custpage_stockflag_text', 'Yes', false, true);
-						break;
-						
-					case 'F':
-						nlapiSetFieldValue('custpage_stockflag_text', 'No', false, true);
-						break;
-						
-					case 'E':
-						nlapiSetFieldValue('custpage_stockflag_text', 'Either', false, true);
-						break;
-				}
+			nlapiSetFieldValue('custpage_stockflag_text', nlapiGetFieldText(name), false, true);
 		}
 }
 
