@@ -296,7 +296,8 @@ function buildOutput(caseId)
 	if(caseRecord)
 		{
 			var today = new Date();
-			var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
+			var todayString = today.format('d') +  '/' + today.format('m') +  '/' + today.format('Y');
+			//var todayString = ('0' + today.getDate()).slice(-2) + '/' + ('0' + today.getMonth()).slice(-2) + '/' + today.getFullYear();
 			
 			var companyId = caseRecord.getFieldValue('company');
 			var contactId = caseRecord.getFieldValue('contact');
