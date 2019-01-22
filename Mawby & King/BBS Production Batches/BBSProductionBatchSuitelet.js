@@ -446,8 +446,12 @@ function productionBatchSuitelet(request, response)
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
 				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Qty Required', null);
-				var listShipDate = subList.addField('custpage_sublist_ship_date', 'text', 'Ship Date', null);
-				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
+				var listShipDate = subList.addField('custpage_sublist_ship_date', 'date', 'Ship Date', null);
+				
+				var listShipPlanned = subList.addField('custpage_sublist_ship_planned', 'date', 'Planned Date', null);
+						
+				var listDate = subList.addField('custpage_sublist_date', 'date', 'Date Entered', null);
+				
 				var listProductType = subList.addField('custpage_sublist_product_type', 'text', 'Product Type', null);
 				var listGlassSpec = subList.addField('custpage_sublist_glass_spec', 'text', 'Glass Spec', null);
 				var listThickness = subList.addField('custpage_sublist_thickness', 'text', 'Thickness', null);
@@ -530,7 +534,8 @@ function productionBatchSuitelet(request, response)
 						   new nlobjSearchColumn("createdfrom",null,null),
 						   new nlobjSearchColumn("tranid","createdFrom",null), 
 						   new nlobjSearchColumn("externalid","customer",null),
-						   new nlobjSearchColumn("shipdate","createdFrom",null)
+						   new nlobjSearchColumn("shipdate","createdFrom",null),
+						   new nlobjSearchColumn("custbody_bbs_sales_planned_ship","createdFrom",null)
 						]
 						);
 						
@@ -572,11 +577,14 @@ function productionBatchSuitelet(request, response)
 						subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
 						subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_belongs_to','item'));
 						subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
-						subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
+						
+						subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated').split(' ')[0]);
+						
 						subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
 						subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
 						subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
 						subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
+						subList.setLineItemValue('custpage_sublist_ship_planned', line, searchResultSet[int].getValue("custbody_bbs_sales_planned_ship","createdFrom"));
 						
 						subList.setLineItemValue('custpage_sublist_product_type', line, searchResultSet[int].getText('custitem_bbs_item_product_type', 'item'));
 						subList.setLineItemValue('custpage_sublist_glass_spec', line, searchResultSet[int].getText('custitem_bbs_glass_spec'));
