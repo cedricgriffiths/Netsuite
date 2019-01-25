@@ -19,65 +19,99 @@
  */
 function projectTaskAS(type)
 {
-	//Get old & new records
-	//
-	var oldTaskRecord = nlapiGetOldRecord();
-	var newTaskRecord = nlapiGetNewRecord();
-	
-	//Get old & new values 
-	//
-	var oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
-	var newGoLiveTask = newTaskRecord.getFieldValue('custevent2');
-	var oldStartDate = oldTaskRecord.getFieldValue('startdate');
-	var newStartDate = newTaskRecord.getFieldValue('startdate');
-	
-	//If we have just ticked the go live project task tick box, then wee need to process
-	//
-	if(oldGoLiveTask == 'F' && newGoLiveTask == 'T')
+	if(type == 'delete')
 		{
-			//Get the project id
-			//
-			var projectId = newTaskRecord.getFieldValue('company');
+			var oldTaskRecord = nlapiGetOldRecord();
+		
+			var oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
+			var oldStartDate = oldTaskRecord.getFieldValue('startdate');
 			
-			//Get the start date of this task
+			//If we are deleting the task that was marked as the go live task, then we need to un-set the dates on the project
 			//
-			var taskStartDate = newTaskRecord.getFieldValue('startdate');
-			
-			//Update the project estimated go live dates
-			//
-			var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
-			var valuesToUpdate = [taskStartDate,taskStartDate];
-			
-			nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+			if(oldGoLiveTask == 'T')
+				{
+					//Get the project id
+					//
+					var projectId = oldTaskRecord.getFieldValue('company');
+					
+					//Update the project estimated go live dates
+					//
+					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
+					var valuesToUpdate = ['',''];
+					
+					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+				}
 		}
 	
-	//If we have just un-ticked the go live project task tick box, then we need to process
-	//
-	if(oldGoLiveTask == 'T' && newGoLiveTask == 'F')
+	if(type == 'create' || type == 'edit')
 		{
-			//Get the project id
+			//Get old & new records
 			//
-			var projectId = newTaskRecord.getFieldValue('company');
+			var oldTaskRecord = nlapiGetOldRecord();
+			var newTaskRecord = nlapiGetNewRecord();
 			
-			//Update the project estimated go live dates
-			//
-			var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
-			var valuesToUpdate = ['',''];
+			var oldGoLiveTask = null;
+			var oldStartDate = null;
 			
-			nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
-		}
-	
-	//If the go live project task tick box is ticked but we have changed the task start date, then we need to process
-	//
-	if(oldGoLiveTask == 'T' && newGoLiveTask == 'T' && oldStartDate != newStartDate)
-		{
-			//Get the project id
+			//Only get the 'old' values if we are in edit mode, in create mode there will be no 'old' version of the record
 			//
-			var projectId = newTaskRecord.getFieldValue('company');
+			if(type == 'edit')
+				{
+					oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
+					oldStartDate = oldTaskRecord.getFieldValue('startdate');
+				}
 			
-			//Update the project go live date
+			var newGoLiveTask = newTaskRecord.getFieldValue('custevent2');
+			var newStartDate = newTaskRecord.getFieldValue('startdate');
+			
+			//If we have just ticked the go live project task tick box, then wee need to process
 			//
-			nlapiSubmitField('job', projectId, 'custentity_bbs_actual_website_golive', newStartDate, false);
+			if((oldGoLiveTask == 'F' || oldGoLiveTask == null) && newGoLiveTask == 'T')
+				{
+					//Get the project id
+					//
+					var projectId = newTaskRecord.getFieldValue('company');
+					
+					//Get the start date of this task
+					//
+					var taskStartDate = newTaskRecord.getFieldValue('startdate');
+					
+					//Update the project estimated go live dates
+					//
+					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
+					var valuesToUpdate = [taskStartDate,taskStartDate];
+					
+					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+				}
+			
+			//If we have just un-ticked the go live project task tick box, then we need to process
+			//
+			if(oldGoLiveTask == 'T' && newGoLiveTask == 'F')
+				{
+					//Get the project id
+					//
+					var projectId = newTaskRecord.getFieldValue('company');
+					
+					//Update the project estimated go live dates
+					//
+					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
+					var valuesToUpdate = ['',''];
+					
+					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+				}
+			
+			//If the go live project task tick box is ticked but we have changed the task start date, then we need to process
+			//
+			if(oldGoLiveTask == 'T' && newGoLiveTask == 'T' && oldStartDate != newStartDate)
+				{
+					//Get the project id
+					//
+					var projectId = newTaskRecord.getFieldValue('company');
+					
+					//Update the project go live date
+					//
+					nlapiSubmitField('job', projectId, 'custentity_bbs_actual_website_golive', newStartDate, false);
+				}
 		}
 }
 
