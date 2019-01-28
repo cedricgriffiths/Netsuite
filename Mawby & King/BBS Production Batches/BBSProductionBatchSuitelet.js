@@ -1252,7 +1252,8 @@ function productionBatchSuitelet(request, response)
 							   new nlobjSearchColumn("custbody_bbs_order_delivery_notes","createdfrom",null),
 							   new nlobjSearchColumn("purchaseunit","item",null),
 							   new nlobjSearchColumn("shipdate","createdfrom",null),
-							   new nlobjSearchColumn("custbody_bbs_sales_planned_ship","createdfrom",null)
+							   new nlobjSearchColumn("custbody_bbs_sales_planned_ship","createdfrom",null),
+							   new nlobjSearchColumn("custbody_bbs_wo_copies")
 							]
 							);
 
@@ -1316,6 +1317,7 @@ function productionBatchSuitelet(request, response)
 							var thisFinishedItem = '';
 							var woSpecInst = '';
 							var firstInventoryItem = true;
+							var previousCopies = Number(0);
 							
 							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 							{
@@ -1337,13 +1339,18 @@ function productionBatchSuitelet(request, response)
 								var woScrapAllowance			= searchResultSet[int3].getValue("custbody_bbs_prodn_scrap_allowance");
 								var woSalesOrderNotes			= searchResultSet[int3].getValue("custbody_bbs_order_delivery_notes","createdfrom");
 								var woSalesOrderPlanned			= searchResultSet[int3].getValue("custbody_bbs_sales_planned_ship","createdfrom");
+								var woCopies					= Number(searchResultSet[int3].getValue("custbody_bbs_wo_copies"));
+								
+								woCopies = (woCopies == 0 || woCopies < 0 ? 1 : woCopies);
 								
 								var woCustPartNo = findCustPartNo(woEntityId, woAssemblyItemId);
 								
 								if(woMainline == '*')
-									{										
+									{											
 										if(firstTime)
 											{
+												previousCopies = woCopies;
+											
 												firstTime = false;
 											}
 										else
@@ -1357,6 +1364,17 @@ function productionBatchSuitelet(request, response)
 												//Finish the pdf
 												//
 												xmlPt += "</pdf>";
+												
+												//Copy the resulting pdf the relevant number of times
+												//
+												for (var int5 = 0; int5 < previousCopies; int5++) 
+													{
+														xml += xmlPt;
+													}
+												
+												previousCopies = woCopies;
+												
+												xmlPt = '';
 											}
 										
 										//Header & style sheet
@@ -1568,8 +1586,6 @@ function productionBatchSuitelet(request, response)
 							
 						}
 					
-
-					
 					//Finish the body
 					//
 					xmlPt += "</body>";
@@ -1578,15 +1594,19 @@ function productionBatchSuitelet(request, response)
 					//
 					xmlPt += "</pdf>";
 
-					xml += xmlPt;
+					//Copy the resulting pdf the relevant number of times
+					//
+					for (var int5 = 0; int5 < previousCopies; int5++) 
+						{
+							xml += xmlPt;
+						}
+					
+					//xml += xmlPt;
 
 					xmlPt = '';
 					
-					
 				}
-				
-				
-				
+
 				//Finish the pdfset
 				//
 				xml += "</pdfset>";
