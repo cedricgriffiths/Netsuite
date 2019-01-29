@@ -36,10 +36,17 @@ function projectTaskAS(type)
 					
 					//Update the project estimated go live dates
 					//
-					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
-					var valuesToUpdate = ['',''];
+					var fieldsToUpdate = ['custentity_bbs_actual_website_golive'];
+					var valuesToUpdate = [''];
 					
-					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+					try
+						{
+							nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+						}
+					catch(err)
+						{
+						
+						}
 				}
 		}
 	
@@ -76,12 +83,47 @@ function projectTaskAS(type)
 					//
 					var taskStartDate = newTaskRecord.getFieldValue('startdate');
 					
+					//Get the current value of the baseline field from the task
+					//
+					var currentBaseline = null;
+					
+					try
+						{
+							currentBaseline = nlapiLookupField('job', projectId, 'custentity_bbs_webs_estgo_live_date', false);
+						}
+					catch(err)
+						{
+							currentBaseline = null;
+						}
+					
 					//Update the project estimated go live dates
 					//
-					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
-					var valuesToUpdate = [taskStartDate,taskStartDate];
+					var fieldsToUpdate = '';
+					var valuesToUpdate = '';
 					
-					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+					if(currentBaseline == null || currentBaseline == '')
+						{
+							//If the baseline is empty then we can set it
+							//
+							fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
+							valuesToUpdate = [taskStartDate,taskStartDate];
+						}
+					else
+						{
+							//If the baseline already has a value, then leave it alone
+							//
+							fieldsToUpdate = ['custentity_bbs_actual_website_golive'];
+							valuesToUpdate = [taskStartDate];
+						}
+					
+					try
+						{
+							nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+						}
+					catch(err)
+						{
+						
+						}
 				}
 			
 			//If we have just un-ticked the go live project task tick box, then we need to process
@@ -94,10 +136,17 @@ function projectTaskAS(type)
 					
 					//Update the project estimated go live dates
 					//
-					var fieldsToUpdate = ['custentity_bbs_webs_estgo_live_date','custentity_bbs_actual_website_golive'];
-					var valuesToUpdate = ['',''];
+					var fieldsToUpdate = ['custentity_bbs_actual_website_golive'];
+					var valuesToUpdate = [''];
 					
-					nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+					try
+						{
+							nlapiSubmitField('job', projectId, fieldsToUpdate, valuesToUpdate, false);
+						}
+					catch(err)
+						{
+						
+						}
 				}
 			
 			//If the go live project task tick box is ticked but we have changed the task start date, then we need to process
@@ -110,7 +159,50 @@ function projectTaskAS(type)
 					
 					//Update the project go live date
 					//
-					nlapiSubmitField('job', projectId, 'custentity_bbs_actual_website_golive', newStartDate, false);
+					try
+						{
+							nlapiSubmitField('job', projectId, 'custentity_bbs_actual_website_golive', newStartDate, false);
+						}
+					catch(err)
+						{
+						
+						}
+				}
+			
+			//See if the task belongs to a template project, if so unset the go live flag
+			//
+			
+			//Get the project id
+			//
+			var projectId = newTaskRecord.getFieldValue('company');
+			var taskId = newTaskRecord.getId();
+			
+			//See if the project is marked as a template
+			//
+			var templateRecord = null;
+			
+			try
+				{
+					var templateRecord = nlapiLoadRecord('projecttemplate', projectId);
+				}
+			catch(err)
+				{
+					templateRecord = null;
+				}
+			
+			//If we have found that the task relates to a template project then we do not want to allow the task to be set as a start task
+			//
+			if(templateRecord != null)
+				{
+					try
+						{
+							nlapiSubmitField('projecttask', taskId, 'custevent2', 'F', false);
+						}
+					catch(err)
+						{
+						
+						}
+					
 				}
 		}
 }
@@ -138,31 +230,90 @@ function projectTaskBL(type, form, request)
 			//
 			if(goLiveTask == 'F')
 				{
+					//Get the project that this task belongs to
+					//
 					var projectId = nlapiGetFieldValue('company');
 					var taskId = nlapiGetRecordId();
 					
-					var projecttaskSearch = nlapiSearchRecord("projecttask",null,
-							[
-							   ["project","anyof",projectId], 
-							   "AND", 
-							   ["custevent2","is","T"], 
-							   "AND", 
-							   ["internalid","noneof",taskId]
-							], 
-							[
-							   new nlobjSearchColumn("id").setSort(false), 
-							   new nlobjSearchColumn("title")
-							]
-							);
-				
-					//We have found another task on this project that has the field ticked
+					//See if the project is marked as a template
 					//
-					if(projecttaskSearch != null && projecttaskSearch.length > 0)
+					var templateRecord = null;
+					
+					try
 						{
-							//Make the tick box disabled
-							//
+							var templateRecord = nlapiLoadRecord('projecttemplate', projectId);
+						}
+					catch(err)
+						{
+							templateRecord = null;
+						}
+					
+					//If we have found that the task relates to a template project then we do not want to allow the task to be set as a start task
+					//
+					if(templateRecord != null)
+						{
 							var goLiveTickField = form.getField('custevent2');
 							goLiveTickField.setDisplayType('disabled');
+						}
+					else
+						{
+							//Search for other tasks
+							//
+							var projecttaskSearch = nlapiSearchRecord("projecttask",null,
+									[
+									   ["project","anyof",projectId], 
+									   "AND", 
+									   ["custevent2","is","T"], 
+									   "AND", 
+									   ["internalid","noneof",taskId]
+									], 
+									[
+									   new nlobjSearchColumn("id").setSort(false), 
+									   new nlobjSearchColumn("title")
+									]
+									);
+						
+							//We have found another task on this project that has the field ticked
+							//
+							if(projecttaskSearch != null && projecttaskSearch.length > 0)
+								{
+									//Make the tick box disabled
+									//
+									var goLiveTickField = form.getField('custevent2');
+									goLiveTickField.setDisplayType('disabled');
+								}
+						}
+				}
+			else
+				{
+					//If the go live task is ticked, then we need to see if it belongs to a template & if so disable the field
+					//
+				
+					//Get the project that this task belongs to
+					//
+					var projectId = nlapiGetFieldValue('company');
+					var taskId = nlapiGetRecordId();
+					
+					//See if the project is marked as a template
+					//
+					var templateRecord = null;
+					
+					try
+						{
+							var templateRecord = nlapiLoadRecord('projecttemplate', projectId);
+						}
+					catch(err)
+						{
+							templateRecord = null;
+						}
+					
+					//If we have found that the task relates to a template project then we do not want to allow the task to be set as a start task
+					//
+					if(templateRecord != null)
+						{
+							var goLiveTickField = form.getField('custevent2');
+							goLiveTickField.setDisplayType('disabled');
+							
 						}
 				}
 		}
