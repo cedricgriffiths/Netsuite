@@ -156,6 +156,13 @@ function scheduled(type)
 											woLogo = lineItemItemId;
 											woLogoType = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_process_type', false);
 											machine = nlapiLookupField(getItemRecType(lineItemType), lineItemItemId, 'custitem_bbs_item_machine', true);
+											//logoQuantity += lineItemQuantity;
+										}
+									
+									//Work out the logo quantities by looking for items at assembly level 2
+									//
+									if(lineItemLevel == 2)
+										{
 											logoQuantity += lineItemQuantity;
 										}
 									
