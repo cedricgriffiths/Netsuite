@@ -17,7 +17,7 @@
  *                      paybills (vendor payments)
  * @returns {Void}
  */
-function userEventAfterSubmit(type)
+function myCatalogueAfterSubmit(type)
 {
 	if(type == 'create' || type == 'edit')
 		{
@@ -55,9 +55,9 @@ function userEventAfterSubmit(type)
 					for (var int2 = 0; int2 < customrecord_bbs_customer_web_productSearch.length; int2++) 
 						{
 							var myCatalogueItemId = customrecord_bbs_customer_web_productSearch[int2].getValue("custrecord_bbs_web_product_item");
-							var myCatalogueItemName = customrecord_bbs_customer_web_productSearch[int2].getText("custrecord_bbs_web_product_item");
-						
-							myCatalogueArray[myCatalogueItemId] = myCatalogueItemName;
+							var myCatalogueId = customrecord_bbs_customer_web_productSearch[int2].getId();
+							
+							myCatalogueArray[myCatalogueItemId] = myCatalogueId;
 						}
 				}
 			
@@ -65,24 +65,34 @@ function userEventAfterSubmit(type)
 			//
 			
 			//Remove any items from the customer items array that already exist in the my catalogue
-			//So what is left will be records to add to the my catalogue
+			//Also then remove the same item from the my catalogue array
+			//So what is left in the item pricing array will be records to add to the my catalogue
+			//And anything left in the my catalogue array will need deleting from my catalogue as they 
+			//do not exist in the item array
 			//
 			for ( var myCatalogueKey in myCatalogueArray) 
 				{
 					if(itemPricingArray.hasOwnProperty(myCatalogueKey))
 						{
 							delete itemPricingArray[myCatalogueKey];
+							delete myCatalogueArray[myCatalogueKey];
 						}
 				}
 			
-			//Remove any items from the my catalogue array that already exist in the customer item array
+			//If there is any work to do i.e we have items to add or delete from the my catalogue, the submit a script to do the work
 			//
-			for ( var itemPricingKey in itemPricingArray) 
+			if(Object.keys(myCatalogueArray).length > 0 || Object.keys(itemPricingArray).length > 0)
 				{
-					if(myCatalogueArray.hasOwnProperty(itemPricingKey))
-						{
-							delete myCatalogueArray[itemPricingKey];
-						}
+					var myCatalogueString = JSON.stringify(myCatalogueArray);
+					var itemPricingString = JSON.stringify(itemPricingArray);
+					
+					var scheduleParams = {
+							custscript_bbs_my_cat_string: myCatalogueString, 
+							custscript_bbs_item_string: itemPricingString,
+							custscript_bbs_item_customer_id: customerId
+							};
+				
+					nlapiScheduleScript('customscript_bbs_my_catalogue_sch', null, scheduleParams);
 				}
 			
 			
