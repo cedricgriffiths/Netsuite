@@ -284,7 +284,7 @@ function createDemandPlanScheduled(type)
 			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 8), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 8)) then {quantity} else 0 END"), 
 			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 9), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 9)) then {quantity} else 0 END"), 
 			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 10), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 10)) then {quantity} else 0 END"), 
-			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 11), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 110)) then {quantity} else 0 END"),
+			   new nlobjSearchColumn("formulanumeric",null,"SUM").setFormula("CASE WHEN {type} = 'Opportunity' and {shipdate} between trunc(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 11), 'month') AND last_day(add_months(TO_DATE('" + searchStartDateString  + "','dd/mm/yyyy'), 11)) then {quantity} else 0 END"),
 			   new nlobjSearchColumn("itemid","item","GROUP")
 			]
 			);
