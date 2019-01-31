@@ -259,14 +259,18 @@ function projectTaskBL(type, form, request)
 						{
 							//Search for other tasks
 							//
+							var filters = [
+										   ["project","anyof",projectId], 
+										   "AND", 
+										   ["custevent2","is","T"]];
+							
+							if(taskId != null && taskId != '')
+								{
+									filters.push("AND",["internalid","noneof",taskId]);
+								}
+							
 							var projecttaskSearch = nlapiSearchRecord("projecttask",null,
-									[
-									   ["project","anyof",projectId], 
-									   "AND", 
-									   ["custevent2","is","T"], 
-									   "AND", 
-									   ["internalid","noneof",taskId]
-									], 
+									filters, 
 									[
 									   new nlobjSearchColumn("id").setSort(false), 
 									   new nlobjSearchColumn("title")
