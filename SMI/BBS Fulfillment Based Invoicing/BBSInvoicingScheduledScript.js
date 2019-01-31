@@ -181,6 +181,7 @@ function invoicingScheduled(type)
 										{
 											invoiceId = null;
 											emailMessage += "An error occured - " + err.message + '\n';
+											nlapiLogExecution('ERROR', 'Error creating invoice for fulfilment id ' + ffidsParam[int], err.message);
 										}
 									
 									//Update the fulfilment with the related invoice
@@ -188,7 +189,15 @@ function invoicingScheduled(type)
 									if(invoiceId != null && invoiceId != '')
 										{
 											fulfilmentRecord.setFieldValue('custbody_bbs_related_invoice', invoiceId);
-											nlapiSubmitRecord(fulfilmentRecord, false, true);
+											
+											try
+												{
+													nlapiSubmitRecord(fulfilmentRecord, false, true);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error updating fulfilment with invoice for fulfilment id ' + ffidsParam[int], err.message);
+												}
 											
 											var invoiceNumber = nlapiLookupField('invoice', invoiceId, 'tranid');
 											
