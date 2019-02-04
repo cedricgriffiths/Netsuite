@@ -141,7 +141,8 @@ function customerItemsFieldChanged(type, name, linenum)
 					if(filterValue2 != null && filterValue2 != '')
 						{
 							filterArray.push("AND");
-							filterArray.push(["itemid","startswith",filterValue2]);
+							//filterArray.push(["itemid","startswith",filterValue2]);
+							filterArray.push(["formulatext: {itemid}","startswith",filterValue2]);
 						}
 						
 					switch(itemValue)	
