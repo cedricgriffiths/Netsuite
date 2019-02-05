@@ -300,7 +300,8 @@ function createAssembliesSuitelet(request, response){
 												
 											case 'NonInvtPart':
 												
-												memberCost = Number(nlapiLookupField('noninventoryitem', memberId, 'cost', false)) * memberQuantity;
+												//memberCost = Number(nlapiLookupField('noninventoryitem', memberId, 'cost', false)) * memberQuantity;
+												memberCost = Number(nlapiLookupField('noninventoryitem', memberId, 'custitem_bbs_embcost', false)) * memberQuantity;
 												break;
 										}
 									
