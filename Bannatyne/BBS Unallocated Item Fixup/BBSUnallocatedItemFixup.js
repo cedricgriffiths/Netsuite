@@ -24,6 +24,8 @@ function unallocatedItemScheduled(type)
 			   "AND", 
 			   ["cogs","is","F"], 
 			   "AND", 
+			   ["shipping","is","F"],
+			   "AND", 
 			   ["item.internalid","anyof","97"]
 			], 
 			[
