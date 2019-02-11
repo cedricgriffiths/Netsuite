@@ -24,7 +24,7 @@ function projectTaskFieldChanged(type, name, linenum)
 			
 			if(goLiveTickBox == 'F')
 				{
-					alert('WARNING - Unticking the "Estimated Go Live Project Task" box will clear out the date in the project "Estimated Project Go Live Date" field');
+					alert('WARNING - Unticking the "Estimated Go Live Project Task" box will clear out the date in the project "Projected Completion Date" field');
 				}
 		}
 }
