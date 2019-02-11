@@ -489,7 +489,7 @@ function createAssembliesScheduled(type)
 																					//
 //SMI																				if(webProduct == 'T')
 //																						{
-//																							allChildWebProducts[newchildId] = newchildId;
+ 																							allChildWebProducts[newchildId] = newchildId;
 //																						}
 																					
 																					//Add info to the email message
@@ -540,27 +540,27 @@ function createAssembliesScheduled(type)
 			
 			//Update the customer's web product with the new child items created
 			//
-//SMI		if(Object.keys(allChildWebProducts).length > 0)
-//				{
-//					for (var childWebProduct in allChildWebProducts) 
-//						{
-//							try
-//								{
-//									var webProductRecord = nlapiCreateRecord('customrecord_bbs_customer_web_product');
-//
-//									webProductRecord.setFieldValue('custrecord_bbs_web_product_customer', customerId);
-//									webProductRecord.setFieldValue('custrecord_bbs_web_product_item', childWebProduct);
-//									
-//									nlapiSubmitRecord(webProductRecord, true, true);
-//								}
-//							catch(err)
-//								{
-//									emailText += 'Error creating customer web product record, message is "' + err.message +'"\n';
-//								}
-//						}
-//					
-//					emailText += 'Customer web products have been updated\n';
-//				}
+			if(Object.keys(allChildWebProducts).length > 0)
+				{
+					for (var childWebProduct in allChildWebProducts) 
+						{
+							try
+								{
+									var webProductRecord = nlapiCreateRecord('customrecord_bbs_customer_web_product');
+
+									webProductRecord.setFieldValue('custrecord_bbs_web_product_customer', customerId);
+									webProductRecord.setFieldValue('custrecord_bbs_web_product_item', childWebProduct);
+									
+									nlapiSubmitRecord(webProductRecord, true, true);
+								}
+							catch(err)
+								{
+									emailText += 'Error creating customer web product record, message is "' + err.message +'"\n';
+								}
+						}
+					
+					emailText += 'Customer web products have been updated\n';
+				}
 		}
 	
 	//Send the email to the user to say that we have finished
