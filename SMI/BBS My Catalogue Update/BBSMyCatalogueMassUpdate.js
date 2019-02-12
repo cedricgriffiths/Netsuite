@@ -15,7 +15,9 @@ function myCatalogueMassUpdateScheduled(type)
 	var customerArray = {};
 	var lastCustomer = '';
 	
-	var itemSearch = getResults(nlapiCraeteSearch("item",
+	//Search for all items that belong to customers
+	//
+	var itemSearch = getResults(nlapiCreateSearch("item",
 			[
 			   ["matrixchild","is","T"], 
 			   "AND", 
@@ -28,7 +30,8 @@ function myCatalogueMassUpdateScheduled(type)
 			]
 			));
 	
-	
+	//Group all of the items by customer
+	//
 	if(itemSearch != null && itemSearch.length > 0)
 		{
 			for (var int = 0; int < itemSearch.length; int++) 
@@ -46,6 +49,67 @@ function myCatalogueMassUpdateScheduled(type)
 				}
 		}
 	
+	nlapiLogExecution('DEBUG', 'Number of customers with items', Object.keys(customerArray).length);
+	
+	//For each customer we need to remove any item id's that already exists in the my catalogue
+	//
+	for ( var customerId in customerArray) 
+		{
+			nlapiLogExecution('DEBUG', 'Processing customer with id', customerId);
+		
+			//Get the entries in my catalogue for the current customer
+			//
+			var customrecord_bbs_customer_web_productSearch = getResults(nlapiCreateSearch("customrecord_bbs_customer_web_product",
+					[
+					   ["custrecord_bbs_web_product_customer","anyof",customerId]
+					], 
+					[
+					   new nlobjSearchColumn("custrecord_bbs_web_product_item").setSort(false)
+					]
+					));
+			
+			//Loop through the results
+			//
+			if(customrecord_bbs_customer_web_productSearch != null && customrecord_bbs_customer_web_productSearch.length > 0)
+				{
+					for (var int2 = 0; int2 < customrecord_bbs_customer_web_productSearch.length; int2++) 
+						{
+							var myCatalogueItemId = customrecord_bbs_customer_web_productSearch[int2].getValue("custrecord_bbs_web_product_item");
+							
+							//See if the product id from my catalogue is in the array of items for the customer
+							//
+							if(customerArray[customerId].indexOf(myCatalogueItemId) != -1)
+								{
+									customerArray[customerId] = arrayRemove(customerArray[customerId], myCatalogueItemId);
+								}
+						}
+				}
+		}
+	
+	//For each customer we need to add the remaining items to the my catalogue
+	//
+	for ( var customerId in customerArray) 
+		{
+			for (var int3 = 0; int3 < customerArray[customerId].length; int3++) 
+				{
+					checkResources();
+					
+					var itemId = customerArray[customerId][int3];
+					
+					var myCatalogueRecord = nlapiCreateRecord('customrecord_bbs_customer_web_product');
+					myCatalogueRecord.setFieldValue('custrecord_bbs_web_product_customer', customerId);
+					myCatalogueRecord.setFieldValue('custrecord_bbs_web_product_item', itemId);
+					
+					try
+						{
+							nlapiSubmitRecord(myCatalogueRecord, false, true);
+						}
+					catch(err)
+						{
+							nlapiLogExecution('ERROR', 'Error creating my catalogue record for customer ' + customerId + ' for item ' + itemId, err.message);
+						}
+				}
+		}
 }
 
 //=====================================================================
@@ -70,15 +134,18 @@ function getResults(search)
 			//
 			while (resultlen == 1000) 
 				{
-						start += 1000;
-						end += 1000;
+					checkResources();
+					
+					start += 1000;
+					end += 1000;
 						
-						var moreSearchResultSet = searchResult.getResults(start, end);
-						resultlen = moreSearchResultSet.length;
+					var moreSearchResultSet = searchResult.getResults(start, end);
+					resultlen = moreSearchResultSet.length;
 		
-						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					searchResultSet = searchResultSet.concat(moreSearchResultSet);
 				}
 		}
+	
 	return searchResultSet;
 }
 
@@ -91,4 +158,11 @@ function checkResources()
 			var yieldState = nlapiYieldScript();
 			//nlapiLogExecution('DEBUG', 'Yield Status', yieldState.status + ' ' + yieldState.size + ' ' +  yieldState.reason + ' ' + yieldState.information);
 		}
+}
+
+function arrayRemove(arr, value) 
+{
+	   return arr.filter(function(ele){
+	       return ele != value;
+	   });
 }

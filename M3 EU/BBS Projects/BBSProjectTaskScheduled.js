@@ -20,7 +20,8 @@ function projectTaskScheduled(type)
 			   new nlobjSearchColumn("id").setSort(false), 
 			   new nlobjSearchColumn("title"), 
 			   new nlobjSearchColumn("company"), 
-			   new nlobjSearchColumn("startdate")
+			   new nlobjSearchColumn("startdate"), 
+			   new nlobjSearchColumn("enddate")
 			]
 			));
 	
@@ -29,7 +30,7 @@ function projectTaskScheduled(type)
 			for (var int = 0; int < projecttaskSearch.length; int++) 
 				{
 					var projectId = projecttaskSearch[int].getValue("company");
-					var startDate = projecttaskSearch[int].getValue("startdate");
+					var startDate = projecttaskSearch[int].getValue("enddate");
 					var projectDate = null;
 					
 					try

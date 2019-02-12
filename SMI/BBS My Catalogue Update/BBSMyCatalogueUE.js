@@ -40,11 +40,13 @@ function myCatalogueAfterSubmit(type)
 					itemPricingArray[itemId] = itemName;
 				}
 		
-			//Get an array of all the items that are in the my catalogue for the customer
+			//Get an array of all the items that are in the my catalogue for the customer, but excluding assembley items
 			//
 			var customrecord_bbs_customer_web_productSearch = getResults(nlapiCreateSearch("customrecord_bbs_customer_web_product",
 					[
-					   ["custrecord_bbs_web_product_customer","anyof",customerId]
+					   ["custrecord_bbs_web_product_customer","anyof",customerId], 
+					   "AND", 
+					   ["custrecord_bbs_web_product_item.type","noneof","Assembly"]
 					], 
 					[
 					   new nlobjSearchColumn("id").setSort(false), 
