@@ -71,46 +71,50 @@ function altSalesSaveRecord()
  */
 function altSalesValidateLine(type)
 {
-	var item = nlapiGetCurrentLineItemValue('item', 'item');
-	var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
-	var line = nlapiGetCurrentLineItemValue('item', 'line');
-	var amount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
-	var rate = Number(nlapiGetCurrentLineItemValue('item', 'rate'));
-	
-	if(itemType != 'Discount' && itemType != 'EndGroup' && itemType != 'Description')
+	if(type == 'item')
 		{
-			//If this is not a discount line, then we have to calculate the alt sales amount & then see if there is a discount line & apply that to the alt sales value
-			//
-			var grossMargin = Number(nlapiLookupField(getItemRecordType(itemType), item, 'custitem_gross_margin_percent_items', false));
+			var item = nlapiGetCurrentLineItemValue('item', 'item');
+			var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
+			var line = nlapiGetCurrentLineItemValue('item', 'line');
+			var amount = Number(nlapiGetCurrentLineItemValue('item', 'amount'));
+			var rate = Number(nlapiGetCurrentLineItemValue('item', 'rate'));
 			
-			if(grossMargin != 0)
+			if(itemType != 'Discount' && itemType != 'EndGroup' && itemType != 'Description')
 				{
-					var altSalesAmount = (amount / 100.00) * grossMargin;
-			
-					var lineCount = nlapiGetLineItemCount('item');
+					//If this is not a discount line, then we have to calculate the alt sales amount & then see if there is a discount line & apply that to the alt sales value
+					//
+					var grossMargin = Number(nlapiLookupField(getItemRecordType(itemType), item, 'custitem_gross_margin_percent_items', false));
 					
-					for (var int = 1; int <= lineCount; int++) 
+					if(grossMargin != 0)
 						{
-							var lineItemType = nlapiGetLineItemValue('item', 'itemtype', int);
+							var altSalesAmount = (amount / 100.00) * grossMargin;
+					
+							var lineCount = nlapiGetLineItemCount('item');
 							
-							if(lineItemType == 'Discount')
+							for (var int = 1; int <= lineCount; int++) 
 								{
-									var lineRate = Math.abs(Number(nlapiGetLineItemValue('item', 'rate', int).replace('%', '')));
+									var lineItemType = nlapiGetLineItemValue('item', 'itemtype', int);
 									
-									if(lineRate != 0)
+									if(lineItemType == 'Discount')
 										{
-											var discountAmount = (altSalesAmount / 100.00) * lineRate;
+											var lineRate = Math.abs(Number(nlapiGetLineItemValue('item', 'rate', int).replace('%', '')));
 											
-											altSalesAmount -= discountAmount;
+											if(lineRate != 0)
+												{
+													var discountAmount = (altSalesAmount / 100.00) * lineRate;
+													
+													altSalesAmount -= discountAmount;
+												}
 										}
 								}
+							
+							nlapiSetCurrentLineItemValue('item', 'altsalesamt', altSalesAmount, true, true);
 						}
-					
-					nlapiSetCurrentLineItemValue('item', 'altsalesamt', altSalesAmount, true, true);
 				}
 		}
-    
+	
 	return true;
+		
 }
 
 function altSalesValidateDelete(type)

@@ -22,9 +22,7 @@ function projectTaskAS(type)
 	if(type == 'delete')
 		{
 			var oldTaskRecord = nlapiGetOldRecord();
-		
 			var oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
-			var oldStartDate = oldTaskRecord.getFieldValue('startdate');
 			
 			//If we are deleting the task that was marked as the go live task, then we need to un-set the dates on the project
 			//
@@ -58,18 +56,18 @@ function projectTaskAS(type)
 			var newTaskRecord = nlapiGetNewRecord();
 			
 			var oldGoLiveTask = null;
-			var oldStartDate = null;
+			//var oldStartDate = null;
 			
 			//Only get the 'old' values if we are in edit mode, in create mode there will be no 'old' version of the record
 			//
 			if(type == 'edit')
 				{
 					oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
-					oldStartDate = oldTaskRecord.getFieldValue('startdate');
+					//oldStartDate = oldTaskRecord.getFieldValue('startdate');
 				}
 			
 			var newGoLiveTask = newTaskRecord.getFieldValue('custevent2');
-			var newStartDate = newTaskRecord.getFieldValue('startdate');
+			var newStartDate = getTaskEndDate(newTaskRecord.getId()); //newTaskRecord.getFieldValue('startdate');
 			
 			//If we have just ticked the go live project task tick box, then wee need to process
 			//
@@ -81,7 +79,7 @@ function projectTaskAS(type)
 					
 					//Get the start date of this task
 					//
-					var taskStartDate = newTaskRecord.getFieldValue('startdate');
+					var taskStartDate = getTaskEndDate(newTaskRecord.getId()); //newTaskRecord.getFieldValue('startdate');
 					
 					//Get the current value of the baseline field from the task
 					//
@@ -151,8 +149,9 @@ function projectTaskAS(type)
 			
 			//If the go live project task tick box is ticked but we have changed the task start date, then we need to process
 			//
-			if(oldGoLiveTask == 'T' && newGoLiveTask == 'T' && oldStartDate != newStartDate)
-				{
+			//if(oldGoLiveTask == 'T' && newGoLiveTask == 'T' && oldStartDate != newStartDate)
+			if(oldGoLiveTask == 'T' && newGoLiveTask == 'T')
+						{
 					//Get the project id
 					//
 					var projectId = newTaskRecord.getFieldValue('company');
@@ -321,4 +320,25 @@ function projectTaskBL(type, form, request)
 						}
 				}
 		}
+}
+
+function getTaskEndDate(_taskId)
+{
+	var returnedDate = '';
+	
+	var projecttaskSearch = nlapiSearchRecord("projecttask",null,
+			[
+			   ["internalid","anyof",_taskId]
+			], 
+			[
+			   new nlobjSearchColumn("enddate")
+			]
+			);
+	
+	if(projecttaskSearch != null && projecttaskSearch.length == 1)
+		{
+			returnedDate = projecttaskSearch[0].getValue("enddate");
+		}
+	
+	return returnedDate;
 }
