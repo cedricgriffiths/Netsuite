@@ -15,6 +15,8 @@ function myCatalogueMassUpdateScheduled(type)
 	var customerArray = {};
 	var lastCustomer = '';
 	
+	nlapiLogExecution('DEBUG', 'Starting....', '');
+	
 	//Search for all items that belong to customers
 	//
 	var itemSearch = getResults(nlapiCreateSearch("item",
@@ -55,8 +57,6 @@ function myCatalogueMassUpdateScheduled(type)
 	//
 	for ( var customerId in customerArray) 
 		{
-			nlapiLogExecution('DEBUG', 'Processing customer with id', customerId);
-		
 			//Get the entries in my catalogue for the current customer
 			//
 			var customrecord_bbs_customer_web_productSearch = getResults(nlapiCreateSearch("customrecord_bbs_customer_web_product",
@@ -86,10 +86,26 @@ function myCatalogueMassUpdateScheduled(type)
 				}
 		}
 	
+	//Tidy up & remove any customers that have no items to update
+	//
+	for ( var customerId in customerArray) 
+		{
+			if(customerArray[customerId].length == 0)
+				{
+					delete customerArray[customerId];
+					
+					//nlapiLogExecution('DEBUG', 'Removing customer with id', customerId);
+				}
+		}
+	
+	nlapiLogExecution('DEBUG', 'Remaining number of customers with items', Object.keys(customerArray).length);
+	
 	//For each customer we need to add the remaining items to the my catalogue
 	//
 	for ( var customerId in customerArray) 
 		{
+			nlapiLogExecution('DEBUG', 'Adding My Catalogue entries for customer with id', customerId);
+		
 			for (var int3 = 0; int3 < customerArray[customerId].length; int3++) 
 				{
 					checkResources();
