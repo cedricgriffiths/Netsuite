@@ -14,7 +14,7 @@ function projectTaskScheduled(type)
 {
 	var projecttaskSearch = getResults(nlapiCreateSearch("projecttask",
 			[
-			   ["custevent2","is","T"]
+			   ["custevent3","is","T"]
 			], 
 			[
 			   new nlobjSearchColumn("id").setSort(false), 

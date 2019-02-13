@@ -18,9 +18,9 @@
  */
 function projectTaskFieldChanged(type, name, linenum)
 {
-	if(name == 'custevent2')
+	if(name == 'custevent3')
 		{
-			var goLiveTickBox = nlapiGetFieldValue('custevent2');
+			var goLiveTickBox = nlapiGetFieldValue('custevent3');
 			
 			if(goLiveTickBox == 'F')
 				{

@@ -22,7 +22,7 @@ function projectTaskAS(type)
 	if(type == 'delete')
 		{
 			var oldTaskRecord = nlapiGetOldRecord();
-			var oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
+			var oldGoLiveTask = oldTaskRecord.getFieldValue('custevent3');
 			
 			//If we are deleting the task that was marked as the go live task, then we need to un-set the dates on the project
 			//
@@ -62,11 +62,11 @@ function projectTaskAS(type)
 			//
 			if(type == 'edit')
 				{
-					oldGoLiveTask = oldTaskRecord.getFieldValue('custevent2');
+					oldGoLiveTask = oldTaskRecord.getFieldValue('custevent3');
 					//oldStartDate = oldTaskRecord.getFieldValue('startdate');
 				}
 			
-			var newGoLiveTask = newTaskRecord.getFieldValue('custevent2');
+			var newGoLiveTask = newTaskRecord.getFieldValue('custevent3');
 			var newStartDate = getTaskEndDate(newTaskRecord.getId()); //newTaskRecord.getFieldValue('startdate');
 			
 			//If we have just ticked the go live project task tick box, then wee need to process
@@ -195,7 +195,7 @@ function projectTaskAS(type)
 				{
 					try
 						{
-							nlapiSubmitField('projecttask', taskId, 'custevent2', 'F', false);
+							nlapiSubmitField('projecttask', taskId, 'custevent3', 'F', false);
 						}
 					catch(err)
 						{
@@ -223,7 +223,7 @@ function projectTaskBL(type, form, request)
 		{
 			//See if this task has the go live project task ticked or not
 			//
-			var goLiveTask = nlapiGetFieldValue('custevent2');
+			var goLiveTask = nlapiGetFieldValue('custevent3');
 			
 			//If the field is not ticked, see if another task for this project has got it ticked
 			//
@@ -251,7 +251,7 @@ function projectTaskBL(type, form, request)
 					//
 					if(templateRecord != null)
 						{
-							var goLiveTickField = form.getField('custevent2');
+							var goLiveTickField = form.getField('custevent3');
 							goLiveTickField.setDisplayType('disabled');
 						}
 					else
@@ -261,7 +261,7 @@ function projectTaskBL(type, form, request)
 							var filters = [
 										   ["project","anyof",projectId], 
 										   "AND", 
-										   ["custevent2","is","T"]];
+										   ["custevent3","is","T"]];
 							
 							if(taskId != null && taskId != '')
 								{
@@ -282,7 +282,7 @@ function projectTaskBL(type, form, request)
 								{
 									//Make the tick box disabled
 									//
-									var goLiveTickField = form.getField('custevent2');
+									var goLiveTickField = form.getField('custevent3');
 									goLiveTickField.setDisplayType('disabled');
 								}
 						}
@@ -314,7 +314,7 @@ function projectTaskBL(type, form, request)
 					//
 					if(templateRecord != null)
 						{
-							var goLiveTickField = form.getField('custevent2');
+							var goLiveTickField = form.getField('custevent3');
 							goLiveTickField.setDisplayType('disabled');
 							
 						}
