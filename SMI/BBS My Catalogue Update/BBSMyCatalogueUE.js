@@ -21,7 +21,7 @@ function myCatalogueAfterSubmit(type)
 {
 	var executionContext = nlapiGetContext().getExecutionContext();
 	
-	if((type == 'create' || type == 'edit') && executionContext == 'userinterface')
+	if((type == 'create' || type == 'edit') && (executionContext == 'userinterface' || executionContext == 'scheduled'))
 		{
 			var newRecord = nlapiGetNewRecord();
 			var customerId = nlapiGetRecordId();
