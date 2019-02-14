@@ -98,7 +98,7 @@ function citemPricingScheduled(type)
 											var price = data[1];
 											var name = data[2];
 		
-											if(existingItemPricing.indexOf(child != -1))
+											if(existingItemPricing.indexOf(child) == -1)
 												{
 													try
 														{
