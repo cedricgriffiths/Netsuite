@@ -239,7 +239,20 @@
         </field>
       </fields>
     </fieldGroup>
-    <defaultFieldGroup/>
+    <defaultFieldGroup>
+      <fields position="MIDDLE">
+        <field>
+          <id>[scriptid=custentity_cmms_is_cmms_contact]</id>
+          <label>CMMS Contact</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+          <quickAdd>F</quickAdd>
+        </field>
+      </fields>
+    </defaultFieldGroup>
   </mainFields>
   <tabs>
     <tab>
@@ -630,7 +643,20 @@
       <label>Custom</label>
       <visible>T</visible>
       <fieldGroups>
-        <defaultFieldGroup/>
+        <defaultFieldGroup>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custentity_cmms_case_notify_recipient]</id>
+              <label>CMMS Case Notification Recipient</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+          </fields>
+        </defaultFieldGroup>
       </fieldGroups>
       <subItems>
         <subList>
@@ -658,6 +684,11 @@
           <label>Addresses</label>
           <visible>T</visible>
         </subList>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CMMS_TECHTIMEALLOC_TECH</id>
+          <label>Technician</label>
+          <visible>T</visible>
+        </subList>
       </subItems>
     </tab>
     <tab>
@@ -682,6 +713,81 @@
       <id>[scriptid=custtab_72_t1403018_547]</id>
       <label>Addresses</label>
       <visible>F</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_scorecard]</id>
+      <label>Scorecard</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems>
+        <subList>
+          <id>ENTITYCUSTOMSUBLIST45</id>
+          <label>MTTR</label>
+          <visible>T</visible>
+        </subList>
+      </subItems>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_entity_cmms]</id>
+      <label>CMMS</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custentity_cmms_timezone]</id>
+              <label>Timezone</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <quickAdd>F</quickAdd>
+            </field>
+          </fields>
+        </defaultFieldGroup>
+      </fieldGroups>
+      <subItems>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CMMS_TECHDATA_TECHNICIAN</id>
+          <label>Technician</label>
+          <visible>T</visible>
+        </subList>
+        <subList>
+          <id>ENTITYRECMACHCUSTRECORD_CMMS_TECHWRKWK_TECHNICIAN</id>
+          <label>Technician</label>
+          <visible>T</visible>
+        </subList>
+      </subItems>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_entity_equipment]</id>
+      <label>Equipment</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_entity_hsw]</id>
+      <label>HS&amp;W</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_search_criteria]</id>
+      <label>Search Criteria</label>
+      <visible>T</visible>
       <fieldGroups>
         <defaultFieldGroup/>
       </fieldGroups>

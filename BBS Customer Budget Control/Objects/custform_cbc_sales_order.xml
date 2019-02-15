@@ -462,6 +462,42 @@
           <columnBreak>F</columnBreak>
           <sameRowAsPrevious>F</sameRowAsPrevious>
         </field>
+        <field>
+          <id>[scriptid=custbody_bbs_enq_status]</id>
+          <label>Enquiry Status</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody_cmms_service_zone]</id>
+          <label>CMMS Service Zone</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody_cmms_requesting_contact]</id>
+          <label>CMMS Requesting Contact</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
+        <field>
+          <id>[scriptid=custbody_cmms_requesting_contact_phone]</id>
+          <label>CMMS Requesting Contact Phone</label>
+          <visible>F</visible>
+          <mandatory>F</mandatory>
+          <displayType>NORMAL</displayType>
+          <columnBreak>F</columnBreak>
+          <sameRowAsPrevious>F</sameRowAsPrevious>
+        </field>
       </fields>
     </defaultFieldGroup>
   </mainFields>
@@ -474,6 +510,16 @@
         <defaultFieldGroup>
           <fields position="MIDDLE">
             <field>
+              <id>ISCROSSSUBTRANSACTION</id>
+              <label>Allow Cross-Subsidiary Fulfillment</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>CHECKED</checkBoxDefault>
+            </field>
+            <field>
               <id>COUPONCODE</id>
               <label>Coupon Code</label>
               <visible>F</visible>
@@ -481,6 +527,16 @@
               <displayType>NORMAL</displayType>
               <columnBreak>F</columnBreak>
               <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>ISMULTISHIPTO</id>
+              <label>Enable Item Line Shipping</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>UNCHECKED</checkBoxDefault>
             </field>
             <field>
               <id>PROMOCODE</id>
@@ -746,6 +802,21 @@
               <visible>T</visible>
             </column>
             <column>
+              <id>SHIPADDRESS</id>
+              <label>Ship To</label>
+              <visible>T</visible>
+            </column>
+            <column>
+              <id>SHIPCARRIER</id>
+              <label>Shipping Carrier</label>
+              <visible>T</visible>
+            </column>
+            <column>
+              <id>SHIPMETHOD</id>
+              <label>Ship Via</label>
+              <visible>T</visible>
+            </column>
+            <column>
               <id>ISCLOSED</id>
               <label>Closed</label>
               <visible>T</visible>
@@ -945,6 +1016,106 @@
               <label>Grid Template</label>
               <visible>F</visible>
             </column>
+            <column>
+              <id>INVENTORYLOCATION</id>
+              <label>Inventory Location</label>
+              <visible>T</visible>
+            </column>
+            <column>
+              <id>INVENTORYSUBSIDIARY</id>
+              <label>Inventory Subsidiary</label>
+              <visible>T</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_dsi_restock]</id>
+              <label>DSI Restock</label>
+              <visible>T</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_time_yearmonth]</id>
+              <label>YYYY-MMM</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_isfulfillable]</id>
+              <label>Can be fulfilled</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_line_id]</id>
+              <label>Line Id</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_equipment_service]</id>
+              <label>Service Order</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_hours]</id>
+              <label>Hours</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_equipment]</id>
+              <label>Equipment</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_time_type]</id>
+              <label>CMMS Time Type</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_service_type]</id>
+              <label>CMMS Service Class</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_parts_bin]</id>
+              <label>CMMS Parts Bin</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_start_time]</id>
+              <label>CMMS Start Time</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_end_time]</id>
+              <label>CMMS End Time</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_time_category]</id>
+              <label>CMMS Time Category</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_tech_time_allocation]</id>
+              <label>CMMS Technician Trip</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_source_service_order]</id>
+              <label>Source Service Order</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_pricing_model]</id>
+              <label>CMMS Pricing Method</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cmms_pm_task]</id>
+              <label>CMMS PM Task</label>
+              <visible>F</visible>
+            </column>
+            <column>
+              <id>[scriptid=custcol_cseg_cmms_so_type]</id>
+              <label>Service Order Type (108)</label>
+              <visible>F</visible>
+            </column>
           </columns>
         </subList>
       </subItems>
@@ -954,20 +1125,7 @@
       <label>Promotions</label>
       <visible>T</visible>
       <fieldGroups>
-        <defaultFieldGroup>
-          <fields position="MIDDLE">
-            <field>
-              <id>AUTOMATICALLYAPPLYPROMOTIONS</id>
-              <label>Automatically apply promotions</label>
-              <visible>F</visible>
-              <mandatory>F</mandatory>
-              <displayType>NORMAL</displayType>
-              <columnBreak>F</columnBreak>
-              <sameRowAsPrevious>F</sameRowAsPrevious>
-              <checkBoxDefault>UNCHECKED</checkBoxDefault>
-            </field>
-          </fields>
-        </defaultFieldGroup>
+        <defaultFieldGroup/>
       </fieldGroups>
       <subItems/>
     </tab>
@@ -2025,6 +2183,78 @@
               <columnBreak>F</columnBreak>
               <sameRowAsPrevious>F</sameRowAsPrevious>
             </field>
+            <field>
+              <id>[scriptid=custbody_dsi_epp_label]</id>
+              <label>DSI EPP Label</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_dsi_bill_of_lading]</id>
+              <label>B/L</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_dsi_store_number]</id>
+              <label>Store#</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_dsi_pack_progress]</id>
+              <label>DSI Pack In Progress</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_dsi_message]</id>
+              <label>DSI Message</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_equipment]</id>
+              <label>CMMS Equipment</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_servicezone]</id>
+              <label>Service Zone</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cseg_cmms_so_type]</id>
+              <label>Service Order Type (108)</label>
+              <visible>T</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
           </fields>
         </defaultFieldGroup>
       </fieldGroups>
@@ -2168,6 +2398,296 @@
             </field>
           </fields>
         </defaultFieldGroup>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_service_orders]</id>
+      <label>CMMS Services Orders</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_service_dates]</id>
+      <label>CMMS Service Dates</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_support_cases]</id>
+      <label>CMMS Support Cases</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_145_t1403018_517]</id>
+      <label>Installation Requirements</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custbody_bbs_property_type]</id>
+              <label>Property Type</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_wc_location]</id>
+              <label>WC Location</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_access]</id>
+              <label>Access</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_electricity_supply]</id>
+              <label>Electricity Supply</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_floor_construction]</id>
+              <label>Floor Construction</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_boxing_in]</id>
+              <label>Boxing In Required</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_maint_responsibility]</id>
+              <label>Maintenance Responsibility</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_nonstd_install]</id>
+              <label>Non Standard Installation Details</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_shower_chair]</id>
+              <label>Shower Chair Use</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_main_address]</id>
+              <label>Maintenance Address</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_std_job]</id>
+              <label>Standard Job</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[scriptid=custbody_bbs_drawings]</id>
+              <label>Drawings Supplied</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+          </fields>
+        </defaultFieldGroup>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_txn_tasks]</id>
+      <label>CMMS Tasks</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_txn_cmmsinfo]</id>
+      <label>CMMS Info</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup>
+          <fields position="MIDDLE">
+            <field>
+              <id>[scriptid=custbody_cmms_cancelingservice]</id>
+              <label>Canceling Service</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_nextlineid]</id>
+              <label>Next Line Id</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_service_order]</id>
+              <label>CMMS Service Order</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_enabled]</id>
+              <label>CMMS Enabled</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+              <checkBoxDefault>USE_FIELD_DEFAULT</checkBoxDefault>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_responsible_tech]</id>
+              <label>Responsible Technician</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_pm_task]</id>
+              <label>PM Task</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_cache_customer]</id>
+              <label>Cache Customer</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbodycmms_available_adjustment]</id>
+              <label>Availability Adjustment</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>NORMAL</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_return_type]</id>
+              <label>CMMS Return Type</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_project_customer_zone]</id>
+              <label>CMMS Project Customer Zone</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_project_customer]</id>
+              <label>CMMS Project Customer</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+            <field>
+              <id>[scriptid=custbody_cmms_contact_customer]</id>
+              <label>CMMS Contact Customer</label>
+              <visible>F</visible>
+              <mandatory>F</mandatory>
+              <displayType>DISABLED</displayType>
+              <columnBreak>F</columnBreak>
+              <sameRowAsPrevious>F</sameRowAsPrevious>
+            </field>
+          </fields>
+        </defaultFieldGroup>
+      </fieldGroups>
+      <subItems/>
+    </tab>
+    <tab>
+      <id>[scriptid=custtab_cmms_gl_impact]</id>
+      <label>GL Impact</label>
+      <visible>T</visible>
+      <fieldGroups>
+        <defaultFieldGroup/>
       </fieldGroups>
       <subItems/>
     </tab>
