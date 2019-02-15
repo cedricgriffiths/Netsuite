@@ -43,7 +43,14 @@ function itemAfterSubmit(type)
 					
 					itemRecord.setFieldValue('externalid', name);
 					
-					nlapiSubmitRecord(itemRecord, false, true);
+					try
+						{
+							nlapiSubmitRecord(itemRecord, false, true);
+						}
+					catch(err)
+						{
+						
+						}
 				}
 		}
 }
