@@ -76,7 +76,12 @@ function scheduled(type)
 			   "AND", 
 			   ["custcol_bbs_journal_posted","is","F"], 
 			   "AND", 
-			   ["custcol_csegbkref.custrecord_arrival_date","onorbefore",today]
+			   ["custcol_csegbkref.custrecord_arrival_date","onorbefore",today],
+			   "AND", 
+			   ["custcol_csegbkref.custrecord_arrival_date","onorafter","01/01/2019"], 
+			   "AND", 
+			   ["account","anyof",deferredRevenueAcc,deferredCostsAcc]
+			   
 			], 
 			[
 			   new nlobjSearchColumn("tranid").setSort(false), 
