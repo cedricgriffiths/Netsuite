@@ -1683,12 +1683,15 @@ function productionBatchSuitelet(request, response)
 															xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
 															xmlPb += "</tr>";
 														}
-																	
-														xmlPb += "<tr>";
-														xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
-														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
-														xmlPb += "</tr>";
+															
+														if(woSpecInst != null && woSpecInst != '')
+															{
+																xmlPb += "<tr>";
+																xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
+																xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
+																xmlPb += "</tr>";
+															}
 												//	}
 												
 												/*
@@ -1718,14 +1721,27 @@ function productionBatchSuitelet(request, response)
 												 */
 												
 												if(firstInventoryItem)
-												{
-													//firstInventoryItem = false;
-													
-													//xmlPb += "<tr>";
-													//xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-													//xmlPb += "<td style=\"border-bottom: 1px; border-bottom-color: black;\" colspan=\"16\"><b><br/>Processes Required</b></td>";
-													//xmlPb += "</tr>";
-												}
+													{
+														//firstInventoryItem = false;
+														
+														//xmlPb += "<tr>";
+														//xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+														//xmlPb += "<td style=\"border-bottom: 1px; border-bottom-color: black;\" colspan=\"16\"><b><br/>Processes Required</b></td>";
+														//xmlPb += "</tr>";
+													}
+											}
+										else
+											{
+												//Print out special instructions for assembly items - if present
+												//
+												if(woSpecInst != null && woSpecInst != '')
+													{
+														xmlPb += "<tr>";
+														xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Finish Special Instr. :</b></td>";
+														xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
+														xmlPb += "</tr>";
+													}
 											}
 									}
 							}
