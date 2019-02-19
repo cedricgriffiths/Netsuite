@@ -38,7 +38,7 @@ function invoicingScheduled(type)
 		{
 			//Check to see if we have enough resources to continue
 			//
-			if(int%10 == 0)
+			if(int%5 == 0)
 				{
 					checkResources();
 				}
