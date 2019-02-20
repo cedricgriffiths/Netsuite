@@ -242,6 +242,7 @@ function scheduled(type)
 										lastLevelOneItem = lineItemItemId;
 									}
 								
+									/*
 									//See if there is a special instruction record for the bom/component
 									//
 									var cols = new Array();
@@ -282,6 +283,8 @@ function scheduled(type)
 													newRecord.setLineItemValue('item', 'custcol_bbs_bom_spec_inst', int, specInst);
 												}
 										}
+										
+										*/
 								}
 								
 								//Set the w/o commitment status
