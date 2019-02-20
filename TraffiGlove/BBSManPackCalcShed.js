@@ -20,8 +20,8 @@ function scheduled(type)
 			   ["mainline","is","F"], 
 			   "AND", 
 			   ["status","anyof","SalesOrd:D","SalesOrd:E","SalesOrd:B"], 
-			   "AND", 
-			   ["custbody_bbs_manpack_info","startswith","MANPACK 0 (0)"], 
+//			   "AND", 
+//			   ["custbody_bbs_manpack_info","startswith","MANPACK 0 (0)"], 
 			   "AND", 
 			   ["custcol_bbs_sales_line_contact","noneof","@NONE@"], 
 			   "AND", 
@@ -34,6 +34,8 @@ function scheduled(type)
 	
 	if(salesorderSearch && salesorderSearch.length > 0)
 		{
+			nlapiLogExecution('DEBUG', 'Number of sales orders to process', salesorderSearch.length)
+		
 			for (var int2 = 0; int2 < salesorderSearch.length; int2++) 
 				{
 					var salesOrderId = salesorderSearch[int2].getValue("internalid",null,"GROUP");

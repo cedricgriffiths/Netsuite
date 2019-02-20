@@ -47,8 +47,11 @@ function assemblyBuildAS(type)
 								{
 									//Get the works order "created from"
 									//
-									var woCreatedFrom = woRecord.getFieldValue('createdfrom');
-									
+									//var woCreatedFrom = woRecord.getFieldValue('createdfrom');
+								
+									//Prevent the update of the sales order manpack status
+									var woCreatedFrom = null;
+								
 									//See if we have a "created from"
 									//
 									if(woCreatedFrom)
