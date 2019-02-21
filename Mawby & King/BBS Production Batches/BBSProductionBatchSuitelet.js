@@ -445,7 +445,7 @@ function productionBatchSuitelet(request, response)
 				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
 				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
 				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
-				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Qty Required', null);
+				var listQty = subList.addField('custpage_sublist_qty', 'float', 'Qty Required', null);
 				var listShipDate = subList.addField('custpage_sublist_ship_date', 'date', 'Ship Date', null);
 				
 				var listShipPlanned = subList.addField('custpage_sublist_ship_planned', 'date', 'Planned Date', null);
