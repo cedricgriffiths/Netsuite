@@ -48,57 +48,64 @@ function customerItemsFieldChanged(type, name, linenum)
 					items.push(itemId);
 				}
 			
-			//Search for the item parents
-			//
-			var itemSearch = getResults(nlapiCreateSearch("item",
-					[
-					   ["internalid","anyof",items],
-					   "AND",
-					   ["parent", "noneof", "@NONE@"]
-					], 
-					[
-					   new nlobjSearchColumn("itemid").setSort(false), 
-					   new nlobjSearchColumn("displayname"), 
-					   new nlobjSearchColumn("salesdescription"), 
-					   new nlobjSearchColumn("parent"), 
-					   new nlobjSearchColumn("displayname","parent")
-					]
-					));
-			
-			//Accumulate the parent records
-			//
-			if(itemSearch != null && itemSearch.length > 0)
+			if(items.length > 0)
 				{
-					for (var int2 = 0; int2 < itemSearch.length; int2++) 
+					//Search for the item parents
+					//
+					var itemSearch = getResults(nlapiCreateSearch("item",
+							[
+							   ["internalid","anyof",items],
+							   "AND",
+							   ["parent", "noneof", "@NONE@"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid").setSort(false), 
+							   new nlobjSearchColumn("displayname"), 
+							   new nlobjSearchColumn("salesdescription"), 
+							   new nlobjSearchColumn("parent"), 
+							   new nlobjSearchColumn("displayname","parent")
+							]
+							));
+					
+					//Accumulate the parent records
+					//
+					if(itemSearch != null && itemSearch.length > 0)
 						{
-							var parentId = itemSearch[int2].getValue('parent');
-							var parentName = itemSearch[int2].getValue("displayname",'parent');
-						
-							parents[parentName] = parentId;
+							for (var int2 = 0; int2 < itemSearch.length; int2++) 
+								{
+									var parentId = itemSearch[int2].getValue('parent');
+									var parentName = itemSearch[int2].getValue("displayname",'parent');
+								
+									parents[parentName] = parentId;
+								}
 						}
+					
+					//Sort the parents by name
+					//
+					const orderedParents = {};
+					Object.keys(parents).sort().forEach(function(key) {
+						orderedParents[key] = parents[key];
+					});
+					
+					//Remove any items from the select list
+					//
+					nlapiRemoveSelectOption('custpage_base_parent_select', null);
+					
+					//Add the parents to the list
+					//
+					for ( var orderedParent in orderedParents) 
+						{
+							var baseParentId = orderedParents[orderedParent];
+							var baseParentText = orderedParent;
+							nlapiInsertSelectOption('custpage_base_parent_select', baseParentId, baseParentText, false);
+						}
+				
+					nlapiSetFieldValue('custpage_base_parent_count', 'Items Returned = ' + Object.keys(orderedParents).length, false, true);
 				}
-			
-			//Sort the parents by name
-			//
-			const orderedParents = {};
-			Object.keys(parents).sort().forEach(function(key) {
-				orderedParents[key] = parents[key];
-			});
-			
-			//Remove any items from the select list
-			//
-			nlapiRemoveSelectOption('custpage_base_parent_select', null);
-			
-			//Add the parents to the list
-			//
-			for ( var orderedParent in orderedParents) 
+			else
 				{
-					var baseParentId = orderedParents[orderedParent];
-					var baseParentText = orderedParent;
-					nlapiInsertSelectOption('custpage_base_parent_select', baseParentId, baseParentText, false);
+					nlapiSetFieldValue('custpage_base_parent_count', 'No Items Found', false, true);
 				}
-		
-			nlapiSetFieldValue('custpage_base_parent_count', 'Items Returned = ' + Object.keys(orderedParents).length, false, true);
 		}
 	
 	//If the parent item has been changed, then save the selected value

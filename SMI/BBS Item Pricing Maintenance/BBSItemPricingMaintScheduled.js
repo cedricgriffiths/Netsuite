@@ -10,18 +10,15 @@
  * @param {String} type Context Types: scheduled, ondemand, userinterface, aborted, skipped
  * @returns {Void}
  */
-function citemPricingScheduled(type) 
+function itemPricingMaintScheduled(type) 
 {
 	
 	//Read in the parameter containing the parent child object
 	//
 	var context = nlapiGetContext();
-	var parentChildString = context.getSetting('SCRIPT', 'custscript_bbs_cip_parent_child');
-	var customerId = context.getSetting('SCRIPT', 'custscript_bbs_cip_customer_id');
-	
-	var customerName = nlapiLookupField('customer', customerId, 'entityid', false);
-	
-	
+	var parentChildString = context.getSetting('SCRIPT', 'custscript_bbs_cipm_parent_child');
+	var customerId = context.getSetting('SCRIPT', 'custscript_bbs_cipm_customer_id');
+
 	//Debugging
 	//
 	nlapiLogExecution('DEBUG', 'parentChildString', parentChildString);
@@ -30,46 +27,37 @@ function citemPricingScheduled(type)
 	//Initialise local variables
 	//
 	var usersEmail = context.getUser();
-	var emailText = 'The following items have been added to Customer Item Pricing for customer "' + customerName + ';\n';
+	var emailText = '';
 	
 	//Re-hydrate the parent & child object
 	//
 	var parentAndChild = JSON.parse(parentChildString);
 	
-	//Have we got everything we need so far?
+	//Read the customer record
 	//
-	if(parentAndChild)
+	var customerRecord = null;
+	
+	try
 		{
-			//Load the customer record
+			customerRecord = nlapiLoadRecord('customer', customerId);
+		}
+	catch(err)
+		{
+			customerRecord = null;
+			emailText = 'An error occured reading the customer record with id = ' + customerId + ' the error was - ' + err.message + '\n';
+		}
+	
+	if(customerRecord != null)
+		{
+			var customerName = customerRecord.getFieldValue('entityid'); 
+		
+			emailText = 'The following items have been updated in Customer Item Pricing for customer "' + customerName + ';\n';
+			
+			//Have we got everything we need so far?
 			//
-			var customerRecord = null;
-			
-			try
+			if(parentAndChild)
 				{
-					customerRecord = nlapiLoadRecord('customer', customerId);
-				}
-			catch(err)
-				{
-					customerRecord = null;
-					nlapiLogExecution('ERROR', 'Error loading customer record', err.message);
-				}
-			
-			if(customerRecord != null)
-				{
-					//Get a list of all the items currently in the customer item pricing
-					//
-					var existingItemPricing = [];
 					var itemPricingCount = customerRecord.getLineItemCount('itempricing');
-					
-					for (var int = 1; int <= itemPricingCount; int++) 
-						{
-							var itemPricingItemId = customerRecord.getLineItemValue('itempricing', 'item', int);
-							existingItemPricing.push(itemPricingItemId);
-						}
-					
-					//Get the customer currency
-					//
-					var customerCurrency = customerRecord.getFieldValue('currency');
 					
 					//Loop through all the parent objects
 					//
@@ -78,7 +66,7 @@ function citemPricingScheduled(type)
 							//Get the child items for this parent
 							//
 							var children = parentAndChild[parent];
-							
+								
 							//Check to see if we have a parent & it also has children
 							//
 							if(children.length > 0)
@@ -87,37 +75,43 @@ function citemPricingScheduled(type)
 									//Process the child items
 									//=====================================================================
 									//
-										
+												
 									//Loop through the child items
 									//
 									for (var int = 0; int < children.length; int++) 
 										{
 											var data = children[int];
-														
+																
 											var child = data[0];
 											var price = data[1];
 											var name = data[2];
-		
-											if(existingItemPricing.indexOf(child) == -1)
+											
+											//Loop through the item pricing sublist
+											//
+											for (var int2 = 1; int2 <= itemPricingCount; int2++) 
 												{
-													try
+													var itemPricingItemId = customerRecord.getLineItemValue('itempricing', 'item', int2);
+													var itemPricingPrice = customerRecord.getLineItemValue('itempricing', 'price', int2);
+												
+													//Have we found a matching item
+													//
+													if(itemPricingItemId == child)
 														{
-															customerRecord.selectNewLineItem('itempricing');
+															//Has the price changed
+															//
+															if(itemPricingPrice != price)
+																{
+																	customerRecord.setLineItemValue('itempricing', 'price', int2, price);
+																	emailText += 'Item Updated : ' + name + ' Old Price : ' + itemPricingPrice + ' New Price : ' + price + '\n';
+																}
+															else
+																{
+																	emailText += 'Item Skipped - No Price Change : ' + name + ' Old Price : ' + itemPricingPrice + ' New Price : ' + price + '\n';
+																}
 															
-															customerRecord.setCurrentLineItemValue('itempricing', 'item', child);
-															customerRecord.setCurrentLineItemValue('itempricing', 'level', '-1');
-															customerRecord.setCurrentLineItemValue('itempricing', 'currency', customerCurrency);
-															customerRecord.setCurrentLineItemValue('itempricing', 'price', price);
-															
-															customerRecord.commitLineItem('itempricing', false);
-															
-															emailText += 'Item (' + child.toString() + ') - ' + name + ' ' + '\n';
+															break;
 														}
-													catch(err)
-														{
-															emailText += 'Error adding Customer Item Pricing record (' + name + '), message is "' + err.message +'"\n';
-														}
-												}									
+												}
 										}
 								}
 						}
@@ -135,7 +129,7 @@ function citemPricingScheduled(type)
 	
 	//Send the email to the user to say that we have finished
 	//
-	nlapiSendEmail(usersEmail, usersEmail, 'Customer Item Pricing Creation', emailText);
+	nlapiSendEmail(usersEmail, usersEmail, 'Customer Item Pricing Maintenance', emailText);
 }
 
 

@@ -111,13 +111,17 @@ function citemPricingScheduled(type)
 															
 															customerRecord.commitLineItem('itempricing', false);
 															
-															emailText += 'Item (' + child.toString() + ') - ' + name + ' ' + '\n';
+															emailText += 'Item (' + child.toString() + ') - ' + name + ' ' + price + '\n';
 														}
 													catch(err)
 														{
 															emailText += 'Error adding Customer Item Pricing record (' + name + '), message is "' + err.message +'"\n';
 														}
-												}									
+												}
+											else
+												{
+													emailText += 'Customer Item Pricing record (' + name + ') already exists - skipped\n';
+												}
 										}
 								}
 						}
