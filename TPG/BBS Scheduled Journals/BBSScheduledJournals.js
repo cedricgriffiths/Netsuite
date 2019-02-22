@@ -57,6 +57,7 @@ function scheduled(type)
 	deferredRevenueAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_revenue_acc');
 	deferredCostsAcc = context.getSetting('SCRIPT', 'custscript_bbs_def_costs_acc');
 	
+	openingBalancesAcc = context.getSetting('SCRIPT', 'custscript_bbs_open_bal_acc');
 	
 	//Create the search
 	//
@@ -80,7 +81,7 @@ function scheduled(type)
 			   "AND", 
 			   ["custcol_csegbkref.custrecord_arrival_date","onorafter","01/01/2019"], 
 			   "AND", 
-			   ["account","anyof",deferredRevenueAcc,deferredCostsAcc]
+			   ["account","anyof",deferredRevenueAcc,deferredCostsAcc,openingBalancesAcc]
 			   
 			], 
 			[
