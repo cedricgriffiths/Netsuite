@@ -1283,14 +1283,55 @@ function productionBatchSuitelet(request, response)
 					var batchId = batchResults[int2].getId();
 					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
 
+					//START Pre-sort the works orders into base item order
+					//
+					var woSearchArray = [];
+					
+					var workorderSearch = getResults(nlapiCreateSearch("workorder",
+							[
+							   ["type","anyof","WorkOrd"], 
+							   "AND", 
+							   ["custbody_bbs_wo_batch","anyof",batchId], 
+							   "AND", 
+							   ["mainline","is","F"], 
+							   "AND", 
+							   ["item.type","anyof","InvtPart"]
+							], 
+							[
+							   new nlobjSearchColumn("tranid"), 
+							   new nlobjSearchColumn("item"), 
+							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null).setSort(false)
+							]
+							));
+					
+					if(workorderSearch != null && workorderSearch.length > 0)
+						{
+							for (var int5 = 0; int5 < workorderSearch.length; int5++) 
+								{
+									var woId = workorderSearch[int5].getId();
+									
+									if(woSearchArray.indexOf(woId) == -1)
+										{
+											woSearchArray.push(woId);
+										}
+								}
+						}					
+					//
+					//END Pre-sort the works orders into base item order
+					
+
 					//Find the works orders associated with this batch
 					//
+					//	var filterArray = [
+					//	                   ["type","anyof","WorkOrd"], 
+					//	                   "AND", 
+					//	                   ["custbody_bbs_wo_batch","anyof",batchId]			                   
+					//	                ];
+					
 					var filterArray = [
-					                   //["mainline","is","T"], 
-					                   //"AND", 
 					                   ["type","anyof","WorkOrd"], 
 					                   "AND", 
-					                   ["custbody_bbs_wo_batch","anyof",batchId]			                   
+					                   ["internalid","anyof",woSearchArray]			                   
 					                ];
 					
 					var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
