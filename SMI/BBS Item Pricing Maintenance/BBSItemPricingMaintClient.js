@@ -31,80 +31,89 @@ function customerItemsFieldChanged(type, name, linenum)
 			nlapiSetFieldValue('custpage_cust_id_param', customerId, false, true);
 			nlapiSetFieldValue('custpage_cust_txt_param', customerTxt, false, true);
 			
-			//Get the customer record
+			//Remove any items from the select list
 			//
-			var custRecord = nlapiLoadRecord('customer', customerId);
-
-			var itemPricingLines = custRecord.getLineItemCount('itempricing');
-			var items = [];
-			var parents = {};
+			nlapiRemoveSelectOption('custpage_base_parent_select', null);
+			nlapiSetFieldValue('custpage_base_parent_count', 'No Items Found', false, true);
 			
-			//Get all of the item pricing items
-			//
-			for (var int = 1; int <= itemPricingLines; int++) 
+			if(customerId != null && customerId != '')
 				{
-					var itemId = custRecord.getLineItemValue('itempricing', 'item', int);
-					
-					items.push(itemId);
-				}
-			
-			if(items.length > 0)
-				{
-					//Search for the item parents
+					//Get the customer record
 					//
-					var itemSearch = getResults(nlapiCreateSearch("item",
-							[
-							   ["internalid","anyof",items],
-							   "AND",
-							   ["parent", "noneof", "@NONE@"]
-							], 
-							[
-							   new nlobjSearchColumn("itemid").setSort(false), 
-							   new nlobjSearchColumn("displayname"), 
-							   new nlobjSearchColumn("salesdescription"), 
-							   new nlobjSearchColumn("parent"), 
-							   new nlobjSearchColumn("displayname","parent")
-							]
-							));
+					var custRecord = nlapiLoadRecord('customer', customerId);
+		
+					var itemPricingLines = custRecord.getLineItemCount('itempricing');
+					var items = [];
+					var parents = {};
 					
-					//Accumulate the parent records
+					//Get all of the item pricing items
 					//
-					if(itemSearch != null && itemSearch.length > 0)
+					for (var int = 1; int <= itemPricingLines; int++) 
 						{
-							for (var int2 = 0; int2 < itemSearch.length; int2++) 
+							var itemId = custRecord.getLineItemValue('itempricing', 'item', int);
+							
+							items.push(itemId);
+						}
+					
+					if(items.length > 0)
+						{
+							//Search for the item parents
+							//
+							var itemSearch = getResults(nlapiCreateSearch("item",
+									[
+									   ["internalid","anyof",items],
+									   "AND",
+									   ["parent", "noneof", "@NONE@"]
+									], 
+									[
+									   new nlobjSearchColumn("itemid").setSort(false), 
+									   new nlobjSearchColumn("displayname"), 
+									   new nlobjSearchColumn("salesdescription"), 
+									   new nlobjSearchColumn("parent"), 
+									   new nlobjSearchColumn("displayname","parent"), 
+									   new nlobjSearchColumn("itemid","parent")
+									]
+									));
+							
+							//Accumulate the parent records
+							//
+							if(itemSearch != null && itemSearch.length > 0)
 								{
-									var parentId = itemSearch[int2].getValue('parent');
-									var parentName = itemSearch[int2].getValue("displayname",'parent');
-								
-									parents[parentName] = parentId;
+									for (var int2 = 0; int2 < itemSearch.length; int2++) 
+										{
+											var itemCode = itemSearch[int2].getValue('itemid');
+											var parentId = itemSearch[int2].getValue('parent');
+											var parentName = itemSearch[int2].getValue("displayname",'parent');
+											var parentCode = itemSearch[int2].getValue("itemid",'parent');
+											parentName = parentCode + ' - ' + parentName;
+											
+											parents[parentName] = parentId;
+										}
 								}
+							
+							//Sort the parents by name
+							//
+							const orderedParents = {};
+							Object.keys(parents).sort().forEach(function(key) {
+								orderedParents[key] = parents[key];
+							});
+							
+							
+							//Add the parents to the list
+							//
+							for ( var orderedParent in orderedParents) 
+								{
+									var baseParentId = orderedParents[orderedParent];
+									var baseParentText = orderedParent;
+									nlapiInsertSelectOption('custpage_base_parent_select', baseParentId, baseParentText, false);
+								}
+						
+							nlapiSetFieldValue('custpage_base_parent_count', 'Items Returned = ' + Object.keys(orderedParents).length, false, true);
 						}
-					
-					//Sort the parents by name
-					//
-					const orderedParents = {};
-					Object.keys(parents).sort().forEach(function(key) {
-						orderedParents[key] = parents[key];
-					});
-					
-					//Remove any items from the select list
-					//
-					nlapiRemoveSelectOption('custpage_base_parent_select', null);
-					
-					//Add the parents to the list
-					//
-					for ( var orderedParent in orderedParents) 
+					else
 						{
-							var baseParentId = orderedParents[orderedParent];
-							var baseParentText = orderedParent;
-							nlapiInsertSelectOption('custpage_base_parent_select', baseParentId, baseParentText, false);
+							nlapiSetFieldValue('custpage_base_parent_count', 'No Items Found', false, true);
 						}
-				
-					nlapiSetFieldValue('custpage_base_parent_count', 'Items Returned = ' + Object.keys(orderedParents).length, false, true);
-				}
-			else
-				{
-					nlapiSetFieldValue('custpage_base_parent_count', 'No Items Found', false, true);
 				}
 		}
 	
