@@ -85,12 +85,7 @@ function allocatePOSuitelet(request, response){
 							//
 							var consRecord = nlapiLoadRecord('customrecord_bbs_consignment', paramConsId);
 							var consName = consRecord.getFieldValue('name');
-							var consSupplier = consRecord.getFieldValue('custrecord_sw_consignment_supplier');
 							
-							if(consSupplier != null && consSupplier != '')
-								{
-									paramSupplier = consSupplier;
-								}
 							
 							// Create a form
 							//
@@ -354,6 +349,9 @@ function allocatePOSuitelet(request, response){
 					{
 						params['stage'] = '1';
 						params['consignmentid'] = consSelected;
+						
+						var consSupplier = nlapiLookupField('customrecord_bbs_consignment', consSelected, 'custrecord_sw_consignment_supplier', false);
+						params['supplierid'] = consSupplier;
 					}
 				else
 					{
