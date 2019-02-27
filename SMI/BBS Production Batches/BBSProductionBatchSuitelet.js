@@ -1660,16 +1660,27 @@ function productionBatchSuitelet(request, response)
 										//
 										if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
 											{
+												var committedValue = Number(0);
+												
+												//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+                                              	//
+                                              	if(woItemType == 'NonInvtPart')
+		                                      		{
+														committedValue = Number(woAssemblyItemQty);
+		                                      		}
+												else
+													{
+														committedValue = Number(woAssemblyItemCommitted);
+													}
+												
 												if(!baseItems[woAssemblyItemSequence])
 													{
-														baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),Number(woAssemblyItemCommitted),woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
-                                                      	
+														baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),committedValue,woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
 													}
 												else
 													{
 														baseItems[woAssemblyItemSequence][1] = Number(baseItems[woAssemblyItemSequence][1]) + Number(woAssemblyItemQty);
-														baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + Number(woAssemblyItemCommitted);
-                                                     
+														baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + committedValue;
 													}
 											}
 										
@@ -1792,6 +1803,60 @@ function productionBatchSuitelet(request, response)
 							xmlPb += "</table>";
 							
 						}
+					
+					//Add in the number of finishes
+					//
+					xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+					xmlPb += "<tr>";
+					xmlPb += "<td style=\"margin-top: 10px; margin-bottom: 5px;\"><b>Finishes Summary</b></td>";
+					xmlPb += "</tr>";
+					xmlPb += "</table>";
+					
+					xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+					xmlPb += "<thead >";
+					xmlPb += "<tr >";
+					xmlPb += "<th colspan=\"2\">&nbsp;</th>";
+					xmlPb += "<th align=\"left\" colspan=\"14\">Finish</th>";
+                  	xmlPb += "<th align=\"right\" colspan=\"2\">Bin Number</th>";
+					xmlPb += "<th align=\"right\" colspan=\"2\">Quantity</th>";
+                  
+					xmlPb += "</tr>";
+					xmlPb += "</thead>";
+					
+					//Sort the base items
+					//
+					for ( var tempBaseItem in tempBaseItems) 
+						{
+							delete tempBaseItems[tempBaseItem];
+						}
+					
+					const tempBaseItems = {};
+					Object.keys(baseItems).sort().forEach(function(key) {
+						tempBaseItems[key] = baseItems[key];
+					});
+					
+					//Loop through the base items
+					//
+					for (var baseItem in tempBaseItems) 
+						{
+							//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
+							//
+							if(['1','2','7','11'].indexOf(tempBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
+								{
+									xmlPb += "<tr>";
+									xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+									xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(tempBaseItems[baseItem][0])) + "</b></td>";
+									xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(tempBaseItems[baseItem][3]) + "</td>";
+									xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][6]) + "</td>";
+									xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][2]) + "</td>";
+									xmlPb += "</tr>";
+
+								}
+						}
+					
+					//Finish the item table
+					//
+					xmlPb += "</table>";
 					
 					//Add in the operator signature boxes
 					//
