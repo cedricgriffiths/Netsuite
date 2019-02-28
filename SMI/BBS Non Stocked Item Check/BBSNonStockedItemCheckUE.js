@@ -17,7 +17,7 @@
  *                      paybills (vendor payments)
  * @returns {Void}
  */
-function nonStockedItemUE(type)
+function nonStockedItemAS(type)
 {
 	//Works only for edit mode
 	//
@@ -44,7 +44,7 @@ function nonStockedItemUE(type)
 			
 			//See if we have any non stocked items to process
 			//
-			if(Object.keys(oldNonStockedItems).length > 0 && Object.keys(newNonStockedItems).length > 0)
+			if(Object.keys(oldNonStockedItems).length > 0)
 				{
 					for ( var oldNonStockedItem in oldNonStockedItems) 
 						{
@@ -63,42 +63,47 @@ function nonStockedItemUE(type)
 								}
 						}
 					
-					//Now see if these id's exist on any open purchase orders
-					//
-					var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
-							[
-							   ["type","anyof","PurchOrd"], 
-							   "AND", 
-							   ["mainline","is","F"], 
-							   "AND", 
-							   ["status","anyof","PurchOrd:A","PurchOrd:B","PurchOrd:E","PurchOrd:D"], //Pending Approval, Pending Receipt, Pending Billing/Partially Received, Partially Received
-							   "AND", 
-							   ["quantityshiprecv","equalto","0"], 
-							   "AND", 
-							   ["item","anyof",differences]
-							], 
-							[
-							   new nlobjSearchColumn("tranid"), 
-							   new nlobjSearchColumn("item")
-							]
-							);
-					
-					if(purchaseorderSearch != null && purchaseorderSearch.length > 0)
+					if(differences.length > 0)
 						{
-							for (var int = 0; int < purchaseorderSearch.length; int++) 
-								{
-									var poNumber = purchaseorderSearch[int].getValue('tranid');
-									var poItem = purchaseorderSearch[int].getText('item');
-								
-									emailText += 'Purchase Order: ' + poNumber + ' - Item: ' + poItem + '\n';
-								}
-							
-							//Send email
+							//Now see if these id's exist on any open purchase orders
 							//
-							nlapiSendEmail(sendersEmail, poEmails, 'Purchase Orders That May Need Amending', emailText);
+							var purchaseorderSearch = nlapiSearchRecord("purchaseorder",null,
+									[
+									   ["type","anyof","PurchOrd"], 
+									   "AND", 
+									   ["mainline","is","F"], 
+									   "AND", 
+									   ["status","anyof","PurchOrd:A","PurchOrd:B","PurchOrd:E","PurchOrd:D"], //Pending Approval, Pending Receipt, Pending Billing/Partially Received, Partially Received
+									   "AND", 
+									   ["quantityshiprecv","equalto","0"], 
+									   "AND", 
+									   ["item","anyof",differences]
+									], 
+									[
+									   new nlobjSearchColumn("tranid"), 
+									   new nlobjSearchColumn("item")
+									]
+									);
+							
+							if(purchaseorderSearch != null && purchaseorderSearch.length > 0)
+								{
+									for (var int = 0; int < purchaseorderSearch.length; int++) 
+										{
+											var poNumber = purchaseorderSearch[int].getValue('tranid');
+											var poItem = purchaseorderSearch[int].getText('item');
+										
+											emailText += 'Purchase Order: ' + poNumber + ' - Item: ' + poItem + '\n';
+										}
+									
+									//Send email
+									//
+									if(poEmails != null && poEmails != '' && sendersEmail != null && sendersEmail != '')
+										{
+											nlapiSendEmail(sendersEmail, poEmails, 'Purchase Orders That May Need Amending', emailText);
+										}
+								}
 						}
 				}
-			
 		}
 }
 
