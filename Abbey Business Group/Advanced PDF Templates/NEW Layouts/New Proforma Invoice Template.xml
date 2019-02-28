@@ -1,7 +1,27 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
 <pdf>
 <head>
+  
+<#assign cs = "£">
 
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+      
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;"><tr>
@@ -21,38 +41,44 @@
 	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.abbeybusinessgroup.com</td></tr>
     <tr><td align="left">&nbsp;</td></tr>
 	</table>
-
+          
+	<#if record.custbody_bbs_week_commencing && record.shipdate?length gt 0>
+      <#assign sdPrefix = "w/c ">
+    <#else>
+      <#assign sdPrefix = "">
+    </#if>
+      
     <table style="width: 100%;">
 	<tr>
 	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Invoice To</td>
 	<td align="left">&nbsp;</td>
 	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">ORDER NO:</td>
-	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
+	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.tranid}</td>
 	</tr>
 
 	<tr>
 	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.billaddress}</td>
     <td align="left">&nbsp;</td>
 	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date:</td>
-	<td align="left" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
+	<td align="right" rowspan="1" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
 	</tr>
 
     <tr>
 	<td align="left">&nbsp;</td>
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Ship Date:</td>
-	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.shipdate}</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${sdPrefix}${record.shipdate}</td>
 	</tr>
 
     <tr>
 	<td align="left">&nbsp;</td>
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Customer's Order No:</td>
-	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.otherrefnum}</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.otherrefnum}</td>
 	</tr>
 
     <tr>
 	<td align="left">&nbsp;</td>
 	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Project No:</td>
-	<td align="left"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_cseg_bbs_project_no}</td>
+	<td align="right"  style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_cseg_bbs_project_no}</td>
 	</tr>
 
 	</table>
@@ -263,7 +289,7 @@
           <td align="left" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.units}</td>
 
           <#if item.custcol_bbs_sales_generic_desc == "">
-      		<td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">&nbsp;</td>
+      		<td colspan="15" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.description}&nbsp;</td>
           <#else>
          	<#if item.item == "Disclaimer">
                 <td colspan="15" font-weight="bold" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.custcol_bbs_sales_generic_desc}</td>
@@ -272,7 +298,7 @@
           	</#if>
       	  </#if>
 
-          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.00###"]}</td>
+          <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${toCurrency(item.rate)}</td>
           <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${item.amount}</td>
           </tr>
       </#if>

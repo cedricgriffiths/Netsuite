@@ -27,7 +27,7 @@
 	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Payment To</td>
 	<td align="left">&nbsp;</td>
 	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Payment Date:</td>
-	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate?string["dd MMM yyyy"]}</td>
+	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate?string["dd MMM yyyy"]}</td>
 	</tr>
 
 	<tr>
