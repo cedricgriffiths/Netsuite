@@ -127,6 +127,7 @@ function buildOutput(salesOrderNumber)
 			var salesCustOrderNo = nlapiEscapeXML(salesOrderRecord.getFieldValue('otherrefnum'));
 			var salesOrderDate = salesOrderRecord.getFieldValue('trandate');
 			var salesShipDate = salesOrderRecord.getFieldValue('shipdate');
+			var salesShipWC = salesOrderRecord.getFieldValue('custbody_bbs_week_commencing');
 			var salesShipInstr = salesOrderRecord.getFieldValue('custbody_bbs_dely_instructions');
 			var salesNotes = salesOrderRecord.getFieldValue('memo');
 			var salesPhone = salesOrderRecord.getFieldValue('custbody_bbs_so_order_phone');
@@ -233,7 +234,7 @@ function buildOutput(salesOrderNumber)
 			xml += "<tr>";
 			xml += "<td align=\"left\" rowspan=\"5\" colspan=\"2\" style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Delivery Address:</b><br/>" + salesShipAddress + "</td>";
 			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>Delivery Date:</b></td>";
-			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>" + salesShipDate + "</b></td>";
+			xml += "<td align=\"left\"  style=\"font-size:10px; border: 1px solid black; padding: 2px;\"><b>" + (salesShipWC == 'T' && salesShipDate != '' ? 'w/c ' : '') + salesShipDate + "</b></td>";
 			xml += "</tr>";
 			
 			xml += "<tr>";
