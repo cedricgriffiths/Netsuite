@@ -2,7 +2,7 @@
 <pdf>
 <head>
   
-   <#assign cs = "¥">
+     <#assign cs = "¥">
 
 <#function toCurrency value showSymbol=true>
 	<#local retval = 0>
@@ -40,7 +40,7 @@
               <#assign vatInfo>GB 823 5324 47</#assign>
           	  <#assign webInfo>www.accora.uk.com</#assign>
               <#assign logoInfo>https://system.na2.netsuite.com/core/media/media.nl?id=409&amp;c=4810497&amp;h=79d3cb51aa2d7b79ff0a</#assign>
-          	  <#assign cs = "£">
+              <#assign cs = "£">
         </#if>
   
         <#if subsidiary=="Accora Inc."> <!-- 1 is Inc-->
@@ -695,6 +695,15 @@
         </tr>
 	</#list><!-- end items --></table>
 
+      <#if statement.currencysymbol == "EUR">
+        <#assign cs = "€">
+      </#if>
+      <#if statement.currencysymbol == "GBP">
+        <#assign cs = "£">
+      </#if>
+      <#if statement.currencysymbol == "USD">
+        <#assign cs = "$">
+      </#if>
 <table class="aging" align="right" style="width: 40%; margin-top: 20px; " >
   <tr style="border-bottom: 1px solid black;">
 	<td align="right"><b>Total Due</b></td>
