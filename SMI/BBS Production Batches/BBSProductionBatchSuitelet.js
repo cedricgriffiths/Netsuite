@@ -1328,988 +1328,524 @@ function productionBatchSuitelet(request, response)
 					//	                   ["custbody_bbs_wo_batch","anyof",batchId]			                   
 					//	                ];
 					
-					var filterArray = [
-					                   ["type","anyof","WorkOrd"], 
-					                   "AND", 
-					                   ["internalid","anyof",woSearchArray]			                   
-					                ];
-					
-					var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
-							[
-							   new nlobjSearchColumn("tranid",null,null).setSort(false), 
-							   new nlobjSearchColumn("entity",null,null), 
-							   new nlobjSearchColumn("item",null,null), 
-							   new nlobjSearchColumn("quantity",null,null),
-							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
-							   new nlobjSearchColumn("item",null,null),
-							   new nlobjSearchColumn("type","item",null),
-							   new nlobjSearchColumn("description","item",null),
-							   new nlobjSearchColumn("mainline",null,null),
-							   new nlobjSearchColumn("custcol_bbs_bom_spec_inst",null,null),
-							   new nlobjSearchColumn("quantitycommitted",null,null),
-							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
-							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
-							   new nlobjSearchColumn("custitemfinish_type","item",null),
-							   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
-							   new nlobjSearchColumn("tranid","createdfrom",null),
-							   new nlobjSearchColumn("shipdate","createdfrom",null),
-							   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null),
-							   new nlobjSearchColumn("custbody_bbs_wo_machine",null,null),
-                               new nlobjSearchColumn("binnumber","item",null),
-                               new nlobjSearchColumn("parent","item",null)
-							]
-							);
-
-					var searchResult = transactionSearch.runSearch();
-					
-					//Get the initial set of results
-					//
-					var start = 0;
-					var end = 1000;
-					var searchResultSet = searchResult.getResults(start, end); // 10GU's
-					var resultlen = searchResultSet.length;
-
-					//If there is more than 1000 results, page through them
-					//
-					while (resultlen == 1000) 
-						{
-								start += 1000;
-								end += 1000;
-
-								var moreSearchResultSet = searchResult.getResults(start, end);  // 10GU's
-								resultlen = moreSearchResultSet.length;
-
-								searchResultSet = searchResultSet.concat(moreSearchResultSet);
-						}
-					
-					
-					//Work out the customer sub group
-					//
-					var subGroup = '';
-					var thisEntity = '';
-					var thisSalesOrder = '';
-					var thisShipDate = '';
-					var thisShipDay = '';
-					var thisShipDateFormatted = '';
-					var thisLogoType = '';
-					var thisMachine = '';
-					
-					//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
-					//
-					if(solink == 'T')
-						{
-							if(searchResultSet != null && searchResultSet.length > 0)
-								{
-									thisEntity = searchResultSet[0].getValue("entity");
-									thisSalesOrder = searchResultSet[0].getValue("tranid","createdfrom");
-									thisShipDate = searchResultSet[0].getValue("shipdate","createdfrom");
-									thisMachine = searchResultSet[0].getValue("custbody_bbs_wo_machine");
-									
-									switch(searchResultSet[0].getValue("custbody_bbs_wo_logo_type"))
-										{
-											case '1': //Embroidery
-												thisLogoType = 'EMB';
-												break;
-												
-											case '2': //Heatseal
-												thisLogoType = 'HS';
-												break;
-												
-											case '11': //Emb + hs
-												thisLogoType = 'EMB+HS';
-												break;
-										}
-									
-									if(thisShipDate != null && thisShipDate != '')
-										{
-											thisShipDay = (nlapiStringToDate(thisShipDate)).format('D');
-											thisShipDateFormatted = (nlapiStringToDate(thisShipDate)).format('d F Y');
-										}
-								}
-						}
-					else
-						{	
-							//If not linked to sales orders, we will need to use the assembly item belongs to instead
-							//
-							if(searchResultSet != null && searchResultSet.length > 0)
-								{
-									thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
-								}
-						}
-					
-					if(thisEntity !=  null && thisEntity != '')
-					{
-//SMI					subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
-						subGroup = (subGroup == null ? '' : subGroup);
-					}
-					
-					
-					
-					for ( var baseItem in baseItems) 
-						{
-							delete baseItems[baseItem];
-						}
-				
-					for ( var finishedItem in finishedItems) 
-						{
-							delete finishedItems[finishedItem];
-						}
-				
-					var remaining = nlapiGetContext().getRemainingUsage();
-					
-					//Header & style sheet
-					//
-					xmlPb += "<pdf>"
-					xmlPb += "<head>";
-					xmlPb += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
-					xmlPb += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-					xmlPb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
-					xmlPb += "b {font-weight: bold;color: #333333;}";
-					xmlPb += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlPb += "table.footer td {padding: 0;font-size: 10pt;}";
-					xmlPb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
-					xmlPb += "table.body td {padding-top: 0px;}";
-					xmlPb += "table.total {page-break-inside: avoid;}";
-					xmlPb += "table.message{border: 1px solid #dddddd;}";
-					xmlPb += "tr.totalrow {line-height: 300%;}";
-					xmlPb += "tr.messagerow{font-size: 6pt;}";
-					xmlPb += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
-					xmlPb += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-					xmlPb += "td.address {padding-top: 0;font-size: 10pt;}";
-					xmlPb += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-					xmlPb += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
-					xmlPb += "td.message{font-size: 8pt;}";
-					xmlPb += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-					xmlPb += "span.title {font-size: 28pt;}";
-					xmlPb += "span.number {font-size: 16pt;}";
-					xmlPb += "span.itemname {font-weight: bold;line-height: 150%;}";
-					xmlPb += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
-					xmlPb += "</style>";
-
-			        //Macros
-			        //
-					xmlPb += "<macrolist>";
-					xmlPb += "<macro id=\"nlfooter\">";
-					
-					//xmlPb += "<table class=\"footer\" style=\"width: 100%;\">";
-					//xmlPb += "<tr><td>&nbsp;</td><td align=\"center\" style=\"font-size:16px;\">Ship Date: " + thisShipDateFormatted + "</td><td align=\"right\" style=\"font-size:16px;\">" + thisShipDay + "</td></tr>";
-					//xmlPb += "</table>";
-					
-					xmlPb += "<p/>";
-					
-					xmlPb += "<table class=\"footer\" style=\"width: 100%;\">";
-					xmlPb += "<tr><td align=\"left\" style=\"font-size:6px;\">Printed: " + now + "</td><td align=\"right\" style=\"font-size:6px;\">Page <pagenumber/> of <totalpages/></td></tr>";
-					xmlPb += "</table>";
-					xmlPb += "</macro>";
-					
-					//Header data
-					//
-					xmlPb += "<macro id=\"nlheader\">";
-					xmlPb += "<table style=\"width: 100%\">";
-					xmlPb += "<tr>";
-					xmlPb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">&nbsp;</td>";
-					xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 10px;\"><b>Production Batch Picking List</b></td>";
-					xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(batchId) + "</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-					xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Ship date</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + thisShipDateFormatted + " (" + thisShipDay + ")</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "<tr>";
-					xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Machine</b></td>";
-					xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisMachine) + "</td>";
-					xmlPb += "</tr>";
-					
-					xmlPb += "</table></macro>";
-
-					xmlPb += "</macrolist>";
-					xmlPb += "</head>";
-					
-					//Body
-					//
-					xmlPb += "<body header=\"nlheader\" header-height=\"180px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-					
-					//Init some variables
-					//
-					var firstTime = true;
-					
-					//Loop through the works orders on the batch
-					//
-					if(searchResultSet != null)
-						{
-							var thisFinishedItem = '';
-							var woSpecInst = '';
-							var firstInventoryItem = true;
+						
+							var filterArray = [
+							                   ["type","anyof","WorkOrd"], 
+							                   "AND", 
+							                   ["internalid","anyof",woSearchArray]			                   
+							                ];
 							
-							for (var int3 = 0; int3 < searchResultSet.length; int3++) 
-							{
-								var woId 						= searchResultSet[int3].getId();
-								var woAssemblyItemId 			= searchResultSet[int3].getValue('item');
-								var woAssemblyItem 				= searchResultSet[int3].getText('item');
-								var woAssemblyItemDesc 			= searchResultSet[int3].getValue('description','item');
-								var woAssemblyItemQty 			= (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
-								var woAssemblyItemCommitted 	= (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
-								var woMainline 					= searchResultSet[int3].getValue('mainline');
-								var woSpecInst 					= searchResultSet[int3].getValue("custcol_bbs_bom_spec_inst");
-								var woItemType 					= searchResultSet[int3].getValue("type","item");
-								var woCommitStatus 				= searchResultSet[int3].getText("custbody_bbs_commitment_status");
-								var woAssemblyItemSequence 		= searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
-								var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
-								var woAssemblyProcessTypeId		= searchResultSet[int3].getValue("custitem_bbs_item_process_type","item");
-                                var woBinNumber					= searchResultSet[int3].getValue("binnumber","item");
-                                var woAssemblyParent					= searchResultSet[int3].getValue("parent","item");
-								if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
-									{
-										woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
-									}
-								
-								if(woMainline == '*')
-									{	
-//SMI									thisFinishedItem = woAssemblyItemSequence + woAssemblyFinishType;
-										thisFinishedItem = woAssemblyItemSequence;
-									
-										if(firstTime)
-											{
-												firstTime = false;
-											}
-										else
-											{
-												xmlPb += "</table>";
-											}
-										
-										//Collate all of the finished items together
-										//
-										
-										if(!finishedItems[thisFinishedItem])
-											{
-												var componetsObject = {};
-												finishedItems[thisFinishedItem] = [woAssemblyItem,Number(woAssemblyItemQty),woAssemblyItemDesc,componetsObject]; //Item Description, Quantity, Description, Components Object
-											}
-										else
-											{
-												finishedItems[thisFinishedItem][1] = Number(finishedItems[thisFinishedItem][1]) + Number(woAssemblyItemQty);
-											}
+							var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
+									[
+									   new nlobjSearchColumn("tranid",null,null).setSort(false), 
+									   new nlobjSearchColumn("entity",null,null), 
+									   new nlobjSearchColumn("item",null,null), 
+									   new nlobjSearchColumn("quantity",null,null),
+									   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
+									   new nlobjSearchColumn("item",null,null),
+									   new nlobjSearchColumn("type","item",null),
+									   new nlobjSearchColumn("description","item",null),
+									   new nlobjSearchColumn("mainline",null,null),
+									   new nlobjSearchColumn("custcol_bbs_bom_spec_inst",null,null),
+									   new nlobjSearchColumn("quantitycommitted",null,null),
+									   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
+									   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
+									   new nlobjSearchColumn("custitemfinish_type","item",null),
+									   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
+									   new nlobjSearchColumn("tranid","createdfrom",null),
+									   new nlobjSearchColumn("shipdate","createdfrom",null),
+									   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null),
+									   new nlobjSearchColumn("custbody_bbs_wo_machine",null,null),
+		                               new nlobjSearchColumn("binnumber","item",null),
+		                               new nlobjSearchColumn("parent","item",null)
+									]
+									);
+		
+							var searchResult = transactionSearch.runSearch();
+							
+							//Get the initial set of results
+							//
+							var start = 0;
+							var end = 1000;
+							var searchResultSet = searchResult.getResults(start, end); // 10GU's
+							var resultlen = searchResultSet.length;
+		
+							//If there is more than 1000 results, page through them
+							//
+							while (resultlen == 1000) 
+								{
+										start += 1000;
+										end += 1000;
+		
+										var moreSearchResultSet = searchResult.getResults(start, end);  // 10GU's
+										resultlen = moreSearchResultSet.length;
+		
+										searchResultSet = searchResultSet.concat(moreSearchResultSet);
+								}
+							
+							
+							//Work out the customer sub group
+							//
+							var subGroup = '';
+							var thisEntity = '';
+							var thisSalesOrder = '';
+							var thisShipDate = '';
+							var thisShipDay = '';
+							var thisShipDateFormatted = '';
+							var thisLogoType = '';
+							var thisMachine = '';
+							
+							//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+							//
+							if(solink == 'T')
+								{
+									if(searchResultSet != null && searchResultSet.length > 0)
+										{
+											thisEntity = searchResultSet[0].getValue("entity");
+											thisSalesOrder = searchResultSet[0].getValue("tranid","createdfrom");
+											thisShipDate = searchResultSet[0].getValue("shipdate","createdfrom");
+											thisMachine = searchResultSet[0].getValue("custbody_bbs_wo_machine");
 											
-										
-										xmlPb += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
-										xmlPb += "<thead >";
-										xmlPb += "<tr >";
-										xmlPb += "<th colspan=\"2\"><br/>Works Order</th>";
-										xmlPb += "<th align=\"left\" colspan=\"14\"><br/>Component</th>";
-                                      	xmlPb += "<th align=\"right\" colspan=\"2\"><br/>Bin Number</th>";
-										xmlPb += "<th align=\"right\" colspan=\"2\">    Qty<br/>Committed</th>";
-                                      
-										xmlPb += "</tr>";
-										xmlPb += "</thead>";
-										
-										xmlPb += "<tr>";
-										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-										//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\">&nbsp;</td>";
-										xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"4\">&nbsp;</td>";
-										xmlPb += "</tr>";
-															
-										xmlPb += "<tr>";
-										xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
-										//xmlPb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-										xmlPb += "<td align=\"left\" colspan=\"14\">&nbsp;</td>";
-                                      	xmlPb += "</tr>";	
-										xmlPb += "<tr>";
-										xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\">&nbsp;</td>";
-										xmlPb += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-										xmlPb += "</tr>";
-										
-									}
-								else
+											switch(searchResultSet[0].getValue("custbody_bbs_wo_logo_type"))
+												{
+													case '1': //Embroidery
+														thisLogoType = 'EMB';
+														break;
+														
+													case '2': //Heatseal
+														thisLogoType = 'HS';
+														break;
+														
+													case '11': //Emb + hs
+														thisLogoType = 'EMB+HS';
+														break;
+												}
+											
+											if(thisShipDate != null && thisShipDate != '')
+												{
+													thisShipDay = (nlapiStringToDate(thisShipDate)).format('D');
+													thisShipDateFormatted = (nlapiStringToDate(thisShipDate)).format('d F Y');
+												}
+										}
+								}
+							else
+								{	
+									//If not linked to sales orders, we will need to use the assembly item belongs to instead
+									//
+									if(searchResultSet != null && searchResultSet.length > 0)
+										{
+											thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
+										}
+								}
+							
+							if(thisEntity !=  null && thisEntity != '')
+							{
+		//SMI					subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
+								subGroup = (subGroup == null ? '' : subGroup);
+							}
+							
+							
+							
+							for ( var baseItem in baseItems) 
+								{
+									delete baseItems[baseItem];
+								}
+						
+							for ( var finishedItem in finishedItems) 
+								{
+									delete finishedItems[finishedItem];
+								}
+						
+							var remaining = nlapiGetContext().getRemainingUsage();
+							
+							//Header & style sheet
+							//
+							xmlPb += "<pdf>"
+							xmlPb += "<head>";
+							xmlPb += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
+							xmlPb += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
+							xmlPb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+							xmlPb += "b {font-weight: bold;color: #333333;}";
+							xmlPb += "table.header td {padding: 0px;font-size: 10pt;}";
+							xmlPb += "table.footer td {padding: 0;font-size: 10pt;}";
+							xmlPb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
+							xmlPb += "table.body td {padding-top: 0px;}";
+							xmlPb += "table.total {page-break-inside: avoid;}";
+							xmlPb += "table.message{border: 1px solid #dddddd;}";
+							xmlPb += "tr.totalrow {line-height: 300%;}";
+							xmlPb += "tr.messagerow{font-size: 6pt;}";
+							xmlPb += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
+							xmlPb += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
+							xmlPb += "td.address {padding-top: 0;font-size: 10pt;}";
+							xmlPb += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
+							xmlPb += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
+							xmlPb += "td.message{font-size: 8pt;}";
+							xmlPb += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
+							xmlPb += "span.title {font-size: 28pt;}";
+							xmlPb += "span.number {font-size: 16pt;}";
+							xmlPb += "span.itemname {font-weight: bold;line-height: 150%;}";
+							xmlPb += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
+							xmlPb += "</style>";
+		
+					        //Macros
+					        //
+							xmlPb += "<macrolist>";
+							xmlPb += "<macro id=\"nlfooter\">";
+							
+							xmlPb += "<p/>";
+							
+							xmlPb += "<table class=\"footer\" style=\"width: 100%;\">";
+							xmlPb += "<tr><td align=\"left\" style=\"font-size:6px;\">Printed: " + now + "</td><td align=\"right\" style=\"font-size:6px;\">Page <pagenumber/> of <totalpages/></td></tr>";
+							xmlPb += "</table>";
+							xmlPb += "</macro>";
+							
+							//Header data
+							//
+							xmlPb += "<macro id=\"nlheader\">";
+							xmlPb += "<table style=\"width: 100%\">";
+							xmlPb += "<tr>";
+							xmlPb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">&nbsp;</td>";
+							xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 10px;\"><b>Production Batch Picking List</b></td>";
+							xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+							xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(batchId) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
+							xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Ship date</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + thisShipDateFormatted + " (" + thisShipDay + ")</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "<tr>";
+							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Machine</b></td>";
+							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisMachine) + "</td>";
+							xmlPb += "</tr>";
+							
+							xmlPb += "</table></macro>";
+		
+							xmlPb += "</macrolist>";
+							xmlPb += "</head>";
+							
+							//Body
+							//
+							xmlPb += "<body header=\"nlheader\" header-height=\"180px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+							
+							//Init some variables
+							//
+							var firstTime = true;
+							
+							//Loop through the works orders on the batch
+							//
+							if(searchResultSet != null)
+								{
+									var thisFinishedItem = '';
+									var woSpecInst = '';
+									var firstInventoryItem = true;
+									
+									for (var int3 = 0; int3 < searchResultSet.length; int3++) 
 									{
-										//Collate all of the base items together
-										//
-										if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
+										var woId 						= searchResultSet[int3].getId();
+										var woAssemblyItemId 			= searchResultSet[int3].getValue('item');
+										var woAssemblyItem 				= searchResultSet[int3].getText('item');
+										var woAssemblyItemDesc 			= searchResultSet[int3].getValue('description','item');
+										var woAssemblyItemQty 			= (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
+										var woAssemblyItemCommitted 	= (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
+										var woMainline 					= searchResultSet[int3].getValue('mainline');
+										var woSpecInst 					= searchResultSet[int3].getValue("custcol_bbs_bom_spec_inst");
+										var woItemType 					= searchResultSet[int3].getValue("type","item");
+										var woCommitStatus 				= searchResultSet[int3].getText("custbody_bbs_commitment_status");
+										var woAssemblyItemSequence 		= searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
+										var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
+										var woAssemblyProcessTypeId		= searchResultSet[int3].getValue("custitem_bbs_item_process_type","item");
+		                                var woBinNumber					= searchResultSet[int3].getValue("binnumber","item");
+		                                var woAssemblyParent					= searchResultSet[int3].getValue("parent","item");
+										if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
 											{
-												var committedValue = Number(0);
-												
-												//For non inventory parts, show the quantity rather than the committed qty as this will be zero
-                                              	//
-                                              	if(woItemType == 'NonInvtPart')
-		                                      		{
-														committedValue = Number(woAssemblyItemQty);
-		                                      		}
-												else
-													{
-														committedValue = Number(woAssemblyItemCommitted);
-													}
-												
-												if(!baseItems[woAssemblyItemSequence])
-													{
-														baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),committedValue,woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
-													}
-												else
-													{
-														baseItems[woAssemblyItemSequence][1] = Number(baseItems[woAssemblyItemSequence][1]) + Number(woAssemblyItemQty);
-														baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + committedValue;
-													}
+												woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
 											}
 										
-										
-										//Only print out non-assembly items
-										//
-										if(woItemType != 'Assembly')
-											{
-												//Also we need to keep track of the components for the current finished item 
-												//
-												var finishedItemComponents = finishedItems[thisFinishedItem][3];
-												
-												if(!finishedItemComponents[woAssemblyItemId])
+										if(woMainline == '*')
+											{	
+												thisFinishedItem = woAssemblyItemSequence;
+											
+												if(firstTime)
 													{
-														finishedItemComponents[woAssemblyItemId] = [woAssemblyItem,woAssemblyItemDesc,woSpecInst,Number(woAssemblyItemQty),Number(woAssemblyItemCommitted)]
-                                                 
+														firstTime = false;
 													}
 												else
 													{
-														finishedItemComponents[woAssemblyItemId][3] = Number(finishedItemComponents[woAssemblyItemId][3]) + Number(woAssemblyItemQty);
-														finishedItemComponents[woAssemblyItemId][4] = Number(finishedItemComponents[woAssemblyItemId][4]) + Number(woAssemblyItemCommitted);
+														xmlPb += "</table>";
 													}
 												
-												finishedItems[thisFinishedItem][3] = finishedItemComponents;
+												//Collate all of the finished items together
+												//
+												
+												if(!finishedItems[thisFinishedItem])
+													{
+														var componetsObject = {};
+														finishedItems[thisFinishedItem] = [woAssemblyItem,Number(woAssemblyItemQty),woAssemblyItemDesc,componetsObject]; //Item Description, Quantity, Description, Components Object
+													}
+												else
+													{
+														finishedItems[thisFinishedItem][1] = Number(finishedItems[thisFinishedItem][1]) + Number(woAssemblyItemQty);
+													}
+													
+												
+												xmlPb += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
+												xmlPb += "<thead >";
+												xmlPb += "<tr >";
+												xmlPb += "<th colspan=\"2\"><br/>Works Order</th>";
+												xmlPb += "<th align=\"left\" colspan=\"14\"><br/>Component</th>";
+		                                      	xmlPb += "<th align=\"right\" colspan=\"2\"><br/>Bin Number</th>";
+												xmlPb += "<th align=\"right\" colspan=\"2\">    Qty<br/>Committed</th>";
+		                                      
+												xmlPb += "</tr>";
+												xmlPb += "</thead>";
+												
+												xmlPb += "<tr>";
+												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+												//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\">&nbsp;</td>";
+												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"4\">&nbsp;</td>";
+												xmlPb += "</tr>";
+																	
+												xmlPb += "<tr>";
+												xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
+												//xmlPb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+												xmlPb += "<td align=\"left\" colspan=\"14\">&nbsp;</td>";
+		                                      	xmlPb += "</tr>";	
+												xmlPb += "<tr>";
+												xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\">&nbsp;</td>";
+												xmlPb += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
+												xmlPb += "</tr>";
+												
+											}
+										else
+											{
+												//Collate all of the base items together
+												//
+												if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
+													{
+														var committedValue = Number(0);
+														
+														//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+		                                              	//
+		                                              	if(woItemType == 'NonInvtPart')
+				                                      		{
+																committedValue = Number(woAssemblyItemQty);
+				                                      		}
+														else
+															{
+																committedValue = Number(woAssemblyItemCommitted);
+															}
+														
+														if(!baseItems[woAssemblyItemSequence])
+															{
+																baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),committedValue,woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
+															}
+														else
+															{
+																baseItems[woAssemblyItemSequence][1] = Number(baseItems[woAssemblyItemSequence][1]) + Number(woAssemblyItemQty);
+																baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + committedValue;
+															}
+													}
 												
 												
-												//if(firstInventoryItem && woAssemblyParent != '')
-												//	{
-														xmlPb += "<tr>";
-														xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-														xmlPb += "<td align=\"right\" colspan=\"2\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woBinNumber) + "</td>";
+												//Only print out non-assembly items
+												//
+												if(woItemType != 'Assembly')
+													{
+														//Also we need to keep track of the components for the current finished item 
+														//
+														var finishedItemComponents = finishedItems[thisFinishedItem][3];
 														
-                                                      	//For non inventory parts, show the quantity rather than the committed qty as this will be zero
-                                                      	//
-                                                      	if(woItemType == 'NonInvtPart')
-                                                      		{
-                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemQty) + "</td>";                  
-                                                      		}
-                                                      	else
-                                                      		{
-                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
-                                                      		}
-                                                      	
-														xmlPb += "</tr>";
+														if(!finishedItemComponents[woAssemblyItemId])
+															{
+																finishedItemComponents[woAssemblyItemId] = [woAssemblyItem,woAssemblyItemDesc,woSpecInst,Number(woAssemblyItemQty),Number(woAssemblyItemCommitted)]
+		                                                 
+															}
+														else
+															{
+																finishedItemComponents[woAssemblyItemId][3] = Number(finishedItemComponents[woAssemblyItemId][3]) + Number(woAssemblyItemQty);
+																finishedItemComponents[woAssemblyItemId][4] = Number(finishedItemComponents[woAssemblyItemId][4]) + Number(woAssemblyItemCommitted);
+															}
 														
-														if(woItemType == 'NonInvtPart')
-                                                  		{
-															xmlPb += "<tr>";
-															xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-															xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
-															xmlPb += "</tr>";
-														}
-															
+														finishedItems[thisFinishedItem][3] = finishedItemComponents;
+														
+												
+																xmlPb += "<tr>";
+																xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+																xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+																xmlPb += "<td align=\"right\" colspan=\"2\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woBinNumber) + "</td>";
+																
+		                                                      	//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+		                                                      	//
+		                                                      	if(woItemType == 'NonInvtPart')
+		                                                      		{
+		                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemQty) + "</td>";                  
+		                                                      		}
+		                                                      	else
+		                                                      		{
+		                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
+		                                                      		}
+		                                                      	
+																xmlPb += "</tr>";
+																
+																if(woItemType == 'NonInvtPart')
+		                                                  		{
+																	xmlPb += "<tr>";
+																	xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+																	xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
+																	xmlPb += "</tr>";
+																}
+																	
+																if(woSpecInst != null && woSpecInst != '')
+																	{
+																		xmlPb += "<tr>";
+																		xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+																		xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
+																		xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
+																		xmlPb += "</tr>";
+																	}
+
+													}
+												else
+													{
+														//Print out special instructions for assembly items - if present
+														//
 														if(woSpecInst != null && woSpecInst != '')
 															{
 																xmlPb += "<tr>";
 																xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
-																xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
+																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Finish Special Instr. :</b></td>";
+																xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
 																xmlPb += "</tr>";
 															}
-												//	}
-												
-												/*
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-												
-												if(!firstInventoryItem)
-													{
-														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "<barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
-														
-													}
-												else
-													{
-														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-													
-													}
-												
-												xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
-												xmlPb += "</tr>";
-															
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
-												xmlPb += "<td align=\"left\" colspan=\"10\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
-												xmlPb += "</tr>";
-												 */
-												
-												if(firstInventoryItem)
-													{
-														//firstInventoryItem = false;
-														
-														//xmlPb += "<tr>";
-														//xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-														//xmlPb += "<td style=\"border-bottom: 1px; border-bottom-color: black;\" colspan=\"16\"><b><br/>Processes Required</b></td>";
-														//xmlPb += "</tr>";
-													}
-											}
-										else
-											{
-												//Print out special instructions for assembly items - if present
-												//
-												if(woSpecInst != null && woSpecInst != '')
-													{
-														xmlPb += "<tr>";
-														xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-														xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Finish Special Instr. :</b></td>";
-														xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
-														xmlPb += "</tr>";
 													}
 											}
 									}
-							}
+									
+									//Finish the item table
+									//
+									xmlPb += "</table>";
+									
+								}
+							
+							//Add in the number of finishes
+							//
+							xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+							xmlPb += "<tr>";
+							xmlPb += "<td style=\"margin-top: 10px; margin-bottom: 5px;\"><b>Finishes Summary</b></td>";
+							xmlPb += "</tr>";
+							xmlPb += "</table>";
+							
+							xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+							xmlPb += "<thead >";
+							xmlPb += "<tr >";
+							xmlPb += "<th colspan=\"2\">&nbsp;</th>";
+							xmlPb += "<th align=\"left\" colspan=\"14\">Finish</th>";
+		                  	xmlPb += "<th align=\"right\" colspan=\"2\">Bin Number</th>";
+							xmlPb += "<th align=\"right\" colspan=\"2\">Quantity</th>";
+		                  
+							xmlPb += "</tr>";
+							xmlPb += "</thead>";
+							
+							//Sort the base items
+							//
+							for ( var tempBaseItem in tempBaseItems) 
+								{
+									delete tempBaseItems[tempBaseItem];
+								}
+							
+							const tempBaseItems = {};
+							Object.keys(baseItems).sort().forEach(function(key) {
+								tempBaseItems[key] = baseItems[key];
+							});
+							
+							//Loop through the base items
+							//
+							for (var baseItem in tempBaseItems) 
+								{
+									//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
+									//
+									if(['1','2','7','11'].indexOf(tempBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
+										{
+											xmlPb += "<tr>";
+											xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+											xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(tempBaseItems[baseItem][0])) + "</b></td>";
+											xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(tempBaseItems[baseItem][3]) + "</td>";
+											xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][6]) + "</td>";
+											xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][2]) + "</td>";
+											xmlPb += "</tr>";
+		
+										}
+								}
 							
 							//Finish the item table
 							//
 							xmlPb += "</table>";
 							
-						}
-					
-					//Add in the number of finishes
-					//
-					xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xmlPb += "<tr>";
-					xmlPb += "<td style=\"margin-top: 10px; margin-bottom: 5px;\"><b>Finishes Summary</b></td>";
-					xmlPb += "</tr>";
-					xmlPb += "</table>";
-					
-					xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xmlPb += "<thead >";
-					xmlPb += "<tr >";
-					xmlPb += "<th colspan=\"2\">&nbsp;</th>";
-					xmlPb += "<th align=\"left\" colspan=\"14\">Finish</th>";
-                  	xmlPb += "<th align=\"right\" colspan=\"2\">Bin Number</th>";
-					xmlPb += "<th align=\"right\" colspan=\"2\">Quantity</th>";
-                  
-					xmlPb += "</tr>";
-					xmlPb += "</thead>";
-					
-					//Sort the base items
-					//
-					for ( var tempBaseItem in tempBaseItems) 
-						{
-							delete tempBaseItems[tempBaseItem];
-						}
-					
-					const tempBaseItems = {};
-					Object.keys(baseItems).sort().forEach(function(key) {
-						tempBaseItems[key] = baseItems[key];
-					});
-					
-					//Loop through the base items
-					//
-					for (var baseItem in tempBaseItems) 
-						{
-							//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
+							//Add in the operator signature boxes
 							//
-							if(['1','2','7','11'].indexOf(tempBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
-								{
-									xmlPb += "<tr>";
-									xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-									xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(tempBaseItems[baseItem][0])) + "</b></td>";
-									xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(tempBaseItems[baseItem][3]) + "</td>";
-									xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][6]) + "</td>";
-									xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][2]) + "</td>";
-									xmlPb += "</tr>";
-
-								}
-						}
-					
-					//Finish the item table
-					//
-					xmlPb += "</table>";
-					
-					//Add in the operator signature boxes
-					//
-					xmlPb += "<p/>";
-					xmlPb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
-					xmlPb += "<tr class=\"totalrow\">";
-					xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
-					xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlPb += "</tr>";
-					xmlPb += "<tr class=\"totalrow\">";
-					xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
-					xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlPb += "</tr>";
-					xmlPb += "</table>";
-					
-					//Finish the body
-					//
-					xmlPb += "</body>";
-					
-					//Finish the pdf
-					//
-					xmlPb += "</pdf>";
-
-					if(PRINT_PRODUCTION_BATCH)
-						{
-							xml += xmlPb;
-						}
-					
-					xmlPb = '';
-					
-					//
-					//=====================================================================
-					// Produce the summary of the base items
-					//=====================================================================
-					//
-					
-					//Header & style sheet
-					//
-					xmlCb += "<pdf>"
-					xmlCb += "<head>";
-					xmlCb += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
-					xmlCb += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-					xmlCb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
-					xmlCb += "b {font-weight: bold;color: #333333;}";
-					xmlCb += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlCb += "table.footer td {padding: 0;font-size: 10pt;}";
-					xmlCb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
-					xmlCb += "table.body td {padding-top: 0px;}";
-					xmlCb += "table.total {page-break-inside: avoid;}";
-					xmlCb += "table.message{border: 1px solid #dddddd;}";
-					xmlCb += "tr.totalrow {line-height: 300%;}";
-					xmlCb += "tr.messagerow{font-size: 6pt;}";
-					xmlCb += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
-					xmlCb += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-					xmlCb += "td.address {padding-top: 0;font-size: 10pt;}";
-					xmlCb += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-					xmlCb += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
-					xmlCb += "td.message{font-size: 8pt;}";
-					xmlCb += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-					xmlCb += "span.title {font-size: 28pt;}";
-					xmlCb += "span.number {font-size: 16pt;}";
-					xmlCb += "span.itemname {font-weight: bold;line-height: 150%;}";
-					xmlCb += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
-					xmlCb += "</style>";
-
-			        //Macros
-			        //
-					xmlCb += "<macrolist>";
-					xmlCb += "<macro id=\"nlfooter\">"; 
-					xmlCb += "<table class=\"footer\" style=\"width: 100%;\">";
-					xmlCb += "<tr><td>&nbsp;</td><td align=\"center\" style=\"font-size:16px;\">Ship Date: " + thisShipDateFormatted + "</td><td align=\"right\" style=\"font-size:16px;\">" + thisShipDay + "</td></tr>";
-					xmlCb += "</table>";
-					
-					xmlCb += "<p/>";
-					
-					xmlCb += "<table class=\"footer\" style=\"width: 100%;\">";
-					xmlCb += "<tr><td align=\"left\" style=\"font-size:6px;\">Printed: " + now + "</td><td align=\"right\" style=\"font-size:6px;\">Page <pagenumber/> of <totalpages/></td></tr>";
-					xmlCb += "</table>";
-					xmlCb += "</macro>";
-					
-					//Header data
-					//
-					xmlCb += "<macro id=\"nlheader\">";
-					xmlCb += "<table style=\"width: 100%\">";
-					
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">&nbsp;</td>";
-					xmlCb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 10px;\"><b>Consolidated Finished Items Picking List</b></td>";
-					xmlCb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
-					xmlCb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
-					xmlCb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(batchId) + "</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
-					xmlCb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-					xmlCb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"3\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
-					xmlCb += "</tr>";
-					
-					xmlCb += "<tr>";
-					xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Machine</b></td>";
-					xmlCb += "<td align=\"left\" colspan=\"3\" style=\"padding-bottom: 10px;\">" + nlapiEscapeXML(thisMachine) + "</td>";
-					xmlCb += "</tr>";
-
-					xmlCb += "</table></macro>";
-
-					xmlCb += "</macrolist>";
-					xmlCb += "</head>";
-					
-					//Body
-					//
-					xmlCb += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-					
-					xmlCb += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					xmlCb += "<thead >";
-					xmlCb += "<tr >";
-					xmlCb += "<th align=\"left\" colspan=\"17\">Base Item</th>";
-					//xmlCb += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
-					xmlCb += "<th align=\"right\" colspan=\"3\">Committed Qty</th>";
-
-					xmlCb += "</tr>";
-					xmlCb += "</thead>";
-
-					//Sort the base items
-					//
-					for ( var orderedBaseItem in orderedBaseItems) 
-						{
-							delete orderedBaseItems[orderedBaseItem];
-						}
-					
-					const orderedBaseItems = {};
-					Object.keys(baseItems).sort().forEach(function(key) {
-						orderedBaseItems[key] = baseItems[key];
-					});
-					
-					//Loop through the base items
-					//
-					for (var baseItem in orderedBaseItems) 
-						{
-							//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
+							xmlPb += "<p/>";
+							xmlPb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
+							xmlPb += "<tr class=\"totalrow\">";
+							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
+							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+							xmlPb += "</tr>";
+							xmlPb += "<tr class=\"totalrow\">";
+							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
+							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+							xmlPb += "</tr>";
+							xmlPb += "</table>";
+							
+							//Finish the body
 							//
-							if(['1','2','7','11'].indexOf(orderedBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
+							xmlPb += "</body>";
+							
+							//Finish the pdf
+							//
+							xmlPb += "</pdf>";
+		
+							if(PRINT_PRODUCTION_BATCH)
 								{
-									xmlCb += "<tr>";
-									xmlCb += "<td colspan=\"2\">&nbsp;</td>";
-									xmlCb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(orderedBaseItems[baseItem][0])) + "</b></td>";
-									xmlCb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][3]) + "<barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(orderedBaseItems[baseItem][0])) + "\"/></td>";
-									xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][6]) + "</td>";
-                                  xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][2]) + "</td>";
-									xmlCb += "</tr>";
-												
-									xmlCb += "<tr>";
-									xmlCb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-									xmlCb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
-									xmlCb += "<td align=\"left\" colspan=\"10\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][4]) + "</td>";
-									xmlCb += "</tr>";
-								}
-						
-						
-							/*
-							xmlCb += "<tr>";
-							xmlCb += "<td align=\"left\" colspan=\"16\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(orderedBaseItems[baseItem][0])) + "</b></td>";
-							xmlCb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(orderedBaseItems[baseItem][2]) + "</td>";
-							xmlCb += "</tr>";
-												
-							xmlCb += "<tr>";
-							xmlCb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(orderedBaseItems[baseItem][3]) + "</td>";
-							xmlCb += "</tr>";
-												
-							xmlCb += "<tr>";
-							xmlCb += "<td align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(orderedBaseItems[baseItem][4]) + "</b></td>";
-							xmlCb += "</tr>";
-												
-							xmlCb += "<tr>";
-							xmlCb += "<td colspan=\"18\">&nbsp;</td>";
-							xmlCb += "</tr>";
-							*/
-						}
-					
-					//Finish the item table
-					//
-					xmlCb += "</table>";
-					
-					//Add in the operator signature boxes
-					//
-					xmlCb += "<p/>";
-					xmlCb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
-					xmlCb += "<tr class=\"totalrow\">";
-					xmlCb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
-					xmlCb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlCb += "</tr>";
-					xmlCb += "<tr class=\"totalrow\">";
-					xmlCb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
-					xmlCb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlCb += "</tr>";
-					xmlCb += "</table>";
-					
-					//Finish the body
-					//
-					xmlCb += "</body>";
-					
-					//Finish the pdf
-					//
-					xmlCb += "</pdf>";
-					
-					if(PRINT_CONSOLIDATED_BASE_ITEMS)
-						{
-							xml += xmlCb;
-						}
-					
-					xmlCb = '';
-					
-					//
-					//=====================================================================
-					// End of summary picking list
-					//=====================================================================
-					//
-					
-					
-					//
-					//=====================================================================
-					// Produce the summary of the finished items
-					//=====================================================================
-					//
-					
-					//Header & style sheet
-					//
-					xmlCf += "<pdf>"
-					xmlCf += "<head>";
-					xmlCf += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
-					xmlCf += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-					xmlCf += "td {padding: 0px;vertical-align: top;font-size:10px;}";
-					xmlCf += "b {font-weight: bold;color: #333333;}";
-					xmlCf += "table.header td {padding: 0px;font-size: 10pt;}";
-					xmlCf += "table.footer td {padding: 0;font-size: 10pt;}";
-					xmlCf += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
-					xmlCf += "table.body td {padding-top: 0px;}";
-					xmlCf += "table.total {page-break-inside: avoid;}";
-					xmlCf += "table.message{border: 1px solid #dddddd;}";
-					xmlCf += "tr.totalrow {line-height: 300%;}";
-					xmlCf += "tr.messagerow{font-size: 6pt;}";
-					xmlCf += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
-					xmlCf += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-					xmlCf += "td.address {padding-top: 0;font-size: 10pt;}";
-					xmlCf += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-					xmlCf += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
-					xmlCf += "td.message{font-size: 8pt;}";
-					xmlCf += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-					xmlCf += "span.title {font-size: 28pt;}";
-					xmlCf += "span.number {font-size: 16pt;}";
-					xmlCf += "span.itemname {font-weight: bold;line-height: 150%;}";
-					xmlCf += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
-					xmlCf += "</style>";
-
-			        //Macros
-			        //
-					xmlCf += "<macrolist>";
-					xmlCf += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\">";
-					xmlCf += "<tr><td align=\"left\">Printed: " + now + "</td><td align=\"right\">Page <pagenumber/> of <totalpages/></td></tr>";
-					xmlCf += "</table></macro>";
-					
-					//Header data
-					//
-					xmlCf += "<macro id=\"nlheader\">";
-					xmlCf += "<table style=\"width: 100%\">";
-					xmlCf += "<tr>";
-					xmlCf += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 5px;\">&nbsp;</td>";
-					xmlCf += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 5px;\"><b>Consolidated Finished Items Production List</b></td>";
-					xmlCf += "<td colspan=\"2\" align=\"right\" style=\"font-size:12px; padding-bottom: 5px;\">&nbsp;</td>";
-					xmlCf += "</tr>";
-					
-					xmlCf += "<tr>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "</tr>";
-					
-					xmlCf += "<tr>";
-					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 5px;\"><b>Batch Description</b></td>";
-					xmlCf += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 5px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
-					xmlCf += "</tr>";
-					
-					xmlCf += "<tr>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-					xmlCf += "</tr>";
-					
-					xmlCf += "<tr>";
-					xmlCf += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px;\"><b>Batch Id</b></td>";
-					xmlCf += "<td colspan=\"3\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-					xmlCf += "<td align=\"left\" style=\"font-size:16px;\" colspan=\"2\">" + nlapiEscapeXML(batchId) + "</td>";
-					//xmlCf += "<td align=\"right\" style=\"font-size:12px;\" colspan=\"2\">" + nlapiEscapeXML(stockOrSales) + "</td>";
-					xmlCf += "</tr>";
-					
-					xmlCf += "</table></macro>";
-
-					xmlCf += "</macrolist>";
-					xmlCf += "</head>";
-					
-					//Body
-					//
-					xmlCf += "<body header=\"nlheader\" header-height=\"150px\" footer=\"nlfooter\" footer-height=\"1%\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-
-					//xmlCf += "<table class=\"itemtable\" style=\"width: 100%;\">";
-					//xmlCf += "<thead >";
-					//xmlCf += "<tr >";
-					//xmlCf += "<th align=\"left\" colspan=\"14\">Finished Item</th>";
-					//xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
-					//xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
-					//xmlCf += "</tr>";
-					//xmlCf += "</thead>";
-
-					//Sort the finished items
-					//
-					for ( var orderedfinishedItem in orderedfinishedItems) 
-						{
-							delete orderedfinishedItems[orderedfinishedItem];
-						}
-					
-					const orderedfinishedItems = {};
-					Object.keys(finishedItems).sort().forEach(function(key) {
-						orderedfinishedItems[key] = finishedItems[key];
-					});
-					
-					//Loop through the finished items
-					//
-					for (var finishedItem in orderedfinishedItems) 
-						{
-							xmlCf += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
-							xmlCf += "<thead >";
-							xmlCf += "<tr >";
-							xmlCf += "<th align=\"left\" colspan=\"16\">Finished Item</th>";
-							//xmlCf += "<th align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">Required Qty</th>";
-							xmlCf += "<th align=\"right\" colspan=\"2\">Committed Qty</th>";
-							xmlCf += "</tr>";
-							xmlCf += "</thead>";
-
-							xmlCf += "<tr>";
-							xmlCf += "<td align=\"left\" colspan=\"16\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(orderedfinishedItems[finishedItem][0])) + "</b></td>";
-							//xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + orderedfinishedItems[finishedItem][1] + "</td>";
-							xmlCf += "</tr>";
-												
-							xmlCf += "<tr>";
-							xmlCf += "<td align=\"left\" colspan=\"16\">" + nlapiEscapeXML(orderedfinishedItems[finishedItem][2]) + "</td>";
-							xmlCf += "</tr>";
-																	
-							xmlCf += "<tr>";
-							xmlCf += "<td colspan=\"18\">&nbsp;</td>";
-							xmlCf += "</tr>";
-							
-							var theComponents = orderedfinishedItems[finishedItem][3];
-							
-							//for ( var orderedComponent in orderedComponents) 
-							//{
-							//	delete orderedComponents[orderedComponent];
-							//}
-							
-							//const orderedComponents = {};
-							//Object.keys(theComponents).sort().forEach(function(key) {
-							//	orderedComponents[key] = theComponents[key];
-							//});
-							
-							for (var theComponent in theComponents) 
-								{
-									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"14\" style=\"font-size: 10pt;\"><b>" + nlapiEscapeXML(removePrefix(theComponents[theComponent][0])) + "</b></td>";
-									xmlCf += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px;\">" + nlapiEscapeXML(theComponents[theComponent][4]) + "</td>";
-									xmlCf += "</tr>";
-														
-									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(theComponents[theComponent][1]) + "</td>";
-									xmlCf += "</tr>";
-														
-									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"2\">&nbsp;</td>";
-									xmlCf += "<td align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(theComponents[theComponent][2]) + "</b></td>";
-									xmlCf += "</tr>";
-
-									xmlCf += "<tr>";
-									xmlCf += "<td colspan=\"18\">&nbsp;</td>";
-									xmlCf += "</tr>";
+									xml += xmlPb;
 								}
 							
-							//Finish the item table
-							//
-							xmlCf += "</table>";
+							xmlPb = '';
 							
-						}
-					
-					//Finish the item table
-					//
-					//xmlCf += "</table>";
-					
-					//Add in the operator signature boxes
-					//
-					xmlCf += "<p/>";
-					xmlCf += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
-					xmlCf += "<tr class=\"totalrow\">";
-					xmlCf += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
-					xmlCf += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlCf += "</tr>";
-					xmlCf += "<tr class=\"totalrow\">";
-					xmlCf += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
-					xmlCf += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-					xmlCf += "</tr>";
-					xmlCf += "</table>";
-					
-					//Finish the body
-					//
-					xmlCf += "</body>";
-					
-					//Finish the pdf
-					//
-					xmlCf += "</pdf>";
-					
-					if(PRINT_CONSOLIDATED_FINISHED_ITEMS)
-						{
-							xml += xmlCf;
-						}
-					
-					xmlCf = '';
-					
-					//
-					//=====================================================================
-					// End of summary finished items list
-					//=====================================================================
-					//
+							
 					
 				}
 				//
