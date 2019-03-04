@@ -39,6 +39,7 @@ function externalIdsAfterSubmit(type)
 					catch(err)
 						{
 							thisRecord = null;
+							nlapiLogExecution('ERROR', 'Error trying to read record (' + currentType + ') (' + currentId + ')', err.message);
 						}
 					
 					if(thisRecord != null)
@@ -48,7 +49,7 @@ function externalIdsAfterSubmit(type)
 							switch(currentType)
 								{
 									case 'customer':
-									case 'supplier':
+									case 'vendor':
 										
 										externalId = isNull(thisRecord.getFieldValue('custentity_ext_id'),'');
 										
