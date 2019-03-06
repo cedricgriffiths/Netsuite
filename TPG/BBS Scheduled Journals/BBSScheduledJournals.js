@@ -190,6 +190,19 @@ function scheduled(type)
 							journalRecord.setFieldValue('currency', currency);
 							journalRecord.setFieldValue('custbody_bbs_system_generated','T');
 							
+							//Fill in the To Subsidiary if intercompany posting
+							//
+							if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
+								{
+									journalRecord.setFieldValue('tosubsidiary', custRepresentingSubsidiary);
+								}
+							
+							if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
+								{
+									journalRecord.setFieldValue('tosubsidiary', suppRepresentingSubsidiary);
+								}
+						
+							
 							//journalRecord.setFieldValue('exchangerate', exchangeRate);
 							//journalRecord.setFieldValue('postingperiod', periodNumber);
 						}
@@ -236,6 +249,12 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										
+										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
+										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
@@ -267,6 +286,12 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										
+										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
+										{
+											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+										}
+										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
@@ -300,6 +325,12 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										
+										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
+										{
+											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+										}
+										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
@@ -331,6 +362,12 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										
+										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
+										{
+											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+										}
+										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
