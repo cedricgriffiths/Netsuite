@@ -1367,8 +1367,8 @@ function productionBatchSuitelet(request, response)
 							//
 							var start = 0;
 							var end = 1000;
-							var searchResultSet = searchResult.getResults(start, end); // 10GU's
-							var resultlen = searchResultSet.length;
+							var searchResultSetOrig = searchResult.getResults(start, end); // 10GU's
+							var resultlen = searchResultSetOrig.length;
 		
 							//If there is more than 1000 results, page through them
 							//
@@ -1380,8 +1380,29 @@ function productionBatchSuitelet(request, response)
 										var moreSearchResultSet = searchResult.getResults(start, end);  // 10GU's
 										resultlen = moreSearchResultSet.length;
 		
-										searchResultSet = searchResultSet.concat(moreSearchResultSet);
+										searchResultSetOrig = searchResultSetOrig.concat(moreSearchResultSet);
 								}
+							
+							
+							//Re-order the search result set
+							//
+							var searchResultSet = [];
+							
+							for (var int6 = 0; int6 < woSearchArray.length; int6++) 
+								{
+									var currentWoId = woSearchArray[int6];
+									
+									for (var int7 = 0; int7 < searchResultSetOrig.length; int7++) 
+										{
+											var searchResultWoId = searchResultSetOrig[int7].getId();
+											
+											if(searchResultWoId == currentWoId)
+												{
+													searchResultSet.push(searchResultSetOrig[int7]);
+												}
+										}
+								}
+							
 							
 							
 							//Work out the customer sub group
