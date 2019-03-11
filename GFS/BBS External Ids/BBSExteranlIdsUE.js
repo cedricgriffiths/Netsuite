@@ -65,6 +65,8 @@ function externalIdsAfterSubmit(type)
 							catch(err)
 								{
 									nlapiLogExecution('ERROR', 'Error saving record after updating externalid (' + currentType + ') (' + currentId + ')', err.message);
+									
+									throw nlapiCreateError('BBS_DUPLICATE_EXTERNAL_ID', 'ERROR - Duplicate External Id Detected', true);
 								}
 						}
 				}
