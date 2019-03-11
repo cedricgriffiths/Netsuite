@@ -200,7 +200,7 @@ function taskItemAS(type)
 									//
 									itemRecord.selectNewLineItem('itemvendor');
 									itemRecord.setCurrentLineItemValue('itemvendor', 'vendor', itemPrefSupplier);
-									itemRecord.setCurrentLineItemValue('itemvendor', 'vendorcurrencyid', itemCurrency);
+									//itemRecord.setCurrentLineItemValue('itemvendor', 'vendorcurrencyid', itemCurrency);
 									//itemRecord.setCurrentLineItemValue('itemvendor', 'itemvendorprice', itemPurchasePrice);
 									itemRecord.setCurrentLineItemValue('itemvendor', 'preferredvendor', 'T');
 									itemRecord.commitLineItem('itemvendor', false);
