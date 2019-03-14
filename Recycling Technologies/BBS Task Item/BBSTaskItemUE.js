@@ -154,6 +154,7 @@ function taskItemAS(type)
 									itemRecord.setFieldValue('itemid', itemName);
 									itemRecord.setFieldValue('custitem_bbs_item_material', itemMaterial);
 									itemRecord.setFieldValue('salesdescription', itemDescription);
+									itemRecord.setFieldValue('displayname', itemDescription);
 									itemRecord.setFieldValue('custitem_bbs_item_technical_desc', itemTechDesc);
 									itemRecord.setFieldValue('manufacturer', itemManufacturer);
 									itemRecord.setFieldValue('mpn', itemManPartNo);
