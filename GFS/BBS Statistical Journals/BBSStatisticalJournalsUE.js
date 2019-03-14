@@ -26,8 +26,8 @@ function statisticalJournalsAS(type)
 			//Get the parameters
 			//
 			var context = nlapiGetContext();
-			accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel');
-			accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons');
+			var accountParcels = context.getSetting('SCRIPT', 'custscript_bbs_acc_parcel');
+			var accountConsignments = context.getSetting('SCRIPT', 'custscript_bbs_acc_cons');
 			
 			//Init variables
 			//
@@ -37,28 +37,48 @@ function statisticalJournalsAS(type)
 			var recordId = null;
 			var summaryValues = {};
 			var subsidiaryId = null;
+			var entityId = null;
+			var recordType = null;
+			var sublistName = null;
 			
 			//Get info on the new version of the record
 			//
 			newRecord = nlapiGetNewRecord();
 			recordType = newRecord.getRecordType();
 			recordId = newRecord.getId();
+			recordType = newRecord.getRecordType();
+			
+			//Get the subsidiary
+			//
 			subsidiaryId = newRecord.getFieldValue('subsidiary');
-			getSummaryValues(newRecord, 'N', summaryValues);
+			
+			//Get the entity if were on an invoice record
+			//
+			if(recordType == 'invoice')
+				{
+					entityId = newRecord.getFieldValue('entity');
+					sublistName = 'item';
+				}
+			
+			//Journal record type
+			//
+			if(recordType == 'journalentry')
+			{
+				sublistName = 'line';
+			}
+			
+			//Get the summary values from the new version of the record
+			//
+			getSummaryValues(newRecord, 'N', summaryValues, sublistName);
 			
 			//If in edit mode we need to get the old version of the record
 			//
 			if(type == 'edit')
 				{
 					oldRecord = nlapiGetOldRecord();
-					getSummaryValues(oldRecord, 'O', summaryValues);
+					getSummaryValues(oldRecord, 'O', summaryValues, sublistName);
 				}
 		
-			//Get the values from the new version of the record
-			//
-			getSummaryValues(oldRecord, 'N', summaryValues);
-			
-			
 			//See if we need to create a statistical journal
 			//
 			var createJournal = false;
@@ -74,43 +94,59 @@ function statisticalJournalsAS(type)
 			
 			if(createJournal)
 				{
+					var lineNo = Number(0);
+					
 					//Create the statistical journal entry
 					//
-					var statisticalJournal = nlapiCreateRecord('statisticaljournalentry', {recordmode: 'dynamic'});
+					var statisticalJournal = nlapiCreateRecord('statisticaljournalentry'); 
 					statisticalJournal.setFieldValue('subsidiary', subsidiaryId);
 					statisticalJournal.setFieldValue('unitstype', '1');
-					//statisticalJournal.setFieldValue('unit', unitId);  
 					
 					//Loop through the summary values
 					//
 					for ( var summaryValue in summaryValues) 
 						{
+							var summaryParts = summaryValue.split('|');
+							var carrierId = summaryParts[0];
+							var contractId = summaryParts[1];
+							var groupId = summaryParts[2];
+							var serviceId = summaryParts[3];
+							var chargeId = summaryParts[4];
+							var operationsId = summaryParts[5];
+							
 							//See if we need to create a parcels line
 							//
 							if(summaryValues[summaryValue][0] != 0)
 								{
-									summaryParts = summaryValue.split('|');
-									
+									lineNo++;
+									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][0]); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '1');       
+									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
+									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
+									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
 								}
 							
 							//See if we need to create a consignments line
 							//
 							if(summaryValues[summaryValue][1] != 0)
 								{
-									summaryParts = summaryValue.split('|');
-									
+									lineNo++;
+									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][1]); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '2');       
+									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
+									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_prodgrp', lineNo, groupId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_service', lineNo, serviceId);
+									statisticalJournal.setLineItemValue('line', 'custcol_cseg_bbs_chrgetype', lineNo, chargeId);
+									statisticalJournal.setLineItemValue('line', 'cseg_bbs_ops_method', lineNo, operationsId);
+									statisticalJournal.setLineItemValue('line', 'entity', lineNo, entityId);
 								}
-							
-						}
-		/*			for (var int = 0; int < array.length; int++) 
-						{
-							statisticalJournal.setLineItemValue('line', 'account', int, statisticalAccountId);
-							statisticalJournal.setLineItemValue('line', 'debit', int, amount); // field "debit" has label "Amount" in UI
-							statisticalJournal.setLineItemValue('line', 'lineunit', int, unitId);       
-							statisticalJournal.setLineItemValue('line', 'memo', int, memo); 
-							statisticalJournal.setLineItemValue('line', 'class', int, classId);
-							statisticalJournal.setLineItemValue('line', 'department', int, departmentId);
-							statisticalJournal.setLineItemValue('line', 'location', int, locationId);
 						}
 					
 					try
@@ -121,30 +157,29 @@ function statisticalJournalsAS(type)
 						{
 							nlapiLogExecution('ERROR', 'Error creating statistical journal', err.message);
 						}
-		*/
 				}
 		}
 }
 
 
-function getSummaryValues(_record, _type, _summaryValues)
+function getSummaryValues(_record, _type, _summaryValues, _sublistName)
 {
-	var lines = _record.getLineItemCount('item');
+	var lines = _record.getLineItemCount(_sublistName);
 	var multiplier = Number(1);
 	
 	for (var int = 1; int <= lines; int++) 
 		{
-			var carrier = isNull(_record.getLineItemValue('item', 'class', int), '');
-			var contract = isNull(_record.getLineItemValue('item', 'location', int), '');
-			var group = isNull(_record.getLineItemValue('item', 'custcol_cseg_bbs_prodgrp', int), '');
-			var service = isNull(_record.getLineItemValue('item', 'custcol_cseg_bbs_service', int), '');
-			var charge = isNull(_record.getLineItemValue('item', 'custcol_cseg_bbs_chrgetype', int), '');
-			var operations = isNull(_record.getLineItemValue('item', 'cseg_bbs_ops_method', int), '');
+			var carrier = isNull(_record.getLineItemValue(_sublistName, 'class', int), '');
+			var contract = isNull(_record.getLineItemValue(_sublistName, 'location', int), '');
+			var group = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_prodgrp', int), '');
+			var service = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_service', int), '');
+			var charge = isNull(_record.getLineItemValue(_sublistName, 'custcol_cseg_bbs_chrgetype', int), '');
+			var operations = isNull(_record.getLineItemValue(_sublistName, 'cseg_bbs_ops_method', int), '');
 			
 			var summaryKey = carrier + '|' + contract + '|' + group + '|' + service + '|' + charge + '|' + operations;
 			
-			var parcels = Number(_record.getLineItemValue('item', 'custcol_bbs_parcels', int));
-			var consignments = Number(_record.getLineItemValue('item', 'custcol_bbs_consignments', int));
+			var parcels = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_parcels', int));
+			var consignments = Number(_record.getLineItemValue(_sublistName, 'custcol_bbs_consignments', int));
 			
 			switch(_type)
 				{
