@@ -120,7 +120,7 @@ function statisticalJournalsAS(type)
 								{
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][0]); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][0] * Number(-1)); // field "debit" has label "Amount" in UI
 									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '1');       
 									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
 									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
@@ -137,7 +137,7 @@ function statisticalJournalsAS(type)
 								{
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][1]); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][1] * Number(-1)); // field "debit" has label "Amount" in UI
 									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '2');       
 									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
 									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);

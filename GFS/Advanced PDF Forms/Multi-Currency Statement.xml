@@ -15,12 +15,20 @@
   
         <#assign subsidiary>${statement.subsidiary}</#assign>
 
-        <#if subsidiary=="Intermail">
+        <#if subsidiary=="Global Freight Solutions">
               <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>info@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
               <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=820&c=5352096&amp;h=52344bd9c403962b56b9</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=1133&amp;c=5352096_SB1&amp;h=34c420e3af6e2c2b4249</#assign>
+        </#if>
+        
+  		<#if subsidiary=="Intermail">
+              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>info@gfsdeliver.com</#assign>
+              <#assign telInfo>08456 044 011</#assign>
+              <#assign vatInfo>GB 777390387</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=924&amp;c=5352096_SB1&amp;h=9b00f811cf9571de766a</#assign>
         </#if>
   
 
