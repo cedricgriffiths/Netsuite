@@ -539,7 +539,7 @@ function createAssembliesFieldChanged(type, name, linenum)
 						   "AND", 
 						   ["matrix","is","T"], 
 						   "AND", 
-						   ["custitem_bbs_item_category","anyof","1","2","3","119","121"],
+						   ["custitem_bbs_item_category","anyof","1","2","3","119","121","108"],
 						   "AND", 
 						   ["isinactive","is","F"]
 						];
