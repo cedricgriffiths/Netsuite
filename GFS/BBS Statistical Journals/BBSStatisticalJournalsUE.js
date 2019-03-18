@@ -52,20 +52,17 @@ function statisticalJournalsAS(type)
 			//
 			subsidiaryId = newRecord.getFieldValue('subsidiary');
 			
-			//Get the entity if were on an invoice record
+			//Journal record type
 			//
-			if(recordType == 'invoice')
+			if(recordType == 'journalentry')
+				{
+					sublistName = 'line';
+				}
+			else
 				{
 					entityId = newRecord.getFieldValue('entity');
 					sublistName = 'item';
 				}
-			
-			//Journal record type
-			//
-			if(recordType == 'journalentry')
-			{
-				sublistName = 'line';
-			}
 			
 			//Get the summary values from the new version of the record
 			//
@@ -118,9 +115,16 @@ function statisticalJournalsAS(type)
 							//
 							if(summaryValues[summaryValue][0] != 0)
 								{
+									var postingValue = summaryValues[summaryValue][0];
+									
+									if(recordType == 'creditmemo')
+										{
+											postingValue = postingValue * Number(-1.0);
+										}
+
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountParcels);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][0] * Number(-1)); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
 									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '1');       
 									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
 									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
@@ -135,9 +139,16 @@ function statisticalJournalsAS(type)
 							//
 							if(summaryValues[summaryValue][1] != 0)
 								{
+									var postingValue = summaryValues[summaryValue][1];
+									
+									if(recordType == 'creditmemo')
+										{
+											postingValue = postingValue * Number(-1.0);
+										}
+
 									lineNo++;
 									statisticalJournal.setLineItemValue('line', 'account', lineNo, accountConsignments);
-									statisticalJournal.setLineItemValue('line', 'debit', lineNo, summaryValues[summaryValue][1] * Number(-1)); // field "debit" has label "Amount" in UI
+									statisticalJournal.setLineItemValue('line', 'debit', lineNo, postingValue); // field "debit" has label "Amount" in UI
 									statisticalJournal.setLineItemValue('line', 'lineunit', lineNo, '2');       
 									statisticalJournal.setLineItemValue('line', 'class', lineNo, carrierId);
 									statisticalJournal.setLineItemValue('line', 'location', lineNo, contractId);
