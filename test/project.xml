@@ -1,5 +1,5 @@
 <project info="SuiteCloud IDE generated file, do not edit." setAttributesOnUpdate="false">
-  <folder name="test">
+  <folder name="BrightBridge Internal">
     <file name="ExpenseEntryClientScript.js" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
   </folder>
 </project>
