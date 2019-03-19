@@ -180,7 +180,9 @@ function invoicingScheduled(type)
 									catch(err)
 										{
 											invoiceId = null;
-											emailMessage += "An error occured - " + err.message + '\n';
+											
+											emailMessage += "Error creating invoice for fulfilment id " + ffidsParam[int] + " - " +err.message + '\n';
+											
 											nlapiLogExecution('ERROR', 'Error creating invoice for fulfilment id ' + ffidsParam[int], err.message);
 										}
 									
@@ -188,20 +190,30 @@ function invoicingScheduled(type)
 									//
 									if(invoiceId != null && invoiceId != '')
 										{
-											fulfilmentRecord.setFieldValue('custbody_bbs_related_invoice', invoiceId);
+											//fulfilmentRecord.setFieldValue('custbody_bbs_related_invoice', invoiceId);
 											
 											try
 												{
-													nlapiSubmitRecord(fulfilmentRecord, false, true);
+													//nlapiSubmitRecord(fulfilmentRecord, false, true);
+													nlapiSubmitField('itemfulfillment', ffidsParam[int], 'custbody_bbs_related_invoice', invoiceId, false);
 												}
 											catch(err)
 												{
 													nlapiLogExecution('ERROR', 'Error updating fulfilment with invoice for fulfilment id ' + ffidsParam[int], err.message);
+													
+													emailMessage += 'Error updating fulfilment with invoice for fulfilment id ' + ffidsParam[int] + ' - ' + err.message + '\n';
 												}
 											
+											//Get the invoice number from the new invoice
+											//
 											var invoiceNumber = nlapiLookupField('invoice', invoiceId, 'tranid');
 											
+											//Resolve the url for the link to the new invoice
+											//
 											var invoiceUrl = 'https://system.eu1.netsuite.com' + nlapiResolveURL('RECORD', 'invoice', invoiceId, 'view');
+											
+											//Add the invoice infor to the email message
+											//
 											emailMessage += 'Invoice ' + invoiceNumber.toString() + ' ' + invoiceUrl + '\n';
 										}
 								}
