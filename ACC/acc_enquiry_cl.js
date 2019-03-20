@@ -1079,7 +1079,7 @@ function fieldChanged(type, name, linenum)
                           }
 					if(departLocalNum < 0 && departFromTZ > 0)
 						{
-							departLocalNum = parseInt(24+departLocalNum);
+							departLocalNum = parseInt(24+departLocalNum);    //CSG changed - to +
 						}
                    if(departLocalNum < 0 && departFromTZ <= 0)
 						{
@@ -1232,7 +1232,7 @@ function fieldChanged(type, name, linenum)
                           }
 					if(arriveLocalNum < 0 && arriveFromTZ > 0)
 						{
-							arriveLocalNum = parseInt(24-arriveLocalNum);
+							arriveLocalNum = parseInt(24+arriveLocalNum);    //CSG changed - to +
 						}
                    if(arriveLocalNum < 0 && arriveFromTZ <= 0)
 						{
