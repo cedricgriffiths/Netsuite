@@ -39,7 +39,7 @@ function itemRateValidateField(type, name, linenum)
 			   				var currentRate = nlapiGetCurrentLineItemValue('item', 'rate');
 			   				var oldRate = nlapiGetLineItemValue('item', 'rate', linenum);
 			   				
-			   				if(currentRate != oldRate && oldRate != null)
+			   				if(currentRate != oldRate && oldRate != null && oldRate != '')
 			   					{
 			   						alert('You cannot change the item rate');
 			   						
@@ -73,7 +73,7 @@ function itemRateValidateField(type, name, linenum)
 				   		var currentAmount = nlapiGetCurrentLineItemValue('item', 'amount');
 				   		var oldAmount = nlapiGetLineItemValue('item', 'amount', linenum);
 				   				
-				   		if(currentAmount != oldAmount && oldAmount != null)
+				   		if(currentAmount != oldAmount && oldAmount != null && oldAmount != '')
 				   			{
 				   				alert('You cannot change the item amount');
 				   						
