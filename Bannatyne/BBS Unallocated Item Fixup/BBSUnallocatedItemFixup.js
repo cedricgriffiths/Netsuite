@@ -31,7 +31,8 @@ function unallocatedItemScheduled(type)
 			[
 			   new nlobjSearchColumn("tranid"), 
 			   new nlobjSearchColumn("line"), 
-			   new nlobjSearchColumn("memo")
+			   new nlobjSearchColumn("memo"),
+			   new nlobjSearchColumn("custcol_bbs_item_clover_int_id")
 			]
 			));
 	
@@ -51,10 +52,20 @@ function unallocatedItemScheduled(type)
 					var transactionId = cashsaleSearch[int].getId();
 					var transactionLine = cashsaleSearch[int].getValue("line");
 					var transactionMemo = cashsaleSearch[int].getValue("memo");
+					var transactionCloverId = cashsaleSearch[int].getValue("custcol_bbs_item_clover_int_id");
+					
+					var realItem = null;
 					
 					//See if we can find the real item by looking up the item using the external id against the memo field
 					//
-					var realItem = findRealItem(transactionMemo);
+					realItem = findRealItem(transactionMemo);
+					
+					//If we couldn't find the real item by name then try to find it by clover id
+					//
+					if(realItem == null && transactionCloverId != null && transactionCloverId != '')
+						{
+							realItem = findItemInMatrix(transactionCloverId);
+						}
 					
 					//If we found the real item we need to change the cash sale record
 					//
@@ -146,6 +157,33 @@ function unallocatedItemScheduled(type)
 //Functions
 //=====================================================================
 //
+function findItemInMatrix(_cloverId)
+{
+	var foundItem = null;
+	
+	var customrecordbbs_item_locatin_matrixSearch = nlapiSearchRecord("customrecordbbs_item_locatin_matrix",null,
+			[
+			   ["custrecord_bbs_item_clover_id","is",_cloverId]
+			], 
+			[
+			   new nlobjSearchColumn("custrecord_bbs_item"), 
+			   new nlobjSearchColumn("taxschedule","CUSTRECORD_BBS_ITEM",null)
+			]
+			);
+	
+	if(customrecordbbs_item_locatin_matrixSearch != null && customrecordbbs_item_locatin_matrixSearch.length == 1)
+		{
+			var foundItemId = customrecordbbs_item_locatin_matrixSearch[0].getValue("custrecord_bbs_item");
+			var foundItemTaxSchedule = customrecordbbs_item_locatin_matrixSearch[0].getValue("taxschedule","CUSTRECORD_BBS_ITEM");
+			
+			foundItem = {};
+			foundItem['id'] = foundItemId;
+			foundItem['tax'] = foundItemTaxSchedule;
+		}
+
+	return foundItem;
+}
+
 function findRealItem(_externalId)
 {
 	var foundItem = null;
