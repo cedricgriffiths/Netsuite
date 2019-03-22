@@ -1006,34 +1006,37 @@ function fieldChanged(type, name, linenum)
                         departUTCNum = 0;
                       }
                   	
-                 // DLS Time Calculation 
+                  	//DLS Time Calculation 
+                  	//
 					var deptDate = nlapiGetCurrentLineItemValue('recmachcustrecord_sector_transaction','custrecord_sector_departuredate');
 					deptDate = nlapiDateToString(nlapiAddDays(nlapiStringToDate(deptDate),numDay));
 					var deptYYYY = nlapiStringToDate(deptDate).getFullYear();
-					nlapiLogExecution('DEBUG','** Test param departFrom-',departFrom+', departUTCNum-'+departUTCNum+', departUTCMins-'+departUTCMins+', deptYYYY-'+deptYYYY);
 					var dls = isDayLightSaving(departFrom, departUTCNum, departUTCMins,deptDate, deptYYYY);
-					nlapiLogExecution('DEBUG','** Depart Local From UTC dls-',dls);
 					
-					if (dls == true){
-						departUTCNum = departUTCNum + 1;
-						if(departUTCNum < 0 )	{
-							//nlapiLogExecution('DEBUG',' a departUTCNum',departUTCNum);
-							departUTCNum = parseInt(24-departUTCNum);
-							//nlapiLogExecution('DEBUG',' a.1 departUTCNum',departUTCNum+', departFromTZ-'+departFromTZ);
+					if (dls == true)
+						{
+							departUTCNum = departUTCNum + 1;
+							
+							if(departUTCNum < 0 )	
+								{
+									departUTCNum = parseInt(24-departUTCNum);
+								}
+							
+							if(departUTCNum > 24)	
+								{
+									departUTCNum = parseInt((departUTCNum*1)-24);
+								}
+							
+							if(departUTCNum == 24)	
+								{
+									departUTCNum = 0;
+								}
 						}
-						if(departUTCNum > 24)	{
-							//nlapiLogExecution('DEBUG',' b departUTCNum',departUTCNum);
-							departUTCNum = parseInt((departUTCNum*1)-24);
-							//nlapiLogExecution('DEBUG',' b.1 departUTCNum',departUTCNum+', departFromTZ-'+departFromTZ);
-						}
-						if(departUTCNum == 24)	{
-							departUTCNum = 0;
-						}
-						// DLS Time Calculation 
-					}
+					//
+					//DLS Time Calculation 
 					
 					var departUTCTxt = departUTCNum+':'+departUTCMins;
-					//alert(departUTCTxt);
+					
 					nlapiSetCurrentLineItemValue('recmachcustrecord_sector_transaction', 'custrecord_sector_departuretime', departUTCTxt, false, false);
 					
 					return true;
@@ -1049,6 +1052,8 @@ function fieldChanged(type, name, linenum)
 			nlapiLogExecution('DEBUG','departLocalMins',departLocalMins);
 			if(departFrom && departLocal != '0:00')
 				{
+					var numDay=0;
+				
 					var departFromTZ = parseInt(nlapiLookupField('customrecord_acc_airport', departFrom, 'custrecord_ap_utcplusminus'));
 					var departFromTZMins = nlapiLookupField('customrecord_acc_airport', departFrom, 'custrecord_ap_utcplusminus');
 						departFromTZMins = parseFloat(departFromTZMins - departFromTZ);
@@ -1097,8 +1102,38 @@ function fieldChanged(type, name, linenum)
                       {
                         departLocalNum = 0;
                       }
+                  	
+                  	//DLS Time Calculation 
+                  	//
+					var deptDate = nlapiGetCurrentLineItemValue('recmachcustrecord_sector_transaction','custrecord_sector_departuredate');
+					deptDate = nlapiDateToString(nlapiAddDays(nlapiStringToDate(deptDate),numDay));
+					var deptYYYY = nlapiStringToDate(deptDate).getFullYear();
+					var dls = isDayLightSaving(departFrom, departLocalNum, departLocalMins,deptDate, deptYYYY);
+					
+					if (dls == true)
+						{
+							departLocalNum = departLocalNum - 1;
+							
+							if(departLocalNum < 0 )	
+								{
+									departLocalNum = parseInt(24-departLocalNum);
+								}
+							
+							if(departUTCNum > 24)	
+								{
+									departLocalNum = parseInt((departLocalNum*1)-24);
+								}
+							
+							if(departLocalNum == 24)	
+								{
+									departLocalNum = 0;
+								}
+						}
+					//
+					//DLS Time Calculation              	
+                  	
 					var departLocTxt = departLocalNum+':'+departLocalMins;
-					//alert(departLocTxt);
+
 					nlapiSetCurrentLineItemValue('recmachcustrecord_sector_transaction', 'custrecord_sector_deputcdt', departLocTxt, false, false);
 					return true;
 				}
@@ -1204,6 +1239,8 @@ function fieldChanged(type, name, linenum)
 			nlapiLogExecution('DEBUG','arriveLocalMins',arriveLocalMins);
 			if(arriveTo && arriveLocal != '0:00')
 				{
+					var numDay=0;
+				
 					var arriveFromTZ = parseInt(nlapiLookupField('customrecord_acc_airport', arriveTo, 'custrecord_ap_utcplusminus'));
 					var arriveFromTZMins = nlapiLookupField('customrecord_acc_airport', arriveTo, 'custrecord_ap_utcplusminus');
 						arriveFromTZMins = parseFloat(arriveFromTZMins - arriveFromTZ);
@@ -1250,6 +1287,38 @@ function fieldChanged(type, name, linenum)
                       {
                         arriveLocalNum = 0;
                       }
+                  	
+                  	// DLS Time Calculation 
+                  	//
+					var arrDate = nlapiGetCurrentLineItemValue('recmachcustrecord_sector_transaction','custrecord_sector_arrivaldate');
+					arrDate = nlapiDateToString(nlapiAddDays(nlapiStringToDate(arrDate),numDay));
+					var arrYYYY = nlapiStringToDate(arrDate).getFullYear();
+					var dls = isDayLightSaving(arriveTo, arriveLocalNum, arriveLocalMins,arrDate, arrYYYY);
+					
+					if (dls == true)
+						{
+							arriveLocalNum = arriveLocalNum - 1;
+							
+							if(arriveLocalNum < 0 )	
+								{
+									arriveLocalNum = parseInt(24-arriveLocalNum);
+								}
+							
+							if(arriveLocalNum > 24)	
+								{
+									arriveLocalNum = parseInt((arriveLocalNum*1)-24);
+								}
+							
+							if(arriveLocalNum == 24)	
+								{
+									arriveLocalNum = 0;
+								}
+						}
+					//
+					// DLS Time Calculation 
+                  	
+                  	
+                  	
 					var arriveLocTxt = arriveLocalNum+':'+arriveLocalMins;
 					//alert(arriveLocTxt);
 					nlapiSetCurrentLineItemValue('recmachcustrecord_sector_transaction', 'custrecord_sector_arrutcdt', arriveLocTxt, false, false);
