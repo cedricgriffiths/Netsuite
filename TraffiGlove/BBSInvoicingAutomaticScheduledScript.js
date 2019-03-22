@@ -22,7 +22,8 @@ function invoicingAutoScheduled(type)
 	//Get the parameters
 	//
 	var context = nlapiGetContext();
-	var usersEmail = context.getSetting('SCRIPT', 'custscript_bbs_auto_invoice_email');
+	var emailSender = context.getSetting('SCRIPT', 'custscript_bbs_auto_invoice_email');
+	var emailReceiver = context.getSetting('SCRIPT', 'custscript_bbs_auto_invoice_email_to');
 	
 	var today = new Date();
 	var dateParam = nlapiDateToString(today);
@@ -68,6 +69,8 @@ function invoicingAutoScheduled(type)
 							catch(err)
 								{
 									invoiceRecord = null;
+									emailMessage += "An error occured trying to transform sales order into an invoice - " + err.message + '\n';
+									nlapiLogExecution('ERROR', 'Error transforming sales order (' + salesOrderId + ') to invoice', err.message);
 								}
 							
 							//Have we got an invoice record
@@ -144,7 +147,8 @@ function invoicingAutoScheduled(type)
 									catch(err)
 										{
 											invoiceId = null;
-											emailMessage += "An error occured - " + err.message + '\n';
+											emailMessage += "An error occured trying to save the invoice - " + err.message + '\n';
+											nlapiLogExecution('ERROR', 'Error trying to save invoice', err.message);
 										}
 									
 									//Update the fulfilment with the related invoice
@@ -152,7 +156,15 @@ function invoicingAutoScheduled(type)
 									if(invoiceId != null && invoiceId != '')
 										{
 											fulfilmentRecord.setFieldValue('custbody_bbs_related_invoice', invoiceId);
-											nlapiSubmitRecord(fulfilmentRecord, false, true);
+											
+											try
+												{
+													nlapiSubmitRecord(fulfilmentRecord, false, true);
+												}
+											catch(err)
+												{
+													nlapiLogExecution('ERROR', 'Error updating fulfilment with invoice id', err.message);
+												}
 											
 											var invoiceNumber = nlapiLookupField('invoice', invoiceId, 'tranid');
 											
@@ -170,10 +182,12 @@ function invoicingAutoScheduled(type)
 	emailMessage += '\n';
 	emailMessage += 'Invoice generation from fulfilments has completed\n';
 	
-	if(usersEmail != null && usersEmail != '')
+	if(emailSender != null && emailSender != '' && emailReceiver != null && emailReceiver != '')
 		{
-			nlapiSendEmail(usersEmail, usersEmail, 'Automatic Invoice Generation', emailMessage);
+			nlapiSendEmail(emailSender, emailReceiver, 'Automatic Invoice Generation', emailMessage);
 		}
+	
+	nlapiLogExecution('AUDIT', 'Email sent to ' + emailReceiver, emailMessage);
 }
 
 //=============================================================================================
