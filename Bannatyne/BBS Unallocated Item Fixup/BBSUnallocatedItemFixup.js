@@ -163,7 +163,9 @@ function findItemInMatrix(_cloverId)
 	
 	var customrecordbbs_item_locatin_matrixSearch = nlapiSearchRecord("customrecordbbs_item_locatin_matrix",null,
 			[
-			   ["custrecord_bbs_item_clover_id","is",_cloverId]
+			   ["custrecord_bbs_item_clover_id","is",_cloverId], 
+			   "AND", 
+			   ["custrecord_bbs_item","noneof","@NONE@"]
 			], 
 			[
 			   new nlobjSearchColumn("custrecord_bbs_item"), 
@@ -171,7 +173,7 @@ function findItemInMatrix(_cloverId)
 			]
 			);
 	
-	if(customrecordbbs_item_locatin_matrixSearch != null && customrecordbbs_item_locatin_matrixSearch.length == 1)
+	if(customrecordbbs_item_locatin_matrixSearch != null && customrecordbbs_item_locatin_matrixSearch.length > 0)
 		{
 			var foundItemId = customrecordbbs_item_locatin_matrixSearch[0].getValue("custrecord_bbs_item");
 			var foundItemTaxSchedule = customrecordbbs_item_locatin_matrixSearch[0].getValue("taxschedule","CUSTRECORD_BBS_ITEM");
