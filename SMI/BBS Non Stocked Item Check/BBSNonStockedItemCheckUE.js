@@ -145,18 +145,23 @@ function getNonStockedItems(_record)
 			tempOldItems.push(oldItem);
 		}
 	
-	var inventoryitemSearch = nlapiSearchRecord("inventoryitem",null,
-			[
-			   ["type","anyof","InvtPart"], 
-			   "AND", 
-			   ["custitem_bbs_item_stocked","is","F"], 
-			   "AND", 
-			   ["internalid","anyof",tempOldItems]
-			], 
-			[
-			   new nlobjSearchColumn("itemid").setSort(false)
-			]
-			);
+	var inventoryitemSearch = null;
+	
+	if(tempOldItems.length > 0)
+		{
+			inventoryitemSearch = nlapiSearchRecord("inventoryitem",null,
+					[
+					   ["type","anyof","InvtPart"], 
+					   "AND", 
+					   ["custitem_bbs_item_stocked","is","F"], 
+					   "AND", 
+					   ["internalid","anyof",tempOldItems]
+					], 
+					[
+					   new nlobjSearchColumn("itemid").setSort(false)
+					]
+					);
+		}
 	
 	var foundOldItems = [];
 	
