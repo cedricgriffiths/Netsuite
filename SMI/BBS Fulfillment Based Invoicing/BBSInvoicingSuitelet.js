@@ -237,7 +237,9 @@ function invoicingSuitelet(request, response)
 						                   "AND", 
 						                   ["createdfrom","noneof","@NONE@"], 					//Created from is filled in
 						                   "AND", 
-						                   ["createdfrom.status","noneof","SalesOrd:G","SalesOrd:C","SalesOrd:H","SalesOrd:A"]			//Sales order not at "Billed","Cancelled","Closed","Pending Approval" status
+						                   ["createdfrom.status","noneof","SalesOrd:G","SalesOrd:C","SalesOrd:H","SalesOrd:A"],			//Sales order not at "Billed","Cancelled","Closed","Pending Approval" status 
+						                   "AND", 
+						                   ["createdfrom.type","anyof","SalesOrd"]
 						                   ];
 						
 						if(filters['shipdatestart'] != '' && filters['shipdateend'] != '')
