@@ -1,5 +1,5 @@
 <project info="SuiteCloud IDE generated file, do not edit." setAttributesOnUpdate="false">
-  <folder name="TraffiGlove" bundleable="false">
+  <folder name="TraffiSafe" bundleable="false">
     <file name="BBSPriceListScheduledScript.js"/>
     <file name="BBSPriceListSuitelet.js"/>
     <file name="BBS_CI_Detailed_layout.html" bundleable="true" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
