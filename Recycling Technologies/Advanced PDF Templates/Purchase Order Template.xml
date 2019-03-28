@@ -195,7 +195,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="240px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4-LANDSCAPE">
 
   <table style="width: 100%;">
   <tr>
@@ -220,8 +220,8 @@
       
   <tr>
   <td class="address">&nbsp;</td>
-  <td align="left" style="font-size:10pt"><b>Reference</b></td>
-  <td colspan="1" align="right" style="font-size:10pt">${record.memo}</td>
+  <td align="left" style="font-size:10pt"><b>Quote Reference</b></td>
+  <td colspan="1" align="right" style="font-size:10pt">${record.custbody_bbs_po_quotation}</td>
   </tr>
     
   <tr>
@@ -252,48 +252,56 @@
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
 <thead >
   <tr >
-  <th align="left" colspan="8">Description</th>
-
-  <th align="center" colspan="1">Quantity</th>
-  <th align="right" colspan="2">Unit Price</th>
-
-  <th align="center" colspan="2">VAT Code</th>
-
-  <th align="right" colspan="2">Amount<br/>(${record.currency})</th>
+  	<th align="center" colspan="1">Quantity</th>
+  	<th align="left" colspan="8">Description</th>
+    <th align="left" colspan="2">${item.custcol_bbs_po_required_revision@label}</th>
+    <th align="left" colspan="2">Supplier P/N</th>
+  	<th align="left" colspan="2">Manf. P/N</th>
+  	<th align="center" colspan="1">Inspection</th>
+    <th align="left" colspan="2">${item.expectedreceiptdate@label}</th>
+  	<th align="center" colspan="1">Units</th>
+  	<th align="right" colspan="2">Unit Price</th>
+  	<th align="right" colspan="2">Net Price</th>
   </tr>
 </thead>
 </#if>
 
   <tr>
-  <td align="left" colspan="8" margin-right="5px">${item.item} ${item.description}</td>
-
-  <td align="center" colspan="1">${item.quantity}</td>
-  <td align="right" colspan="2">${item.rate}</td>
-
-  <td align="center" colspan="2">${item.taxcode}</td>
-
-  <td align="right" colspan="2">${item.amount}</td>
+  	<td align="center" colspan="1">${item.quantity}</td>
+    <td align="left" colspan="8" margin-right="5px">${item.item}<br/>${item.description}<br/>${item.custcol_bbs_po_technical_description}</td>
+  	<td align="left" colspan="2">${item.custcol_bbs_po_required_revision}</td>
+  	<td align="left" colspan="2">${item.vendorname}</td>
+  	<td align="left" colspan="2">${item.custcol_bbs_manufacturers_part_number}</td>
+  	<td align="center" colspan="1">${item.custcol_bbs_po_item_inspection_yn}</td>
+  	<td align="left" colspan="2">${item.expectedreceiptdate}</td>
+  	<td align="center" colspan="1">${item.units}</td>
+  	<td align="right" colspan="2">${item.rate}</td>
+  	<td align="right" colspan="2">${item.amount}</td>
   </tr>
   </#list><!-- end items --></table>
 </#if>
 
 <hr />
-<table class="total" style="width: 100%;"><tr class="totalrow">
-  <td colspan="3">&nbsp;</td>
+<table class="total" style="width: 100%;">
+  <tr class="totalrow">
+  <td colspan="5">&nbsp;</td>
   <td class="totalcell"  align="right"><b>Subtotal</b></td>
   <td class="totalcell"  align="right">${record.subtotal}</td>
   </tr>
   <tr class="totalrow">
-  <td colspan="3">&nbsp;</td>
-
+  <td colspan="5">&nbsp;</td>
   <td class="totalcell" align="right"><b>VAT Total</b></td>
-  
   <td class="totalcell"  align="right">${record.taxtotal}</td>
   </tr>
   <tr class="totalrow">
-  <td colspan="3">&nbsp;</td>
+  <td colspan="5">&nbsp;</td>
   <td class="totalcell"  align="right"><b>Total (${record.currency})</b></td>
   <td class="totalcell"  align="right">${record.total}</td>
+  </tr>
+  <tr class="totalrow">
+  <td colspan="5">&nbsp;</td>
+  <td class="totalcell"  align="right"><b>Payment Terms</b></td>
+  <td class="totalcell"  align="right">${record.terms}</td>
   </tr>
   <tr>
   <td>&nbsp;</td>
