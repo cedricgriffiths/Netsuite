@@ -153,7 +153,7 @@ b { font-weight: bold; color: #333333; }
 	<td colspan="12"><b>${record.custrecord_acc_nc_effective_check_notes@label}</b> ${record.custrecord_acc_nc_effective_check_notes}</td>
 	</tr></table>
 
-
+<p/>
 <table>
 <thead>
 	<tr>
@@ -163,7 +163,7 @@ b { font-weight: bold; color: #333333; }
 	<th colspan="2" align="left">Type</th>
 	</tr>
 </thead>
-<#list searchnotes as usernotes>
+<#list notes as usernotes>
 <tr>
 	<td colspan="2" align="left">${usernotes.title}</td>
 	<td colspan="4" align="left">${usernotes.note}</td>
@@ -173,6 +173,25 @@ b { font-weight: bold; color: #333333; }
 </#list>
 </table>
 
+<p/>
+<table>
+<thead>
+	<tr>
+	<th colspan="2" align="left">Name</th>
+	<th colspan="4" align="left">folder</th>
+	<th colspan="2" align="left">Size</th>
+	<th colspan="2" align="left">Last Modified</th>
+	</tr>
+</thead>
+<#list files as userfiles>
+<tr>
+	<td colspan="2" align="left">${userfiles.name}</td>
+	<td colspan="4" align="left">${userfiles.folder}</td>
+	<td colspan="2" align="left">${userfiles.documentsize}</td>
+	<td colspan="2" align="left">${userfiles.modified}</td>
+	</tr>
+</#list>
+</table>
 
 </body>
 </pdf>
