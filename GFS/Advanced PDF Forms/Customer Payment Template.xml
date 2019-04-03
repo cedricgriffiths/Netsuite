@@ -1,0 +1,228 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+        <#assign regInfo>?????</#assign>
+        <#assign emailInfo>?????</#assign>
+        <#assign telInfo>?????</#assign>
+        <#assign webInfo>?????</#assign>
+        <#assign vatInfo>?????</#assign>
+        <#assign compInfo>?????</#assign>
+        <#assign logoInfo>?????</#assign>
+        <#assign subsidiary>${record.subsidiary.id}</#assign>
+  
+  
+        <#if subsidiary=="23">
+              <#assign regInfo>Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>E: accounts@gfsdeliver.com</#assign>
+              <#assign telInfo>T: 08456 044 011</#assign>
+              <#assign webInfo>W: www.justshoutgfs.com</#assign>
+              <#assign vatInfo>VAT Registration No: GB 777 390 387</#assign>
+              <#assign compInfo>Company Registration No: 06863317</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=820&c=5352096&amp;h=52344bd9c403962b56b9</#assign>
+        </#if>
+
+  	<#if subsidiary=="16">
+              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>E: accounts@gfsdeliver.com</#assign>
+              <#assign telInfo>T: 08456 044 011</#assign>
+              <#assign webInfo>W: www.justshoutgfs.com</#assign>
+              <#assign vatInfo>VAT Registration No: GB 777 3903 87</#assign>
+              <#assign compInfo>Company Registration No: 06863317</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=928&amp;c=5352096_SB1&amp;h=56dcb07b95f650cb1662</#assign>
+        </#if>
+
+  
+    <macrolist>
+        <macro id="nlheader">
+    <table class="header" style="width: 100%;">
+    <tr>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+    </tr>
+
+    <tr>
+	<td align="center" colspan="3" style="margin-top: 10px;"><b>DIRECT DEBIT COLLECTION ADVICE</b></td>
+	</tr>
+      
+    <tr>
+	<td align="left" colspan="3" style="margin-top: 20px;">Please be advised that the following items will be presented for Direct Debit collection in accordance with the Direct Debit Mandate on or immediately after ${record.trandate?string["dd MMMM yyyy"]}</td>
+	</tr>
+     
+    </table>
+    
+        </macro>
+
+        <macro id="nlfooter">
+
+        
+
+       <table style="width: 100%;">
+         <tr class="messagerow">
+              <td align="center" class="message">All 5 Digit invoice Numbers may be downloaded along with your 7 digit Credit note can be downloaded from</td>
+		  </tr>
+         <tr class="messagerow">
+              <td align="center" class="message">www.justshoutgfs.com using your account username and password</td>
+		  </tr>
+         <tr class="messagerow">
+              <td align="left" class="message" style="margin-bottom: 10px;">&nbsp;</td>
+		  </tr>
+        </table>
+          
+		<table style="width: 100%; border: 1px solid black;">
+         <tr class="messagerow">
+              <td align="center" class="message"><b>${record.subsidiary}</b></td>
+		  </tr>
+          <tr class="messagerow">
+              <td align="center" class="message">${regInfo}</td>
+		  </tr>
+          <tr class="messagerow">
+              <td align="center" class="message">${compInfo} ${vatInfo}</td>
+		  </tr>
+          <tr class="messagerow">
+              <td align="center" class="message">${telInfo} ${emailInfo} ${webInfo}</td>
+		  </tr>
+        </table>
+          
+          
+		<table class="footer" style="width: 100%;">
+          <tr>
+			<td align="right"><pagenumber/> of <totalpages/></td>
+		</tr>
+        </table>
+
+        </macro>
+    </macrolist>
+
+    <style type="text/css">table {
+            <!--font-family: sans-serif;-->
+      		font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            <!--background-color: #e3e3e3;-->
+            border-bottom: 1px solid black;
+    		border-collapse: collapse;
+            <!--color: #333333;-->
+        }
+        td {
+            padding: 0px;
+            vertical-align: top;
+            font-size:10px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 6pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            <!--background-color: #e3e3e3;-->
+            line-height: 200%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 10pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+          font-size: 10pt;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalcell {
+          border-bottom: 1px solid black;
+    		border-collapse: collapse;
+        }
+      td.message{
+        font-size: 8pt;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="200px" footer="nlfooter" footer-height="70px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+
+  
+<#if record.apply?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
+<thead>
+	<tr>
+	<th align="left" colspan="3">Item Reference</th>
+	<th align="center" colspan="3">Tax Date</th>
+	<th colspan="2">Type</th>
+	<th align="right" colspan="4">Value</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td align="left" colspan="3" line-height="150%">${apply.refnum}</td>
+	<td align="center" colspan="3" line-height="150%">${apply.applydate}</td>
+	<td colspan="2">${apply.type}</td>
+	<td align="right" colspan="4">${apply.amount}</td>
+	</tr>
+	</#list><!-- end apply --></table>
+
+<hr /></#if>
+<table class="total" style="width: 100%; margin-top: 10px;"><tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b>${record.total@label}</b></td>
+	<td align="right">${record.total}</td>
+	</tr></table>
+
+
+</body>
+</pdf>
