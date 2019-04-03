@@ -1,0 +1,9 @@
+<project info="SuiteCloud IDE generated file, do not edit." setAttributesOnUpdate="false">
+  <folder name="BBS Misc Development" bundleable="false" exclude="false">
+    <folder name="BBS Google Integration" bundleable="false" exclude="false">
+      <file name="BBSGoogleMapsIntegration.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8">
+        <description>Uploaded by ali from 172.18.12.42.</description>
+      </file>
+    </folder>
+  </folder>
+</project>

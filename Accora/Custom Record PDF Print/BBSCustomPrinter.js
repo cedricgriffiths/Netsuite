@@ -26,24 +26,37 @@ function suitelet(request, response)
 	var templateCustComplaint = context.getSetting('SCRIPT', 'custscript_bbs_template_cc');
 	var templateInvestigation = context.getSetting('SCRIPT', 'custscript_bbs_template_in');
 	
+	var mainRecord = null;
+	var noteSearch = [];
+	var taskSearch = [];
+	var fileSearch = [];
+	var complaintsSearch = [];
+	
 	if(recordId != null && recordId != '' && recordType != null && recordType != '')
 		{
 			//Load the main record
 			//
-			var mainRecord = nlapiLoadRecord(recordType, recordId);
+			mainRecord = nlapiLoadRecord(recordType, recordId);
 		
 			//Get the user notes
 			//
-			var noteSearch = getUserNotes(recordType, recordId);
+			noteSearch = getUserNotes(recordType, recordId);
 		
 			//Get Tasks
 			//
-			var taskSearch = getTasks(recordType, recordId);
+			taskSearch = getTasks(recordType, recordId);
 
 			//Get Files
 			//
-			var fileSearch = getFiles(recordType, recordId);
+			fileSearch = getFiles(recordType, recordId);
 
+			//Get complaints if record type is investigation
+			//
+			if (recordType == 'customrecord_acc_investigation')
+				{
+					complaintsSearch = getComplaints(recordType, recordId);
+				}
+			
 			//Load the template from the file cabinet
 			//
 			var templateFileId = '';
@@ -91,6 +104,10 @@ function suitelet(request, response)
 					//Add the tasks as a dataset to the renderer
 					//
 					renderer.addSearchResults('tasks', taskSearch);
+					
+					//Add the complaints as a dataset to the renderer
+					//
+					renderer.addSearchResults('complaints', complaintsSearch);
 					
 					//Render the template
 					//
@@ -276,4 +293,81 @@ function getTasks(_recordType, _recordId)
 		}
 	
 	return userTasksSearch;
+}
+
+function getComplaints(_recordType, _recordId)
+{
+	var complaintsSearch =  [];
+	
+	//Search for complaints
+	//
+	try
+		{
+		var complaintsSearch = nlapiSearchRecord("customrecord_acc_customer_complaint",null,
+				[
+				   ["custrecord_acc_cc_investigation","anyof",_recordId]
+				], 
+				[
+				   new nlobjSearchColumn("custrecord_acc_cc_additional_comments"), 
+				   new nlobjSearchColumn("custrecord_acc_additional_contact_notes"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_additional_prod_notes"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_assessed_by"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_cancellation_reason"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_closed_by"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_complainant_info"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_c_o_o"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_description"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_comp_part_no"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_comp_part_serial_no"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_closed"), 
+				   new nlobjSearchColumn("created"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_informed"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_inves_assigned"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_occurrence"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_reported_1"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_date_reported_2"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_finished_dev_part_no"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_finished_dev_serial_no"), 
+				   new nlobjSearchColumn("name").setSort(false), 
+				   new nlobjSearchColumn("isinactive"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_injury_desc"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_injury_occurred"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_injury_q1"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_injury_q2"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_injury_q3"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_investigation_needed"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_investigation"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_justification_if_no"), 
+				   new nlobjSearchColumn("language"), 
+				   new nlobjSearchColumn("lastmodified"), 
+				   new nlobjSearchColumn("lastmodifiedby"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_logged_by"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_original_case"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_original_date_created"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_pq1_field_help"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_pq2_field_help"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reportable_pq1"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reportable_pq2"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_product_age"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_product_range"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reportability_notes"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reportable"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reported_to_1"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_reported_to_2"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_status"), 
+				   new nlobjSearchColumn("custrecord_acc_cc_task")
+				]
+				);
+		}
+	catch(err)
+		{
+			complaintsSearch =  [];
+		}
+	
+	if(complaintsSearch == null)
+		{
+			complaintsSearch = [];
+		}
+	
+	return complaintsSearch;
 }

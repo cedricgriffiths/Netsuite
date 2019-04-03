@@ -13,7 +13,25 @@
 function scheduled(type) 
 {
 
-	
+	var budgetimportSearch = nlapiSearchRecord("budgetimport",null,
+			[
+			], 
+			[
+			   new nlobjSearchColumn("account").setSort(false), 
+			   new nlobjSearchColumn("year"), 
+			   new nlobjSearchColumn("department"), 
+			   new nlobjSearchColumn("subsidiary"), 
+			   new nlobjSearchColumn("location"), 
+			   new nlobjSearchColumn("class"), 
+			   new nlobjSearchColumn("customer"), 
+			   new nlobjSearchColumn("amount"), 
+			   new nlobjSearchColumn("category"), 
+			   new nlobjSearchColumn("global"), 
+			   new nlobjSearchColumn("item"), 
+			   new nlobjSearchColumn("currency")
+			]
+			);
+	/*
 	var invoiceSearch = getResults(nlapiCreateSearch("transaction",
 			[
 			   ["type","anyof","VendCred","VendBill","CustCred"], 
@@ -32,6 +50,8 @@ function scheduled(type)
 			   new nlobjSearchColumn("createdby")
 			]
 			));
+	*/
+	
 	/*
 	var invoiceSearch = getResults(nlapiCreateSearch("invoice",
 			[
