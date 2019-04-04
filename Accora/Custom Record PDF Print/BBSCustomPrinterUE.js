@@ -21,4 +21,10 @@ function customPrinterBeforeLoad(type, form, request)
 		{
 			form.addButton('custpage_but_cust_print', 'Custom PDF Printing', 'customPrinterButton()');
 		}
+	
+	if(type == 'view')
+	{
+		form.addButton('custpage_but_cust_print', 'Custom PDF Printing', 'customPrinterButton()');
+		form.setScript('customscript_bbs_custom_printer_client')
+	}
 }

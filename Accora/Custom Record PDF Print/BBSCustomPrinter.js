@@ -278,7 +278,8 @@ function getTasks(_recordType, _recordId)
 					   new nlobjSearchColumn("duedate"), 
 					   new nlobjSearchColumn("priority"), 
 					   new nlobjSearchColumn("status"), 
-					   new nlobjSearchColumn("title")
+					   new nlobjSearchColumn("title"),
+					   new nlobjSearchColumn("completeddate")
 					]
 					);
 		}
