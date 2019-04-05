@@ -658,7 +658,8 @@ function getResults(search)
 	var start = 0;
 	var end = 1000;
 	var searchResultSet = searchResult.getResults(start, end);
-	var resultlen = searchResultSet.length;
+	
+	var resultlen = (searchResultSet != null ? searchResultSet.length : 0);
 
 	//If there is more than 1000 results, page through them
 	//
@@ -668,9 +669,16 @@ function getResults(search)
 				end += 1000;
 
 				var moreSearchResultSet = searchResult.getResults(start, end);
-				resultlen = moreSearchResultSet.length;
-
-				searchResultSet = searchResultSet.concat(moreSearchResultSet);
+				
+				if(moreSearchResultSet != null)
+					{
+						resultlen = moreSearchResultSet.length;
+						searchResultSet = searchResultSet.concat(moreSearchResultSet);
+					}
+				else
+					{
+						resultlen = 0;
+					}
 		}
 	
 	return searchResultSet;

@@ -253,7 +253,9 @@ function getFulfilments(_dateString)
 		                   "AND", 
 		                   ["createdfrom.status","noneof","SalesOrd:G","SalesOrd:C","SalesOrd:H","SalesOrd:A"],			//Sales order not at "Billed","Cancelled","Closed","Pending Approval" status
 		                   "AND",
-		                   ["trandate","within",_dateString,_dateString]
+		                   ["trandate","within",_dateString,_dateString],
+		                   "AND",
+		                   ["subsidiary","noneof","8"]							//Not Traffisafe
 		                   ];
 
 		var fulfillmentSearch = nlapiCreateSearch("itemfulfillment",filterArray,
