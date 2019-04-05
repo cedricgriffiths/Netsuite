@@ -14,21 +14,22 @@
 		<#assign aging = aging2 + aging3 + aging4 + aging5>
   
         <#assign subsidiary>${statement.subsidiary}</#assign>
-
-        <#if subsidiary=="Global Freight Solutions">
+  
+        <#if subsidiary=="Intermail">
               <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>info@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
               <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=1133&amp;c=5352096_SB1&amp;h=34c420e3af6e2c2b4249</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=820&c=5352096&amp;h=52344bd9c403962b56b9</#assign>
         </#if>
-        
-  		<#if subsidiary=="Intermail">
+
+
+  	<#if subsidiary=="Global Freight Solutions">
               <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
-              <#assign emailInfo>info@gfsdeliver.com</#assign>
+              <#assign emailInfo>accounts@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
               <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=924&amp;c=5352096_SB1&amp;h=9b00f811cf9571de766a</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=928&amp;c=5352096&amp;h=c78cd42655b24403bff7</#assign>
         </#if>
   
 
@@ -51,7 +52,7 @@
             <table class="header" style="width: 100%;"><tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><#if companyInformation.logoUrl?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
+	<td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
 	</tr>
 	<tr><td>&nbsp;</td></tr>
 	<tr>
@@ -236,7 +237,7 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="9%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="10px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
   
     <table style="width: 100%;">
     <tr>
@@ -261,6 +262,7 @@
 
   </table>
   
+  <p/>
   
     <#if statement.lines?has_content>
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
@@ -270,14 +272,45 @@
 	<th colspan="12">${line.description@label}</th>
 	<th align="right" colspan="3">Debit</th>
 	<th align="right" colspan="4">Credit</th>
-      <th align="right" colspan="4">${line.balance@label}</th>
+    <th align="right" colspan="4">Paid</th>
+    <th align="right" colspan="4">${line.amountremaining@label}</th>
+    <th align="right" colspan="4">${line.balance@label}</th>
 	</tr>
 </thead>
 </#if><tr>
+  	<#assign pos=line.description?index_of("#") + 1>
+
 	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
-	<td colspan="12">${line.description}</td>
-	<td align="right" colspan="3">${line.charge}</td>
+      
+    <#if pos gt -1>
+	  <td colspan="12">${line.description[pos..]}</td>
+    <#else>
+      <td colspan="12">${line.description}</td>
+    </#if>
+      
+    <#if line.charge?length gt 0> 
+      <#if line.amountremaining?length gt 0>
+      	<#assign amountpaid=(line.charge?float - line.amountremaining?float)>
+      <#else>
+        <#assign amountpaid=line.charge>
+      </#if>
+    <#else>
+      <#assign amountpaid=0>
+    </#if>
+      
+    <td align="right" colspan="3">${line.charge}</td>
 	<td align="right" colspan="4">${line.payment}</td>
+	<#if amountpaid gt 0>
+      <td align="right" colspan="4">${amountpaid?string.currency}</td>
+    <#else>
+      <td align="right" colspan="4">&nbsp;</td>
+	</#if>
+	<#if line_index != 0>  
+	<td align="right" colspan="4">${line.amountremaining}</td>
+    <#else>
+    <td align="right" colspan="4">&nbsp;</td>
+    </#if>
+      
 	<td align="right" colspan="4">${line.balance}</td>
 	</tr>
 	</#list><!-- end items --></table>

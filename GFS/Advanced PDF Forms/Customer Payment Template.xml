@@ -28,7 +28,7 @@
               <#assign webInfo>W: www.justshoutgfs.com</#assign>
               <#assign vatInfo>VAT Registration No: GB 777 3903 87</#assign>
               <#assign compInfo>Company Registration No: 06863317</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=928&amp;c=5352096_SB1&amp;h=56dcb07b95f650cb1662</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=928&amp;c=5352096&amp;h=c78cd42655b24403bff7</#assign>
         </#if>
 
   
@@ -198,25 +198,60 @@
 
   
 <#if record.apply?has_content>
-
+<table><tr><td><b>Invoices</b></td></tr></table>
 <table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
 <thead>
 	<tr>
+	<th align="left" colspan="2">Type</th>
 	<th align="left" colspan="3">Item Reference</th>
-	<th align="center" colspan="3">Tax Date</th>
-	<th colspan="2">Type</th>
+	<th align="left" colspan="4">&nbsp;</th>
+	<th align="center" colspan="3">Date</th>
+	<th align="right" colspan="4">${apply.total@label}</th>
 	<th align="right" colspan="4">Value</th>
 	</tr>
 </thead>
 </#if><tr>
+	<td align="left" colspan="2">${apply.type}</td>
 	<td align="left" colspan="3" line-height="150%">${apply.refnum}</td>
+	<td align="left" colspan="4" line-height="150%">&nbsp;</td>
 	<td align="center" colspan="3" line-height="150%">${apply.applydate}</td>
-	<td colspan="2">${apply.type}</td>
+	<td align="right" colspan="4" line-height="150%">${apply.total}</td>
 	<td align="right" colspan="4">${apply.amount}</td>
 	</tr>
 	</#list><!-- end apply --></table>
 
-<hr /></#if>
+<hr />
+  </#if>
+  
+<#if record.credit?has_content>
+<table><tr><td><b>Credits</b></td></tr></table>
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.credit as credit><#if credit_index==0>
+<thead>
+	<tr>
+	<th align="left" colspan="2">Type</th>
+	<th align="left" colspan="3">Item Reference</th>
+	<th align="left" colspan="4">${credit.appliedto@label}</th>
+	<th align="center" colspan="3">${credit.creditdate@label}</th>
+	<th align="right" colspan="4">${credit.amount@label}</th>
+    <th align="right" colspan="4">&nbsp;</th>
+	
+	</tr>
+</thead>
+</#if><tr>
+	<td align="left" colspan="2">${credit.type}</td>
+	<td align="left" colspan="3">${credit.refnum}</td>
+	<td align="left" colspan="4">${credit.appliedto}</td>
+	<td align="center" colspan="3">${credit.creditdate}</td>
+	<td align="right" colspan="4">${credit.amount}</td>
+  	<td align="right" colspan="4">&nbsp;</td>
+	
+	</tr>
+	</#list><!-- end apply --></table>
+<hr />
+  </#if>
+  
+  
+  
 <table class="total" style="width: 100%; margin-top: 10px;"><tr class="totalrow">
 	<td background-color="#ffffff" colspan="4">&nbsp;</td>
 	<td align="right"><b>${record.total@label}</b></td>
