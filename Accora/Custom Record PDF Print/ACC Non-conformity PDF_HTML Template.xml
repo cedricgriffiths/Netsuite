@@ -30,21 +30,21 @@ td { padding: 5px 5px; }
 b { font-weight: bold; color: #333333; }
 </style>
 </head>
-<body header="nlheader" header-height="90px" footer="nlfooter" footer-height="50px" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+<body header="nlheader" header-height="90px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
     <table><tr>
 	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Primary Information</strong></span></td>
 	</tr></table>
 
 <table><tr>
 	<td colspan="6"><b>${record.custrecord_acc_nc_logged_by@label}</b> ${record.custrecord_acc_nc_logged_by}</td>
-	<td colspan="6"><b>${record.lastmodified@label}</b> ${record.lastmodified} <b>${record.lastmodifiedby@label}</b> ${record.lastmodifiedby}</td>
+	<td colspan="6"><b>${record.lastmodified@label}</b> ${record.lastmodified?string["dd-MMM-yyyy"]} <b>${record.lastmodifiedby@label}</b> ${record.lastmodifiedby}</td>
 	</tr>
 	<tr>
 	<td colspan="6"><b>${record.custrecord_acc_nc_c_o_o@label}</b> ${record.custrecord_acc_nc_c_o_o}</td>
 	<#if record.custrecord_acc_nc_original_date_created?has_content>
-	<td colspan="6"><b>${record.custrecord_acc_nc_original_date_created@label}</b> ${record.custrecord_acc_nc_original_date_created}</td>
+	<td colspan="6"><b>${record.custrecord_acc_nc_original_date_created@label}</b> ${record.custrecord_acc_nc_original_date_created?string["dd-MMM-yyyy"]}</td>
 	<#else>
-	<td colspan="6"><b>${record.created@label}</b> ${record.created}</td>
+	<td colspan="6"><b>${record.created@label}</b> ${record.created?string["dd-MMM-yyyy"]}</td>
 	</#if></tr>
 	<tr>
 	<td colspan="6"><b>${record.custrecord_acc_nc_original_case@label}</b> ${record.custrecord_acc_nc_original_case}</td>
@@ -70,12 +70,12 @@ b { font-weight: bold; color: #333333; }
 	<td colspan="6"><b>${record.custrecord_acc_nc_department@label}</b> ${record.custrecord_acc_nc_department}</td>
 	</tr>
 	<tr>
-	<td colspan="6"><b>${record.custrecord_acc_nc_date_occurrence@label}</b> ${record.custrecord_acc_nc_date_occurrence}</td>
-	<td colspan="6"><b>${record.custrecord_acc_nc_date_informed@label}</b> ${record.custrecord_acc_nc_date_informed}</td>
+	<td colspan="6"><b>${record.custrecord_acc_nc_date_occurrence@label}</b> ${record.custrecord_acc_nc_date_occurrence?string["dd-MMM-yyyy"]}</td>
+	<td colspan="6"><b>${record.custrecord_acc_nc_date_informed@label}</b> ${record.custrecord_acc_nc_date_informed?string["dd-MMM-yyyy"]}</td>
 	</tr>
 	<tr>
 	<td colspan="6"><b>${record.custrecord_acc_nc_closed_by@label}</b> ${record.custrecord_acc_nc_closed_by}</td>
-	<td colspan="6"><b>${record.custrecord_acc_nc_date_closed@label}</b> ${record.custrecord_acc_nc_date_closed}</td>
+	<td colspan="6"><b>${record.custrecord_acc_nc_date_closed@label}</b> ${record.custrecord_acc_nc_date_closed?string["dd-MMM-yyyy"]}</td>
 	</tr>
 	<tr>
 	<td colspan="6"><b>${record.custrecord_acc_nc_status@label}</b> ${record.custrecord_acc_nc_status}</td>
@@ -151,47 +151,107 @@ b { font-weight: bold; color: #333333; }
 	</tr>
 	<tr>
 	<td colspan="12"><b>${record.custrecord_acc_nc_effective_check_notes@label}</b> ${record.custrecord_acc_nc_effective_check_notes}</td>
-	</tr></table>
-
-<p/>
-<table>
-<thead>
-	<tr>
-	<th colspan="2" align="left">Title</th>
-	<th colspan="4" align="left">Note</th>
-	<th colspan="2" align="left">Date</th>
-	<th colspan="2" align="left">Type</th>
 	</tr>
+</table>
+
+<#if notes?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Notes</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list notes as usernotes><#if usernotes_index == 0>
+<thead>
+<tr>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Title</b></th>
+	<th colspan="8" align="left" style="padding-left: 5px;"><b>Note</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<!--<th colspan="2" align="left" style="padding-left: 5px;">Type</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Direction</th> -->
+</tr>
 </thead>
-<#list notes as usernotes>
+</#if>
 <tr>
 	<td colspan="2" align="left">${usernotes.title}</td>
-	<td colspan="4" align="left">${usernotes.note}</td>
-	<td colspan="2" align="left">${usernotes.notedate}</td>
-	<td colspan="2" align="left">${usernotes.notetype}</td>
-	</tr>
+	<td colspan="8" align="left">${usernotes.note}</td>
+	<td colspan="2" align="left">${usernotes.notedate?string["dd-MMM-yyyy"]}</td>
+	<!--<td colspan="2" align="left">${usernotes.notetype}</td>
+	<td colspan="2" align="left">${usernotes.direction}</td>-->
+</tr>
 </#list>
+</table>
+</#if>
+
+
+
+<#if files?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Files</strong></span></td>
+</tr>
 </table>
 
-<p/>
 <table>
+<#list files as userfiles><#if userfiles_index == 0>
 <thead>
 	<tr>
-	<th colspan="2" align="left">Name</th>
-	<th colspan="4" align="left">folder</th>
-	<th colspan="2" align="left">Size</th>
-	<th colspan="2" align="left">Last Modified</th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<th colspan="10" align="left" style="padding-left: 5px;"><b>Name</b></th>
+	<!--<th colspan="4" align="left" style="padding-left: 5px;">folder</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Size</th>-->
 	</tr>
 </thead>
-<#list files as userfiles>
+</#if>
 <tr>
-	<td colspan="2" align="left">${userfiles.name}</td>
-	<td colspan="4" align="left">${userfiles.folder}</td>
-	<td colspan="2" align="left">${userfiles.documentsize}</td>
-	<td colspan="2" align="left">${userfiles.modified}</td>
-	</tr>
+	<td colspan="2" align="left" style="padding-left: 5px;">${userfiles.modified?string["dd-MMM-yyyy"]}</td>
+	<td colspan="10" align="left" style="padding-left: 5px;">${userfiles.name}</td>
+	<!--<td colspan="4" align="left" style="padding-left: 5px;">${userfiles.folder}</td>
+	<td colspan="2" align="left" style="padding-left: 5px;">${userfiles.documentsize}</td>-->
+</tr>
 </#list>
 </table>
+</#if>
+
+<#if tasks?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Tasks</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list tasks as usertasks><#if usertasks_index == 0>
+<thead>
+	<tr>
+	<th colspan="3" align="left" style="padding-left: 5px;"><b>Title</b></th>
+	<th colspan="3" align="left" style="padding-left: 5px;"><b>Assigned To</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Due Date</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date Completed</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Status</b></th>
+	<!--<th colspan="2" align="left" style="padding-left: 5px;">Priority</th>-->
+	</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="3" align="left">${usertasks.title}</td>
+	<td colspan="3" align="left">${usertasks.assigned}</td>
+	<td colspan="2" align="left">${usertasks.duedate?string["dd-MMM-yyyy"]}</td>
+	<td colspan="2" align="left">${usertasks.completeddate?string["dd-MMM-yyyy"]}</td>
+	<td colspan="2" align="left">${usertasks.status}</td>
+	<!--<td colspan="2" align="left">${usertasks.priority}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
 
 </body>
 </pdf>

@@ -1,0 +1,187 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+    <macrolist>
+        <macro id="nlheader">
+           <table>
+             <tr>
+				<td align="top-left" colspan="4" style="width: 600px;"><span style="font-size: 24pt; float:top-left;"><strong>${record@title}: ${record.name}</strong></span></td>
+				<td align="top-right" style="width: 90px;"><img src="https://system.netsuite.com/core/media/media.nl?id=409&amp;c=4810497_SB1&amp;h=dd11cbd155b80e90fbbf" style="float:top-right; width:75px; height:50px; margin: 1px;" /></td>
+	</tr>
+   </table>
+<hr style="width: 100%;" />
+        </macro>
+        <macro id="nlfooter">
+      <table class="footer" style="width: 100%;"><tr>
+	<td align="center" colspan="12">Accora Ltd. Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP</td>
+	</tr>
+	<tr>
+	<td align="left" colspan="6">SOP508-A REV 01</td>
+	<td align="right" colspan="6"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+  		font-size: 9pt;
+  		table-layout: fixed;
+  		width: 100%;
+      }
+td { padding: 5px 5px; }
+b { font-weight: bold; color: #333333; }
+</style>
+</head>
+<body header="nlheader" header-height="90px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Primary Information</strong></span></td>
+	</tr></table>  
+<table><tr>
+  <td colspan="24"><span style="font-size: 20pt;"><b>${record.altname@label}</b> ${record.altname}</span></td>
+  </tr>
+  <tr>
+  <#if record.custrecord_acc_nc_original_date_created?has_content>
+    <td colspan="12"><b>${record.custrecord_acc_inv_original_date_created@label}</b> ${record.custrecord_acc_inv_original_date_created?string["dd-MMM-yyyy"]}</td>
+	<#else>
+	<td colspan="12"><b>${record.created@label}</b> ${record.created?string["dd-MMM-yyyy"]}</td>
+	</#if>
+	<td colspan="12"><b>${record.custrecord_acc_inv_created_by@label}</b> ${record.custrecord_acc_inv_created_by}</td>
+	</tr>
+	<tr>
+	<td colspan="12"><b>${record.custrecord_acc_inv_status@label}</b> ${record.custrecord_acc_inv_status}</td>
+	<td colspan="12"><b>${record.custrecord_acc_inv_product_range@label}</b> ${record.custrecord_acc_inv_product_range}</td>
+  </tr>
+  <tr>
+	<td colspan="24"><b>${record.custrecord_acc_inv_hazard_description@label}</b> ${record.custrecord_acc_inv_hazard_description}</td>
+    </tr>
+</table>
+<hr style="width: 100%;" />
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Risk Assessment</strong></span></td>
+	</tr></table> 
+<table><tr>
+	<td colspan="24"><b>${record.custrecord_acc_inv_risk_id@label}</b> ${record.custrecord_acc_inv_risk_id}</td>
+    <td colspan="24"><b>${record.custrecord_acc_inv_risk_hazard@label}</b> ${record.custrecord_acc_inv_risk_hazard}</td>
+  </tr>
+  <tr>
+    <td colspan="24"><b>${record.custrecord_acc_inv_risk_matrix_used@label}</b> ${record.custrecord_acc_inv_risk_matrix_used}</td>
+    <td colspan="24"><b>${record.custrecord_acc_inv_risk_harm@label}</b> ${record.custrecord_acc_inv_risk_harm}</td>
+  </tr>
+  <tr>
+  	<td colspan="48"><b>${record.custrecord_acc_inv_risk_severity@label}</b> ${record.custrecord_acc_inv_risk_severity}</td>
+  </tr>
+  <tr>
+    <td colspan="48"><b>${record.custrecord_acc_inv_risk_probability@label}</b> ${record.custrecord_acc_inv_risk_probability}</td>
+  </tr>
+  <tr>
+    <td colspan="48"><b>${record.custrecord_acc_inv_risk_assessment_team@label}</b> ${record.custrecord_acc_inv_risk_assessment_team}</td>
+	</tr>
+  </table>
+<hr style="width: 100%;"/>  
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Root Cause and Conclusion</strong></span></td>
+	</tr></table>   
+<table><tr>
+	<td colspan="48"><b>${record.custrecord_acc_inv_root_cause@label}</b> ${record.custrecord_acc_inv_root_cause}</td>
+  </tr>
+  <tr>
+    <td colspan="48"><b>${record.custrecord_acc_inv_conclusion@label}</b> ${record.custrecord_acc_inv_conclusion}</td>
+  </tr>  
+  <tr>
+	<td colspan="24"><b>${record.custrecord_acc_inv_approved_by@label}</b> ${record.custrecord_acc_inv_approved_by}</td>
+    <td colspan="24"><b>${record.custrecord_acc_inv_date_completed@label}</b> ${record.custrecord_acc_inv_date_completed?string["dd-MMM-yyyy"]}</td>
+  </tr>  
+</table>  
+   
+ <hr style="width: 100%;" />
+
+<#if notes?has_content>
+
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>PMS Reviews</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list notes as usernotes><#if usernotes_index == 0>
+<thead>
+<tr>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Title</b></th>
+	<th colspan="8" align="left" style="padding-left: 5px;"><b>Note</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<!--<th colspan="2" align="left" style="padding-left: 5px;">Type</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Direction</th> -->
+</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="2" align="left">${usernotes.title}</td>
+	<td colspan="8" align="left">${usernotes.note}</td>
+	<td colspan="2" align="left">${usernotes.notedate?string["dd-MMM-yyyy"]}</td>
+	<!--<td colspan="2" align="left">${usernotes.notetype}</td>
+	<td colspan="2" align="left">${usernotes.direction}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
+<hr style="width: 100%;" />
+
+<#if files?has_content>
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Files</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list files as userfiles><#if userfiles_index == 0>
+<thead>
+	<tr>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<th colspan="10" align="left" style="padding-left: 5px;"><b>Name</b></th>
+	<!--<th colspan="4" align="left" style="padding-left: 5px;">folder</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Size</th>-->
+	</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="2" align="left">${userfiles.modified?string["dd-MMM-yyyy"]}</td>
+	<td colspan="10" align="left">${userfiles.name}</td>
+	<!--<td colspan="4" align="left">${userfiles.folder}</td>
+	<td colspan="2" align="left">${userfiles.documentsize}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
+<!--<hr style="width: 100%;" />-->
+
+<!-- Hiding Complaints for the time being...-->
+<!-- <#if complaints?has_content> -->
+<!-- <table>-->
+<!-- <tr>-->
+<!-- <td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Customer Complaints</strong></span></td>-->
+<!-- </tr>-->
+<!-- </table>-->
+
+<!-- <table>-->
+<!-- <#list complaints as usercomplaints><#if usercomplaints_index == 0>-->
+<!-- <thead>-->
+	<!-- <tr>-->
+	<!-- <th colspan="4" align="left" style="padding-left: 5px;"><b>ID</b></th>-->
+	<!-- <th colspan="8" align="left" style="padding-left: 5px;"><b>Description</b></th>-->
+
+	<!-- </tr>-->
+<!-- </thead>-->
+<!-- </#if>-->
+<!-- <tr>-->
+	<!-- <td colspan="4" align="left">${usercomplaints.name}</td>-->
+	<!-- <td colspan="8" align="left">${usercomplaints.custrecord_acc_cc_description}</td>-->
+<!-- </tr>-->
+<!-- </#list>-->
+<!-- </table>-->
+<!-- </#if>-->
+
+
+</body>
+</pdf>

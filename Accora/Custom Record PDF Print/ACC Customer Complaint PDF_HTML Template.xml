@@ -1,0 +1,272 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+    <macrolist>
+        <macro id="nlheader">
+           <table>
+             <tr>
+				<td align="top-left" colspan="4" style="width: 600px;"><span style="font-size: 24pt; float:top-left;"><strong>${record@title}: ${record.name}</strong></span></td>
+				<td align="top-right" style="width: 90px;"><img src="https://system.netsuite.com/core/media/media.nl?id=409&amp;c=4810497_SB1&amp;h=dd11cbd155b80e90fbbf" style="float:top-right; width:75px; height:50px; margin: 1px;" /></td>
+	</tr>
+   </table>
+<hr style="width: 100%;" />
+        </macro>
+        <macro id="nlfooter">
+      <table class="footer" style="width: 100%;"><tr>
+	<td align="center" colspan="12">Accora Ltd. Charter House, Barrington Road, Orwell, Cambridge. SG8 5QP</td>
+	</tr>
+	<tr>
+	<td align="left" colspan="6">SOP501-D REV 01</td>
+	<td align="right" colspan="6"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table { font-family: Calibri, Candara, Segoe, "Segoe UI", Optima, Arial, sans-serif;
+  		font-size: 9pt;
+  		table-layout: fixed;
+  		width: 100%;
+      }
+td { padding: 5px 5px; }
+b { font-weight: bold; color: #333333; }
+</style>
+</head>
+<body header="nlheader" header-height="90px" footer="nlfooter" footer-height="40px" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Primary Information</strong></span></td>
+	</tr></table>
+<table><tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_logged_by@label}</b> ${record.custrecord_acc_cc_logged_by}</td>
+	<td colspan="6"><b>${record.lastmodified@label}</b> ${record.lastmodified?string["dd-MMM-yyyy"]} <b>${record.lastmodifiedby@label}</b> ${record.lastmodifiedby}</td>
+	</tr>
+	<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_c_o_o@label}</b> ${record.custrecord_acc_cc_c_o_o}</td>
+	<#if record.custrecord_acc_cc_original_date_created?has_content>
+	<td colspan="6"><b>${record.custrecord_acc_cc_original_date_created@label}</b> ${record.custrecord_acc_cc_original_date_created?string["dd-MMM-yyyy"]}</td>
+	<#else>
+	<td colspan="6"><b>${record.created@label}</b> ${record.created?string["dd-MMM-yyyy"]}</td>
+	</#if></tr>
+	<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_original_case@label}</b> ${record.custrecord_acc_cc_original_case}</td>
+    <td colspan="6"><b>${record.custrecord_acc_cc_status@label}</b> ${record.custrecord_acc_cc_status}</td>
+	</tr>
+  	<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_assessed_by@label}</b> ${record.custrecord_acc_cc_assessed_by}</td>
+    <td colspan="6"><b>${record.custrecord_acc_cc_closed_by@label}</b> ${record.custrecord_acc_cc_closed_by}</td>
+	</tr>
+    <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_date_closed@label}</b> ${record.custrecord_acc_cc_date_closed}</td>
+    <td colspan="6"><b>${record.custrecord_acc_cc_cancellation_reason@label}</b> ${record.custrecord_acc_cc_cancellation_reason}</td>
+	</tr>
+  </table>
+<hr style="width: 100%;" />
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Complaint Information</strong></span></td>
+	</tr></table>  
+<table><tr>
+	<td colspan="12"><b>${record.custrecord_acc_cc_description@label}</b> ${record.custrecord_acc_cc_description}</td>
+  </tr>
+  <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_date_informed@label}</b> ${record.custrecord_acc_cc_date_informed?string["dd-MMM-yyyy"]}</td>
+    <td colspan="6"><b>${record.custrecord_acc_cc_date_occurrence@label}</b> ${record.custrecord_acc_cc_date_occurrence?string["dd-MMM-yyyy"]}</td>
+	</tr>  
+  <tr>
+	<td colspan="12"><b>${record.custrecord_acc_cc_injury_occurred@label}</b> ${record.custrecord_acc_cc_injury_occurred}</td>
+  </tr>
+  <tr>
+    <td colspan="12"><b>${record.custrecord_acc_cc_injury_q1@label}</b> ${record.custrecord_acc_cc_injury_q1}</td>
+  </tr>
+  <tr>
+    <td colspan="12"><b>${record.custrecord_acc_cc_injury_q2@label}</b> ${record.custrecord_acc_cc_injury_q2}</td>
+  </tr>
+  <tr>
+    <td colspan="12"><b>${record.custrecord_acc_cc_injury_q3@label}</b> ${record.custrecord_acc_cc_injury_q3}</td>
+  </tr>  
+  <tr>
+  <td colspan="12"><b>${record.custrecord_acc_cc_injury_desc@label}</b> ${record.custrecord_acc_cc_injury_desc}</td>
+  </tr>
+  </table>
+<hr style="width: 100%;" /> 
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Product Information</strong></span></td>
+	</tr></table>   
+<table><tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_product_range@label}</b> ${record.custrecord_acc_cc_product_range}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_finished_dev_part_no@label}</b> ${record.custrecord_acc_cc_finished_dev_part_no}</td>
+	</tr>  
+  <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_finished_dev_serial_no@label}</b> ${record.custrecord_acc_cc_finished_dev_serial_no}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_finished_dev_serial_no@label}</b> ${record.custrecord_acc_cc_finished_dev_serial_no}</td>
+	</tr>  
+  <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_comp_part_no@label}</b> ${record.custrecord_acc_cc_comp_part_no}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_comp_part_serial_no@label}</b> ${record.custrecord_acc_cc_comp_part_serial_no}</td>
+	</tr>  
+   <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_product_age@label}</b> ${record.custrecord_acc_cc_product_age}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_additional_prod_notes@label}</b> ${record.custrecord_acc_cc_additional_prod_notes}</td>
+	</tr>
+  </table>
+<hr style="width: 100%;" /> 
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Complainant Information</strong></span></td>
+	</tr></table>   
+<table><tr>
+	<td colspan="6">For complainant information, refer to Company/Contact on the original case</td>
+  </tr>
+  <tr>
+	<td colspan="6"><b>${record.custrecord_acc_additional_contact_notes@label}</b> ${record.custrecord_acc_additional_contact_notes}</td>
+	</tr>   
+  </table>
+<hr style="width: 100%;" />
+<pbr></pbr>
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Vigilance Information</strong></span></td>
+	</tr></table>
+<table><tr>
+  <td colspan="12"><b>PREREQUISITE QUESTION 1:<br></br>
+Does the information suggest that an Accora device has or may have caused or contributed to a death or serious injury?<br></br>
+A serious injury can be an injury or illness that:<br></br>
+- Is life threatening?<br></br>
+- Results in permanent impairment of a body function or permanent damage to a body structure<br></br>
+- Necessitates medical or surgical intervention to preclude permanent impairment of a body function or permanent damage to a body structure<br></br>
+</b> ${record.custrecord_acc_cc_reportable_pq1}</td>
+	</tr>  
+<tr>
+<td colspan="12"><b>PREREQUISITE QUESTION 2:<br></br>
+Does the information suggest that the Accora device has:<br></br>
+- malfunctioned (failed to meet its performance specifications or otherwise not perform as intended, due to a product malfunction or from an user error)<br></br>
+- and if the event were to reoccur, would it be likely to cause or contribute to a death or serious injury?<br></br>
+And/or was the same malfunction or misuse of an Accora device previously reported to the FDA, which caused serious injury or death?<br></br>
+</b> ${record.custrecord_acc_cc_reportable_pq2}</td>
+</tr>
+<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_reportable@label}</b> ${record.custrecord_acc_cc_reportable}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_reportability_notes@label}</b> ${record.custrecord_acc_cc_reportability_notes}</td>
+	</tr>  
+<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_reported_to_1@label}</b> ${record.custrecord_acc_cc_reported_to_1}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_date_reported_1@label}</b> ${record.custrecord_acc_cc_date_reported_1}</td>
+	</tr>  
+<tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_reported_to_2@label}</b> ${record.custrecord_acc_cc_reported_to_2}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_date_reported_2@label}</b> ${record.custrecord_acc_cc_date_reported_2}</td>
+	</tr> 
+</table>
+<hr style="width: 100%;" />
+<table><tr>
+	<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Investigation</strong></span></td>
+	</tr></table>
+<table>
+  <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_investigation_needed@label}</b> ${record.custrecord_acc_cc_investigation_needed}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_justification_if_no@label}</b> ${record.custrecord_acc_cc_justification_if_no}</td>
+	</tr>
+    <tr>
+	<td colspan="6"><b>${record.custrecord_acc_cc_investigation@label}</b> ${record.custrecord_acc_cc_investigation}</td>
+	<td colspan="6"><b>${record.custrecord_acc_cc_date_inves_assigned@label}</b> ${record.custrecord_acc_cc_date_inves_assigned?string["dd-MMM-yyyy"]}</td>
+	</tr>
+    <tr>
+	<td colspan="12"><b>${record.custrecord_acc_cc_additional_comments@label}</b> ${record.custrecord_acc_cc_additional_comments}</td>
+	</tr>
+</table>
+<#if notes?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Notes</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list notes as usernotes><#if usernotes_index == 0>
+<thead>
+<tr>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Title</b></th>
+	<th colspan="8" align="left" style="padding-left: 5px;"><b>Note</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<!--<th colspan="2" align="left" style="padding-left: 5px;">Type</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Direction</th> -->
+</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="2" align="left">${usernotes.title}</td>
+	<td colspan="8" align="left">${usernotes.note}</td>
+	<td colspan="2" align="left">${usernotes.notedate?string["dd-MMM-yyyy"]}</td>
+	<!--<td colspan="2" align="left">${usernotes.notetype}</td>
+	<td colspan="2" align="left">${usernotes.direction}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
+
+
+<#if files?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Files</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list files as userfiles><#if userfiles_index == 0>
+<thead>
+	<tr>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date</b></th>
+	<th colspan="10" align="left" style="padding-left: 5px;"><b>Name</b></th>
+	<!--<th colspan="4" align="left" style="padding-left: 5px;">folder</th>
+	<th colspan="2" align="left" style="padding-left: 5px;">Size</th>-->
+	</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="2" align="left" style="padding-left: 5px;">${userfiles.modified?string["dd-MMM-yyyy"]}</td>
+	<td colspan="10" align="left" style="padding-left: 5px;">${userfiles.name}</td>
+	<!--<td colspan="4" align="left" style="padding-left: 5px;">${userfiles.folder}</td>
+	<td colspan="2" align="left" style="padding-left: 5px;">${userfiles.documentsize}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
+<#if tasks?has_content>
+
+<hr style="width: 100%;" />
+<table>
+<tr>
+<td style="width: 100%;"><span style="font-size: 12pt; float:top-left;"><strong>Tasks</strong></span></td>
+</tr>
+</table>
+
+<table>
+<#list tasks as usertasks><#if usertasks_index == 0>
+<thead>
+	<tr>
+	<th colspan="3" align="left" style="padding-left: 5px;"><b>Title</b></th>
+	<th colspan="3" align="left" style="padding-left: 5px;"><b>Assigned To</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Due Date</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Date Completed</b></th>
+	<th colspan="2" align="left" style="padding-left: 5px;"><b>Status</b></th>
+	<!--<th colspan="2" align="left" style="padding-left: 5px;">Priority</th>-->
+	</tr>
+</thead>
+</#if>
+<tr>
+	<td colspan="3" align="left">${usertasks.title}</td>
+	<td colspan="3" align="left">${usertasks.assigned}</td>
+	<td colspan="2" align="left">${usertasks.duedate?string["dd-MMM-yyyy"]}</td>
+	<td colspan="2" align="left">${usertasks.completeddate?string["dd-MMM-yyyy"]}</td>
+	<td colspan="2" align="left">${usertasks.status}</td>
+	<!--<td colspan="2" align="left">${usertasks.priority}</td>-->
+</tr>
+</#list>
+</table>
+</#if>
+
+
+</body>
+</pdf>
