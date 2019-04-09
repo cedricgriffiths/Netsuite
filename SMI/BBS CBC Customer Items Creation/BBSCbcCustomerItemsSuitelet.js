@@ -264,7 +264,9 @@ function cbcCustomerItemsSuitelet(request, response){
 							var pointsFieldId = 'custpage_def_points_' + baseParentId.toString();
 							
 							var subtab = form.addSubTab(subtabId, baseParents[baseParentId], 'custpage_child_items_tab');
-							form.addField(allocFieldId, 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type', subtabId);
+							var allocTypeField = form.addField(allocFieldId, 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type', subtabId);
+							//allocTypeField.setMandatory(true);
+							
 							form.addField(pointsFieldId, 'integer', 'Points', null, subtabId);
 							
 							var sublist = form.addSubList(sublistId, 'list', baseParents[baseParentId], subtabId);
@@ -289,7 +291,7 @@ function cbcCustomerItemsSuitelet(request, response){
 							var sublistFieldOpt4 = sublist.addField(sublistId + '_opt4', 'text', 'Size2', null);
 							var sublistFieldAlloc = sublist.addField(sublistId + '_alloc', 'select', 'Allocation Type', 'customlist_cbc_item_allocation_type');
 							var sublistFieldPoints = sublist.addField(sublistId + '_points', 'integer', 'Points', null);
-							
+							sublistFieldAlloc.setMandatory(true);
 							//Set entry fields
 							//
 							sublistFieldAlloc.setDisplayType('entry');
