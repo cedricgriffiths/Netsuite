@@ -14,9 +14,9 @@ function unallocatedItemScheduled(type)
 {
 	//Find cash sale records that have unallocated items on them
 	//
-	var cashsaleSearch = getResults(nlapiCreateSearch("cashsale",
+	var cashsaleSearch = getResults(nlapiCreateSearch("transaction",
 			[
-			   ["type","anyof","CashSale"], 
+			   ["type","anyof","CashRfnd","CashSale"], 
 			   "AND", 
 			   ["mainline","is","F"], 
 			   "AND", 
@@ -30,6 +30,7 @@ function unallocatedItemScheduled(type)
 			], 
 			[
 			   new nlobjSearchColumn("tranid"), 
+			   new nlobjSearchColumn("type"), 
 			   new nlobjSearchColumn("line"), 
 			   new nlobjSearchColumn("memo"),
 			   new nlobjSearchColumn("custcol_bbs_item_clover_int_id")
@@ -51,8 +52,11 @@ function unallocatedItemScheduled(type)
 					//
 					var transactionId = cashsaleSearch[int].getId();
 					var transactionLine = cashsaleSearch[int].getValue("line");
+					var transactionType = cashsaleSearch[int].getValue("type");
 					var transactionMemo = cashsaleSearch[int].getValue("memo");
 					var transactionCloverId = cashsaleSearch[int].getValue("custcol_bbs_item_clover_int_id");
+					
+					transactionType = (transactionType == 'CashRfnd' ? 'cashrefund' : transactionType);
 					
 					var realItem = null;
 					
@@ -79,12 +83,12 @@ function unallocatedItemScheduled(type)
 							//
 							try
 								{
-									cashSaleRecord = nlapiLoadRecord('cashsale', transactionId);
+									cashSaleRecord = nlapiLoadRecord(transactionType, transactionId);
 								}
 							catch(err)
 								{
 									cashSaleRecord = null;
-									nlapiLogExecution('ERROR', 'Error loading cash sale record id = ' + transactionId, err.message);
+									nlapiLogExecution('ERROR', 'Error loading '+ transactionType + ' record id = ' + transactionId, err.message);
 								}
 							
 							if(cashSaleRecord != null)
@@ -144,7 +148,7 @@ function unallocatedItemScheduled(type)
 												}
 											catch(err)
 												{
-													nlapiLogExecution('ERROR', 'Error updating cash sale record, id = ' + transactionId, err.message);
+													nlapiLogExecution('ERROR', 'Error updating '+ transactionType + ' record, id = ' + transactionId, err.message);
 												}
 										}
 								}

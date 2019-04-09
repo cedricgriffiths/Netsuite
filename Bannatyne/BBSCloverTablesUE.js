@@ -47,6 +47,15 @@ function cloverAfterSubmit(type)
 					
 					switch(currentType)
 						{
+							case 'serviceitem':
+							case 'kititem':
+							case 'inventoryitem':
+							case 'noninventoryitem':
+								
+								externalId = isNull(cloverRecord.getFieldValue('displayname'),'');
+								
+								break;
+								
 							case 'customrecord_bbs_cl_loc_sub':
 								
 								externalId = isNull(cloverRecord.getFieldText('custrecordbbs_category_7'),'') + isNull(cloverRecord.getFieldText('custrecordbbs_merch_loc'),'');
