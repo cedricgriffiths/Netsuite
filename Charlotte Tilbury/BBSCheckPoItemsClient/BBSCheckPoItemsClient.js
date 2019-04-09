@@ -23,7 +23,7 @@ function poItemValidateLine(type)
 			var currentLineNo = nlapiGetCurrentLineItemValue('item', 'line');
 			var locationId = nlapiGetFieldValue('location');
 			
-			if(locationId == '11' || locationId == '16')
+			if(locationId == '11' || locationId == '16') //AMS Canada, AMS 
 				{
 					var lines = nlapiGetLineItemCount('item');
 					
@@ -32,7 +32,7 @@ function poItemValidateLine(type)
 							var thisLineItem = nlapiGetLineItemValue('item', 'item', int);
 							var thisLineNo = nlapiGetLineItemValue('item', 'line', int);
 						
-							if(currentLineItem == thisLineItem && currentLineNo != thisLineNo)
+							if(currentLineItem == thisLineItem && (currentLineNo != thisLineNo || currentLineNo == null))
 								{
 									alert('WARNING - Product "' + currentLineItemText + '" already exists on this purchase order!')
 									break;
