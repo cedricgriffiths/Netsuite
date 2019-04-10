@@ -77,7 +77,9 @@ function cloverAfterSubmit(type)
 							case 'customrecordbbs_item_locatin_matrix':
 
 								merchantId = cloverRecord.getFieldText('custrecordbbs_merchant_location');
+								itemName = cloverRecord.getFieldValue('custrecord_bbs_item_description');
 								
+								/*
 								itemId = cloverRecord.getFieldValue('custrecord_bbs_item');
 								
 								if(itemId != null && itemId != '')
@@ -96,6 +98,7 @@ function cloverAfterSubmit(type)
 												itemName = itemSearch[0].getValue("description");
 											}
 									}
+								*/
 								
 								externalId = itemName + merchantId;
 								
