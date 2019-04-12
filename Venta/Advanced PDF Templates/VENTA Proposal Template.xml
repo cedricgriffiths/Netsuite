@@ -1,0 +1,207 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+     <macrolist>
+       <macro id="nlheader">
+         
+    <table class="header" style="width: 100%;">
+    <tr style="margin-top: 20px;">
+		<td align="left" rowspan="5"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: left; width: 150px; height: 50px;" /> </#if></td>
+		<td align="left" rowspan="5" style="color: #00aeed"><span class="nameandaddress">${companyInformation.addressText}</span></td>
+		<td align="left" rowspan="5" style="color: #00aeed"><span class="nameandaddress">T: 01962 88 44 44<br/>E: sales@ventauk.com<br/>W: www.ventauk.com</span></td>
+	</tr>
+    </table>
+<hr/>
+    <table class="header" style="width: 100%; margin-top: 10px;">
+    <tr style="color: #00aeed">
+		<td align="left" ><span class="nameandaddress">For The Attention Of:</span></td>
+		<td align="left" ><span class="nameandaddress">Deliver Address:</span></td>
+		<td align="right"><span class="nameandaddress">Proposal No:</span></td>
+        <td align="right" style="color: #000000"><span class="nameandaddress">${record.tranid}</span></td>
+	</tr>
+    <tr>
+		<td align="left" rowspan="5"><span class="nameandaddress">${record.billaddress}</span></td>
+		<td align="left" rowspan="5"><span class="nameandaddress">${record.shipaddress}</span></td>
+		<td align="right" style="color: #00aeed"><span class="nameandaddress">Created:</span></td>
+        <td align="right"><span class="nameandaddress">${record.trandate}</span></td>
+	</tr>
+    </table>
+    <table class="header" style="width: 100%; margin-top: 10px;">
+      <tr>
+        <td align="left" style="color: #00aeed">Contact:</td>
+        <td align="left" colspan="3">${record.salesrep} - ${record.salesrep.email}</td>
+      </tr>
+    </table>
+    <hr/>
+    </macro>
+       
+       
+        <macro id="nlfooter">
+            <table style="width: 100%; font-size: 8pt;"><tr>
+	<td align="center" style="padding: 0;">${companyInformation.companyName}, ${subsidiary.addr2}, ${subsidiary.city}, ${subsidiary.country}, ${subsidiary.zip} <b>VAT No:</b> GB${companyInformation.employerid} <b>Company No:</b> 08771117</td>
+	</tr>
+	</table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+        <#if .locale == "zh_CN">
+            font-family: stsong, sans-serif;
+        <#elseif .locale == "zh_TW">
+            font-family: msung, sans-serif;
+        <#elseif .locale == "ja_JP">
+            font-family: heiseimin, sans-serif;
+        <#elseif .locale == "ko_KR">
+            font-family: hygothic, sans-serif;
+        <#elseif .locale == "ru_RU">
+            font-family: verdana;
+        <#else>
+            font-family: sans-serif;
+        </#if>
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            vertical-align: middle;
+            padding: 5px 6px 3px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 4px 6px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+        table.body td {
+            padding-top: 2px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 200%;
+        }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 8pt;
+            padding-top: 6px;
+            padding-bottom: 2px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+
+</style>
+</head>
+  
+<body style="background-image: url(https://system.eu2.netsuite.com/core/media/media.nl?id=12144&amp;c=4133410&amp;h=68b622a881aafe783795)" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+  
+    <table style="width: 100%;">
+    <tr>
+      <td align="center" style="margin-top: 200px; font-size: 20pt; color:#ffffff">Proposal</td>
+    </tr>
+    <tr>
+      <td align="center" style="margin-top: 10px; font-size: 20pt; color:#ffffff">${record.tranid}</td>
+    </tr>
+    <tr>
+      <td align="center" style="margin-top: 10px; font-size: 20pt; color:#ffffff">${record.entity}</td>
+    </tr>
+  </table>
+  
+  
+</body>
+
+<body header="nlheader" header-height="280px" footer="nlfooter" footer-height="10px" padding="0.25in 0.25in 0.25in 0.25in" size="A4">
+
+
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
+<thead>
+	<tr>
+	<th  style="color: #ffffff; background-color: #00aeed" colspan="2" align="left">Product</th>
+	<th  style="color: #ffffff; background-color: #00aeed" colspan="2" align="center">Image</th>
+	<th  style="color: #ffffff; background-color: #00aeed" colspan="3" align="left">Description</th>
+	<th  style="color: #ffffff; background-color: #00aeed" colspan="1" align="center">Quantity</th>
+	<th  style="color: #ffffff; background-color: #00aeed" colspan="1" align="center">Unit Price</th>
+	</tr>
+</thead>
+</#if><tr>
+  	<td colspan="2" align="left">${item.item}</td>
+  <#if item.custcol_bbs_item_image?length gt 0>
+    	<td colspan="2" align="center"><img src="${item.custcol_bbs_item_image}" style="width: 50px; height: 50px;"/></td>
+    <#else>
+      	<td colspan="2" align="left">&nbsp;</td>
+    </#if>
+
+	<td colspan="3" align="left">${item.description}</td>
+	<td colspan="1" align="center">${item.quantity}</td>
+	<td colspan="1" align="right">${item.rate}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<hr /></#if>
+<!--<table class="total" style="width: 100%; margin-top: 10px;">
+	<tr class="totalrow">
+	<td background-color="#ffffff" colspan="4">&nbsp;</td>
+	<td align="right"><b><span style = "color: #00aeed;">${record.total@label}</span></b></td>
+	<td align="right">${record.subtotal}</td>
+	</tr></table> -->
+<table style="width: 100%;">
+  <tr>
+	<td align="center" style="font-size: 8pt;"><b>All prices are subject to VAT and availability and does not include carriage charges.</b></td>
+	</tr>  
+    <tr>
+	<td align="center" style="font-size: 8pt;"><b>Prices on this proposal stand for 30 days from the date shown above.</b></td>
+	</tr>
+	</table>
+</body>
+</pdf>

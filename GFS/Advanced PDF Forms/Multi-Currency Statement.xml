@@ -6,7 +6,8 @@
         <#assign telInfo>?????</#assign>
         <#assign vatInfo>?????</#assign>
         <#assign logoInfo>?????</#assign>
-  
+  	    <#assign logoStyle>?????</#assign>
+        
         <#assign aging2 = statement.aging2?c?number>
   		<#assign aging3 = statement.aging3?c?number>
   		<#assign aging4 = statement.aging4?c?number>
@@ -18,18 +19,20 @@
         <#if subsidiary=="Intermail">
               <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>info@gfsdeliver.com</#assign>
-              <#assign telInfo>08456 044 011</#assign>
-              <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=820&c=5352096&amp;h=52344bd9c403962b56b9</#assign>
-        </#if>
+              <#assign telInfo>01635 565000</#assign>
+              <#assign vatInfo>GB 642 3131 76</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=924&amp;c=5352096&amp;h=f2e4582389b18f604542</#assign>
+       <#assign logoStyle>float: right; width:660px; height:55px;</#assign>
+         </#if>
 
 
   	<#if subsidiary=="Global Freight Solutions">
-              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign regInfo>Company Registration No: 04144492. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
               <#assign emailInfo>accounts@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
-              <#assign vatInfo>GB 777390387</#assign>
+              <#assign vatInfo>GB 777 3903 87</#assign>
               <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=928&amp;c=5352096&amp;h=c78cd42655b24403bff7</#assign>
+        <#assign logoStyle>float: right; width:250px; height:75px;</#assign>
         </#if>
   
 
@@ -52,11 +55,11 @@
             <table class="header" style="width: 100%;"><tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /> </#if></td>
+	<td align="right"><#if logoInfo?length != 0><img src="${logoInfo}" style="${logoStyle}" /> </#if></td>
 	</tr>
 	<tr><td>&nbsp;</td></tr>
 	<tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td style="padding-top: 10px;"><span style="font-size:24px;">${record@title}</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr></table>

@@ -6,24 +6,28 @@
         <#assign telInfo>?????</#assign>
         <#assign vatInfo>?????</#assign>
         <#assign logoInfo>?????</#assign>
+        <#assign logoStyle>?????</#assign>
         <#assign subsidiary>${record.subsidiary.id}</#assign>
-  
-        <#if subsidiary=="16">
-              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
-              <#assign emailInfo>info@gfsdeliver.com</#assign>
-              <#assign telInfo>08456 044 011</#assign>
-              <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=1133&amp;c=5352096_SB1&amp;h=34c420e3af6e2c2b4249</#assign>
+
+
+        <#if subsidiary=="23">
+              <#assign regInfo>Company Registration No: 3244323. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@gfsdeliver.com</#assign>
+              <#assign telInfo>01635 565000</#assign>
+              <#assign vatInfo>GB 642 3131 76</#assign>
+              <#assign logoInfo>https://system.eu2.netsuite.com/core/media/media.nl?id=924&amp;c=5352096&amp;h=f2e4582389b18f604542</#assign>
+              <#assign logoStyle>float: right; width:660px; height:55px;</#assign>
         </#if>
-        
-  		<#if subsidiary=="23">
-              <#assign regInfo>Company Registration No: 06863317. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
-              <#assign emailInfo>info@gfsdeliver.com</#assign>
+
+  	<#if subsidiary=="16">
+              <#assign regInfo>Company Registration No: 04144492. Registered Office: Century House, 100 Station Road, Horsham, West Sussex, RH13 5UZ, United Kingdom.</#assign>
+              <#assign emailInfo>accounts@gfsdeliver.com</#assign>
               <#assign telInfo>08456 044 011</#assign>
-              <#assign vatInfo>GB 777390387</#assign>
-              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=924&amp;c=5352096_SB1&amp;h=9b00f811cf9571de766a</#assign>
+              <#assign vatInfo>GB 777 3903 87</#assign>
+              <#assign logoInfo>https://system.eu1.netsuite.com/core/media/media.nl?id=928&amp;c=5352096_SB1&amp;h=56dcb07b95f650cb1662</#assign>
+        	  <#assign logoStyle>float: right; width:250px; height:75px;</#assign>
         </#if>
-  
+
   
     <macrolist>
         <macro id="nlheader">
@@ -31,11 +35,11 @@
     <tr>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
-	<td align="right"><img src="${logoInfo}" style="float: right; width:250px; height:75px;" /></td>
+	<td align="right"><img src="${logoInfo}" style="${logoStyle}" /></td>
     </tr>
     <!--<tr><td>&nbsp;</td></tr>-->
     <tr>
-	<td><span style="font-size:24px;">${record@title}</span></td>
+	<td style="padding-top: 10px;"><span style="font-size:24px;">${record@title}</span></td>
 	<td align="right">&nbsp;</td>
 	<td align="right">&nbsp;</td>
 	</tr>
@@ -52,7 +56,7 @@
         <td colspan="2" rowspan="8" class="addressheader"><span style="font-size:10pt"><b>Invoice Address:</b></span><br /><span class="nameandaddress" style="font-size:10pt">${record.billaddress}<br/>VAT Number: ${record.vatregnum}</span></td>
 	<td align="right" style="font-size:10pt"></td>
       
-    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Email:</b> ${emailInfo}<br /><b>Tel:</b> ${telInfo}</td>
+    <td colspan="2" align="left" rowspan="8"><span class="nameandaddress">${record.custbody_subsidiary_address}</span><br/>VAT No. ${vatInfo}<br /><br/><b>Tel.</b> ${telInfo}</td>
 	</tr>
           </table>
         </macro>
@@ -60,9 +64,13 @@
         <macro id="nlfooter">
 
         <table style="width: 100%;">
-          <tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
+          <#if record.duedate?has_content>
+          	<tr><td><b>Due Date: ${record.duedate?string["dd MMM yyyy"]}</b></td></tr>
+          <#else>
+            <tr><td><b>Due Date:</b></td></tr>
+          </#if>
           <tr><td>Bank Details for payments in ${record.currency}:</td></tr>
-          <tr><td>${record.custbody_bbs_bank_account}</td><td align="right" rowspan="7"></td></tr>
+          <tr><td>${record.custbody_bbs_bank_account}</td><td align="right" rowspan="7">&nbsp;</td></tr>
           <tr><td>${record.custbody_bbs_bank_name}</td></tr>
           <tr><td>Account Number: ${record.custbody_bbs_account_no}</td></tr>
           <tr><td>Sort Code: ${record.custbody_bbs_sort_code}</td></tr>
@@ -72,14 +80,9 @@
         </table>
 
        <table style="width: 100%;">
-         <tr class="messagerow">
-              <td align="left" class="message"><b>Any queries or discrepancies must be reported within 3 days of dispatch date otherwise claims cannot be accepted.</b></td>
-		  </tr>
-         <tr class="messagerow">
-              <td align="left" class="message">&nbsp;</td>
-		  </tr>
+         
           <tr class="messagerow">
-              <td align="left" class="message">${regInfo}</td>
+              <td align="left" class="message" style="margin-top: 10px;">${regInfo}</td>
 		  </tr>
         </table>
 
@@ -192,14 +195,14 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="26%" footer="nlfooter" footer-height="11%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+<body header="nlheader" header-height="250px" footer="nlfooter" footer-height="90px" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
 
     <table style="width: 100%;">
     <tr>
-	<td colspan="2" class="addressheader"><B>Shipping Address:</B></td><td></td><td></td><td></td>
+	<td colspan="2" class="addressheader">&nbsp;</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
-	<td colspan="2" rowspan="8" class="address">${record.shipaddress}</td><td></td><td></td><td></td>
+	<td colspan="2" rowspan="8" class="address">&nbsp;</td><td></td><td></td><td></td>
 	</tr>
 	<tr>
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Invoice Number</b></td><td align="right" style="font-size:10pt">${record.tranid}</td>
@@ -211,10 +214,10 @@
 	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Your Po #</b></td><td align="right" style="font-size:10pt">${record.otherrefnum}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.entityid}</td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Account No</b></td><td align="right" style="font-size:10pt">${record.entity.accountnumber}</td>
     </tr>
       <tr>
-	<td class="address">&nbsp;</td><td></td><td></td>
+	<td class="address">&nbsp;</td><td  align="left" style="font-size:10pt"><b>Terms</b></td><td align="right" style="font-size:10pt">${record.terms}</td>
     </tr>
       <tr>
 	<td class="address">&nbsp;</td><td></td><td></td>
@@ -226,6 +229,7 @@
 	<td class="address">&nbsp;</td><td></td><td></td>
     </tr>
   </table>
+  <p/>
 <#if record.item?has_content>
 
 <table class="itemtable" style="width: 100%;"><!-- start items --><#list record.item as item><#if item_index==0>
