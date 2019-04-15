@@ -1,0 +1,309 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+  <#assign cs = "£">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+      
+<head>
+<!--	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if> -->
+    <macrolist>
+        <macro id="nlheader">
+ <table class="header" style="width: 100%;"><tr>
+	<td>&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right" rowspan="6"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: center; width:250px; height:80px;" /> </#if></td>
+	</tr>
+
+	<tr>
+      <td colspan="3"><span style="font-size:18px; font-weight: bold;">Sales Order Confirmation No. ${record.tranid}</span></td>
+      <td align="right">&nbsp;</td>
+    </tr>
+
+	<tr><td rowspan="6"><span style="font-size:10px;">${companyInformation.addressText}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+   
+	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Contact: ${record.salesrep}</td></tr>
+   	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Email: ${record.salesrep.email}</td></tr>
+    <tr><td align="left" colspan="2" style="font-size:10px; font-weight: bold; margin-top: 10px;">Tel: +44 (0) 116 204 6010</td></tr>
+    <tr><td align="left">&nbsp;</td></tr>
+	</table>
+
+    <table style="width: 100%; margin-top: 10px;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Customer Details:</td>
+	<td align="left">&nbsp;</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Customer Reference</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.otherrefnum}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.billaddress}</td>
+    <td align="left">&nbsp;</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Requested Delivery Date </td>
+	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.shipdate}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"> &nbsp;</td>
+	<td align="left"> &nbsp;</td>
+	</tr>
+      
+    </table>
+</macro>
+      
+    <macro id="nlfooter">
+      <table style="width: 100%;">
+
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Deliver To</td>
+         <td align="left" rowspan="2">&nbsp;</td>
+	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL GOODS:</td>
+	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.subtotal}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.shipaddress}</td>
+ 	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">TOTAL VAT:</td>
+	<td align="right" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.taxtotal}</td>
+	</tr>
+
+    <tr>
+   <td align="left" >&nbsp;</td>
+      <td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Total Amount:</td>
+	<td align="right"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	</tr>
+      
+    <tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+   	<tr>
+
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
+       <table class="footer" style="width: 100%;">
+  	<tr>
+       <td align="left" > <br/>&nbsp;</td>
+      </tr>
+           	<tr>
+    <td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Other Instructions</td>
+     <td align="left" colspan="6" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.custbody_bbs_order_delivery_notes}</td>
+	</tr>
+
+</table>
+    <table class="footer" style="width: 100%;">
+  	<tr>
+    <td align="center" style="font-size: 6pt"><br/>REGISTERED OFFICE: Swan Lake Glass Works, Upperton Road, Leicester. LE2 7AY </td>
+	</tr>
+      <tr>
+    <td align="right"><pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+        </macro>
+    </macrolist>
+  
+    <style type="text/css">table {
+            font-family: helvetica;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 0px;
+            vertical-align: middle;
+            font-size:12px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+        }
+        table.itemtable td {
+          font-size: 9pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 125%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+      td.message{
+        font-size: 6pt;
+        font-weight: bold;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+      white-space: pre;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="310px" footer="nlfooter" footer-height="160px" padding="1cm 1cm 1cm 1cm" size="A4">
+<!--    <table style="width: 100%; margin-top: 10px;"><tr>
+	<td colspan="3" style="font-size: 8pt; padding: 6px 0 2px; font-weight: bold; color: #333333;">${record.billaddress@label}</td>
+	<td colspan="3" style="font-size: 8pt; padding: 6px 0 2px; font-weight: bold; color: #333333;">${record.shipaddress@label}</td>
+	<td colspan="5" style="font-size: 12pt; background-color: #e3e3e3; font-weight: bold;">${record.total@label?upper_case}</td>
+	</tr>
+	<tr>
+	<td colspan="3" style="padding: 0;">${record.billaddress}</td>
+	<td colspan="3" style="padding: 0;">${record.shipaddress}</td>
+	<td align="right" colspan="5" style="font-size: 28pt; padding-top: 20px; background-color: #e3e3e3;">${record.total}</td>
+	</tr></table>-->
+
+<!-- <table style="width: 100%; margin-top: 10px;"><tr>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.paymentmethod@label}</th>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.otherrefnum@label}</th>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.shipmethod@label}</th>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.shipdate@label}</th>
+	</tr>
+	<tr>
+	<td style="padding-top: 2px;">${record.paymentmethod}</td>
+	<td style="padding-top: 2px;">${record.otherrefnum}</td>
+	<td style="padding-top: 2px;">${record.shipmethod}</td>
+	<td style="padding-top: 2px;">${record.shipdate}</td>
+	</tr></table> -->
+<#if record.item?has_content>
+
+<table style="width: 100%; margin-top: 10px;">
+  <!-- start items --><#list record.item as item>
+  <#if item_index==0>
+<thead>
+	<tr>
+	<th align="center" colspan="3" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.quantity@label}</th>
+          <th align="left" colspan="6" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Customer Part No</th>
+	<th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${item.item@label}</th>
+    <th align="left" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">M<sup>2</sup>Price</th>
+    <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Price Each</th>
+    <th align="right" colspan="4" style="font-size:8px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">Line Value</th>
+	</tr>
+</thead>
+</#if><tr>
+    <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.quantity}</td>
+ <!--   <#if item.custcol_scm_customerpartnumber?length gt 0 >
+      	 <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.custcol_scm_customerpartnumber}</b></td>
+      <#else>
+      	 <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.description}</b></td>
+      </#if> -->
+       	 <td colspan="6" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.custcol_scm_customerpartnumber}</b></td>
+       	 <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${item.description}</b></td>
+
+
+   
+     <#if item.custcol_bbs_sales_product_type = "Sales Special" >
+      	  <td colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b>${record.custcol_bbs_sales_sq_metre_price}</b></td>
+      <#else>
+      	  <td colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;"><b></b></td>
+      </#if>
+      <td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${item.rate?string["0.#####"]}</td>
+    <td align="right" colspan="4" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${item.amount}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<hr style="width: 100%; color: #d3d3d3; background-color: #d3d3d3; height: 1px;" /></#if>
+
+	
+</body>
+</pdf>

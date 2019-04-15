@@ -1530,20 +1530,20 @@ function productionBatchSuitelet(request, response)
 							xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
 							xmlPb += "</tr>";
 							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "</tr>";
+							//xmlPb += "<tr>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "</tr>";
 							
 							xmlPb += "<tr>";
 							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
 							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
 							xmlPb += "</tr>";
 							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "</tr>";
+							//xmlPb += "<tr>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "</tr>";
 							
 							xmlPb += "<tr>";
 							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
@@ -1551,10 +1551,10 @@ function productionBatchSuitelet(request, response)
 							xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(batchId) + "</td>";
 							xmlPb += "</tr>";
 							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							xmlPb += "</tr>";
+							//xmlPb += "<tr>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+							//xmlPb += "</tr>";
 							
 							xmlPb += "<tr>";
 							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";

@@ -1,0 +1,456 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+ <#assign cs = "£">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string["#,##0.00"]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string["#,##0.00"]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = "">
+	</#if>
+	<#return retval>
+</#function>
+
+<pdf>
+<head>
+<!--	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>-->
+    <macrolist>
+        <macro id="nlheader">
+           <table class="header" style="width: 100%;"><tr>
+	<td>&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right">&nbsp;</td>
+	<td align="right" rowspan="6"><#if companyInformation.logoUrl?length != 0><img src="${companyInformation.logoUrl}" style="float: right; width:200px; height:60px;" /> </#if></td>
+	</tr>
+    
+	<tr>
+      <td colspan="3"><span style="font-size:18px; font-weight: bold;">Delivery Note for ${record.tranid}</span></td>
+      <td align="right">&nbsp;</td>
+    </tr>
+
+	<tr><td rowspan="6"><span style="font-size:10px;">${companyInformation.addressText}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+             
+    <tr><td align="left" colspan="2" style="font-size:10px; font-weight: bold; margin-top: 10px;">Tel: +44 (0) 116 204 6000</td></tr>
+   	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Email: sales@mawbyandking.co.uk</td></tr>
+    <tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.mawbyandking.co.uk</td></tr>
+    <tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;"><br/>Sales Contact : ${record.salesrep}</td></tr>
+    <tr><td align="left">&nbsp;</td></tr>
+	</table>
+
+    <table style="width: 100%; margin-top: 10px;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Customer Details:</td>
+	<td align="left">&nbsp;</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Customer Reference</td>
+	<td align="left" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.otherrefnum}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#ffffff; color:#000000; padding: 5px;">${record.shipaddress}</td>
+    <td align="left">&nbsp;</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Order Date</td>
+	<td align="left" rowspan="1" style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"  style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Delivery Date </td>
+	<td align="left"  style="font-size:10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_sales_planned_ship}</td>
+	</tr>
+
+    <tr>
+	<td align="left">&nbsp;</td>
+	<td align="left"> &nbsp;</td>
+	<td align="left"> &nbsp;</td>
+	</tr>
+      
+    </table>
+</macro>
+      
+    <macro id="nlfooter">
+      <table style="width: 100%;">
+
+	<tr>
+	  <td align="left" rowspan="2">&nbsp;</td>
+         <td align="left" rowspan="2">&nbsp;</td>
+	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Total Order Weight (Kg):</td>
+	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_items_total_weight}</td>
+	</tr>
+
+	      
+    <tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+   	<tr>
+
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
+       <table class="footer" style="width: 100%;">
+  	<tr>
+       <td align="left" > <br/>&nbsp;</td>
+      </tr>
+           	<tr>
+    <td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Other Instructions</td>
+     <td align="left" colspan="6" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.custbody_bbs_order_delivery_notes}</td>
+	</tr>
+
+</table>
+    <table class="footer" style="width: 100%;">
+      <tr>
+    <td align="center" style="font-size:10px; color:#000000;"><br/>CUSTOMER </td>
+	</tr>
+  	<tr>
+    <td align="center" style="font-size: 6pt"><br/>REGISTERED OFFICE: Swan Lake Glass Works, Upperton Road, Leicester. LE2 7AY </td>
+	</tr>
+      <tr>
+    <td align="right"><pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+        </macro>
+      
+    <macro id="nlfooter_pod">
+      <table style="width: 100%;">
+
+	<tr>
+	  <td align="left" rowspan="2">&nbsp;</td>
+         <td align="left" rowspan="2">&nbsp;</td>
+	<td align="left" style="font-size: 10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Total Order Weight (Kg):</td>
+	<td align="right" style="font-size: 10px; background-color:#ffffff; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.custbody_bbs_items_total_weight}</td>
+	</tr>
+
+	      
+    <tr>
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+   	<tr>
+
+	<td align="left">&nbsp;</td>
+    </tr>
+      
+    </table>
+       <table class="footer" style="width: 100%;">
+  	<tr>
+       <td align="left" > <br/>&nbsp;</td>
+      </tr>
+           	<tr>
+    <td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Other Instructions</td>
+     <td align="left" colspan="6" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.custbody_bbs_order_delivery_notes}</td>
+	</tr>
+ </table>
+ <table class="total" style="width: 100%; page-break-inside: avoid;">
+      <tr class="totalrow">
+   <td class="totalcell" align="left" colspan="6" style="padding-left:  background-color:#ffffff; 5px;">Recipient Name </td>
+    <td class="totalcell" align="left" colspan="6" style="padding-left:  background-color:#ffffff;  5px;">Recipient Signature </td>
+    <td class="totalcell" align="left"  colspan="3" style="padding-left: background-color:#ffffff;  5px;">Date </td>
+	</tr>
+   </table>
+         
+
+    <table class="footer" style="width: 100%;">
+  	 <tr>
+    <td align="center" style="font-size:10px; background-color:#ffff00; color:#000000;"><br/>POD </td>
+	</tr>
+      <tr>
+    <td align="center" style="font-size: 6pt"><br/>REGISTERED OFFICE: Swan Lake Glass Works, Upperton Road, Leicester. LE2 7AY </td>
+	</tr>
+      <tr>
+    <td align="right"><pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+        </macro>
+  </macrolist>
+  
+    <style type="text/css">table {
+            font-family: helvetica;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 0px;
+            vertical-align: middle;
+            font-size:12px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+        }
+        table.itemtable td {
+          font-size: 9pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 125%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+      td.message{
+        font-size: 6pt;
+        font-weight: bold;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+      white-space: pre;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+      tr.totalrow {line-height: 300%;}
+</style>
+</head>
+<body header="nlheader" header-height="310px" footer="nlfooter" footer-height="130px" padding="1cm 1cm 1cm 1cm" size="A4">
+ <!--   <table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader">${record.shipaddress@label}</td>
+	</tr>
+	<tr>
+	<td class="address">${record.shipaddress}</td>
+	</tr></table>-->
+
+<!-- <table class="body" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${record.trandate@label}</th>
+	<th>${record.linkedtrackingnumbers@label}</th>
+	<th>${record.shipmethod@label}</th>
+	<th>${record.shipphone@label}</th>
+	</tr>
+	<tr>
+	<td>${record.trandate}</td>
+	<td>${record.linkedtrackingnumbers}</td>
+	<td>${record.shipmethod}</td>
+	<td>${record.shipphone}</td>
+	</tr></table>-->
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+   <tr>
+	<td align="left"><br/>&nbsp;</td>
+    </tr>
+	<tr>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.item[0].quantity@label}</th>
+	<th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.item[0].item@label}</th>
+<!--    <th colspan="12">${record.item[0].item@label}</th>
+	<th colspan="3">${record.item[0].options@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantityordered@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantityremaining@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantity@label}</th> -->
+	</tr>
+</thead>
+<#list record.item as tranline><tr>
+   <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantity}</td>
+  <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.description}</td>
+<!--	<td colspan="3">${tranline.options}</td>
+	<td align="right" colspan="4">${tranline.quantityremaining}</td>
+	<td align="right" colspan="4">${tranline.quantity}</td>-->
+	</tr>
+	</#list></table>
+</#if><#if preferences.RETURNFORM && returnForm??>
+
+<hr />
+<!-- <div class="returnform">
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td><span class="nameandaddress">${companyInformation.companyName}</span></td>
+	<td align="right"><span class="number">${returnForm@title}</span></td>
+	</tr></table>
+
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader" colspan="4">${returnForm.returnAddress}</td>
+	<th>${returnForm.rmaNum}</th>
+	<th colspan="2">${returnForm.customerName}</th>
+	<th>${record.tranid@label}</th>
+	</tr>
+	<tr>
+	<td class="address" colspan="4" rowspan="2">&nbsp;</td>
+	<td>&nbsp;</td>
+	<td colspan="2">${record.entity}</td>
+	<td>${record.tranid}</td>
+	</tr>
+	<tr>
+	<td colspan="4">&nbsp;</td>
+	</tr></table>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+	<tr>
+	<th colspan="2">${returnForm.item}</th>
+	<th colspan="1">${returnForm.quantity}</th>
+	<th colspan="5">${returnForm.reason}</th>
+	</tr>
+</thead><tr>
+	<td colspan="8">&nbsp;</td>
+	</tr></table>
+</div>-->
+</#if>
+</body>
+<body header="nlheader" header-height="280px" footer="nlfooter_pod" footer-height="150px" padding="1cm 1cm 1cm 1cm" size="A4">
+ <!--   <table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader">${record.shipaddress@label}</td>
+	</tr>
+	<tr>
+	<td class="address">${record.shipaddress}</td>
+	</tr></table>-->
+
+<!-- <table class="body" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${record.trandate@label}</th>
+	<th>${record.linkedtrackingnumbers@label}</th>
+	<th>${record.shipmethod@label}</th>
+	<th>${record.shipphone@label}</th>
+	</tr>
+	<tr>
+	<td>${record.trandate}</td>
+	<td>${record.linkedtrackingnumbers}</td>
+	<td>${record.shipmethod}</td>
+	<td>${record.shipphone}</td>
+	</tr></table>-->
+<#if record.item?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+   <tr>
+	<td align="left"><br/>&nbsp;</td>
+    </tr>
+	<tr>
+	<th align="center" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.item[0].quantity@label}</th>
+	<th align="left" colspan="15" style="font-size:8px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${record.item[0].item@label}</th>
+<!--    <th colspan="12">${record.item[0].item@label}</th>
+	<th colspan="3">${record.item[0].options@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantityordered@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantityremaining@label}</th>
+	<th align="right" colspan="4">${record.item[0].quantity@label}</th> -->
+	</tr>
+</thead>
+<#list record.item as tranline><tr>
+   <td align="center" colspan="3" line-height="150%" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.quantity}</td>
+  <td colspan="15" style="font-size:10px; background-color:#ffffff; color:#000000; border-right: 2px solid white; padding: 5px;">${tranline.description}</td>
+<!--	<td colspan="3">${tranline.options}</td>
+	<td align="right" colspan="4">${tranline.quantityremaining}</td>
+	<td align="right" colspan="4">${tranline.quantity}</td>-->
+	</tr>
+	</#list></table>
+</#if><#if preferences.RETURNFORM && returnForm??>
+
+<hr />
+<!-- <div class="returnform">
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td><span class="nameandaddress">${companyInformation.companyName}</span></td>
+	<td align="right"><span class="number">${returnForm@title}</span></td>
+	</tr></table>
+
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td class="addressheader" colspan="4">${returnForm.returnAddress}</td>
+	<th>${returnForm.rmaNum}</th>
+	<th colspan="2">${returnForm.customerName}</th>
+	<th>${record.tranid@label}</th>
+	</tr>
+	<tr>
+	<td class="address" colspan="4" rowspan="2">&nbsp;</td>
+	<td>&nbsp;</td>
+	<td colspan="2">${record.entity}</td>
+	<td>${record.tranid}</td>
+	</tr>
+	<tr>
+	<td colspan="4">&nbsp;</td>
+	</tr></table>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;">
+<thead>
+	<tr>
+	<th colspan="2">${returnForm.item}</th>
+	<th colspan="1">${returnForm.quantity}</th>
+	<th colspan="5">${returnForm.reason}</th>
+	</tr>
+</thead><tr>
+	<td colspan="8">&nbsp;</td>
+	</tr></table>
+</div>-->
+</#if>
+</body>
+      </pdf>
