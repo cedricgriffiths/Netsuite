@@ -24,6 +24,7 @@ function taskItemAS(type)
 			var now = new Date();
 			var nowString = nlapiDateToString(now);
 			var errorText = '';
+			var errorOccured = false;
 			
 			var compPrefs = nlapiLoadConfiguration('companypreferences');
 			var defaultComponent = compPrefs.getFieldValue('custscript_bbs_default_component');
@@ -199,95 +200,107 @@ function taskItemAS(type)
 																											
 									//Supplier sublist
 									//
-									itemRecord.selectNewLineItem('itemvendor');
-									itemRecord.setCurrentLineItemValue('itemvendor', 'vendor', itemPrefSupplier);
-									//itemRecord.setCurrentLineItemValue('itemvendor', 'vendorcurrencyid', itemCurrency);
-									//itemRecord.setCurrentLineItemValue('itemvendor', 'itemvendorprice', itemPurchasePrice);
-									itemRecord.setCurrentLineItemValue('itemvendor', 'preferredvendor', 'T');
-									itemRecord.commitLineItem('itemvendor', false);
-									
-									//Location sublist - but not for non-inventory items
-									//
-									if(itemType != '3')
-										{
-											var locations = itemRecord.getLineItemCount('locations');
-											
-											for (var int = 1; int <= locations; int++) 
-												{
-													var locationId = itemRecord.getLineItemValue('locations', 'location', int);
-													
-													if(locationId == '1')
-														{
-															itemRecord.setLineItemValue('locations', 'reorderpoint', int, itemReorderPoint);
-															itemRecord.setLineItemValue('locations', 'leadtime', int, itemLeadTime);
-															itemRecord.setLineItemValue('locations', 'safetystocklevel', int, itemSafetyStock);
-															itemRecord.setLineItemValue('locations', 'invtclassification', int, itemAbcClass);
-															
-															break;
-														}
-												}
-										}
-								
-									//Component sublist - but only for assemblies
-									//
-									if(itemType == '3')
-										{
-											itemRecord.selectNewLineItem('member');
-											itemRecord.setCurrentLineItemValue('member', 'item', defaultComponent);
-											itemRecord.setCurrentLineItemValue('member', 'quantity', 1);
-											itemRecord.setCurrentLineItemValue('member', 'itemsource', 'STOCK');
-											itemRecord.commitLineItem('member', false);
-										}		
-									
-									//Save the item record
-									//
-									var itemId = null;
-									
 									try
 										{
-											itemId = nlapiSubmitRecord(itemRecord, true, true);
+											itemRecord.selectNewLineItem('itemvendor');
+											itemRecord.setCurrentLineItemValue('itemvendor', 'vendor', itemPrefSupplier);
+											//itemRecord.setCurrentLineItemValue('itemvendor', 'vendorcurrencyid', itemCurrency);
+											//itemRecord.setCurrentLineItemValue('itemvendor', 'itemvendorprice', itemPurchasePrice);
+											itemRecord.setCurrentLineItemValue('itemvendor', 'preferredvendor', 'T');
+											itemRecord.commitLineItem('itemvendor', false);
 										}
 									catch(err)
 										{
-											nlapiLogExecution('ERROR', 'Error creating item', err.message);
-											errorText += ('Error creating item ' + err.message + '\n');
+											nlapiLogExecution('ERROR', 'Error assigning supplier to item', err.message);
+											errorText += ('Error assigning supplier to item ' + err.message + '\n');
+											errorOccured = true;
 										}
-								
-									
-									
-									if(itemId != null)
+										
+									if(!errorOccured)
 										{
-											//Create a revisions record
+											//Location sublist - but not for non-inventory items
 											//
-											var revisionRecord = null;
-											
-											revisionRecord = nlapiCreateRecord('customrecord_bbs_item_revision');
-											revisionRecord.setFieldValue('name', itemInitialRevision);
-											revisionRecord.setFieldValue('custrecord_bbs_item_revision_item', itemId);
-											revisionRecord.setFieldValue('custrecord_bbs_item_revision_status', '3');	//Pending
-											
-											try
+											if(itemType != '3')
 												{
-													nlapiSubmitRecord(revisionRecord, false, true);
-												}
-											catch(err)
-												{
-													nlapiLogExecution('ERROR', 'Error creating revision record', err.message);
-													errorText += ('Error creating revision record ' + err.message + '\n');
+													var locations = itemRecord.getLineItemCount('locations');
+													
+													for (var int = 1; int <= locations; int++) 
+														{
+															var locationId = itemRecord.getLineItemValue('locations', 'location', int);
+															
+															if(locationId == '1')
+																{
+																	itemRecord.setLineItemValue('locations', 'reorderpoint', int, itemReorderPoint);
+																	itemRecord.setLineItemValue('locations', 'leadtime', int, itemLeadTime);
+																	itemRecord.setLineItemValue('locations', 'safetystocklevel', int, itemSafetyStock);
+																	itemRecord.setLineItemValue('locations', 'invtclassification', int, itemAbcClass);
+																	
+																	break;
+																}
+														}
 												}
 										
-											//Finally update the task to say we have finished, if we created the item ok
+											//Component sublist - but only for assemblies
 											//
-											var fieldIds = ['status','custevent_bbs_task_item_stage','completeddate'];
-											var fieldValues = ['COMPLETE','6',nowString];
+											if(itemType == '3')
+												{
+													itemRecord.selectNewLineItem('member');
+													itemRecord.setCurrentLineItemValue('member', 'item', defaultComponent);
+													itemRecord.setCurrentLineItemValue('member', 'quantity', 1);
+													itemRecord.setCurrentLineItemValue('member', 'itemsource', 'STOCK');
+													itemRecord.commitLineItem('member', false);
+												}		
+											
+											//Save the item record
+											//
+											var itemId = null;
 											
 											try
 												{
-													nlapiSubmitField('task', newRecordId, fieldIds, fieldValues, false);
+													itemId = nlapiSubmitRecord(itemRecord, true, true);
 												}
 											catch(err)
 												{
-													nlapiLogExecution('ERROR', 'Error updating item task', err.message);
+													nlapiLogExecution('ERROR', 'Error creating item', err.message);
+													errorText += ('Error creating item ' + err.message + '\n');
+												}
+										
+											
+											
+											if(itemId != null)
+												{
+													//Create a revisions record
+													//
+													var revisionRecord = null;
+													
+													revisionRecord = nlapiCreateRecord('customrecord_bbs_item_revision');
+													revisionRecord.setFieldValue('name', itemInitialRevision);
+													revisionRecord.setFieldValue('custrecord_bbs_item_revision_item', itemId);
+													revisionRecord.setFieldValue('custrecord_bbs_item_revision_status', '3');	//Pending
+													
+													try
+														{
+															nlapiSubmitRecord(revisionRecord, false, true);
+														}
+													catch(err)
+														{
+															nlapiLogExecution('ERROR', 'Error creating revision record', err.message);
+															errorText += ('Error creating revision record ' + err.message + '\n');
+														}
+												
+													//Finally update the task to say we have finished, if we created the item ok
+													//
+													var fieldIds = ['status','custevent_bbs_task_item_stage','completeddate'];
+													var fieldValues = ['COMPLETE','6',nowString];
+													
+													try
+														{
+															nlapiSubmitField('task', newRecordId, fieldIds, fieldValues, false);
+														}
+													catch(err)
+														{
+															nlapiLogExecution('ERROR', 'Error updating item task', err.message);
+														}
 												}
 										}
 								}
@@ -297,12 +310,9 @@ function taskItemAS(type)
 					//
 					if(errorText != '')
 						{
-							var message = newRecord.getFieldValue('message');
-							message += ('\n' + errorText);
-							
 							try
 								{
-									nlapiSubmitField('task', newRecordId, 'message', message, false);
+									nlapiSubmitField('task', newRecordId, 'custevent_bbs_task_item_error', errorText, false);
 								}
 							catch(err)
 								{
