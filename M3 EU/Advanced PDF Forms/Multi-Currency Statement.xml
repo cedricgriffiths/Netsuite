@@ -1,7 +1,29 @@
 <?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
 <pdf>
 <head>
-  
+
+<!--Currency Function-->
+<#assign cs = "">
+<#assign fmt = "#,##0.00">
+
+<#function toCurrency value showSymbol=true>
+	<#local retval = 0>
+	<#local tmpcs = cs>
+	<#if showSymbol == false>
+		<#local tmpcs = "">
+	</#if>
+	<#if value &lt; 0 >
+		<#local retval = value?string[fmt]>
+		<#local retval = "(" + tmpcs + retval?replace("-","") + ")">
+	<#else>
+		<#local retval = tmpcs + value?string[fmt]>
+	</#if>
+	<#if value == 0 >
+		<#local retval = tmpcs + "0.00">
+	</#if>
+	<#return retval>
+</#function>  
+
         <#assign aging2 = statement.aging2?c?number>
   		<#assign aging3 = statement.aging3?c?number>
   		<#assign aging4 = statement.aging4?c?number>
@@ -12,16 +34,27 @@
         <#assign emailInfo>creditcontrol@eu.m3.com</#assign>
         <#assign telInfo>01235 828400</#assign>
         <#assign vatInfo>GB 685 8537 74</#assign>
-        <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full.</#assign>
+        <#assign footerMsg>All goods remain the property of M3 (EU) Ltd until paid in full. For full Terms and Conditions <a href="http://doctors.net.uk/_datastore/netsuite/Terms and conditions.pdf">click here</a>/</#assign>
         <#assign logoInfo>${companyInformation.logoUrl}</#assign>
-
+		<#assign subsidiary>${statement.subsidiary}</#assign>
+  
+  		<#if subsidiary=="M3 EU - MILTON PARK">
+   			<#assign emailInfo>creditcontrol@eu.m3.com</#assign>
+   			<#assign telInfo>01235 828400</#assign>
+        </#if>
+        
+  		<#if subsidiary=="M3 EU - HAMMERSMITH">
+   			<#assign emailInfo>accounts@eu.m3.com</#assign>
+   			<#assign telInfo>0208 741 6200</#assign>
+        </#if>
+  
           <#assign done>N</#assign>
           <#assign compadr></#assign>
             
           <#list statement.lines as line>
             
-            <#if line.custbody_subsidiary_address?length gt 0 && done=="N" >
-			<#assign compadr>${line.custbody_subsidiary_address}</#assign>
+            <#if line.custbody_bbs_subsidiary_address?length gt 0 && done=="N" >
+			<#assign compadr>${line.custbody_bbs_subsidiary_address}</#assign>
             
         	<#assign done>Y</#assign>
 
@@ -89,26 +122,26 @@
  		<#assign done>N</#assign>
           
           <#list statement.lines as line>
-            <#assign accno>${line.custbody_bbs_account_no}</#assign>
-            
-            <#if accno?length gt 0 && done=="N" >
-        <table style="width: 100%;">
-          <tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
-          <tr><td>${line.custbody_bbs_bank_account}</td></tr>
-          <tr><td>${line.custbody_bbs_bank_name}</td></tr>
-          <tr><td>Account Number: ${line.custbody_bbs_account_no}</td></tr>
-          <tr><td>Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
-          <tr><td>IBAN: ${line.custbody_bbs_iban}</td></tr>
-          <tr><td>Swift Code: ${line.custbody_bbs_bic}</td></tr>
-          <tr><td>&nbsp;</td></tr>
+            <#if line.custbody_bbs_account_no?length gt 0 && done=="N" >
+          		<table style="width: 100%;">
+          			<tr><td>Bank Details for payments in ${statement.currency}:</td></tr>
+          			<tr><td>${line.custbody_bbs_bank_name}</td></tr>
+          			<tr><td>Account Number: ${line.custbody_bbs_account_no}</td></tr>
+          			<tr><td>Sort Code: ${line.custbody_bbs_sort_code}</td></tr>
+          			<tr><td>IBAN: ${line.custbody_bbs_iban}</td></tr>
+          			<tr><td>Swift Code: ${line.custbody_bbs_bic}</td></tr>
+          			<tr><td>&nbsp;</td></tr>
           
-        <#assign done>Y</#assign>
-        </table>
-    </#if>
+        			<#assign done>Y</#assign>
+        		</table>
+			</#if>
           </#list>  
         
+          <p/>
         <table style="width: 100%;">
           <tr class="messagerow">
+            <td align="left" class="message"><b>${footerMsg}</b></td>
+		  </tr><tr class="messagerow">
               <td align="left" class="message">${regInfo}</td>
 		  </tr>
         </table>
@@ -218,8 +251,39 @@
         }
 </style>
 </head>
-<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="9%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
-  
+<body header="nlheader" header-height="30%" footer="nlfooter" footer-height="10%" padding="0.5in 0.5in 0.5in 0.5in" size="A4">
+ 
+ <!--Assign the correct currency symbol based on the record.currency-->
+<#switch statement.currency>
+  <#case "British Pound">
+     <#assign cs = "£">
+     <#break>
+  <#case "US Dollar">
+     <#assign cs = "$">
+     <#break>
+  <#case "Euro">
+     <#assign cs = "€">
+     <#break>
+  <#case "Canadian Dollar">
+     <#assign cs = "$">
+     <#break>
+  <#case "Swedish Krona">
+     <#assign cs = "kr">
+     <#break>
+  <#case "Yen">
+     <#assign cs = "¥">
+     <#break>
+  <#case "Australian Dollar">
+     <#assign cs = "$">
+     <#break>
+ <#case "Swiss Franc">
+     <#assign cs = "chf">
+     <#break>
+  <#default>
+     <#assign cs = "">
+     
+</#switch>
+ 
     <table style="width: 100%;">
     <tr>
 	<td colspan="2" class="addressheader"></td><td></td><td></td><td></td>
@@ -257,7 +321,11 @@
 </thead>
 </#if><tr>
 	<td colspan="3">${line.datecol?string["dd MMM yyyy"]}</td>
-	<td colspan="12">${line.description}</td>
+	<#if subsidiary=="M3 EU - HAMMERSMITH" && line.description !="Balance Forward">
+		<td colspan="12">MR Inv. No. ${line.custbody25}  Due ${line.duedate}</td>
+	<#else>
+		<td colspan="12">${line.description}</td>
+	</#if>
 	<td align="right" colspan="3">${line.charge}</td>
 	<td align="right" colspan="4">${line.payment}</td>
 	<td align="right" colspan="4">${line.balance}</td>
@@ -271,10 +339,11 @@
 	</tr>
 	<tr>
 	<td>${statement.aging1}</td>
-	<td>${aging?string.currency}</td>
+	<td>${toCurrency(aging)}</td>
 	<td>${statement.agingbal}</td>
 	</tr>
       </table>
+      
 </#if></body></pdf></#list><#else><pdf><head></head><body>
 
 <p>Please use Single Currency Advanced Printing Template</p>
