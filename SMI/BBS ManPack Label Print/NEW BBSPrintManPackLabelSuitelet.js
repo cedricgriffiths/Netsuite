@@ -203,12 +203,13 @@ function printManPackLabelSuitelet(request, response)
 	//=====================================================================
 	//
 	var salesOrderParam = request.getParameter('salesorder');
+	var debugParam = request.getParameter('debug');
 	
 	if (salesOrderParam != null && salesOrderParam != '') 
 		{
 			// Build the output
 			//	
-			var file = buildOutputV2(salesOrderParam);
+			var file = buildOutputV2(salesOrderParam, debugParam);
 	
 			// Send back the output in the response message
 			//
@@ -272,7 +273,7 @@ function printManPackLabelSuitelet(request, response)
 			
 					// Build the output
 					//	
-					var file = buildOutputV2(salesOrder);
+					var file = buildOutputV2(salesOrder, debugParam);
 			
 					//Send back the output in the response message
 					//
@@ -287,7 +288,7 @@ function printManPackLabelSuitelet(request, response)
 // Functions
 //=====================================================================
 //
-function buildOutputV2(salesOrderNumber)
+function buildOutputV2(salesOrderNumber, _debugParam)
 {
 	//Start the xml off with the basic header info 
 	//
@@ -295,24 +296,29 @@ function buildOutputV2(salesOrderNumber)
 	
 	//Read the sales order lines that have a contact on them
 	//
-	var salesorderSearch = nlapiSearchRecord("salesorder",null,
-			[
-			   ["type","anyof","SalesOrd"], 
-			   "AND", 
-			   ["mainline","is","F"], 
-			   "AND", 
-			   ["taxline","is","F"], 
-			   "AND", 
-			   ["shipping","is","F"], 
-			   "AND", 
-			   ["custcol_bbs_contact_sales_lines","noneof","@NONE@"], 
-			   "AND", 
-			   ["numbertext","is",salesOrderNumber],
-			   "AND",
-			   ["quantitycommitted","greaterthan","0"], 
-			   "AND", 
-			   ["shipaddress","isnotempty",""]
-			], 
+	var filters = [
+				   ["type","anyof","SalesOrd"], 
+				   "AND", 
+				   ["mainline","is","F"], 
+				   "AND", 
+				   ["taxline","is","F"], 
+				   "AND", 
+				   ["shipping","is","F"], 
+				   "AND", 
+				   ["custcol_bbs_contact_sales_lines","noneof","@NONE@"], 
+				   "AND", 
+				   ["numbertext","is",salesOrderNumber],
+				   "AND", 
+				   ["shipaddress","isnotempty",""]
+				];
+	
+	if(_debugParam == null || _debugParam == '')
+		{
+			filters.push("AND")
+			filters.push(["quantitycommitted","greaterthan","0"]);
+		}
+		
+	var salesorderSearch = nlapiSearchRecord("salesorder",null, filters,
 			[
 			   new nlobjSearchColumn("tranid",null,null), 
 			   new nlobjSearchColumn("entity",null,null), 
@@ -436,15 +442,15 @@ function buildOutputV2(salesOrderNumber)
 							xml += "<tr>";
 							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:25px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
 							xml += "</tr>";
+							//xml += "<tr>";
+							//xml += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px;\">&nbsp;</td>";
+							//xml += "</tr>";
 							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px;\">&nbsp;</td>";
-							xml += "</tr>";
-							xml += "<tr>";
-							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:20px;\"><b>" + nlapiEscapeXML(salesEntityName) + "</b></td>";
+							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:18px;\"><b>" + nlapiEscapeXML(salesEntityName) + "</b></td>";
                             xml += "</tr>";
-                            xml += "<tr>";
-                            xml += "<td align=\"left\" style=\"font-size:40px; padding-bottom: 10px;\">&nbsp;</td>";
-                            xml += "</tr>";
+                           // xml += "<tr>";
+                           // xml += "<td align=\"left\" style=\"font-size:40px; padding-bottom: 10px;\">&nbsp;</td>";
+                            //xml += "</tr>";
 							xml += "</table>";
 							
 							xml += "</macro>";
