@@ -2,7 +2,17 @@
 <pdf>
 <head>
 	<link name="NotoSans" type="font" subtype="truetype" src="${nsfont.NotoSans_Regular}" src-bold="${nsfont.NotoSans_Bold}" src-italic="${nsfont.NotoSans_Italic}" src-bolditalic="${nsfont.NotoSans_BoldItalic}" bytes="2" />
-	
+	<#if .locale == "zh_CN">
+		<link name="NotoSansCJKsc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKsc_Regular}" src-bold="${nsfont.NotoSansCJKsc_Bold}" bytes="2" />
+	<#elseif .locale == "zh_TW">
+		<link name="NotoSansCJKtc" type="font" subtype="opentype" src="${nsfont.NotoSansCJKtc_Regular}" src-bold="${nsfont.NotoSansCJKtc_Bold}" bytes="2" />
+	<#elseif .locale == "ja_JP">
+		<link name="NotoSansCJKjp" type="font" subtype="opentype" src="${nsfont.NotoSansCJKjp_Regular}" src-bold="${nsfont.NotoSansCJKjp_Bold}" bytes="2" />
+	<#elseif .locale == "ko_KR">
+		<link name="NotoSansCJKkr" type="font" subtype="opentype" src="${nsfont.NotoSansCJKkr_Regular}" src-bold="${nsfont.NotoSansCJKkr_Bold}" bytes="2" />
+	<#elseif .locale == "th_TH">
+		<link name="NotoSansThai" type="font" subtype="opentype" src="${nsfont.NotoSansThai_Regular}" src-bold="${nsfont.NotoSansThai_Bold}" bytes="2" />
+	</#if>
     <macrolist>
         <macro id="nlheader">
             <table class="header" style="width: 100%;"><tr>
@@ -171,6 +181,11 @@
 	</#if></#list><!-- end items --></table>
 
 <hr /></#if>
+<table style="width: 100%;"><tr>
+	<td><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=22110&amp;c=4465021&amp;h=4c39cf4079723ef78205" style="width: 258px; height: 80px;" /></td>
+	</tr></table>
+&nbsp;
+
 <table class="total" style="width: 100%; margin-top: 10px;"><tr>
 	<td colspan="13">ANY DISCREPANCIES OR SHORTAGES TO BE REPORTED WITHIN 48 HOURS.</td>
 	<td align="right" colspan="2"><b>${record.subtotal@label}</b></td>
@@ -191,17 +206,6 @@
 	<td align="right" colspan="2"><b>${record.total@label}</b></td>
 	<td align="right" colspan="2">${record.total}</td>
 	</tr></table>
-
-    <table style="width: 100%;">
-    <tr>
-    <td align="left"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1317968&amp;c=4465021_SB1&amp;h=ff216252d125cf106344" style="width: 50px; height: 50px; vertical-align: bottom;"/></td>
-	<td align="left" colspan="2"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1317971&amp;c=4465021_SB1&amp;h=1225d1164c6c413383e7" style="width: 150px; height: 50px; vertical-align: bottom;"/></td>
-    <td align="left" colspan="2"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1317967&amp;c=4465021_SB1&amp;h=ce8020f99e460c2852b6" style="width: 160px; height: 44px; vertical-align: bottom;"/></td>
-    <td align="center" colspan="2"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1317969&amp;c=4465021_SB1&amp;h=9db72e885c582dc8dd99" style="width: 100px; height: 50px; vertical-align: bottom;"/></td>
-    <td align="right"><img src="https://system.eu1.netsuite.com/core/media/media.nl?id=1317970&amp;c=4465021_SB1&amp;h=3fdad2d0f6818c659ae5" style="width: 50px; height: 50px; vertical-align: bottom;"/></td>
-    </tr>
-
-  </table>
 
 <p style="page-break-after:always;">&nbsp;</p>
 
@@ -368,7 +372,5 @@
 	<tr border="0.3">
 	<td><span style="font-size:8px;"><span style="font-weight: bold;">Bank : Barclays Bank PLC<br />Sort code : 20 49 84<br />Account number : 90101427<br />Account name : Amenity Horticultural Services Ltd<br /><br />Payment Reference - Please quote invoice number or account number</span></span></td>
 	</tr></table>
-
-  
 </body>
 </pdf>

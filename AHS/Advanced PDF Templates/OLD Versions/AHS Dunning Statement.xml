@@ -1,0 +1,215 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd"><pdfset><#if statements??><#list statements as statement>
+<pdf>
+<head>
+<#if .locale == "ru_RU">
+    <link name="verdana" type="font" subtype="opentype" src="${nsfont.verdana}" src-bold="${nsfont.verdana_bold}" bytes="2" />
+</#if>
+    <macrolist>
+        <macro id="nlheader">
+            <table class="header" style="width: 100%;"><tr>
+	<td><span style="font-size:28px; color: #519C83;">Statement</span></td>
+	<td align="right"><img src="${companyInformation.logoUrl}" style="width: 180px; height: 62px;" /></td>
+	</tr></table>
+        </macro>
+        <macro id="nlfooter">
+            <table class="footer" style="width: 100%;"><tr>
+	<td>&nbsp;</td>
+	<td align="right"><pagenumber/> of <totalpages/></td>
+	</tr></table>
+        </macro>
+    </macrolist>
+    <style type="text/css">table {
+             <#if .locale == "zh_CN">
+                 font-family: stsong, sans-serif;
+             <#elseif .locale == "zh_TW">
+                 font-family: msung, sans-serif;
+             <#elseif .locale == "ja_JP">
+                 font-family: heiseimin, sans-serif;
+             <#elseif .locale == "ko_KR">
+                 font-family: hygothic, sans-serif;
+             <#elseif .locale == "ru_RU">
+                 font-family: verdana;
+             <#else>
+                 font-family: sans-serif;
+             </#if>
+             font-size: 9pt;
+             table-layout: fixed;
+         }
+         th {
+             font-weight: bold;
+             font-size: 8pt;
+             vertical-align: middle;
+             padding: 5px 6px 3px;
+             background-color: #e3e3e3;
+             color: #333333;
+         }
+         td {
+             padding: 4px 6px;
+         }
+         b {
+             font-weight: bold;
+             color: #333333;
+         }
+         table.header td {
+             padding: 0;
+             font-size: 10pt;
+         }
+         table.footer td {
+             padding: 0;
+             font-size: 8pt;
+         }
+         table.itemtable th {
+             padding-bottom: 10px;
+             padding-top: 10px;
+         }
+         table.body td {
+             padding-top: 2px;
+         }
+         td.addressheader {
+             font-weight: bold;
+             font-size: 8pt;
+             padding-top: 6px;
+             padding-bottom: 2px;
+         }
+         td.address {
+             padding-top: 0;
+         }
+         span.title {
+             font-size: 28pt;
+         }
+         span.number {
+             font-size: 16pt;
+         }
+         div.remittanceSlip {
+             width: 100%;
+             /* To ensure minimal height of remittance slip */
+             height: 200pt;
+             page-break-inside: avoid;
+             page-break-after: avoid;
+         }
+         hr {
+             border-top: 1px dashed #d3d3d3;
+             width: 100%;
+             color: #ffffff;
+             background-color: #ffffff;
+             height: 1px;
+         }
+</style>
+</head>
+<body header="nlheader" header-height="10%" footer="nlfooter" footer-height="20pt" padding="0.5in 0.5in 0.5in 0.5in" size="Letter">
+    <table style="width: 100%;"><tr>
+	<td class="addressheader" colspan="3"><span style="font-size:28px; color: #519C83;"></span></td>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader" colspan="2"><span style="font-size:11px;">Coppards Lane,<br />Northiam,<br />East Sussex. TN31 6QN</span></td>
+	</tr>
+	<tr>
+	<td class="addressheader" colspan="3" rowspan="4"><span style="font-size:11px; color: #519C83;">${statement.billaddress@label}</span><br /><br /><span style="font-size:11px;">${statement.billaddress}</span></td>
+	<td class="addressheader"><span style="font-size:11px;"><span style="color: #519C83;">Date :</span></span></td>
+	<td class="addressheader"><span style="font-size:11px;">${statement.trandate}</span></td>
+	<td class="addressheader" colspan="2"><span style="font-size:11px;"><span style="color: rgb(112, 245, 88);">t</span> &nbsp;01797 252728</span></td>
+	</tr>
+	<tr>
+	<td class="addressheader"><span style="font-size:11px;"><span style="color: #519C83;">Account :</span></span></td>
+	<td class="addressheader"><span style="font-size:11px;">${statement.accountnumber}</span></td>
+	<td class="addressheader" colspan="2"><span style="font-size:11px;"><span style="color: rgb(112, 245, 88);">f</span> &nbsp;01797 252724</span></td>
+	</tr>
+	<tr>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader" colspan="2"><span style="font-size:11px;"><span style="color: rgb(112, 245, 88);">e</span> &nbsp;accounts@ahs-ltd.co.uk</span></td>
+	</tr>
+	<tr>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader">&nbsp;</td>
+	<td class="addressheader" colspan="2"><span style="font-size:11px;"><span style="color: rgb(112, 245, 88);">w</span> &nbsp;www.ahs-ltd.co.uk</span></td>
+	</tr></table>
+
+<table class="body" style="width: 100%;"><tr>
+	<th align="right">${statement.amountDue@label}</th>
+	</tr>
+	<tr>
+	<td align="right">${statement.amountDue}</td>
+	</tr></table>
+<#if statement.lines?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start items --><#list statement.lines as line><#if line_index==0>
+<thead>
+	<tr>
+	<th colspan="3">${line.datecol@label}</th>
+	<th colspan="12">${line.description@label}</th>
+	<th align="right" colspan="3">${line.charge@label}</th>
+	<th align="right" colspan="4">${line.payment@label}</th>
+	<th align="right" colspan="4">${line.balance@label}</th>
+	</tr>
+</thead>
+</#if><tr>
+	<td colspan="3">${line.datecol}</td>
+	<td colspan="12">${line.description}</td>
+	<td align="right" colspan="3">${line.charge}</td>
+	<td align="right" colspan="4">${line.payment}</td>
+	<td align="right" colspan="4">${line.balance}</td>
+	</tr>
+	</#list><!-- end items --></table>
+
+<table class="aging" style="width: 100%; margin-top: 10px;"><tr>
+	<th>${statement.aging1@label}</th>
+	<th>${statement.aging2@label}</th>
+	<th>${statement.aging3@label}</th>
+	<th>${statement.aging4@label}</th>
+	<th>${statement.aging5@label}</th>
+	<th>${statement.agingbal@label}</th>
+	</tr>
+	<tr>
+	<td>${statement.aging1}</td>
+	<td>${statement.aging2}</td>
+	<td>${statement.aging3}</td>
+	<td>${statement.aging4}</td>
+	<td>${statement.aging5}</td>
+	<td>${statement.agingbal}</td>
+	</tr></table>
+  
+<p style="page-break-after:always;">&nbsp;</p>
+  <table border="0.3" cellpadding="1" cellspacing="1" style="width:100%;"><tr>
+	<td>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span style="font-size:24px; color: #519C83;">Terms Conditions</span><br /><br /><span style="font-size:9px;">1. If credit facilities are granted, payment terms will be 30 days from the date of invoice.<br /><br />2. If and to the extent that we have been advised of the purpose for which the goods are required, we believe all goods supplied by us to be suitable for such purpose. However, since we cannot control their application or use, no responsibility can be accepted for loss or damage arising either directly or indirectly from such application or use.<br /><br />3. The quantity stated on the delivery ticket;<br />&nbsp; &nbsp; &nbsp; &nbsp; (a) is correct at the time of loading<br />&nbsp; &nbsp; &nbsp; &nbsp; (b) is the quantity on which our invoice price is based<br />&nbsp; &nbsp; &nbsp; &nbsp; (c) due to the character of the materials, may, due to settlement during transit, not correspond in volume with the quantity received on delivery.<br /><br />4. Orders are given and accepted on the understanding that no liability is accepted for any loss or damage arising directly or indirectly from non-delivery or from any delay in delivery no matter how caused.<br /><br />5. All goods are supplied subject to the condition that our liability in respect of any complaint or claim of whatever origin, shall be limited to the replacement of faulty material and we accept no liability for loss or damage of any description arising out of the purchase or use of any goods.<br /><br />6. The giving of any order constitutes an acceptance of these terms and conditions by the purchaser.<br /><br />7. The goods remain the property of the Vendor until full payment is received. Retention of title clause on all goods.<br /><br />&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;AHS Ltd. reserves the right to refuse credit facilities without disclosing reasons.</span></td>
+	</tr>
+	<tr border="0.3">
+	<td><span style="font-size:9px; font-weight: bold;">Bank : Barclays Bank PLC<br />Sort code : 20 49 84<br />Account number : 90101427<br />Account name : Amenity Horticultural Services Ltd<br /><br />Payment Reference - Please quote invoice number or account number</span></td>
+	</tr></table>
+  
+</#if><#if preferences.RETURNFORM && remittanceSlip??>
+
+<hr />
+<div class="remittanceSlip">
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<td><span class="nameandaddress">${companyInformation.companyName}</span></td>
+	<td align="right"><span class="number">${remittanceSlip@title}</span></td>
+	</tr></table>
+
+<table style="width: 100%; margin-top: 10px;"><tr>
+	<th>${remittanceSlip.customername@label}</th>
+	<th>${statement.trandate@label}</th>
+	<th>${statement.amountDue@label}</th>
+	<th>${remittanceSlip.amountPaid@label}</th>
+	</tr>
+	<tr>
+	<td>${companyInformation.addressText}</td>
+	<td>${statement.trandate}</td>
+	<td align="right">${statement.amountDue}</td>
+	<td>&nbsp;</td>
+	</tr></table>
+
+<table style="width: 100%;"><tr>
+	<th>${remittanceSlip.ccinfo@label}</th>
+	<th>${remittanceSlip.companyaddress@label}</th>
+	</tr>
+	<tr>
+	<td>${remittanceSlip.ccinfo}</td>
+	<td>${companyInformation.addressText}</td>
+	</tr></table>
+</div>
+</#if></body></pdf></#list><#else><pdf><head></head><body>
+
+<p>Please use Single Currency Advanced Printing Template</p>
+</body>
+</pdf></#if></pdfset>
