@@ -203,12 +203,13 @@ function printManPackLabelSuitelet(request, response)
 	//=====================================================================
 	//
 	var salesOrderParam = request.getParameter('salesorder');
+	var debugParam = request.getParameter('debug');
 	
 	if (salesOrderParam != null && salesOrderParam != '') 
 		{
 			// Build the output
 			//	
-			var file = buildOutputV2(salesOrderParam);
+			var file = buildOutputV2(salesOrderParam, debugParam);
 	
 			// Send back the output in the response message
 			//
@@ -272,7 +273,7 @@ function printManPackLabelSuitelet(request, response)
 			
 					// Build the output
 					//	
-					var file = buildOutputV2(salesOrder);
+					var file = buildOutputV2(salesOrder, debugParam);
 			
 					//Send back the output in the response message
 					//
@@ -287,7 +288,7 @@ function printManPackLabelSuitelet(request, response)
 // Functions
 //=====================================================================
 //
-function buildOutputV2(salesOrderNumber)
+function buildOutputV2(salesOrderNumber, _debugParam)
 {
 	//Start the xml off with the basic header info 
 	//
@@ -295,24 +296,29 @@ function buildOutputV2(salesOrderNumber)
 	
 	//Read the sales order lines that have a contact on them
 	//
-	var salesorderSearch = nlapiSearchRecord("salesorder",null,
-			[
-			   ["type","anyof","SalesOrd"], 
-			   "AND", 
-			   ["mainline","is","F"], 
-			   "AND", 
-			   ["taxline","is","F"], 
-			   "AND", 
-			   ["shipping","is","F"], 
-			   "AND", 
-			   ["custcol_bbs_contact_sales_lines","noneof","@NONE@"], 
-			   "AND", 
-			   ["numbertext","is",salesOrderNumber],
-			   "AND",
-			   ["quantitycommitted","greaterthan","0"], 
-			   "AND", 
-			   ["shipaddress","isnotempty",""]
-			], 
+	var filters = [
+				   ["type","anyof","SalesOrd"], 
+				   "AND", 
+				   ["mainline","is","F"], 
+				   "AND", 
+				   ["taxline","is","F"], 
+				   "AND", 
+				   ["shipping","is","F"], 
+				   "AND", 
+				   ["custcol_bbs_contact_sales_lines","noneof","@NONE@"], 
+				   "AND", 
+				   ["numbertext","is",salesOrderNumber],
+				   "AND", 
+				   ["shipaddress","isnotempty",""]
+				];
+	
+	if(_debugParam == null || _debugParam == '')
+		{
+			filters.push("AND")
+			filters.push(["quantitycommitted","greaterthan","0"]);
+		}
+		
+	var salesorderSearch = nlapiSearchRecord("salesorder",null, filters,
 			[
 			   new nlobjSearchColumn("tranid",null,null), 
 			   new nlobjSearchColumn("entity",null,null), 
@@ -353,60 +359,24 @@ function buildOutputV2(salesOrderNumber)
 					var salesQty = salesorderSearch[int].getValue('quantity');
 					var salesContact = salesorderSearch[int].getText('custcol_bbs_contact_sales_lines');
 					var salesContactName = salesorderSearch[int].getValue('entityid','custcol_bbs_contact_sales_lines');
-					var salesContactEmpNo = ''; //salesorderSearch[int].getValue('custentity_bbs_contact_employee_number','custcol_bbs_sales_line_contact');
 					var salesContactId = salesorderSearch[int].getValue('custcol_bbs_contact_sales_lines');
 					var salesEntity = salesorderSearch[int].getText('entity');
 					var salesEntityId = salesorderSearch[int].getValue('entity');
 					var salesOrder = salesorderSearch[int].getValue('tranid');
-					var salesShipAddress = salesorderSearch[int].getValue('shipaddress');
-					//var salesShipDate = salesorderSearch[int].getValue('shipdate');
-					//var notes = salesorderSearch[int].getValue('custbody_bbs_picking_notes_so');
-					//var printNotes = 'T'; //salesorderSearch[int].getValue('custbody_sw_on_manpack');
 					var salesEntityName = salesorderSearch[int].getValue("companyname","customer");
-					var salesDelMethod = salesorderSearch[int].getText('custbody_delivery_methods_so');
-					
-					//var thisShipDay = (nlapiStringToDate(salesShipDate)).format('D');
-					//var thisShipDateFormatted = (nlapiStringToDate(salesShipDate)).format('d F Y');
-					
-					//Get the customer's address
-					//
-					//var customerAddress = nlapiLookupField('customer', salesEntityId, 'shipaddress', false);
-					//if (customerAddress)
-					//{
-					//	customerAddress = nlapiEscapeXML(customerAddress);
-					//	customerAddress = customerAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-					//}
-					
-					
+
 					var colon = salesItem.indexOf(' : ');
 					
 					if(colon > -1)
 						{
 							salesItem = salesItem.substr(colon + 2);
 						}
-					
-					//if (printNotes == 'T')
-					//	{
-					//		notes = (notes == null ? '' : notes);
-					//		notes = nlapiEscapeXML(notes);
-					//		notes = notes.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-					//	}
-					//else
-					//	{
-					//		notes = '';
-					//	}
-					
-					if (salesShipAddress)
-					{
-						salesShipAddress = nlapiEscapeXML(salesShipAddress);
-						salesShipAddress = salesShipAddress.replace(/\r\n/g,'<br />').replace(/\n/g,'<br />');
-					}
-					
-					if(lastShipAddress != salesShipAddress || lastContact != salesContactId)
+
+					if(lastContact != salesContactId)
 						{
 							//If the last ship address is not blank, then we need to finish off the previous location's output
 							//
-							if(lastShipAddress != '')
+							if(lastContact != '')
 								{
 									//Finish the item table
 									//
@@ -414,7 +384,7 @@ function buildOutputV2(salesOrderNumber)
 									
 									//Finish the division
 									//
-									xml += "</div>";
+									//xml += "</div>";
 									
 									//Finish the body
 									//
@@ -423,13 +393,11 @@ function buildOutputV2(salesOrderNumber)
 									//Finish the pdf
 									//
 									xml += "</pdf>";
+									
+									
 								}
 							
-							//Set the last ship address to be this ship address
-							//
-							lastShipAddress = salesShipAddress;
 						
-							lastContact = '';
 							
 							//Start a new pdf for the new contact
 							//
@@ -468,7 +436,23 @@ function buildOutputV2(salesOrderNumber)
 							xml += "<macrolist>";
 							xml += "<macro id=\"nlfooter\"><table class=\"footer\" style=\"width: 100%;\"></table></macro>";
 							
-							xml += "<macro id=\"nlheader\">";					
+							xml += "<macro id=\"nlheader\">";	
+							
+							xml += "<table style=\"width: 100%\">";
+							xml += "<tr>";
+							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:25px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
+							xml += "</tr>";
+							//xml += "<tr>";
+							//xml += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px;\">&nbsp;</td>";
+							//xml += "</tr>";
+							xml += "<tr>";
+							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:18px;\"><b>" + nlapiEscapeXML(salesEntityName) + "</b></td>";
+                            xml += "</tr>";
+                           // xml += "<tr>";
+                           // xml += "<td align=\"left\" style=\"font-size:40px; padding-bottom: 10px;\">&nbsp;</td>";
+                            //xml += "</tr>";
+							xml += "</table>";
+							
 							xml += "</macro>";
 							
 							xml += "</macrolist>";
@@ -476,7 +460,7 @@ function buildOutputV2(salesOrderNumber)
 							
 							//Body
 							//
-							xml += "<body header=\"nlheader\" header-height=\"4px\" footer=\"nlfooter\" footer-height=\"20px\" padding=\"0.5in 0.5in 0.5in 0.5in\" width=\"112mm\" height=\"112mm\">";
+							xml += "<body header=\"nlheader\" header-height=\"90px\"  padding=\"0.2in 0.2in 0.2in 0.2in\" width=\"112mm\" height=\"112mm\">";
 
                         }
 						
@@ -485,52 +469,14 @@ function buildOutputV2(salesOrderNumber)
 					//
 					if(lastContact != salesContactId)
 						{
-							if(lastContact != '')
-								{
-									//Finish the item table
-									//
-									xml += "</table>";
-									
-									//Finish the division
-									//
-									xml += "</div>";
-									
-									xml += "<p/>";
-								}
+							
 							
 							lastContact = salesContactId;
-							
-							xml += "<div style=\"page-break-inside: avoid;\">";
-							
-							xml += "<table style=\"width: 100%\">";
-							xml += "<tr>";
-							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:25px;\"><b>" + nlapiEscapeXML(salesContactName) + "</b></td>";
-							xml += "</tr>";
-							xml += "<tr>";
-							xml += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px;\">&nbsp;</td>";
-							xml += "</tr>";
-							xml += "<tr>";
-							xml += "<td colspan=\"2\" align=\"center\" style=\"font-size:25px;\"><b>" + nlapiEscapeXML(salesEntityName) + "</b></td>";
-                            xml += "</tr>";
-                            xml += "<tr>";
-                            xml += "<td align=\"left\" style=\"font-size:40px; padding-bottom: 10px;\">&nbsp;</td>";
-                            xml += "</tr>";
-							xml += "</table>";
 
-                          
-							//xml += "<hr/>";
-							
 							//Item header
 							//
 							xml += "<table class=\"itemtable\" style=\"width: 100%;\">";
-							xml += "<thead >";
-							xml += "<tr >";
-							//xml += "<th style=\"font-size:12px;\" colspan=\"6\">Item Code</th>";
-							//xml += "<th style=\"font-size:12px;\" align=\"left\" colspan=\"12\">Item Description</th>";
-							//xml += "<th style=\"font-size:12px;\" align=\"center\" colspan=\"2\">&nbsp;&nbsp;Qty<br/>Packed</th>";
-							//xml += "<th style=\"font-size:12px;\" align=\"center\" >Tick</th>";
-							xml += "</tr>";
-							xml += "</thead>";
+
 						}
                         
                         
@@ -538,10 +484,9 @@ function buildOutputV2(salesOrderNumber)
 					//Do the detail lines output here
 					//
 					xml += "<tr>";
-					xml += "<td style=\"font-size:8px; margin-bottom: 2px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
-					xml += "<td style=\"font-size:8px; margin-bottom: 2px; padding-right: 5px;\" align=\"left\" colspan=\"12\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
-					xml += "<td style=\"font-size:8px; margin-bottom: 2px;\" align=\"center\" colspan=\"2\">" + salesQtyShip + "</td>";
-					//xml += "<td style=\"font-size:8px; margin-bottom: 2px; border: 1px solid black;\" height=\"5px\" width=\"3px\" align=\"center\">&nbsp;<br/>&nbsp;</td>";
+					xml += "<td style=\"font-size:7px; margin-bottom: 2px;\" colspan=\"6\">" + nlapiEscapeXML(salesItem) + "</td>";
+					xml += "<td style=\"font-size:7px; margin-bottom: 2px; padding-right: 5px;\" align=\"left\" colspan=\"13\">" + nlapiEscapeXML(salesItemDesc)  +  "</td>";
+					xml += "<td style=\"font-size:7px; margin-bottom: 2px;\" align=\"right\" colspan=\"1\">" + salesQtyShip + "</td>";
 					xml += "</tr>";
 					
 					xml += "<tr>";
@@ -556,7 +501,7 @@ function buildOutputV2(salesOrderNumber)
 			
 			//Finish the division
 			//
-			xml += "</div>";
+			//xml += "</div>";
 			
 			//Finish the body
 			//
@@ -575,7 +520,7 @@ function buildOutputV2(salesOrderNumber)
 			xml += "<pdf>"
 			xml += "<head>";
 			xml += "</head>";
-			xml += "<body padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+			xml += "<body  padding=\"0.2in 0.2in 0.2in 0.2in\" width=\"112mm\" height=\"112mm\">";
 			xml += "<p>No Data To Print</p>";
 			xml += "</body>";
 			xml += "</pdf>";
