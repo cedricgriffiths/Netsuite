@@ -30,16 +30,15 @@ function invoicingAutoScheduled(type)
 	var periodParam = getPeriod(dateParam);
 	var ffidsParam = getFulfilments(dateParam)
 	
+	checkResources();
+	
 	var emailMessage = 'The following invoices have been created;\n';
 	
 	for (var int = 0; int < ffidsParam.length; int++) 
 		{
 			//Check to see if we have enough resources to continue
 			//
-			if(int%5 == 0)
-				{
-					checkResources();
-				}
+			checkResources();
 			
 			//Load the fulfilment record (10 GU's)
 			//
@@ -200,7 +199,7 @@ function checkResources()
 {
 	var remaining = parseInt(nlapiGetContext().getRemainingUsage());
 	
-	if(remaining < 600)
+	if(remaining < 200)
 		{
 			nlapiYieldScript();
 		}
