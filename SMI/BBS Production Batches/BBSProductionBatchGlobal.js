@@ -8,9 +8,12 @@
 function gblPrintLabel()
 {
 	libPrintLabel();
-	
 }
 
+function gblReprint()
+{
+	libReprint();
+}
 
 function prodBatchFieldChanged(type, name, linenum)
 {

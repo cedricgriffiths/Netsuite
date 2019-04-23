@@ -6,13 +6,16 @@
  *
  */
 
-
 //=============================================================================================
 //Configuration
 //=============================================================================================
 //	
+var PRINT_PRODUCTION_BATCH = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_detail') == 'T' ? true : false);
+var PRINT_CONSOLIDATED_BASE_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_base') == 'T' ? true : false);
+var PRINT_CONSOLIDATED_FINISHED_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_finish') == 'T' ? true : false);
+var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
 
-	
+
 /**
  * @param {nlobjRequest} request Request object
  * @param {nlobjResponse} response Response object
@@ -211,11 +214,7 @@ function productionBatchSuitelet(request, response)
 	//=============================================================================================
 	//
 	
-	var PRINT_PRODUCTION_BATCH = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_detail') == 'T' ? true : false);
-	var PRINT_CONSOLIDATED_BASE_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_base') == 'T' ? true : false);
-	var PRINT_CONSOLIDATED_FINISHED_ITEMS = (nlapiGetContext().getPreference('custscript_bbs_prodbatch_finish') == 'T' ? true : false);
-	var MAX_BATCH_SIZE = Number(nlapiGetContext().getPreference('custscript_bbs_prodbatch_size'));
-
+	
 	nlapiLogExecution('DEBUG', 'Max Batch Size', MAX_BATCH_SIZE);
 	
 	if(isNaN(MAX_BATCH_SIZE) || MAX_BATCH_SIZE > 30 || MAX_BATCH_SIZE == 0)
@@ -383,621 +382,639 @@ function productionBatchSuitelet(request, response)
 		//Work out what the form layout should look like based on the stage number
 		//
 		switch(stage)
-		{
-		case 1:	
-				//Add a select field to pick the customer from
-				//
-				var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
-				var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'select', 'Assembly Belongs To', 'customer','custpage_grp2');
-				var logoTypeField = form.addField('custpage_logo_type_select', 'select', 'Logo Type', 'customlist_bbs_item_process_type','custpage_grp2');
-				var logoField = form.addField('custpage_logo_select', 'select', 'Logo', null,'custpage_grp2');
-				
-				var assemblyitemSearch = nlapiCreateSearch("assemblyitem",
-						[
-						   ["type","anyof","Assembly"], 
-						   "AND", 
-						   ["matrix","is","F"], 
-						   "AND", 
-						   ["matrixchild","is","F"], 
-						   "AND", 
-						   ["isphantom","is","T"]
-						], 
-						[
-						   new nlobjSearchColumn("itemid").setSort(false), 
-						   new nlobjSearchColumn("displayname")
-						]
-						);
-				
-				var assemblyitemSearchResults = getResults(assemblyitemSearch);
-				
-				logoField.addSelectOption('', '', true);
-				
-				if(assemblyitemSearchResults != null && assemblyitemSearchResults.length > 0)
-					{
-						for (var int = 0; int < assemblyitemSearchResults.length; int++) 
-							{
-								var assId = assemblyitemSearchResults[int].getId();
-								var assName = assemblyitemSearchResults[int].getValue('itemid');
-								logoField.addSelectOption(assId, assName, false);
-							}
-					}
-				
-				var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
-				var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
-				
-				var today = new Date();
-				var todayString = nlapiDateToString(today);
-				startDateField.setDefaultValue(todayString);
-				endDateField.setDefaultValue(todayString);
-				startDateField.setLayoutType('normal', 'startcol');
-				
-				//If we are looking at w/o that are linked to s/o then add specific filters
-				//
-				if(soLink == 'T')
-					{
-						var soCommitStatusField = form.addField('custpage_so_commit_select', 'select', 'Sales Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
-						soCommitStatusField.setDisplayType('hidden'); //SMI - Hide sales order commit status
-						
-						
-						var soSelectionField = form.addField('custpage_so_select', 'select', 'Sales Orders', null,'custpage_grp2');
-						soSelectionField.setDisplayType('hidden'); //SMI - Hide sales order selection
-						
-						
-//SMI					//Now search the available w/o for s/o numbers
-//						//
-//						var filterArray = [
-//						                   ["mainline","is","T"], 
-//						                   "AND", 
-//						                   ["type","anyof","WorkOrd"], 
-//						                   "AND", 
-//						                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
-//						                   "AND", 
-//						                   ["status","anyof","WorkOrd:A","WorkOrd:B"],
-//						                   "AND",
-//						                   ["createdfrom","noneof","@NONE@"]
-//						                ];
-//						
-//						var woSearch = nlapiCreateSearch("transaction", filterArray, 
-//								[
-//								   new nlobjSearchColumn("createdfrom",null,null)
-//								]
-//								);
-//								
-//						var searchResult = woSearch.runSearch();
-//				
-//						//Get the initial set of results
-//						//
-//						var start = 0;
-//						var end = 1000;
-//						var searchResultSet = searchResult.getResults(start, end);
-//						var resultlen = searchResultSet.length;
-//				
-//						//If there is more than 1000 results, page through them
-//						//
-//						while (resultlen == 1000) 
-//							{
-//									start += 1000;
-//									end += 1000;
-//				
-//									var moreSearchResultSet = searchResult.getResults(start, end);
-//									resultlen = moreSearchResultSet.length;
-//				
-//									searchResultSet = searchResultSet.concat(moreSearchResultSet);
-//							}
-//						
-//						var soArray = {};
-//						
-//						//Build up a list of sales order to pick from
-//						//
-//						for (var int = 0; int < searchResultSet.length; int++) 
-//						{
-//							var soId = searchResultSet[int].getValue('createdfrom');
-//							var soText = searchResultSet[int].getText('createdfrom');
-//							
-//							if(!soArray[soText])
-//								{
-//									soArray[soText] = soId;
-//								}
-//						}
-//						
-//						//Sort the sales orders
-//						//
-//						const orderedSalesOrders = {};
-//						Object.keys(soArray).sort().forEach(function(key) {
-//							orderedSalesOrders[key] = soArray[key];
-//						});
-//						
-//						
-//						soSelectionField.addSelectOption( '', '', true);
-//						
-//						for ( var soKey in orderedSalesOrders) 
-//						{
-//							soSelectionField.addSelectOption(orderedSalesOrders[soKey], soKey, false);
-//						}
-						
-						//Works Order Commitment Status Filter
-						//
-						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
-
-						//Works Order Build Percentage Filter
-						//
-						var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'select', 'Works Order % Buildable', 'customlist_bbs_wo_percent_can_build','custpage_grp2');
-
-						//Sales order otherrefnum Filter
-						//
-						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null,'custpage_grp2');
-						soOtherRefNumField.setLayoutType('normal', 'startcol');
-						
-						//Sales Orders pending fulfilment
-						//
-						var salesorderSearch = nlapiSearchRecord("salesorder",null,
-								[
-								   ["type","anyof","SalesOrd"], 
-								   "AND", 
-								   ["mainline","is","T"], 
-								   "AND", 
-								   ["status","anyof","SalesOrd:B"]
-								], 
-								[
-								   new nlobjSearchColumn("tranid").setSort(false)
-								]
-								);
-						
-						var salesOrderField = form.addField('custpage_sales_order_select', 'select', 'Sales Order', null, 'custpage_grp2');
-						salesOrderField.addSelectOption('0', '', true);
-						
-						if(salesorderSearch != null && salesorderSearch.length > 0)
-							{
-								for (var int = 0; int < salesorderSearch.length; int++) 
-									{
-										var salesOrderId = salesorderSearch[int].getId();
-										var salesOrderNumber = salesorderSearch[int].getValue("tranid");
-										
-										salesOrderField.addSelectOption(salesOrderId, salesOrderNumber, false);
-									}
-							}
-						
-						var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
-						var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
-						soStartDateField.setDefaultValue(todayString);
-						soEndDateField.setDefaultValue(todayString);
-						
-					}
-				else
-					{
-						//Works Order Commitment Status Filter
-						//	
-						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
-					}
-				
-				//Add a submit button to the form
-				//
-				form.addSubmitButton('Select Works Orders');
-				
-				break;
-		
-		case 2:	
-				//Filter the items to display based on the criteria chosen in stage 1
-				//
-				var customerField = form.addField('custpage_customer_select', 'text', 'Assembly Customer', null, 'custpage_grp2');
-				customerField.setDisplayType('disabled');
-				
-				if(customerId != '')
-					{
-						var text = nlapiLookupField('customer', customerId, 'companyname', false);
-						customerField.setDefaultValue(text);
-					}
-				
-				var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'text', 'Assembly Belongs To', null, 'custpage_grp2');
-				assemblyBelongsToField.setDisplayType('disabled');
-				
-				if(belongsToId != '')
-					{
-						var text = nlapiLookupField('customer', belongsToId, 'companyname', false);
-						assemblyBelongsToField.setDefaultValue(text);
-					}
-			
-				var logoTypeField = form.addField('custpage_logo_type_select', 'text', 'Logo Type', null, 'custpage_grp2');
-				logoTypeField.setDisplayType('disabled');
-				
-				if(logoTypeText != '')
-					{
-						logoTypeField.setDefaultValue(logoTypeText);
-					}
-				
-				var logoField = form.addField('custpage_logo_select', 'text', 'Logo', null, 'custpage_grp2');
-				logoField.setDisplayType('disabled');
-				
-				if(logoText != '')
-					{
-						logoField.setDefaultValue(logoText);
-					}
-				
-				var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
-				startDateField.setDisplayType('disabled');
-				startDateField.setLayoutType('normal', 'startcol');
-				
-				if(startDate != '')
-					{
-						startDateField.setDefaultValue(startDate);
-					}
-				
-				var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
-				endDateField.setDisplayType('disabled');
-				
-				if(endDate != '')
-					{
-						endDateField.setDefaultValue(endDate);
-					}
-				
-				if(soLink == 'T')
-					{
-						var soCommitStatusField = form.addField('custpage_so_commit_select', 'text', 'Sales Order Commitment Status', null, 'custpage_grp2');
-						soCommitStatusField.setDisplayType('disabled');
-						soCommitStatusField.setDefaultValue(soCommitStatusText);
-						soCommitStatusField.setDisplayType('hidden'); //SMI
-						
-						var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
-						soTextField.setDisplayType('disabled');
-						soTextField.setDefaultValue(soText);
-						soTextField.setDisplayType('hidden'); //SMI
-						
-						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
-						woCommitStatusField.setDisplayType('disabled');
-						woCommitStatusField.setDefaultValue(woCommitStatusText);
-						
-						var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'text', 'Works Order % Buildable', null, 'custpage_grp2');
-						woBuildPercentageField.setDisplayType('disabled');
-						woBuildPercentageField.setDefaultValue(woBuildPercentText);
-						
-						var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null, 'custpage_grp2');
-						soOtherRefNumField.setDisplayType('disabled');
-						soOtherRefNumField.setDefaultValue(otherrefnumText);
-						soOtherRefNumField.setLayoutType('normal', 'startcol');
-						
-						var salesOrderField = form.addField('custpage_sales_order_select', 'text', 'Sales Order', null, 'custpage_grp2');
-						salesOrderField.setDisplayType('disabled');
-						salesOrderField.setDefaultValue(salesOrderText);
-						
-						var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
-						soStartDateField.setDisplayType('disabled');
-						
-						if(soStartDate != '')
-							{
-								soStartDateField.setDefaultValue(soStartDate);
-							}
-						
-						var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
-						soEndDateField.setDisplayType('disabled');
-						
-						if(soEndDate != '')
-							{
-								soEndDateField.setDefaultValue(soEndDate);
-							}
-						
-					}
-				else
-					{
-						var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
-						woCommitStatusField.setDisplayType('disabled');
-						woCommitStatusField.setDefaultValue(woCommitStatusText);
-					}
-				
-				var maxBatchField = form.addField('custpage_max_batch', 'inlinehtml', '', null, 'custpage_grp2');
-				maxBatchField.setLayoutType('outsidebelow', 'startrow');
-				maxBatchField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Maximum Batch Count Allowed = ' + MAX_BATCH_SIZE.toString() + '</p>');
-				
-				var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
-				tab.setLabel('Works Orders To Select');
-				
-				var tab2 = form.addTab('custpage_tab_items2', '');
-				
-				form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
-				
-				var subList = form.addSubList('custpage_sublist_items', 'list', 'Works Orders To Select', 'custpage_tab_items');
-				
-				subList.setLabel('Works Orders To Select');
-				
-				//Add a mark/unmark button
-				//
-				subList.addMarkAllButtons();
-				
-				
-				var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
-				var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
-				var listSoNo = subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
-//SMI			var listSoCommitStatus = subList.addField('custpage_sublist_so_status', 'text', 'Sales Order Status', null);
-				var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
-				var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
-				var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
-				var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
-				var listBuilt = subList.addField('custpage_sublist_built', 'integer', 'Built', null);
-				var listBuildable = subList.addField('custpage_sublist_buildable', 'integer', 'Buildable', null);
-				var listShipDate = subList.addField('custpage_sublist_ship_date', 'text', 'Ship Date', null);
-				var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
-				var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
-				var listWoBuildStatus = subList.addField('custpage_sublist_wo_percent_build', 'text', 'WO % Buildable', null);
-				
-				var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
-				listId.setDisplayType('hidden');
-//SMI			var listFFI = subList.addField('custpage_sublist_ffi', 'text', 'FFI', null);
-//SMI			var listFinishType = subList.addField('custpage_sublist_finish_type', 'text', 'Finish Type', null);
-				var listSoTranId = subList.addField('custpage_sublist_so_tranid', 'text', 'Sales Order TranId', null);
-				listSoTranId.setDisplayType('hidden');
-				var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
-				listCustEntityId.setDisplayType('hidden');
-				var listLogoType = subList.addField('custpage_sublist_logo_type', 'text', 'Logo Type', null);
-				var listLogo = subList.addField('custpage_sublist_logo', 'text', 'Logo', null);
-				//var listSoRef = subList.addField('custpage_sublist_so_ref', 'text', 'SO Reference', null);
-				var listCSE = subList.addField('custpage_sublist_cse', 'text', 'CSE', null);
-				
-				
-				var filterArray = [
-				                   ["mainline","is","T"], 
-				                   "AND", 
-				                   ["type","anyof","WorkOrd"], 
-				                   "AND", 
-				                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
-				                   "AND", 
-				                   ["status","anyof","WorkOrd:A","WorkOrd:B","WorkOrd:D"]
-				                ];
-				
-				if(customerId != '')
-					{
-						filterArray.push("AND",["entity","anyof",customerId]);
-					}
-				
-				if(belongsToId != '')
-					{
-						filterArray.push("AND",["item.custitem_bbs_item_customer","anyof",belongsToId]);
-					}
-				
-				if(soLink == 'T')
-					{
-						if(soId != '')
+			{
+				case 1:	
+					//Add a select field to pick the customer from
+					//
+					var customerField = form.addField('custpage_customer_select', 'select', 'Works Order Customer', 'customer', 'custpage_grp2');
+					var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'select', 'Assembly Belongs To', 'customer','custpage_grp2');
+					var logoTypeField = form.addField('custpage_logo_type_select', 'select', 'Logo Type', 'customlist_bbs_item_process_type','custpage_grp2');
+					var logoField = form.addField('custpage_logo_select', 'select', 'Logo', null,'custpage_grp2');
+					
+					var assemblyitemSearch = nlapiCreateSearch("assemblyitem",
+							[
+							   ["type","anyof","Assembly"], 
+							   "AND", 
+							   ["matrix","is","F"], 
+							   "AND", 
+							   ["matrixchild","is","F"], 
+							   "AND", 
+							   ["isphantom","is","T"]
+							], 
+							[
+							   new nlobjSearchColumn("itemid").setSort(false), 
+							   new nlobjSearchColumn("displayname")
+							]
+							);
+					
+					var assemblyitemSearchResults = getResults(assemblyitemSearch);
+					
+					logoField.addSelectOption('', '', true);
+					
+					if(assemblyitemSearchResults != null && assemblyitemSearchResults.length > 0)
 						{
-							filterArray.push("AND",["createdfrom","anyof",soId]);
+							for (var int = 0; int < assemblyitemSearchResults.length; int++) 
+								{
+									var assId = assemblyitemSearchResults[int].getId();
+									var assName = assemblyitemSearchResults[int].getValue('itemid');
+									logoField.addSelectOption(assId, assName, false);
+								}
 						}
-						else
+					
+					var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
+					var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
+					
+					var today = new Date();
+					var todayString = nlapiDateToString(today);
+					startDateField.setDefaultValue(todayString);
+					endDateField.setDefaultValue(todayString);
+					startDateField.setLayoutType('normal', 'startcol');
+					
+					//If we are looking at w/o that are linked to s/o then add specific filters
+					//
+					if(soLink == 'T')
+						{
+							var soCommitStatusField = form.addField('custpage_so_commit_select', 'select', 'Sales Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+							soCommitStatusField.setDisplayType('hidden'); //SMI - Hide sales order commit status
+							
+							
+							var soSelectionField = form.addField('custpage_so_select', 'select', 'Sales Orders', null,'custpage_grp2');
+							soSelectionField.setDisplayType('hidden'); //SMI - Hide sales order selection
+							
+							
+	//SMI					//Now search the available w/o for s/o numbers
+	//						//
+	//						var filterArray = [
+	//						                   ["mainline","is","T"], 
+	//						                   "AND", 
+	//						                   ["type","anyof","WorkOrd"], 
+	//						                   "AND", 
+	//						                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
+	//						                   "AND", 
+	//						                   ["status","anyof","WorkOrd:A","WorkOrd:B"],
+	//						                   "AND",
+	//						                   ["createdfrom","noneof","@NONE@"]
+	//						                ];
+	//						
+	//						var woSearch = nlapiCreateSearch("transaction", filterArray, 
+	//								[
+	//								   new nlobjSearchColumn("createdfrom",null,null)
+	//								]
+	//								);
+	//								
+	//						var searchResult = woSearch.runSearch();
+	//				
+	//						//Get the initial set of results
+	//						//
+	//						var start = 0;
+	//						var end = 1000;
+	//						var searchResultSet = searchResult.getResults(start, end);
+	//						var resultlen = searchResultSet.length;
+	//				
+	//						//If there is more than 1000 results, page through them
+	//						//
+	//						while (resultlen == 1000) 
+	//							{
+	//									start += 1000;
+	//									end += 1000;
+	//				
+	//									var moreSearchResultSet = searchResult.getResults(start, end);
+	//									resultlen = moreSearchResultSet.length;
+	//				
+	//									searchResultSet = searchResultSet.concat(moreSearchResultSet);
+	//							}
+	//						
+	//						var soArray = {};
+	//						
+	//						//Build up a list of sales order to pick from
+	//						//
+	//						for (var int = 0; int < searchResultSet.length; int++) 
+	//						{
+	//							var soId = searchResultSet[int].getValue('createdfrom');
+	//							var soText = searchResultSet[int].getText('createdfrom');
+	//							
+	//							if(!soArray[soText])
+	//								{
+	//									soArray[soText] = soId;
+	//								}
+	//						}
+	//						
+	//						//Sort the sales orders
+	//						//
+	//						const orderedSalesOrders = {};
+	//						Object.keys(soArray).sort().forEach(function(key) {
+	//							orderedSalesOrders[key] = soArray[key];
+	//						});
+	//						
+	//						
+	//						soSelectionField.addSelectOption( '', '', true);
+	//						
+	//						for ( var soKey in orderedSalesOrders) 
+	//						{
+	//							soSelectionField.addSelectOption(orderedSalesOrders[soKey], soKey, false);
+	//						}
+							
+							//Works Order Commitment Status Filter
+							//
+							var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+	
+							//Works Order Build Percentage Filter
+							//
+							var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'select', 'Works Order % Buildable', 'customlist_bbs_wo_percent_can_build','custpage_grp2');
+	
+							//Sales order otherrefnum Filter
+							//
+							var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null,'custpage_grp2');
+							soOtherRefNumField.setLayoutType('normal', 'startcol');
+							
+							//Sales Orders pending fulfilment
+							//
+							var salesorderSearch = nlapiSearchRecord("salesorder",null,
+									[
+									   ["type","anyof","SalesOrd"], 
+									   "AND", 
+									   ["mainline","is","T"], 
+									   "AND", 
+									   ["status","anyof","SalesOrd:B"]
+									], 
+									[
+									   new nlobjSearchColumn("tranid").setSort(false)
+									]
+									);
+							
+							var salesOrderField = form.addField('custpage_sales_order_select', 'select', 'Sales Order', null, 'custpage_grp2');
+							salesOrderField.addSelectOption('0', '', true);
+							
+							if(salesorderSearch != null && salesorderSearch.length > 0)
+								{
+									for (var int = 0; int < salesorderSearch.length; int++) 
+										{
+											var salesOrderId = salesorderSearch[int].getId();
+											var salesOrderNumber = salesorderSearch[int].getValue("tranid");
+											
+											salesOrderField.addSelectOption(salesOrderId, salesOrderNumber, false);
+										}
+								}
+							
+							var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
+							var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
+							soStartDateField.setDefaultValue(todayString);
+							soEndDateField.setDefaultValue(todayString);
+							
+						}
+					else
+						{
+							//Works Order Commitment Status Filter
+							//	
+							var woCommitStatusField = form.addField('custpage_wo_commit_select', 'select', 'Works Order Commitment Status', 'customlist_bbs_commitment_status','custpage_grp2');
+						}
+					
+					//Add a submit button to the form
+					//
+					form.addSubmitButton('Select Works Orders');
+					
+					break;
+			
+				case 2:	
+					//Filter the items to display based on the criteria chosen in stage 1
+					//
+					var customerField = form.addField('custpage_customer_select', 'text', 'Assembly Customer', null, 'custpage_grp2');
+					customerField.setDisplayType('disabled');
+					
+					if(customerId != '')
+						{
+							var text = nlapiLookupField('customer', customerId, 'companyname', false);
+							customerField.setDefaultValue(text);
+						}
+					
+					var assemblyBelongsToField = form.addField('custpage_asym_belongs_select', 'text', 'Assembly Belongs To', null, 'custpage_grp2');
+					assemblyBelongsToField.setDisplayType('disabled');
+					
+					if(belongsToId != '')
+						{
+							var text = nlapiLookupField('customer', belongsToId, 'companyname', false);
+							assemblyBelongsToField.setDefaultValue(text);
+						}
+				
+					var logoTypeField = form.addField('custpage_logo_type_select', 'text', 'Logo Type', null, 'custpage_grp2');
+					logoTypeField.setDisplayType('disabled');
+					
+					if(logoTypeText != '')
+						{
+							logoTypeField.setDefaultValue(logoTypeText);
+						}
+					
+					var logoField = form.addField('custpage_logo_select', 'text', 'Logo', null, 'custpage_grp2');
+					logoField.setDisplayType('disabled');
+					
+					if(logoText != '')
+						{
+							logoField.setDefaultValue(logoText);
+						}
+					
+					var startDateField = form.addField('custpage_start_date', 'date', 'Ship Date Range From', null,'custpage_grp2');
+					startDateField.setDisplayType('disabled');
+					startDateField.setLayoutType('normal', 'startcol');
+					
+					if(startDate != '')
+						{
+							startDateField.setDefaultValue(startDate);
+						}
+					
+					var endDateField = form.addField('custpage_end_date', 'date', 'Ship Date Range To', null,'custpage_grp2');
+					endDateField.setDisplayType('disabled');
+					
+					if(endDate != '')
+						{
+							endDateField.setDefaultValue(endDate);
+						}
+					
+					if(soLink == 'T')
+						{
+							var soCommitStatusField = form.addField('custpage_so_commit_select', 'text', 'Sales Order Commitment Status', null, 'custpage_grp2');
+							soCommitStatusField.setDisplayType('disabled');
+							soCommitStatusField.setDefaultValue(soCommitStatusText);
+							soCommitStatusField.setDisplayType('hidden'); //SMI
+							
+							var soTextField = form.addField('custpage_so_text_select', 'text', 'Sales Order', null, 'custpage_grp2');
+							soTextField.setDisplayType('disabled');
+							soTextField.setDefaultValue(soText);
+							soTextField.setDisplayType('hidden'); //SMI
+							
+							var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+							woCommitStatusField.setDisplayType('disabled');
+							woCommitStatusField.setDefaultValue(woCommitStatusText);
+							
+							var woBuildPercentageField = form.addField('custpage_wo_build_percent_select', 'text', 'Works Order % Buildable', null, 'custpage_grp2');
+							woBuildPercentageField.setDisplayType('disabled');
+							woBuildPercentageField.setDefaultValue(woBuildPercentText);
+							
+							var soOtherRefNumField = form.addField('custpage_so_otherrefnum_select', 'text', 'Sales Order Reference', null, 'custpage_grp2');
+							soOtherRefNumField.setDisplayType('disabled');
+							soOtherRefNumField.setDefaultValue(otherrefnumText);
+							soOtherRefNumField.setLayoutType('normal', 'startcol');
+							
+							var salesOrderField = form.addField('custpage_sales_order_select', 'text', 'Sales Order', null, 'custpage_grp2');
+							salesOrderField.setDisplayType('disabled');
+							salesOrderField.setDefaultValue(salesOrderText);
+							
+							var soStartDateField = form.addField('custpage_so_start_date', 'date', 'Sales Order Date Range From', null,'custpage_grp2');
+							soStartDateField.setDisplayType('disabled');
+							
+							if(soStartDate != '')
+								{
+									soStartDateField.setDefaultValue(soStartDate);
+								}
+							
+							var soEndDateField = form.addField('custpage_so_end_date', 'date', 'Sales Order Date Range To', null,'custpage_grp2');
+							soEndDateField.setDisplayType('disabled');
+							
+							if(soEndDate != '')
+								{
+									soEndDateField.setDefaultValue(soEndDate);
+								}
+							
+						}
+					else
+						{
+							var woCommitStatusField = form.addField('custpage_wo_commit_select', 'text', 'Works Order Commitment Status', null, 'custpage_grp2');
+							woCommitStatusField.setDisplayType('disabled');
+							woCommitStatusField.setDefaultValue(woCommitStatusText);
+						}
+					
+					var maxBatchField = form.addField('custpage_max_batch', 'inlinehtml', '', null, 'custpage_grp2');
+					maxBatchField.setLayoutType('outsidebelow', 'startrow');
+					maxBatchField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Maximum Batch Count Allowed = ' + MAX_BATCH_SIZE.toString() + '</p>');
+					
+					var tab = form.addTab('custpage_tab_items', 'Works Orders To Select');
+					tab.setLabel('Works Orders To Select');
+					
+					var tab2 = form.addTab('custpage_tab_items2', '');
+					
+					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+					
+					var subList = form.addSubList('custpage_sublist_items', 'list', 'Works Orders To Select', 'custpage_tab_items');
+					
+					subList.setLabel('Works Orders To Select');
+					
+					//Add a mark/unmark button
+					//
+					subList.addMarkAllButtons();
+					
+					
+					var listSelect = subList.addField('custpage_sublist_tick', 'checkbox', 'Select', null);
+					var listWoNo = subList.addField('custpage_sublist_wo_no', 'text', 'Works Order No', null);
+					var listSoNo = subList.addField('custpage_sublist_so_no', 'text', 'Sales Order No', null);
+	//SMI			var listSoCommitStatus = subList.addField('custpage_sublist_so_status', 'text', 'Sales Order Status', null);
+					var listCustomer = subList.addField('custpage_sublist_customer', 'text', 'WO Customer', null);
+					var listAssembly = subList.addField('custpage_sublist_assembly', 'text', 'Assembly', null);
+					var listBelongs = subList.addField('custpage_sublist_belongs', 'text', 'Assembly Belongs To', null);
+					var listQty = subList.addField('custpage_sublist_qty', 'integer', 'Quantity', null);
+					var listBuilt = subList.addField('custpage_sublist_built', 'integer', 'Built', null);
+					var listBuildable = subList.addField('custpage_sublist_buildable', 'integer', 'Buildable', null);
+					var listShipDate = subList.addField('custpage_sublist_ship_date', 'text', 'Ship Date', null);
+					var listDate = subList.addField('custpage_sublist_date', 'text', 'Date Entered', null);
+					var listStatus = subList.addField('custpage_sublist_status', 'text', 'WO Commit Status', null);
+					var listWoBuildStatus = subList.addField('custpage_sublist_wo_percent_build', 'text', 'WO % Buildable', null);
+					
+					var listId = subList.addField('custpage_sublist_id', 'text', 'Id', null);
+					listId.setDisplayType('hidden');
+	//SMI			var listFFI = subList.addField('custpage_sublist_ffi', 'text', 'FFI', null);
+	//SMI			var listFinishType = subList.addField('custpage_sublist_finish_type', 'text', 'Finish Type', null);
+					var listSoTranId = subList.addField('custpage_sublist_so_tranid', 'text', 'Sales Order TranId', null);
+					listSoTranId.setDisplayType('hidden');
+					var listCustEntityId = subList.addField('custpage_sublist_cust_entityid', 'text', 'Customer EntityId', null);
+					listCustEntityId.setDisplayType('hidden');
+					var listLogoType = subList.addField('custpage_sublist_logo_type', 'text', 'Logo Type', null);
+					var listLogo = subList.addField('custpage_sublist_logo', 'text', 'Logo', null);
+					//var listSoRef = subList.addField('custpage_sublist_so_ref', 'text', 'SO Reference', null);
+					var listCSE = subList.addField('custpage_sublist_cse', 'text', 'CSE', null);
+					
+					
+					var filterArray = [
+					                   ["mainline","is","T"], 
+					                   "AND", 
+					                   ["type","anyof","WorkOrd"], 
+					                   "AND", 
+					                   ["custbody_bbs_wo_batch","anyof","@NONE@"], 
+					                   "AND", 
+					                   ["status","anyof","WorkOrd:A","WorkOrd:B","WorkOrd:D"]
+					                ];
+					
+					if(customerId != '')
+						{
+							filterArray.push("AND",["entity","anyof",customerId]);
+						}
+					
+					if(belongsToId != '')
+						{
+							filterArray.push("AND",["item.custitem_bbs_item_customer","anyof",belongsToId]);
+						}
+					
+					if(soLink == 'T')
+						{
+							if(soId != '')
 							{
-								filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+								filterArray.push("AND",["createdfrom","anyof",soId]);
 							}
-					}
-				else
-					{
-						filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
-					}	
+							else
+								{
+									filterArray.push("AND",["createdfrom","noneof","@NONE@"]);
+								}
+						}
+					else
+						{
+							filterArray.push("AND",["createdfrom","anyof","@NONE@"]);
+						}	
+					
+					if(logoType != '')
+						{
+							filterArray.push("AND",["custbody_bbs_wo_logo_type","anyof",logoType]);
+						}
+					
+					if(logo != '')
+						{
+							filterArray.push("AND",["custbody_bbs_wo_logo","anyof",logo]);
+						}
 				
-				if(logoType != '')
-					{
-						filterArray.push("AND",["custbody_bbs_wo_logo_type","anyof",logoType]);
-					}
+					if(soCommitStatus != '')
+						{
+							filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
+						}
+					
+					if(woCommitStatus != '')
+						{
+							filterArray.push("AND",["custbody_bbs_commitment_status","anyof",woCommitStatus]);
+						}
+					
+					if(startDate != '')
+						{
+							filterArray.push("AND",["createdfrom.shipdate","onorafter",startDate]);
+						}
+					
+					if(endDate != '')
+						{
+							filterArray.push("AND",["createdfrom.shipdate","onorbefore",endDate]);
+						}
+					
+					if(otherrefnumText != '')
+						{
+							filterArray.push("AND",["createdfrom.poastext","is",otherrefnumText]);
+						}
+					
+					if(salesOrderId != '' && salesOrderId != '0')
+						{
+							filterArray.push("AND",["createdfrom","anyof",salesOrderId]);
+						}
+					
+					if(woBuildPercentId != '')
+						{
+							filterArray.push("AND",["custbody_bbs_wo_percent_can_build","anyof",woBuildPercentId]);
+						}
+					
+					if(soStartDate != '')
+						{
+							filterArray.push("AND",["createdfrom.trandate","onorafter",soStartDate]);
+						}
 				
-				if(logo != '')
-					{
-						filterArray.push("AND",["custbody_bbs_wo_logo","anyof",logo]);
-					}
+					if(soEndDate != '')
+						{
+							filterArray.push("AND",["createdfrom.trandate","onorbefore",soEndDate]);
+						}
+					
+					var woSearch = nlapiCreateSearch("transaction", filterArray, 
+							[
+							   new nlobjSearchColumn("tranid",null,null), 
+							   new nlobjSearchColumn("entity",null,null), 
+							   new nlobjSearchColumn("item",null,null), 
+							   new nlobjSearchColumn("custitem_bbs_item_customer","item",null), 
+							   new nlobjSearchColumn("quantity",null,null), 
+							   new nlobjSearchColumn("datecreated",null,null), 
+							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
+							   new nlobjSearchColumn("createdfrom",null,null),
+							   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
+	//SMI					   new nlobjSearchColumn("custbody_bbs_wo_finish",null,null), 
+	//SMI					   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
+	//SMI					   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null), 
+							   new nlobjSearchColumn("tranid","createdFrom",null), 
+							   new nlobjSearchColumn("externalid","customer",null),
+							   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null), 
+							   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
+							   new nlobjSearchColumn("otherrefnum","createdFrom",null),
+							   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null),
+							   new nlobjSearchColumn("shipdate","createdFrom",null),
+							   new nlobjSearchColumn("custbody_bbs_cse_sales_transactions","createdFrom",null),
+							   new nlobjSearchColumn("built")
+							]
+							);
+							
+					var searchResult = woSearch.runSearch();
 			
-				if(soCommitStatus != '')
-					{
-						filterArray.push("AND",["createdfrom.custbody_bbs_commitment_status","anyof",soCommitStatus]);
-					}
-				
-				if(woCommitStatus != '')
-					{
-						filterArray.push("AND",["custbody_bbs_commitment_status","anyof",woCommitStatus]);
-					}
-				
-				if(startDate != '')
-					{
-						filterArray.push("AND",["createdfrom.shipdate","onorafter",startDate]);
-					}
-				
-				if(endDate != '')
-					{
-						filterArray.push("AND",["createdfrom.shipdate","onorbefore",endDate]);
-					}
-				
-				if(otherrefnumText != '')
-					{
-						filterArray.push("AND",["createdfrom.poastext","is",otherrefnumText]);
-					}
-				
-				if(salesOrderId != '' && salesOrderId != '0')
-					{
-						filterArray.push("AND",["createdfrom","anyof",salesOrderId]);
-					}
-				
-				if(woBuildPercentId != '')
-					{
-						filterArray.push("AND",["custbody_bbs_wo_percent_can_build","anyof",woBuildPercentId]);
-					}
-				
-				if(soStartDate != '')
-					{
-						filterArray.push("AND",["createdfrom.trandate","onorafter",soStartDate]);
-					}
+					//Get the initial set of results
+					//
+					var start = 0;
+					var end = 1000;
+					var searchResultSet = searchResult.getResults(start, end);
+					var resultlen = searchResultSet.length;
 			
-				if(soEndDate != '')
-					{
-						filterArray.push("AND",["createdfrom.trandate","onorbefore",soEndDate]);
-					}
-				
-				var woSearch = nlapiCreateSearch("transaction", filterArray, 
-						[
-						   new nlobjSearchColumn("tranid",null,null), 
-						   new nlobjSearchColumn("entity",null,null), 
-						   new nlobjSearchColumn("item",null,null), 
-						   new nlobjSearchColumn("custitem_bbs_item_customer","item",null), 
-						   new nlobjSearchColumn("quantity",null,null), 
-						   new nlobjSearchColumn("datecreated",null,null), 
-						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
-						   new nlobjSearchColumn("createdfrom",null,null),
-						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null), 
-//SMI					   new nlobjSearchColumn("custbody_bbs_wo_finish",null,null), 
-//SMI					   new nlobjSearchColumn("custbody_bbs_wo_ffi",null,null), 
-//SMI					   new nlobjSearchColumn("custbody_bbs_commitment_status","createdFrom",null), 
-						   new nlobjSearchColumn("tranid","createdFrom",null), 
-						   new nlobjSearchColumn("externalid","customer",null),
-						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null), 
-						   new nlobjSearchColumn("custbody_bbs_wo_logo",null,null),
-						   new nlobjSearchColumn("otherrefnum","createdFrom",null),
-						   new nlobjSearchColumn("custbody_bbs_wo_percent_can_build",null,null),
-						   new nlobjSearchColumn("shipdate","createdFrom",null),
-						   new nlobjSearchColumn("custbody_bbs_cse_sales_transactions","createdFrom",null),
-						   new nlobjSearchColumn("built")
-						]
-						);
+					//If there is more than 1000 results, page through them
+					//
+					while (resultlen == 1000) 
+						{
+								start += 1000;
+								end += 1000;
+			
+								var moreSearchResultSet = searchResult.getResults(start, end);
+								resultlen = moreSearchResultSet.length;
+			
+								searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						}
 						
-				var searchResult = woSearch.runSearch();
-		
-				//Get the initial set of results
-				//
-				var start = 0;
-				var end = 1000;
-				var searchResultSet = searchResult.getResults(start, end);
-				var resultlen = searchResultSet.length;
-		
-				//If there is more than 1000 results, page through them
-				//
-				while (resultlen == 1000) 
+					//Copy the results to the sublist
+					//
+					var line = Number(0);
+					var memberItemRecords = {};
+					var fullFinishItems = {};
+					
+					for (var int = 0; int < searchResultSet.length; int++) 
 					{
-							start += 1000;
-							end += 1000;
-		
-							var moreSearchResultSet = searchResult.getResults(start, end);
-							resultlen = moreSearchResultSet.length;
-		
-							searchResultSet = searchResultSet.concat(moreSearchResultSet);
+						line++;
+			
+						subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
+						subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
+						subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
+						subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
+						subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
+						subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
+						subList.setLineItemValue('custpage_sublist_built', line, searchResultSet[int].getValue('built'));
+						subList.setLineItemValue('custpage_sublist_buildable', line, (Number(searchResultSet[int].getValue('quantity')) - Number(searchResultSet[int].getValue('built'))).toString());
+						subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
+						subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
+						subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
+	//SMI				subList.setLineItemValue('custpage_sublist_ffi', line, searchResultSet[int].getText('custbody_bbs_wo_ffi'));
+	//SMI				subList.setLineItemValue('custpage_sublist_finish_type', line, searchResultSet[int].getText('custbody_bbs_wo_finish'));
+	//SMI				subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
+						subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
+						subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
+						subList.setLineItemValue('custpage_sublist_logo_type', line, searchResultSet[int].getText('custbody_bbs_wo_logo_type'));
+						subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
+						//subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
+						subList.setLineItemValue('custpage_sublist_wo_percent_build', line, searchResultSet[int].getText('custbody_bbs_wo_percent_can_build'));
+						subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
+						subList.setLineItemValue('custpage_sublist_cse', line, searchResultSet[int].getText("custbody_bbs_cse_sales_transactions","createdFrom"));
+						
 					}
+			
+					switch(mode)
+						{
+							case 'C':
+								form.addSubmitButton('Create Production Batches');
+								
+								break;
+							
+							case 'U':
+								form.addSubmitButton('Assign Selected Works Orders');
+							
+								break;
+						}
 					
-				//Copy the results to the sublist
-				//
-				var line = Number(0);
-				var memberItemRecords = {};
-				var fullFinishItems = {};
-				
-				for (var int = 0; int < searchResultSet.length; int++) 
-				{
-					line++;
-		
-					subList.setLineItemValue('custpage_sublist_wo_no', line, searchResultSet[int].getValue('tranid'));
-					subList.setLineItemValue('custpage_sublist_so_no', line, searchResultSet[int].getText('createdfrom'));
-					subList.setLineItemValue('custpage_sublist_customer', line, searchResultSet[int].getText('entity'));
-					subList.setLineItemValue('custpage_sublist_assembly', line, searchResultSet[int].getText('item'));
-					subList.setLineItemValue('custpage_sublist_belongs', line, searchResultSet[int].getText('custitem_bbs_item_customer','item'));
-					subList.setLineItemValue('custpage_sublist_qty', line, searchResultSet[int].getValue('quantity'));
-					subList.setLineItemValue('custpage_sublist_built', line, searchResultSet[int].getValue('built'));
-					subList.setLineItemValue('custpage_sublist_buildable', line, (Number(searchResultSet[int].getValue('quantity')) - Number(searchResultSet[int].getValue('built'))).toString());
-					subList.setLineItemValue('custpage_sublist_date', line, searchResultSet[int].getValue('datecreated'));
-					subList.setLineItemValue('custpage_sublist_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status'));
-					subList.setLineItemValue('custpage_sublist_id', line, searchResultSet[int].getId());
-//SMI				subList.setLineItemValue('custpage_sublist_ffi', line, searchResultSet[int].getText('custbody_bbs_wo_ffi'));
-//SMI				subList.setLineItemValue('custpage_sublist_finish_type', line, searchResultSet[int].getText('custbody_bbs_wo_finish'));
-//SMI				subList.setLineItemValue('custpage_sublist_so_status', line, searchResultSet[int].getText('custbody_bbs_commitment_status','createdFrom'));
-					subList.setLineItemValue('custpage_sublist_so_tranid', line, searchResultSet[int].getValue('tranid','createdFrom'));
-					subList.setLineItemValue('custpage_sublist_cust_entityid', line, searchResultSet[int].getValue('externalid','customer'));
-					subList.setLineItemValue('custpage_sublist_logo_type', line, searchResultSet[int].getText('custbody_bbs_wo_logo_type'));
-					subList.setLineItemValue('custpage_sublist_logo', line, searchResultSet[int].getText('custbody_bbs_wo_logo'));
-					//subList.setLineItemValue('custpage_sublist_so_ref', line, searchResultSet[int].getValue('otherrefnum','createdFrom'));
-					subList.setLineItemValue('custpage_sublist_wo_percent_build', line, searchResultSet[int].getText('custbody_bbs_wo_percent_can_build'));
-					subList.setLineItemValue('custpage_sublist_ship_date', line, searchResultSet[int].getValue("shipdate","createdFrom"));
-					subList.setLineItemValue('custpage_sublist_cse', line, searchResultSet[int].getText("custbody_bbs_cse_sales_transactions","createdFrom"));
-					
-				}
-		
-				switch(mode)
-				{
-				case 'C':
-					form.addSubmitButton('Create Production Batches');
+					//form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
 					
 					break;
 					
-				case 'U':
-					form.addSubmitButton('Assign Selected Works Orders');
+				case 3:
 				
+					var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
+					batchesField.setDisplayType('hidden');
+					batchesField.setDefaultValue(batches);
+					
+					var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
+					warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen untill all works orders are updated to the batch, before producing documentation<p/>');
+					warningField.setDisplayType('disabled');
+					
+					var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
+					tab.setLabel('Production Batches Created');
+					
+					var tab2 = form.addTab('custpage_tab_items2', '');
+					
+					form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
+					
+					var subList = form.addSubList('custpage_sublist_items', 'list', 'Production Batches Created', 'custpage_tab_items');
+					
+					subList.setLabel('Production Batches Created');
+					
+					var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
+					listView.setLinkText('View');
+					var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
+					var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Production Batch', null);
+					var listEntered = subList.addField('custpage_sublist_entered', 'date', 'Date Entered', null);
+					var listDue = subList.addField('custpage_sublist_due', 'date', 'Due Date', null);
+					var listUpdated = subList.addField('custpage_sublist_updated', 'checkbox', 'W/O Updated To Batch', null);
+					
+					if(batches != '')
+						{
+							var lineNo = Number(0);
+							
+							var batchesArray = JSON.parse(batches);
+							
+							if(batchesArray.length > 0)
+								{
+									var filters = new Array();
+									filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+									
+									var columns = new Array();
+									columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
+									columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
+									columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+									columns[3] = new nlobjSearchColumn('custrecord_bbs_wo_updated');
+									
+									var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
+									
+									for (var int2 = 0; int2 < batchResults.length; int2++) 
+										{
+											lineNo++;
+											
+											subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
+											subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
+											subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
+											subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
+											subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
+											subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getValue('custrecord_bbs_wo_updated'));
+										}
+								}
+						}
+					//Add a refresh button
+					//
+					subList.addRefreshButton();
+					
+					//Add a submit button to the form
+					//
+					form.addSubmitButton('Generate Production Batch Documentation');
+					
+					break;
+					
+				
+				case 4:
+					
+					//Get the batches data
+					//
+					var batchesArray = JSON.parse(batches);
+					var pdfFileObject = generateProdBatchDocs(batchesArray, soLink);
+					
+					//Send back the output in the response message
+					//
+					response.setContentType('PDF', 'Reprint Production Batch Documents', 'inline');
+					response.write(pdfFileObject.getValue());
+
 					break;
 				}
-				
-				//form.addField('custpage_remaining', 'text', 'Remaining', null, null).setDefaultValue(nlapiGetContext().getRemainingUsage());
-				
-				break;
-				
-			case 3:
-			
-				var batchesField = form.addField('custpage_batches', 'text', 'Batches', null, null);
-				batchesField.setDisplayType('hidden');
-				batchesField.setDefaultValue(batches);
-				
-				var warningField = form.addField('custpage_warning', 'inlinehtml', null, null, null);
-				warningField.setDefaultValue('<p style="font-size:16px; color:DarkRed;">Refresh the screen untill all works orders are updated to the batch, before producing documentation<p/>');
-				warningField.setDisplayType('disabled');
-				
-				var tab = form.addTab('custpage_tab_items', 'Production Batches Created');
-				tab.setLabel('Production Batches Created');
-				
-				var tab2 = form.addTab('custpage_tab_items2', '');
-				
-				form.addField('custpage_tab2', 'text', 'test', null, 'custpage_tab_items2');
-				
-				var subList = form.addSubList('custpage_sublist_items', 'list', 'Production Batches Created', 'custpage_tab_items');
-				
-				subList.setLabel('Production Batches Created');
-				
-				var listView = subList.addField('custpage_sublist_view', 'url', 'View', null);
-				listView.setLinkText('View');
-				var listId = subList.addField('custpage_sublist_id', 'text', 'Internal Id', null);
-				var listBatch = subList.addField('custpage_sublist_batch', 'text', 'Production Batch', null);
-				var listEntered = subList.addField('custpage_sublist_entered', 'date', 'Date Entered', null);
-				var listDue = subList.addField('custpage_sublist_due', 'date', 'Due Date', null);
-				var listUpdated = subList.addField('custpage_sublist_updated', 'checkbox', 'W/O Updated To Batch', null);
-				
-				if(batches != '')
-					{
-						var lineNo = Number(0);
-						
-						var batchesArray = JSON.parse(batches);
-						
-						if(batchesArray.length > 0)
-							{
-								var filters = new Array();
-								filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
-								
-								var columns = new Array();
-								columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
-								columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
-								columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
-								columns[3] = new nlobjSearchColumn('custrecord_bbs_wo_updated');
-								
-								var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);
-								
-								for (var int2 = 0; int2 < batchResults.length; int2++) 
-									{
-										lineNo++;
-										
-										subList.setLineItemValue('custpage_sublist_view', lineNo, nlapiResolveURL('RECORD', 'customrecord_bbs_assembly_batch', batchResults[int2].getId(), 'VIEW'));
-										subList.setLineItemValue('custpage_sublist_id', lineNo, batchResults[int2].getId());
-										subList.setLineItemValue('custpage_sublist_batch', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_description'));
-										subList.setLineItemValue('custpage_sublist_entered', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_entered'));
-										subList.setLineItemValue('custpage_sublist_due', lineNo, batchResults[int2].getValue('custrecord_bbs_bat_date_due'));
-										subList.setLineItemValue('custpage_sublist_updated', lineNo, batchResults[int2].getValue('custrecord_bbs_wo_updated'));
-									}
-							}
-					}
-				//Add a refresh button
-				//
-				subList.addRefreshButton();
-				
-				//Add a submit button to the form
-				//
-				form.addSubmitButton('Generate Production Batch Documentation');
-				
-				break;
-			}
 		
 		//Write the response
 		//
-		response.writePage(form);
+		if(stage != '4')
+			{
+				response.writePage(form);
+			}
 	}
 	else
 	{
@@ -1232,692 +1249,20 @@ function productionBatchSuitelet(request, response)
 			case 3:
 				//Need to generate the production batch documentation
 				//
-				var today = new Date();
-				var now = today.toUTCString();
-				
-				var remaining = nlapiGetContext().getRemainingUsage();
 				
 				//Get the batches data
 				//
 				var batches = request.getParameter('custpage_batches');
 				var batchesArray = JSON.parse(batches);
 				var solink = request.getParameter('custpage_solink');
-				var stockOrSales = (solink == 'T' ? 'Sales Order' : 'Stock');
 				
-				var filters = new Array();
-				filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+				var pdfFileObject = generateProdBatchDocs(batchesArray, solink);
 				
-				var columns = new Array();
-				columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
-				columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
-				columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
-				
-				var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);  // 10GU's
-				
-				
-				//
-				//=====================================================================
-				// Start the xml off with the basic header info & the start of a pdfset
-				//=====================================================================
-				//
-				var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n<pdfset>";  // Main XML
-				var xmlPb = ''; // Production Batch XML
-				var xmlCb = ''; // Consolidated Base Products XML
-				var xmlCf = ''; // Consolidated Finished Products XML
-				
-				//
-				//=====================================================================
-				// Produce the batch picking list
-				//=====================================================================
-				//
-				var baseItems = {};
-				var finishedItems = {};
-				
-				//Loop through the batch data
-				//
-				for (var int2 = 0; int2 < batchResults.length; int2++) 
-				{
-					//
-					//Produce the batch pick documents
-					//
-					var batchId = batchResults[int2].getId();
-					var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
-
-					//START Pre-sort the works orders into base item order
-					//
-					var woSearchArray = [];
-					
-					var workorderSearch = getResults(nlapiCreateSearch("workorder",
-							[
-							   ["type","anyof","WorkOrd"], 
-							   "AND", 
-							   ["custbody_bbs_wo_batch","anyof",batchId], 
-							   "AND", 
-							   ["mainline","is","F"], 
-							   "AND", 
-							   ["item.type","anyof","InvtPart"]
-							], 
-							[
-							   new nlobjSearchColumn("tranid"), 
-							   new nlobjSearchColumn("item"), 
-							   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null).setSort(false)
-							]
-							));
-					
-					if(workorderSearch != null && workorderSearch.length > 0)
-						{
-							for (var int5 = 0; int5 < workorderSearch.length; int5++) 
-								{
-									var woId = workorderSearch[int5].getId();
-									
-									if(woSearchArray.indexOf(woId) == -1)
-										{
-											woSearchArray.push(woId);
-										}
-								}
-						}					
-					//
-					//END Pre-sort the works orders into base item order
-					
-
-					//Find the works orders associated with this batch
-					//
-					//	var filterArray = [
-					//	                   ["type","anyof","WorkOrd"], 
-					//	                   "AND", 
-					//	                   ["custbody_bbs_wo_batch","anyof",batchId]			                   
-					//	                ];
-					
-						
-							var filterArray = [
-							                   ["type","anyof","WorkOrd"], 
-							                   "AND", 
-							                   ["internalid","anyof",woSearchArray]			                   
-							                ];
-							
-							var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
-									[
-									   new nlobjSearchColumn("tranid",null,null).setSort(false), 
-									   new nlobjSearchColumn("entity",null,null), 
-									   new nlobjSearchColumn("item",null,null), 
-									   new nlobjSearchColumn("quantity",null,null),
-									   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
-									   new nlobjSearchColumn("item",null,null),
-									   new nlobjSearchColumn("type","item",null),
-									   new nlobjSearchColumn("description","item",null),
-									   new nlobjSearchColumn("mainline",null,null),
-									   new nlobjSearchColumn("custcol_bbs_bom_spec_inst",null,null),
-									   new nlobjSearchColumn("quantitycommitted",null,null),
-									   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
-									   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
-									   new nlobjSearchColumn("custitemfinish_type","item",null),
-									   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
-									   new nlobjSearchColumn("tranid","createdfrom",null),
-									   new nlobjSearchColumn("shipdate","createdfrom",null),
-									   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null),
-									   new nlobjSearchColumn("custbody_bbs_wo_machine",null,null),
-		                               new nlobjSearchColumn("binnumber","item",null),
-		                               new nlobjSearchColumn("parent","item",null)
-									]
-									);
-		
-							var searchResult = transactionSearch.runSearch();
-							
-							//Get the initial set of results
-							//
-							var start = 0;
-							var end = 1000;
-							var searchResultSetOrig = searchResult.getResults(start, end); // 10GU's
-							var resultlen = searchResultSetOrig.length;
-		
-							//If there is more than 1000 results, page through them
-							//
-							while (resultlen == 1000) 
-								{
-										start += 1000;
-										end += 1000;
-		
-										var moreSearchResultSet = searchResult.getResults(start, end);  // 10GU's
-										resultlen = moreSearchResultSet.length;
-		
-										searchResultSetOrig = searchResultSetOrig.concat(moreSearchResultSet);
-								}
-							
-							
-							//Re-order the search result set
-							//
-							var searchResultSet = [];
-							
-							for (var int6 = 0; int6 < woSearchArray.length; int6++) 
-								{
-									var currentWoId = woSearchArray[int6];
-									
-									for (var int7 = 0; int7 < searchResultSetOrig.length; int7++) 
-										{
-											var searchResultWoId = searchResultSetOrig[int7].getId();
-											
-											if(searchResultWoId == currentWoId)
-												{
-													searchResultSet.push(searchResultSetOrig[int7]);
-												}
-										}
-								}
-							
-							
-							
-							//Work out the customer sub group
-							//
-							var subGroup = '';
-							var thisEntity = '';
-							var thisSalesOrder = '';
-							var thisShipDate = '';
-							var thisShipDay = '';
-							var thisShipDateFormatted = '';
-							var thisLogoType = '';
-							var thisMachine = '';
-							
-							//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
-							//
-							if(solink == 'T')
-								{
-									if(searchResultSet != null && searchResultSet.length > 0)
-										{
-											thisEntity = searchResultSet[0].getValue("entity");
-											thisSalesOrder = searchResultSet[0].getValue("tranid","createdfrom");
-											thisShipDate = searchResultSet[0].getValue("shipdate","createdfrom");
-											thisMachine = searchResultSet[0].getValue("custbody_bbs_wo_machine");
-											
-											switch(searchResultSet[0].getValue("custbody_bbs_wo_logo_type"))
-												{
-													case '1': //Embroidery
-														thisLogoType = 'EMB';
-														break;
-														
-													case '2': //Heatseal
-														thisLogoType = 'HS';
-														break;
-														
-													case '11': //Emb + hs
-														thisLogoType = 'EMB+HS';
-														break;
-												}
-											
-											if(thisShipDate != null && thisShipDate != '')
-												{
-													thisShipDay = (nlapiStringToDate(thisShipDate)).format('D');
-													thisShipDateFormatted = (nlapiStringToDate(thisShipDate)).format('d F Y');
-												}
-										}
-								}
-							else
-								{	
-									//If not linked to sales orders, we will need to use the assembly item belongs to instead
-									//
-									if(searchResultSet != null && searchResultSet.length > 0)
-										{
-											thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
-										}
-								}
-							
-							if(thisEntity !=  null && thisEntity != '')
-							{
-		//SMI					subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
-								subGroup = (subGroup == null ? '' : subGroup);
-							}
-							
-							
-							
-							for ( var baseItem in baseItems) 
-								{
-									delete baseItems[baseItem];
-								}
-						
-							for ( var finishedItem in finishedItems) 
-								{
-									delete finishedItems[finishedItem];
-								}
-						
-							var remaining = nlapiGetContext().getRemainingUsage();
-							
-							//Header & style sheet
-							//
-							xmlPb += "<pdf>"
-							xmlPb += "<head>";
-							xmlPb += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
-							xmlPb += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
-							xmlPb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
-							xmlPb += "b {font-weight: bold;color: #333333;}";
-							xmlPb += "table.header td {padding: 0px;font-size: 10pt;}";
-							xmlPb += "table.footer td {padding: 0;font-size: 10pt;}";
-							xmlPb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
-							xmlPb += "table.body td {padding-top: 0px;}";
-							xmlPb += "table.total {page-break-inside: avoid;}";
-							xmlPb += "table.message{border: 1px solid #dddddd;}";
-							xmlPb += "tr.totalrow {line-height: 300%;}";
-							xmlPb += "tr.messagerow{font-size: 6pt;}";
-							xmlPb += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
-							xmlPb += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
-							xmlPb += "td.address {padding-top: 0;font-size: 10pt;}";
-							xmlPb += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
-							xmlPb += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
-							xmlPb += "td.message{font-size: 8pt;}";
-							xmlPb += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
-							xmlPb += "span.title {font-size: 28pt;}";
-							xmlPb += "span.number {font-size: 16pt;}";
-							xmlPb += "span.itemname {font-weight: bold;line-height: 150%;}";
-							xmlPb += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
-							xmlPb += "</style>";
-		
-					        //Macros
-					        //
-							xmlPb += "<macrolist>";
-							xmlPb += "<macro id=\"nlfooter\">";
-							
-							xmlPb += "<p/>";
-							
-							xmlPb += "<table class=\"footer\" style=\"width: 100%;\">";
-							xmlPb += "<tr><td align=\"left\" style=\"font-size:6px;\">Printed: " + now + "</td><td align=\"right\" style=\"font-size:6px;\">Page <pagenumber/> of <totalpages/></td></tr>";
-							xmlPb += "</table>";
-							xmlPb += "</macro>";
-							
-							//Header data
-							//
-							xmlPb += "<macro id=\"nlheader\">";
-							xmlPb += "<table style=\"width: 100%\">";
-							xmlPb += "<tr>";
-							xmlPb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">&nbsp;</td>";
-							xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 10px;\"><b>Production Batch Picking List</b></td>";
-							xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
-							xmlPb += "</tr>";
-							
-							//xmlPb += "<tr>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "</tr>";
-							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
-							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
-							xmlPb += "</tr>";
-							
-							//xmlPb += "<tr>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "</tr>";
-							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
-							xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(batchId) + "</td>";
-							xmlPb += "</tr>";
-							
-							//xmlPb += "<tr>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
-							//xmlPb += "</tr>";
-							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
-							xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
-							xmlPb += "</tr>";
-							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Ship date</b></td>";
-							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + thisShipDateFormatted + " (" + thisShipDay + ")</td>";
-							xmlPb += "</tr>";
-							
-							xmlPb += "<tr>";
-							xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Machine</b></td>";
-							xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisMachine) + "</td>";
-							xmlPb += "</tr>";
-							
-							xmlPb += "</table></macro>";
-		
-							xmlPb += "</macrolist>";
-							xmlPb += "</head>";
-							
-							//Body
-							//
-							xmlPb += "<body header=\"nlheader\" header-height=\"180px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
-							
-							//Init some variables
-							//
-							var firstTime = true;
-							
-							//Loop through the works orders on the batch
-							//
-							if(searchResultSet != null)
-								{
-									var thisFinishedItem = '';
-									var woSpecInst = '';
-									var firstInventoryItem = true;
-									
-									for (var int3 = 0; int3 < searchResultSet.length; int3++) 
-									{
-										var woId 						= searchResultSet[int3].getId();
-										var woAssemblyItemId 			= searchResultSet[int3].getValue('item');
-										var woAssemblyItem 				= searchResultSet[int3].getText('item');
-										var woAssemblyItemDesc 			= searchResultSet[int3].getValue('description','item');
-										var woAssemblyItemQty 			= (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
-										var woAssemblyItemCommitted 	= (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
-										var woMainline 					= searchResultSet[int3].getValue('mainline');
-										var woSpecInst 					= searchResultSet[int3].getValue("custcol_bbs_bom_spec_inst");
-										var woItemType 					= searchResultSet[int3].getValue("type","item");
-										var woCommitStatus 				= searchResultSet[int3].getText("custbody_bbs_commitment_status");
-										var woAssemblyItemSequence 		= searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
-										var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
-										var woAssemblyProcessTypeId		= searchResultSet[int3].getValue("custitem_bbs_item_process_type","item");
-		                                var woBinNumber					= searchResultSet[int3].getValue("binnumber","item");
-		                                var woAssemblyParent					= searchResultSet[int3].getValue("parent","item");
-										if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
-											{
-												woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
-											}
-										
-										if(woMainline == '*')
-											{	
-												thisFinishedItem = woAssemblyItemSequence;
-											
-												if(firstTime)
-													{
-														firstTime = false;
-													}
-												else
-													{
-														xmlPb += "</table>";
-													}
-												
-												//Collate all of the finished items together
-												//
-												
-												if(!finishedItems[thisFinishedItem])
-													{
-														var componetsObject = {};
-														finishedItems[thisFinishedItem] = [woAssemblyItem,Number(woAssemblyItemQty),woAssemblyItemDesc,componetsObject]; //Item Description, Quantity, Description, Components Object
-													}
-												else
-													{
-														finishedItems[thisFinishedItem][1] = Number(finishedItems[thisFinishedItem][1]) + Number(woAssemblyItemQty);
-													}
-													
-												
-												xmlPb += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
-												xmlPb += "<thead >";
-												xmlPb += "<tr >";
-												xmlPb += "<th colspan=\"2\"><br/>Works Order</th>";
-												xmlPb += "<th align=\"left\" colspan=\"14\"><br/>Component</th>";
-		                                      	xmlPb += "<th align=\"right\" colspan=\"2\"><br/>Bin Number</th>";
-												xmlPb += "<th align=\"right\" colspan=\"2\">    Qty<br/>Committed</th>";
-		                                      
-												xmlPb += "</tr>";
-												xmlPb += "</thead>";
-												
-												xmlPb += "<tr>";
-												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
-												//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\">&nbsp;</td>";
-												xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"4\">&nbsp;</td>";
-												xmlPb += "</tr>";
-																	
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
-												//xmlPb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-												xmlPb += "<td align=\"left\" colspan=\"14\">&nbsp;</td>";
-		                                      	xmlPb += "</tr>";	
-												xmlPb += "<tr>";
-												xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\">&nbsp;</td>";
-												xmlPb += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
-												xmlPb += "</tr>";
-												
-											}
-										else
-											{
-												//Collate all of the base items together
-												//
-												if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
-													{
-														var committedValue = Number(0);
-														
-														//For non inventory parts, show the quantity rather than the committed qty as this will be zero
-		                                              	//
-		                                              	if(woItemType == 'NonInvtPart')
-				                                      		{
-																committedValue = Number(woAssemblyItemQty);
-				                                      		}
-														else
-															{
-																committedValue = Number(woAssemblyItemCommitted);
-															}
-														
-														if(!baseItems[woAssemblyItemSequence])
-															{
-																baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),committedValue,woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
-															}
-														else
-															{
-																baseItems[woAssemblyItemSequence][1] = Number(baseItems[woAssemblyItemSequence][1]) + Number(woAssemblyItemQty);
-																baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + committedValue;
-															}
-													}
-												
-												
-												//Only print out non-assembly items
-												//
-												if(woItemType != 'Assembly')
-													{
-														//Also we need to keep track of the components for the current finished item 
-														//
-														var finishedItemComponents = finishedItems[thisFinishedItem][3];
-														
-														if(!finishedItemComponents[woAssemblyItemId])
-															{
-																finishedItemComponents[woAssemblyItemId] = [woAssemblyItem,woAssemblyItemDesc,woSpecInst,Number(woAssemblyItemQty),Number(woAssemblyItemCommitted)]
-		                                                 
-															}
-														else
-															{
-																finishedItemComponents[woAssemblyItemId][3] = Number(finishedItemComponents[woAssemblyItemId][3]) + Number(woAssemblyItemQty);
-																finishedItemComponents[woAssemblyItemId][4] = Number(finishedItemComponents[woAssemblyItemId][4]) + Number(woAssemblyItemCommitted);
-															}
-														
-														finishedItems[thisFinishedItem][3] = finishedItemComponents;
-														
-												
-																xmlPb += "<tr>";
-																xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
-																xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
-																xmlPb += "<td align=\"right\" colspan=\"2\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woBinNumber) + "</td>";
-																
-		                                                      	//For non inventory parts, show the quantity rather than the committed qty as this will be zero
-		                                                      	//
-		                                                      	if(woItemType == 'NonInvtPart')
-		                                                      		{
-		                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemQty) + "</td>";                  
-		                                                      		}
-		                                                      	else
-		                                                      		{
-		                                                      			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
-		                                                      		}
-		                                                      	
-																xmlPb += "</tr>";
-																
-																if(woItemType == 'NonInvtPart')
-		                                                  		{
-																	xmlPb += "<tr>";
-																	xmlPb += "<td colspan=\"2\">&nbsp;</td>";
-																	xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
-																	xmlPb += "</tr>";
-																}
-																	
-																if(woSpecInst != null && woSpecInst != '')
-																	{
-																		xmlPb += "<tr>";
-																		xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-																		xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
-																		xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
-																		xmlPb += "</tr>";
-																	}
-
-													}
-												else
-													{
-														//Print out special instructions for assembly items - if present
-														//
-														if(woSpecInst != null && woSpecInst != '')
-															{
-																xmlPb += "<tr>";
-																xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-																xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Finish Special Instr. :</b></td>";
-																xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
-																xmlPb += "</tr>";
-															}
-													}
-											}
-									}
-									
-									//Finish the item table
-									//
-									xmlPb += "</table>";
-									
-								}
-							
-							//Add in the number of finishes
-							//
-							xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
-							xmlPb += "<tr>";
-							xmlPb += "<td style=\"margin-top: 10px; margin-bottom: 5px;\"><b>Finishes Summary</b></td>";
-							xmlPb += "</tr>";
-							xmlPb += "</table>";
-							
-							xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
-							xmlPb += "<thead >";
-							xmlPb += "<tr >";
-							xmlPb += "<th colspan=\"2\">&nbsp;</th>";
-							xmlPb += "<th align=\"left\" colspan=\"14\">Finish</th>";
-		                  	xmlPb += "<th align=\"right\" colspan=\"2\">Bin Number</th>";
-							xmlPb += "<th align=\"right\" colspan=\"2\">Quantity</th>";
-		                  
-							xmlPb += "</tr>";
-							xmlPb += "</thead>";
-							
-							//Sort the base items
-							//
-							for ( var tempBaseItem in tempBaseItems) 
-								{
-									delete tempBaseItems[tempBaseItem];
-								}
-							
-							const tempBaseItems = {};
-							Object.keys(baseItems).sort().forEach(function(key) {
-								tempBaseItems[key] = baseItems[key];
-							});
-							
-							//Loop through the base items
-							//
-							for (var baseItem in tempBaseItems) 
-								{
-									//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
-									//
-									if(['1','2','7','11'].indexOf(tempBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
-										{
-											xmlPb += "<tr>";
-											xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
-											xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(tempBaseItems[baseItem][0])) + "</b></td>";
-											xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(tempBaseItems[baseItem][3]) + "</td>";
-											xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][6]) + "</td>";
-											xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][2]) + "</td>";
-											xmlPb += "</tr>";
-		
-										}
-								}
-							
-							//Finish the item table
-							//
-							xmlPb += "</table>";
-							
-							//Add in the operator signature boxes
-							//
-							xmlPb += "<p/>";
-							xmlPb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
-							xmlPb += "<tr class=\"totalrow\">";
-							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
-							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-							xmlPb += "</tr>";
-							xmlPb += "<tr class=\"totalrow\">";
-							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
-							xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
-							xmlPb += "</tr>";
-							xmlPb += "</table>";
-							
-							//Finish the body
-							//
-							xmlPb += "</body>";
-							
-							//Finish the pdf
-							//
-							xmlPb += "</pdf>";
-		
-							if(PRINT_PRODUCTION_BATCH)
-								{
-									xml += xmlPb;
-								}
-							
-							xmlPb = '';
-							
-							
-					
-				}
-				//
-				//End of loop through data
-				//
-
-				
-				//Finish the pdfset
-				//
-				xml += "</pdfset>";
-				
-				//
-				//=====================================================================
-				// End of pdf generation
-				//=====================================================================
-				//
-				
-				//Convert to pdf using the BFO library
-				//
-				var pdfFileObject = nlapiXMLToPDF(xml);
-				
-				//Build the file name
-				//
-				var today = new Date();
-				var pdfFileName = 'Production Batch Documentation ' + today.toUTCString();
-				
-				//Set the file name & folder
-				//
-				pdfFileObject.setName(pdfFileName);
-				pdfFileObject.setFolder(-10);
-
-			    //Upload the file to the file cabinet.
-				//
-			    var fileId = nlapiSubmitFile(pdfFileObject);
-			 
-			    var remaining = nlapiGetContext().getRemainingUsage();
-				
-			    //Attach file to the batches
-			    //
-			    for (var int6 = 0; int6 < batchesArray.length; int6++) 
-			    {
-					var batchId = batchesArray[int6];
-					
-					nlapiAttachRecord("file", fileId, "customrecord_bbs_assembly_batch", batchId); // 10GU's
-				}
-			    
 				//Send back the output in the response message
 				//
 				response.setContentType('PDF', 'Production Batch Documents', 'inline');
 				response.write(pdfFileObject.getValue());
-				
+
 				break;
 		}
 	}
@@ -2015,5 +1360,686 @@ function padding_left(s, c, n)
 	return s;
 }
 
+function generateProdBatchDocs(batchesArray, solink)
+{
+	var today = new Date();
+	var now = today.toUTCString();
+	
+	var remaining = nlapiGetContext().getRemainingUsage();
+	
+	var stockOrSales = (solink == 'T' ? 'Sales Order' : 'Stock');
+	
+	var filters = new Array();
+	filters[0] = new nlobjSearchFilter('internalid', null, 'anyof', batchesArray);
+	
+	var columns = new Array();
+	columns[0] = new nlobjSearchColumn('custrecord_bbs_bat_description');
+	columns[1] = new nlobjSearchColumn('custrecord_bbs_bat_date_entered');
+	columns[2] = new nlobjSearchColumn('custrecord_bbs_bat_date_due');
+	
+	var batchResults = nlapiSearchRecord('customrecord_bbs_assembly_batch', null, filters, columns);  // 10GU's
+	
+	
+	//
+	//=====================================================================
+	// Start the xml off with the basic header info & the start of a pdfset
+	//=====================================================================
+	//
+	var xml = "<?xml version=\"1.0\"?>\n<!DOCTYPE pdf PUBLIC \"-//big.faceless.org//report\" \"report-1.1.dtd\">\n<pdfset>";  // Main XML
+	var xmlPb = ''; // Production Batch XML
+	var xmlCb = ''; // Consolidated Base Products XML
+	var xmlCf = ''; // Consolidated Finished Products XML
+	
+	//
+	//=====================================================================
+	// Produce the batch picking list
+	//=====================================================================
+	//
+	var baseItems = {};
+	var finishedItems = {};
+	
+	//Loop through the batch data
+	//
+	for (var int2 = 0; int2 < batchResults.length; int2++) 
+	{
+		//
+		//Produce the batch pick documents
+		//
+		var batchId = batchResults[int2].getId();
+		var batchDescription = batchResults[int2].getValue('custrecord_bbs_bat_description');
+
+		//START Pre-sort the works orders into base item order
+		//
+		var woSearchArray = [];
+		
+		var workorderSearch = getResults(nlapiCreateSearch("workorder",
+				[
+				   ["type","anyof","WorkOrd"], 
+				   "AND", 
+				   ["custbody_bbs_wo_batch","anyof",batchId], 
+				   "AND", 
+				   ["mainline","is","F"], 
+				   "AND", 
+				   ["item.type","anyof","InvtPart"]
+				], 
+				[
+				   new nlobjSearchColumn("tranid"), 
+				   new nlobjSearchColumn("item"), 
+				   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null).setSort(false)
+				]
+				));
+		
+		if(workorderSearch != null && workorderSearch.length > 0)
+			{
+				for (var int5 = 0; int5 < workorderSearch.length; int5++) 
+					{
+						var woId = workorderSearch[int5].getId();
+						
+						if(woSearchArray.indexOf(woId) == -1)
+							{
+								woSearchArray.push(woId);
+							}
+					}
+			}					
+		//
+		//END Pre-sort the works orders into base item order
+		
+
+		//Find the works orders associated with this batch
+		//
+		//	var filterArray = [
+		//	                   ["type","anyof","WorkOrd"], 
+		//	                   "AND", 
+		//	                   ["custbody_bbs_wo_batch","anyof",batchId]			                   
+		//	                ];
+		
+			
+				var filterArray = [
+				                   ["type","anyof","WorkOrd"], 
+				                   "AND", 
+				                   ["internalid","anyof",woSearchArray]			                   
+				                ];
+				
+				var transactionSearch = nlapiCreateSearch("transaction", filterArray, 
+						[
+						   new nlobjSearchColumn("tranid",null,null).setSort(false), 
+						   new nlobjSearchColumn("entity",null,null), 
+						   new nlobjSearchColumn("item",null,null), 
+						   new nlobjSearchColumn("quantity",null,null),
+						   new nlobjSearchColumn("custitem_bbs_item_customer","item",null),
+						   new nlobjSearchColumn("item",null,null),
+						   new nlobjSearchColumn("type","item",null),
+						   new nlobjSearchColumn("description","item",null),
+						   new nlobjSearchColumn("mainline",null,null),
+						   new nlobjSearchColumn("custcol_bbs_bom_spec_inst",null,null),
+						   new nlobjSearchColumn("quantitycommitted",null,null),
+						   new nlobjSearchColumn("custbody_bbs_commitment_status",null,null),
+						   new nlobjSearchColumn("custitem_bbs_matrix_item_seq","item",null),
+						   new nlobjSearchColumn("custitemfinish_type","item",null),
+						   new nlobjSearchColumn("custitem_bbs_item_process_type","item",null),
+						   new nlobjSearchColumn("tranid","createdfrom",null),
+						   new nlobjSearchColumn("shipdate","createdfrom",null),
+						   new nlobjSearchColumn("custbody_bbs_wo_logo_type",null,null),
+						   new nlobjSearchColumn("custbody_bbs_wo_machine",null,null),
+                           new nlobjSearchColumn("binnumber","item",null),
+                           new nlobjSearchColumn("parent","item",null)
+						]
+						);
+
+				var searchResult = transactionSearch.runSearch();
+				
+				//Get the initial set of results
+				//
+				var start = 0;
+				var end = 1000;
+				var searchResultSetOrig = searchResult.getResults(start, end); // 10GU's
+				var resultlen = searchResultSetOrig.length;
+
+				//If there is more than 1000 results, page through them
+				//
+				while (resultlen == 1000) 
+					{
+							start += 1000;
+							end += 1000;
+
+							var moreSearchResultSet = searchResult.getResults(start, end);  // 10GU's
+							resultlen = moreSearchResultSet.length;
+
+							searchResultSetOrig = searchResultSetOrig.concat(moreSearchResultSet);
+					}
+				
+				
+				//Re-order the search result set
+				//
+				var searchResultSet = [];
+				
+				for (var int6 = 0; int6 < woSearchArray.length; int6++) 
+					{
+						var currentWoId = woSearchArray[int6];
+						
+						for (var int7 = 0; int7 < searchResultSetOrig.length; int7++) 
+							{
+								var searchResultWoId = searchResultSetOrig[int7].getId();
+								
+								if(searchResultWoId == currentWoId)
+									{
+										searchResultSet.push(searchResultSetOrig[int7]);
+									}
+							}
+					}
+				
+				
+				
+				//Work out the customer sub group
+				//
+				var subGroup = '';
+				var thisEntity = '';
+				var thisSalesOrder = '';
+				var thisShipDate = '';
+				var thisShipDay = '';
+				var thisShipDateFormatted = '';
+				var thisLogoType = '';
+				var thisMachine = '';
+				
+				//If we are linked to sales orders, then read the first w/o to get the customer from the w/o & then get the sub group
+				//
+				if(solink == 'T')
+					{
+						if(searchResultSet != null && searchResultSet.length > 0)
+							{
+								thisEntity = searchResultSet[0].getValue("entity");
+								thisSalesOrder = searchResultSet[0].getValue("tranid","createdfrom");
+								thisShipDate = searchResultSet[0].getValue("shipdate","createdfrom");
+								thisMachine = searchResultSet[0].getValue("custbody_bbs_wo_machine");
+								
+								switch(searchResultSet[0].getValue("custbody_bbs_wo_logo_type"))
+									{
+										case '1': //Embroidery
+											thisLogoType = 'EMB';
+											break;
+											
+										case '2': //Heatseal
+											thisLogoType = 'HS';
+											break;
+											
+										case '11': //Emb + hs
+											thisLogoType = 'EMB+HS';
+											break;
+									}
+								
+								if(thisShipDate != null && thisShipDate != '')
+									{
+										thisShipDay = (nlapiStringToDate(thisShipDate)).format('D');
+										thisShipDateFormatted = (nlapiStringToDate(thisShipDate)).format('d F Y');
+									}
+							}
+					}
+				else
+					{	
+						//If not linked to sales orders, we will need to use the assembly item belongs to instead
+						//
+						if(searchResultSet != null && searchResultSet.length > 0)
+							{
+								thisEntity = searchResultSet[0].getValue("custitem_bbs_item_customer","item");
+							}
+					}
+				
+				if(thisEntity !=  null && thisEntity != '')
+				{
+//SMI					subGroup = nlapiLookupField('customer', thisEntity, 'custentity_bbs_customer_sub_group', true);  // 5GU's
+					subGroup = (subGroup == null ? '' : subGroup);
+				}
+				
+				
+				
+				for ( var baseItem in baseItems) 
+					{
+						delete baseItems[baseItem];
+					}
+			
+				for ( var finishedItem in finishedItems) 
+					{
+						delete finishedItems[finishedItem];
+					}
+			
+				var remaining = nlapiGetContext().getRemainingUsage();
+				
+				//Header & style sheet
+				//
+				xmlPb += "<pdf>"
+				xmlPb += "<head>";
+				xmlPb += "<style type=\"text/css\">table {font-family: Calibri, Candara, Segoe, \"Segoe UI\", Optima, Arial, sans-serif;font-size: 9pt;table-layout: fixed;}";
+				xmlPb += "th {font-weight: bold;font-size: 8pt;padding: 0px;border-bottom: 1px solid black;border-collapse: collapse;}";
+				xmlPb += "td {padding: 0px;vertical-align: top;font-size:10px;}";
+				xmlPb += "b {font-weight: bold;color: #333333;}";
+				xmlPb += "table.header td {padding: 0px;font-size: 10pt;}";
+				xmlPb += "table.footer td {padding: 0;font-size: 10pt;}";
+				xmlPb += "table.itemtable th {padding-bottom: 0px;padding-top: 0px;}";
+				xmlPb += "table.body td {padding-top: 0px;}";
+				xmlPb += "table.total {page-break-inside: avoid;}";
+				xmlPb += "table.message{border: 1px solid #dddddd;}";
+				xmlPb += "tr.totalrow {line-height: 300%;}";
+				xmlPb += "tr.messagerow{font-size: 6pt;}";
+				xmlPb += "td.totalboxtop {font-size: 12pt;background-color: #e3e3e3;}";
+				xmlPb += "td.addressheader {font-size: 10pt;padding-top: 0px;padding-bottom: 0px;}";
+				xmlPb += "td.address {padding-top: 0;font-size: 10pt;}";
+				xmlPb += "td.totalboxmid {font-size: 28pt;padding-top: 20px;background-color: #e3e3e3;}";
+				xmlPb += "td.totalcell {border: 1px solid black;border-collapse: collapse;}";
+				xmlPb += "td.message{font-size: 8pt;}";
+				xmlPb += "td.totalboxbot {background-color: #e3e3e3;font-weight: bold;}";
+				xmlPb += "span.title {font-size: 28pt;}";
+				xmlPb += "span.number {font-size: 16pt;}";
+				xmlPb += "span.itemname {font-weight: bold;line-height: 150%;}";
+				xmlPb += "hr {width: 100%;color: #d3d3d3;background-color: #d3d3d3;height: 1px;}";
+				xmlPb += "</style>";
+
+		        //Macros
+		        //
+				xmlPb += "<macrolist>";
+				xmlPb += "<macro id=\"nlfooter\">";
+				
+				xmlPb += "<p/>";
+				
+				xmlPb += "<table class=\"footer\" style=\"width: 100%;\">";
+				xmlPb += "<tr><td align=\"left\" style=\"font-size:6px;\">Printed: " + now + "</td><td align=\"right\" style=\"font-size:6px;\">Page <pagenumber/> of <totalpages/></td></tr>";
+				xmlPb += "</table>";
+				xmlPb += "</macro>";
+				
+				//Header data
+				//
+				xmlPb += "<macro id=\"nlheader\">";
+				xmlPb += "<table style=\"width: 100%\">";
+				xmlPb += "<tr>";
+				xmlPb += "<td colspan=\"2\" align=\"left\" style=\"font-size:12px; padding-bottom: 10px;\">&nbsp;</td>";
+				xmlPb += "<td colspan=\"12\" align=\"center\" style=\"font-size:20px; padding-bottom: 10px;\"><b>Production Batch Picking List</b></td>";
+				xmlPb += "<td colspan=\"2\" align=\"right\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisLogoType) + "</td>";
+				xmlPb += "</tr>";
+				
+				//xmlPb += "<tr>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "</tr>";
+				
+				xmlPb += "<tr>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Description</b></td>";
+				xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:12px; padding-bottom: 10px;\">" + nlapiEscapeXML(batchDescription) + "</td>";
+				xmlPb += "</tr>";
+				
+				//xmlPb += "<tr>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "</tr>";
+				
+				xmlPb += "<tr>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Batch Id</b></td>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(batchId) + "\"/></td>";
+				xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(batchId) + "</td>";
+				xmlPb += "</tr>";
+				
+				//xmlPb += "<tr>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "<td align=\"center\" style=\"font-size:20px;\">&nbsp;</td>";
+				//xmlPb += "</tr>";
+				
+				xmlPb += "<tr>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Sales Order</b></td>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"padding-bottom: 10px;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(thisSalesOrder) + "\"/></td>";
+				xmlPb += "<td align=\"left\" style=\"font-size:16px; padding-bottom: 10px; padding-left: 50px;\" colspan=\"8\">" + nlapiEscapeXML(thisSalesOrder) + "</td>";
+				xmlPb += "</tr>";
+				
+				xmlPb += "<tr>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Ship date</b></td>";
+				xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + thisShipDateFormatted + " (" + thisShipDay + ")</td>";
+				xmlPb += "</tr>";
+				
+				xmlPb += "<tr>";
+				xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size:12px; padding-bottom: 10px;\"><b>Machine</b></td>";
+				xmlPb += "<td align=\"left\" colspan=\"12\" style=\"font-size:16px; padding-bottom: 10px;\">" + nlapiEscapeXML(thisMachine) + "</td>";
+				xmlPb += "</tr>";
+				
+				xmlPb += "</table></macro>";
+
+				xmlPb += "</macrolist>";
+				xmlPb += "</head>";
+				
+				//Body
+				//
+				xmlPb += "<body header=\"nlheader\" header-height=\"180px\" footer=\"nlfooter\" footer-height=\"10px\" padding=\"0.5in 0.5in 0.5in 0.5in\" size=\"A4\">";
+				
+				//Init some variables
+				//
+				var firstTime = true;
+				
+				//Loop through the works orders on the batch
+				//
+				if(searchResultSet != null)
+					{
+						var thisFinishedItem = '';
+						var woSpecInst = '';
+						var firstInventoryItem = true;
+						
+						for (var int3 = 0; int3 < searchResultSet.length; int3++) 
+						{
+							var woId 						= searchResultSet[int3].getId();
+							var woAssemblyItemId 			= searchResultSet[int3].getValue('item');
+							var woAssemblyItem 				= searchResultSet[int3].getText('item');
+							var woAssemblyItemDesc 			= searchResultSet[int3].getValue('description','item');
+							var woAssemblyItemQty 			= (Number(searchResultSet[int3].getValue('quantity')).toFixed(0));
+							var woAssemblyItemCommitted 	= (Number(searchResultSet[int3].getValue('quantitycommitted')).toFixed(0));
+							var woMainline 					= searchResultSet[int3].getValue('mainline');
+							var woSpecInst 					= searchResultSet[int3].getValue("custcol_bbs_bom_spec_inst");
+							var woItemType 					= searchResultSet[int3].getValue("type","item");
+							var woCommitStatus 				= searchResultSet[int3].getText("custbody_bbs_commitment_status");
+							var woAssemblyItemSequence 		= searchResultSet[int3].getValue("custitem_bbs_matrix_item_seq","item");
+							var woAssemblyProcessType 		= searchResultSet[int3].getText("custitem_bbs_item_process_type","item");
+							var woAssemblyProcessTypeId		= searchResultSet[int3].getValue("custitem_bbs_item_process_type","item");
+                            var woBinNumber					= searchResultSet[int3].getValue("binnumber","item");
+                            var woAssemblyParent					= searchResultSet[int3].getValue("parent","item");
+							if(woAssemblyItemSequence == null || woAssemblyItemSequence == '')
+								{
+									woAssemblyItemSequence = padding_left(woAssemblyItemId, '0', 6);
+								}
+							
+							if(woMainline == '*')
+								{	
+									thisFinishedItem = woAssemblyItemSequence;
+								
+									if(firstTime)
+										{
+											firstTime = false;
+										}
+									else
+										{
+											xmlPb += "</table>";
+										}
+									
+									//Collate all of the finished items together
+									//
+									
+									if(!finishedItems[thisFinishedItem])
+										{
+											var componetsObject = {};
+											finishedItems[thisFinishedItem] = [woAssemblyItem,Number(woAssemblyItemQty),woAssemblyItemDesc,componetsObject]; //Item Description, Quantity, Description, Components Object
+										}
+									else
+										{
+											finishedItems[thisFinishedItem][1] = Number(finishedItems[thisFinishedItem][1]) + Number(woAssemblyItemQty);
+										}
+										
+									
+									xmlPb += "<table class=\"itemtable\" style=\"width: 100%; page-break-inside: avoid;\">";
+									xmlPb += "<thead >";
+									xmlPb += "<tr >";
+									xmlPb += "<th colspan=\"2\"><br/>Works Order</th>";
+									xmlPb += "<th align=\"left\" colspan=\"14\"><br/>Component</th>";
+                                  	xmlPb += "<th align=\"right\" colspan=\"2\"><br/>Bin Number</th>";
+									xmlPb += "<th align=\"right\" colspan=\"2\">    Qty<br/>Committed</th>";
+                                  
+									xmlPb += "</tr>";
+									xmlPb += "</thead>";
+									
+									xmlPb += "<tr>";
+									xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" colspan=\"2\">" + nlapiEscapeXML(searchResultSet[int3].getValue('tranid')) + "</td>";
+									//xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+									xmlPb += "<td  style=\"border-top: 1px; border-top-color: black; font-size: 10pt;\" align=\"left\" colspan=\"14\">&nbsp;</td>";
+									xmlPb += "<td  style=\"border-top: 1px; border-top-color: black;\" align=\"left\" colspan=\"4\">&nbsp;</td>";
+									xmlPb += "</tr>";
+														
+									xmlPb += "<tr>";
+									xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\"> " + nlapiEscapeXML(woCommitStatus) + "</td>";
+									//xmlPb += "<td align=\"left\" colspan=\"14\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+									xmlPb += "<td align=\"left\" colspan=\"14\">&nbsp;</td>";
+                                  	xmlPb += "</tr>";	
+									xmlPb += "<tr>";
+									xmlPb += "<td colspan=\"2\" style=\"font-size: 5pt;\">&nbsp;</td>";
+									xmlPb += "<td align=\"left\" colspan=\"12\">&nbsp;</td>";
+									xmlPb += "</tr>";
+									
+								}
+							else
+								{
+									//Collate all of the base items together
+									//
+									if(woItemType == 'InvtPart' || woItemType == 'NonInvtPart')
+										{
+											var committedValue = Number(0);
+											
+											//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+                                          	//
+                                          	if(woItemType == 'NonInvtPart')
+	                                      		{
+													committedValue = Number(woAssemblyItemQty);
+	                                      		}
+											else
+												{
+													committedValue = Number(woAssemblyItemCommitted);
+												}
+											
+											if(!baseItems[woAssemblyItemSequence])
+												{
+													baseItems[woAssemblyItemSequence] = [woAssemblyItem,Number(woAssemblyItemQty),committedValue,woAssemblyItemDesc,woSpecInst,woAssemblyProcessTypeId,woBinNumber]; //Item Description, Quantity, Committed Qty, Description, Special Instr, Process Type
+												}
+											else
+												{
+													baseItems[woAssemblyItemSequence][1] = Number(baseItems[woAssemblyItemSequence][1]) + Number(woAssemblyItemQty);
+													baseItems[woAssemblyItemSequence][2] = Number(baseItems[woAssemblyItemSequence][2]) + committedValue;
+												}
+										}
+									
+									
+									//Only print out non-assembly items
+									//
+									if(woItemType != 'Assembly')
+										{
+											//Also we need to keep track of the components for the current finished item 
+											//
+											var finishedItemComponents = finishedItems[thisFinishedItem][3];
+											
+											if(!finishedItemComponents[woAssemblyItemId])
+												{
+													finishedItemComponents[woAssemblyItemId] = [woAssemblyItem,woAssemblyItemDesc,woSpecInst,Number(woAssemblyItemQty),Number(woAssemblyItemCommitted)]
+                                             
+												}
+											else
+												{
+													finishedItemComponents[woAssemblyItemId][3] = Number(finishedItemComponents[woAssemblyItemId][3]) + Number(woAssemblyItemQty);
+													finishedItemComponents[woAssemblyItemId][4] = Number(finishedItemComponents[woAssemblyItemId][4]) + Number(woAssemblyItemCommitted);
+												}
+											
+											finishedItems[thisFinishedItem][3] = finishedItemComponents;
+											
+									
+													xmlPb += "<tr>";
+													xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+													xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 10pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "</b></td>";
+													xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woAssemblyItemDesc) + "</td>";
+													xmlPb += "<td align=\"right\" colspan=\"2\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(woBinNumber) + "</td>";
+													
+                                                  	//For non inventory parts, show the quantity rather than the committed qty as this will be zero
+                                                  	//
+                                                  	if(woItemType == 'NonInvtPart')
+                                                  		{
+                                                  			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemQty) + "</td>";                  
+                                                  		}
+                                                  	else
+                                                  		{
+                                                  			xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(woAssemblyItemCommitted) + "</td>";
+                                                  		}
+                                                  	
+													xmlPb += "</tr>";
+													
+													if(woItemType == 'NonInvtPart')
+                                              		{
+														xmlPb += "<tr>";
+														xmlPb += "<td colspan=\"2\">&nbsp;</td>";
+														xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\"><barcode codetype=\"code128\" showtext=\"false\" value=\"" + nlapiEscapeXML(removePrefix(woAssemblyItem)) + "\"/></td>";
+														xmlPb += "</tr>";
+													}
+														
+													if(woSpecInst != null && woSpecInst != '')
+														{
+															xmlPb += "<tr>";
+															xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+															xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Special Instructions :</b></td>";
+															xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\">" + nlapiEscapeXML(woSpecInst) + "</td>";
+															xmlPb += "</tr>";
+														}
+
+										}
+									else
+										{
+											//Print out special instructions for assembly items - if present
+											//
+											if(woSpecInst != null && woSpecInst != '')
+												{
+													xmlPb += "<tr>";
+													xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+													xmlPb += "<td align=\"left\" colspan=\"4\" style=\"margin-top: 5px;\"><b>Finish Special Instr. :</b></td>";
+													xmlPb += "<td align=\"left\" colspan=\"14\" style=\"margin-top: 5px;\"><b>" + nlapiEscapeXML(woSpecInst) + "</b></td>";
+													xmlPb += "</tr>";
+												}
+										}
+								}
+						}
+						
+						//Finish the item table
+						//
+						xmlPb += "</table>";
+						
+					}
+				
+				//Add in the number of finishes
+				//
+				xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+				xmlPb += "<tr>";
+				xmlPb += "<td style=\"margin-top: 10px; margin-bottom: 5px;\"><b>Finishes Summary</b></td>";
+				xmlPb += "</tr>";
+				xmlPb += "</table>";
+				
+				xmlPb += "<table class=\"itemtable\" style=\"width: 100%;\">";
+				xmlPb += "<thead >";
+				xmlPb += "<tr >";
+				xmlPb += "<th colspan=\"2\">&nbsp;</th>";
+				xmlPb += "<th align=\"left\" colspan=\"14\">Finish</th>";
+              	xmlPb += "<th align=\"right\" colspan=\"2\">Bin Number</th>";
+				xmlPb += "<th align=\"right\" colspan=\"2\">Quantity</th>";
+              
+				xmlPb += "</tr>";
+				xmlPb += "</thead>";
+				
+				//Sort the base items
+				//
+				for ( var tempBaseItem in tempBaseItems) 
+					{
+						delete tempBaseItems[tempBaseItem];
+					}
+				
+				const tempBaseItems = {};
+				Object.keys(baseItems).sort().forEach(function(key) {
+					tempBaseItems[key] = baseItems[key];
+				});
+				
+				//Loop through the base items
+				//
+				for (var baseItem in tempBaseItems) 
+					{
+						//Base Item Array - [0]Item Description, [1]Quantity, [2]Committed Qty, [3]Description, [4]Special Instr, [5]Process Type
+						//
+						if(['1','2','7','11'].indexOf(tempBaseItems[baseItem][5]) != -1) //1=Embroidery, 2=Heatseal, 7=Transfer, 11=Embroidery/Heatseal
+							{
+								xmlPb += "<tr>";
+								xmlPb += "<td colspan=\"2\" style=\"margin-top: 5px;\">&nbsp;</td>";
+								xmlPb += "<td align=\"left\" colspan=\"4\" style=\"font-size: 12pt; margin-top: 5px;\"><b>" + nlapiEscapeXML(removePrefix(tempBaseItems[baseItem][0])) + "</b></td>";
+								xmlPb += "<td align=\"left\" colspan=\"10\" style=\"font-size: 8pt; margin-top: 5px; vertical-align: middle;\">" + nlapiEscapeXML(tempBaseItems[baseItem][3]) + "</td>";
+								xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][6]) + "</td>";
+								xmlPb += "<td align=\"right\" colspan=\"2\" style=\"padding-right: 5px; margin-top: 5px;\">" + nlapiEscapeXML(tempBaseItems[baseItem][2]) + "</td>";
+								xmlPb += "</tr>";
+
+							}
+					}
+				
+				//Finish the item table
+				//
+				xmlPb += "</table>";
+				
+				//Add in the operator signature boxes
+				//
+				xmlPb += "<p/>";
+				xmlPb += "<table class=\"total\" style=\"width: 100%; page-break-inside: avoid;\">";
+				xmlPb += "<tr class=\"totalrow\">";
+				xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Picked (Initials):</b></td>";
+				xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+				xmlPb += "</tr>";
+				xmlPb += "<tr class=\"totalrow\">";
+				xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Checked (Initials):</b></td>";
+				xmlPb += "<td class=\"totalcell\" align=\"left\" style=\"padding-left: 5px;\"><b>Date:</b></td>";
+				xmlPb += "</tr>";
+				xmlPb += "</table>";
+				
+				//Finish the body
+				//
+				xmlPb += "</body>";
+				
+				//Finish the pdf
+				//
+				xmlPb += "</pdf>";
+
+				if(PRINT_PRODUCTION_BATCH)
+					{
+						xml += xmlPb;
+					}
+				
+				xmlPb = '';
+				
+				
+		
+	}
+	//
+	//End of loop through data
+	//
+
+	
+	//Finish the pdfset
+	//
+	xml += "</pdfset>";
+	
+	//
+	//=====================================================================
+	// End of pdf generation
+	//=====================================================================
+	//
+	
+	//Convert to pdf using the BFO library
+	//
+	var pdfFileObject = nlapiXMLToPDF(xml);
+	
+	//Build the file name
+	//
+	var today = new Date();
+	var pdfFileName = 'Production Batch Documentation ' + today.toUTCString();
+	
+	//Set the file name & folder
+	//
+	pdfFileObject.setName(pdfFileName);
+	pdfFileObject.setFolder(-10);
+
+    //Upload the file to the file cabinet.
+	//
+    var fileId = nlapiSubmitFile(pdfFileObject);
+ 
+    var remaining = nlapiGetContext().getRemainingUsage();
+	
+    //Attach file to the batches
+    //
+    for (var int6 = 0; int6 < batchesArray.length; int6++) 
+    {
+		var batchId = batchesArray[int6];
+		
+		nlapiAttachRecord("file", fileId, "customrecord_bbs_assembly_batch", batchId); // 10GU's
+	}
+    
+    return pdfFileObject;
+	
+}
 
 

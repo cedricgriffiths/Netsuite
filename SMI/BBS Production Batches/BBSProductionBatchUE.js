@@ -20,12 +20,13 @@ function productionBatchBeforeLoad(type, form, request)
 	if (type == 'edit')
 		{
 			form.addButton('custpage_but_print_label', 'Print Label', 'libPrintLabel()');
-
+			form.addButton('custpage_but_reprint', 'Reprint Batch Docs', 'libReprint()');
 		}
 	
 	if (type == 'view')
 		{
 			form.setScript('customscript_bbs_prod_batch_global');
 			form.addButton('custpage_but_print_label', 'Print Label', 'gblPrintLabel()');
+			form.addButton('custpage_but_reprint', 'Reprint Batch Docs', 'gblReprint()');
 		}
 }
