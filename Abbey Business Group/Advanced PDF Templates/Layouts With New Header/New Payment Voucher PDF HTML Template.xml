@@ -1,0 +1,229 @@
+<?xml version="1.0"?><!DOCTYPE pdf PUBLIC "-//big.faceless.org//report" "report-1.1.dtd">
+<pdf>
+<head>
+  
+    <macrolist>
+        <macro id="nlheader">
+              <table class="header" style="width: 100%;">
+                
+    <tr>
+	<td align="left" ><img src="https://system.eu2.netsuite.com/core/media/media.nl?id=151990&amp;c=4524752&amp;h=db397b5d65c3076bd964" style="float: left; width:710px; height:75px;" /></td>
+	</tr>
+	<tr>
+      <td>&nbsp;</td>
+    </tr>  
+                
+	<tr><td rowspan="5"><span style="font-size:10px;">${companyInformation.addressText}</span></td><td align="right">&nbsp;</td><td align="right">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left">&nbsp;</td></tr>
+	<tr><td align="left" colspan="2" style="font-size:10px; font-weight: bold;">Tel: 01242 263444</td></tr>
+	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Email: accounts@abbeybusinessgroup.com</td></tr>
+	<tr><td align="left" colspan="2" style="width: 100%; font-size:10px; font-weight: bold;">Web: www.abbeybusinessgroup.com</td></tr>
+    <tr><td align="left">&nbsp;</td></tr>
+	</table>
+    
+        <table style="width: 100%;">
+	<tr>
+	<td align="left" colspan="2" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Payment To</td>
+	<td align="left">&nbsp;</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; border-right: 2px solid white; padding: 5px;">Payment Date:</td>
+	<td align="left" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.trandate?string["dd MMM yyyy"]}</td>
+	</tr>
+
+	<tr>
+	<td align="left" colspan="2" rowspan="5" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${record.address}</td>
+    <td align="left">&nbsp;</td>
+	<td align="left">&nbsp;</td>
+	<td align="left">&nbsp;</td>
+	</tr>
+          </table>
+          
+        </macro>
+
+        <macro id="nlfooter">
+
+              <table style="width: 100%;">
+	<tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt">&nbsp;</td>
+    </tr>
+       <tr class="messagerow">
+	<td class="message" align="center" style="font-size: 6pt"><b>Cleared Funds Will Be Received Within 3 Business Days Of The Above Mentioned Payment Date</b></td>
+	</tr>
+    </table>
+
+<table class="footer" style="width: 100%;">
+  	<tr>
+    <td align="center" style="font-size: 6pt">REG. OFFICE NO. 2200765 REG. OFFICE: Units 23 &amp; 24 Neptune Business Centre, Tewkesbury Road, Cheltenham, Gloucestershire. GL51 9FB VAT REG. No. 484 6151 31</td>
+	</tr>
+  	<tr>
+    <td align="right"><pagenumber/> of <totalpages/></td>
+	</tr>
+</table>
+
+
+        </macro>
+    </macrolist>
+
+
+
+    <style type="text/css">table {
+            font-family: helvetica;
+            font-size: 9pt;
+            table-layout: fixed;
+        }
+        th {
+            font-weight: bold;
+            font-size: 8pt;
+            padding: 0px;
+            background-color: #e3e3e3;
+            color: #333333;
+        }
+        td {
+            padding: 0px;
+            vertical-align: middle;
+            font-size:12px;
+        }
+        b {
+            font-weight: bold;
+            color: #333333;
+        }
+        table.header td {
+            padding: 0px;
+            font-size: 10pt;
+        }
+        table.footer td {
+            padding: 0;
+            font-size: 8pt;
+        }
+        table.itemtable th {
+            padding-bottom: 0px;
+            padding-top: 0px;
+        }
+        table.itemtable td {
+          font-size: 9pt;
+        }
+        table.body td {
+            padding-top: 0px;
+        }
+        table.total {
+            page-break-inside: avoid;
+        }
+      table.message{
+        border: 1px solid #dddddd;
+      }
+        tr.totalrow {
+            background-color: #e3e3e3;
+            line-height: 125%;
+        }
+      tr.messagerow{
+        font-size: 6pt;
+      }
+        td.totalboxtop {
+            font-size: 12pt;
+            background-color: #e3e3e3;
+        }
+        td.addressheader {
+            font-size: 12pt;
+            padding-top: 0px;
+            padding-bottom: 0px;
+        }
+        td.address {
+            padding-top: 0;
+        }
+        td.totalboxmid {
+            font-size: 28pt;
+            padding-top: 20px;
+            background-color: #e3e3e3;
+        }
+      td.message{
+        font-size: 6pt;
+        font-weight: bold;
+      }
+        td.totalboxbot {
+            background-color: #e3e3e3;
+            font-weight: bold;
+        }
+      td.itemtable {
+      white-space: pre;
+      }
+        span.title {
+            font-size: 28pt;
+        }
+        span.number {
+            font-size: 16pt;
+        }
+        span.itemname {
+            font-weight: bold;
+            line-height: 150%;
+        }
+        hr {
+            width: 100%;
+            color: #d3d3d3;
+            background-color: #d3d3d3;
+            height: 1px;
+        }
+</style>
+</head>
+<body header="nlheader" header-height="350px" footer="nlfooter" footer-height="50px" padding="0.2cm 0.5cm 0.2cm 0.5cm" size="A4">
+
+
+<#if record.apply?has_content>
+
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start apply sublist --><#list record.apply as apply><#if apply_index==0>
+<thead>
+    <tr>
+    <th align="left" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Invoice Date</th>
+    <th colspan="4" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${apply.refnum@label}</th>
+    <th align="right" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Invoice Total</th>
+    <th align="right" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${apply.due@label}</th>
+    <th align="right" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${apply.disc@label}</th>
+    <th align="right" colspan="4" style="font-size:px; background-color:#5b5c61; color:#ffffff; padding: 5px;">${apply.amount@label}</th>
+    </tr>
+</thead>
+</#if>
+  <tr>
+    <td align="left" colspan="3" line-height="150%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${apply.applydate?string["dd MMM yyyy"]}</td>
+    <td colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${apply.refnum}</td>
+    <td align="right" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${apply.total}</td>
+    <td align="right" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${apply.due}</td>
+    <td align="right" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${apply.disc}</td>
+    <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${apply.amount}</td>
+    </tr>
+    </#list><!-- end apply --></table>
+</#if>
+
+  <#if record.credit?has_content>
+<table class="itemtable" style="width: 100%; margin-top: 10px;"><!-- start credit sublist --><#list record.credit as credit>
+      <#if credit_index==0>
+<thead>
+    <tr>
+    <th align="left" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">Credit Date</th>
+    <th colspan="4" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${credit.refnum@label}</th>
+    <th align="right" colspan="3" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${credit.total@label}</th>
+    <th align="right" colspan="6" style="font-size:px; background-color:#5b5c61; color:#ffffff; border-right: 2px solid white; padding: 5px;">${credit.appliedto@label}</th>
+    <th align="right" colspan="4" style="font-size:px; background-color:#5b5c61; color:#ffffff;  padding: 5px;">${credit.amount@label}</th>
+    </tr>
+</thead>
+</#if>
+  <tr>
+    <td align="left" colspan="3" line-height="150%" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${credit.creditdate?string["dd MMM yyyy"]}</td>
+    <td colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${credit.refnum}</td>
+    <td align="right" colspan="3" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${credit.total}</td>
+    <td align="right" colspan="6" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-right: 2px solid white; padding: 5px;">${credit.appliedto}</td>
+    <td align="right" colspan="4" style="font-size:10px; background-color:#d6d6d7; color:#000000; padding: 5px;">${credit.amount}</td>
+    </tr>
+    </#list><!-- end credit--></table>
+
+</#if>
+<hr/>
+<table class="total" style="width: 100%;">
+  <tr>
+	<td align="left" colspan="3" style="padding: 5px; font-size: 9px; color: red;">&nbsp;</td>
+	<td align="left" style="font-size:10px; background-color:#5b5c61; color:#ffffff; border-bottom: 2px solid white; padding: 5px;">Total (${record.currency})</td>
+	<td align="right" style="font-size:10px; background-color:#d6d6d7; color:#000000; border-bottom: 2px solid white; padding: 5px;">${record.total}</td>
+	</tr>
+ </table>
+</body>
+</pdf>
