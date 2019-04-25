@@ -104,7 +104,8 @@ function scheduled(type)
 			   new nlobjSearchColumn("representingsubsidiary","vendor",null),
 			   new nlobjSearchColumn("internalid","customer",null), 
 			   new nlobjSearchColumn("internalid","vendor",null),
-			   new nlobjSearchColumn("custcol_cseg_sales_dept")
+			   new nlobjSearchColumn("custcol_cseg_sales_dept"),
+			   new nlobjSearchColumn("account")
 			]
 			);
 	
@@ -135,9 +136,10 @@ function scheduled(type)
 					var destinationMarket = transactionSearchResults[int].getValue("custcol_csegdm");
 					var sourceMarket = transactionSearchResults[int].getValue("custcol_csegsm");
 					var bookingReference = transactionSearchResults[int].getValue("custcol_csegbkref");
-					//var currency = transactionSearchResults[int].getValue("currency");
+					var originalCurrency = transactionSearchResults[int].getText("currency");
 					var exchangeRate = Number(transactionSearchResults[int].getValue("exchangerate"));
-					var amount = Math.abs(Number(transactionSearchResults[int].getValue("fxamount")));
+					//var amount = Math.abs(Number(transactionSearchResults[int].getValue("fxamount")));
+					var amount = Number(transactionSearchResults[int].getValue("fxamount"));
 					var transactionLineNo = Number(transactionSearchResults[int].getValue("line"));
 					var transactionId = transactionSearchResults[int].getId();
 					var transactionUniqueKey = transactionSearchResults[int].getValue("lineuniquekey");
@@ -147,6 +149,9 @@ function scheduled(type)
 					var custInternalId = transactionSearchResults[int].getValue("internalid","customer");
 					var suppInternalId = transactionSearchResults[int].getValue("internalid","vendor");
 					var salesDepartment = transactionSearchResults[int].getValue("custcol_cseg_sales_dept");
+					var originalAccount = transactionSearchResults[int].getValue("account");
+					
+					var originalCurrenyAmount = amount;
 					
 					amount = (amount * exchangeRate).round(2);
 					
@@ -221,11 +226,23 @@ function scheduled(type)
 							switch (transactionType)
 								{
 									case 'CustInvc':
-										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
-										
 										journalRecord.selectNewLineItem('line');
-										journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
-										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										//journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
+										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a debit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a credit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -235,11 +252,28 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.commitLineItem('line'); 
 										
+										
+										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
-										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -249,6 +283,8 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Invoice ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
 											{
@@ -260,10 +296,9 @@ function scheduled(type)
 										break;
 										
 									case 'VendBill':
-										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
-										
 										journalRecord.selectNewLineItem('line');
-										journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										//journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
 										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
@@ -273,8 +308,11 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.commitLineItem('line'); 
 										
+										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
 										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
@@ -286,22 +324,36 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Invoice ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
-										{
-											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
-										}
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
 										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
 										
 									case 'CustCred':
-										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
-										
 										journalRecord.selectNewLineItem('line');
-										journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
-										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										//journalRecord.setCurrentLineItemValue('line', 'account', deferredRevenueAcc);
+										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -311,11 +363,28 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.commitLineItem('line'); 
 										
+										
+										salesAcc = getSalesAccount(businessLine, custRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', salesAcc);
-										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+									
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -325,21 +394,22 @@ function scheduled(type)
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Credit Memo ' + documentNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', custInternalId);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_cseg_sales_dept', salesDepartment);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										
 										if(custRepresentingSubsidiary != null && custRepresentingSubsidiary != '')
-										{
-											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
-										}
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
 										
 										journalRecord.commitLineItem('line'); 
 										
 										break;
 										
 									case 'VendCred':
-										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
-										
 										journalRecord.selectNewLineItem('line');
-										journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										//journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
+										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
 										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
@@ -349,8 +419,11 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										journalRecord.commitLineItem('line'); 
 										
+										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
 										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
@@ -362,11 +435,13 @@ function scheduled(type)
 										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_originating_transaction', transactionId);
 										//journalRecord.setCurrentLineItemValue('line', 'memo', 'Supplier Credit ' + transactionNumber);
 										journalRecord.setCurrentLineItemValue('line', 'entity', suppInternalId);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_amo_for_cur_jour', originalCurrenyAmount);
+										journalRecord.setCurrentLineItemValue('line', 'custcol_bbs_orig_trans_curr', originalCurrency);
 										
 										if(suppRepresentingSubsidiary != null && suppRepresentingSubsidiary != '')
-										{
-											journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
-										}
+											{
+												journalRecord.setCurrentLineItemValue('line', 'eliminate', 'T');
+											}
 										
 										journalRecord.commitLineItem('line'); 
 										
