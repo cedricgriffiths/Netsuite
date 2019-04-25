@@ -77,6 +77,7 @@ function taskItemAS(type)
 					var itemAssetAccount = newRecord.getFieldValue('custevent_bbs_task_account_asset');
 					var itemPurchaseTaxCode = newRecord.getFieldValue('custevent_bbs_task_purch_tax_code');
 					var itemSalesTaxCode = newRecord.getFieldValue('custevent_bbs_task_sales_tax_code');
+					var itemPurchasePriceVariance = newRecord.getFieldValue('custevent_bbs_task_account_ppv');
 					
 					//See if this part number already exists
 					//
@@ -177,7 +178,8 @@ function taskItemAS(type)
 									itemRecord.setFieldValue('purchasetaxcode', itemPurchaseTaxCode);
 									itemRecord.setFieldValue('salestaxcode', itemSalesTaxCode);
 									itemRecord.setFieldValue('atpmethod', 'CUMULATIVE_ATP_WITH_LOOK_AHEAD');
-										
+									itemRecord.setFieldValue('purchasepricevarianceacct', itemPurchasePriceVariance);
+									
 									switch(itemCostingMethod)
 										{
 											case '1':
@@ -313,6 +315,7 @@ function taskItemAS(type)
 							try
 								{
 									nlapiSubmitField('task', newRecordId, 'custevent_bbs_task_item_error', errorText, false);
+									nlapiSubmitField('task', newRecordId, 'custevent_bbs_task_item_stage', '4', false); //Set status to Review: Engineering
 								}
 							catch(err)
 								{
