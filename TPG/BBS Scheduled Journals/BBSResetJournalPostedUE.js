@@ -17,7 +17,7 @@
  */
 function resetJournalPostedBL(type, form, request)
 {
-	if(type == 'copy')
+	if(type == 'copy' || type == 'create')
 		{
 			var lines = nlapiGetLineItemCount('item');
 			

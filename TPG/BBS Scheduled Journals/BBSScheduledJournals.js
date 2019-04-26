@@ -299,7 +299,21 @@ function scheduled(type)
 										journalRecord.selectNewLineItem('line');
 										//journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
 										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
-										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+										
+										//journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -315,7 +329,21 @@ function scheduled(type)
 										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
-										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a debit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a credit to the deferred revenue account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+										
+										//journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -345,13 +373,13 @@ function scheduled(type)
 											{
 												//If we have a positive amount then this goes as a credit to the deferred revenue account
 												//
-												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 											}
 										else
 											{
 												//If its negative, then it goes as a debit to the deferred revenue account
 												//
-												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
 											}
 										
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
@@ -376,13 +404,13 @@ function scheduled(type)
 											{
 												//If we have a positive amount then this goes as a debit to the sales account
 												//
-												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 											}
 										else
 											{
 												//If its negative, then it goes as a credit to the sales account
 												//
-												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
 											}
 									
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
@@ -410,7 +438,22 @@ function scheduled(type)
 										journalRecord.selectNewLineItem('line');
 										//journalRecord.setCurrentLineItemValue('line', 'account', deferredCostsAcc);
 										journalRecord.setCurrentLineItemValue('line', 'account', originalAccount);
-										journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', Math.abs(amount));
+											}
+									
+										
+										//journalRecord.setCurrentLineItemValue('line', 'debit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
@@ -426,7 +469,22 @@ function scheduled(type)
 										cogsAcc = getCogsAccount(businessLine, suppRepresentingSubsidiary);
 										journalRecord.selectNewLineItem('line');
 										journalRecord.setCurrentLineItemValue('line', 'account', cogsAcc);
-										journalRecord.setCurrentLineItemValue('line', 'credit', amount);
+										
+										if(amount >= 0)
+											{
+												//If we have a positive amount then this goes as a credit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'debit', amount);
+											}
+										else
+											{
+												//If its negative, then it goes as a debit to the sales account
+												//
+												journalRecord.setCurrentLineItemValue('line', 'credit', Math.abs(amount));
+											}
+								
+										
+										//journalRecord.setCurrentLineItemValue('line', 'credit', amount);
 										journalRecord.setCurrentLineItemValue('line', 'department', businessLine);
 										journalRecord.setCurrentLineItemValue('line', 'class', serviceType);
 										journalRecord.setCurrentLineItemValue('line', 'custcol_csegdm', destinationMarket);
