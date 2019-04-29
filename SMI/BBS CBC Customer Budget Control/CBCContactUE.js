@@ -26,7 +26,7 @@ function cbcContactAfterSubmit(type)
 			var companyId = newRecord.getFieldValue('company');
 			var budgetType = newRecord.getFieldValue('custentity_cbc_contact_budget_type');
 		
-			if(budgetType != '')
+			if(budgetType != '' && budgetType != null)
 				{
 					copyBudgetsFromCompany(contactId, companyId, budgetType);
 				}
