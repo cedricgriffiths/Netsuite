@@ -41,6 +41,8 @@ function statisticalJournalsAS(type)
 			var recordType = null;
 			var sublistName = null;
 			var originatingTransaction = null;
+			var transactionDate = null;
+			var postingPeriod = null;
 			
 			//Get info on the new version of the record
 			//
@@ -49,13 +51,12 @@ function statisticalJournalsAS(type)
 			recordId = newRecord.getId();
 			recordType = newRecord.getRecordType();
 			
-			//Get the subsidiary
+			//Get the subsidiary, originating transaction id etc
 			//
 			subsidiaryId = newRecord.getFieldValue('subsidiary');
-			
-			//Get the originating transaction id 
-			//
 			originatingTransaction = newRecord.getFieldValue('tranid');
+			transactionDate = newRecord.getFieldValue('trandate');
+			postingPeriod = newRecord.getFieldValue('postingperiod');
 			
 			//Journal record type
 			//
@@ -104,6 +105,8 @@ function statisticalJournalsAS(type)
 					statisticalJournal.setFieldValue('subsidiary', subsidiaryId);
 					statisticalJournal.setFieldValue('unitstype', '1');
 					statisticalJournal.setFieldValue('memo', originatingTransaction);
+					statisticalJournal.setFieldValue('trandate', transactionDate);
+					statisticalJournal.setFieldValue('postingperiod', postingPeriod);
 					
 					//Loop through the summary values
 					//
