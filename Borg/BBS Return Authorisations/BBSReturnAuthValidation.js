@@ -359,6 +359,8 @@ function getSalesOrderSerialNumbers(_orderId, _currentLineItemId)
 
 function getItemRecType(ItemType)
 {
+	//Translate the record type as returned from a saved search into a value that can be used in a lookup api
+	//
 	var itemType = '';
 	
 	switch(ItemType)
@@ -387,6 +389,8 @@ function getCurrentSerials(_lineNo)
 {
 	var returnedSerials = [];
 	
+	//If we have been given a line number, we need to select that line first
+	//
 	if(_lineNo != null)
 		{
 			nlapiSelectLineItem('item', _lineNo);
@@ -419,19 +423,21 @@ function getCurrentSerials(_lineNo)
 
 function displayValidSerialNumbers(_validSerialNumbers)
 {
+	//Show the contents of the valid serial numbers array as a string with each serial number on a new line
+	//
 	var _message = '';
 	
 	if(_validSerialNumbers.length > 0)
-	{
-		for (var int = 0; int < _validSerialNumbers.length; int++) 
-			{
-				_message += _validSerialNumbers[int] + '\n';
-			}
-	}
-else
-	{
-		_message += '<No valid serial numbers found>';
-	}
+		{
+			for (var int = 0; int < _validSerialNumbers.length; int++) 
+				{
+					_message += _validSerialNumbers[int] + '\n';
+				}
+		}
+	else
+		{
+			_message += '<No valid serial numbers found>';
+		}
 	
 	return _message;
 }
