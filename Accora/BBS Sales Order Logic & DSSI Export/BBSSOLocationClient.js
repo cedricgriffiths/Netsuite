@@ -15,19 +15,39 @@
  */
 function salesOrderLineInit(type) 
 {
-     var mainLocation = nlapiGetFieldValue('location');
+	var subsidiaryId = nlapiGetFieldValue('subsidiary');
+	var location_header_field = 'location';
+	var location_detail_field = 'location';
+	
+	if(subsidiaryId == '7')
+		{
+			location_header_field = 'custpage_subsid_location';
+			location_detail_field = 'inventorylocation';
+		}
+		
+     var mainLocation = nlapiGetFieldValue(location_header_field);
      
      if(mainLocation != null && mainLocation != '')
     	 {
-    	 	nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+    	 	nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
     	 }
 }
 
 function salesOrderFieldChanged(type, name, linenum)
 {
-	 if(type == null && name == 'location')
+	 if(type == null && (name == 'location' || name == 'custpage_subsid_location'))
 		 {
-		 	var mainLocation = nlapiGetFieldValue('location');
+		 	var subsidiaryId = nlapiGetFieldValue('subsidiary');
+			var location_header_field = 'location';
+			var location_detail_field = 'location';
+			
+			if(subsidiaryId == '7')
+				{
+					location_header_field = 'custpage_subsid_location';
+					location_detail_field = 'inventorylocation';
+				}
+				
+		 	var mainLocation = nlapiGetFieldValue(location_header_field);
 		 	
 		 	var lines = Number(nlapiGetLineItemCount('item'));
 		 	
@@ -36,7 +56,7 @@ function salesOrderFieldChanged(type, name, linenum)
 		 			for (var int = 1; int <= lines; int++) 
 			 			{
 							nlapiSelectLineItem('item', int);
-							nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+							nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
 							nlapiCommitLineItem('item');
 						}
 		 		}
@@ -53,15 +73,25 @@ function salesOrderFieldChanged(type, name, linenum)
  */
 function SalesOrderValidateLine(type)
 {
-	var mainLocation = nlapiGetFieldValue('location');
+	var subsidiaryId = nlapiGetFieldValue('subsidiary');
+	var location_header_field = 'location';
+	var location_detail_field = 'location';
+	
+	if(subsidiaryId == '7')
+		{
+			location_header_field = 'custpage_subsid_location';
+			location_detail_field = 'inventorylocation';
+		}
+	
+	var mainLocation = nlapiGetFieldValue(location_header_field);
     
-	var lineLocation = nlapiGetCurrentLineItemValue('item', 'location');
+	var lineLocation = nlapiGetCurrentLineItemValue('item', location_detail_field);
 	
 	if(lineLocation == null || lineLocation == '')
 		{
 			if(mainLocation != null && mainLocation != '')
 			   	 {
-			   	 	nlapiSetCurrentLineItemValue('item', 'location', mainLocation, true, true);
+			   	 	nlapiSetCurrentLineItemValue('item', location_detail_field, mainLocation, true, true);
 			   	 	return true;
 			   	 }
 			else
@@ -74,16 +104,5 @@ function SalesOrderValidateLine(type)
 		{
 			return true;
 		}
-	
-	/*
-	if(lineLocation == null || lineLocation == '')
-		{
-			alert("Please enter a value for location");
-			return false;
-		}
-	else
-		{
-			return true;
-		}
-		*/
+
 }
