@@ -45,6 +45,9 @@ function salesOrderFieldChanged(type, name, linenum)
 				{
 					location_header_field = 'custpage_subsid_location';
 					location_detail_field = 'inventorylocation';
+					
+					nlapiSetFieldValue('custbody3', nlapiGetFieldText(location_header_field), false, true);
+					
 				}
 				
 		 	var mainLocation = nlapiGetFieldValue(location_header_field);
