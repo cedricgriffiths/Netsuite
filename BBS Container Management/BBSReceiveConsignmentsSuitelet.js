@@ -384,10 +384,12 @@ function receiveConsignmentSuitelet(request, response){
 										}
 								}
 								
-								itemRecieptRecord.setLineItemValue('item', 'itemreceive', itemReceiptLineNo, 'T');
-								itemRecieptRecord.setLineItemValue('item', 'location', itemReceiptLineNo, consignmentLocation);
-								itemRecieptRecord.setLineItemValue('item', 'quantity', itemReceiptLineNo, consignmentReceived);
-								
+								if(itemReceiptLineNo != 0)
+									{
+										itemRecieptRecord.setLineItemValue('item', 'itemreceive', itemReceiptLineNo, 'T');
+										itemRecieptRecord.setLineItemValue('item', 'location', itemReceiptLineNo, consignmentLocation);
+										itemRecieptRecord.setLineItemValue('item', 'quantity', itemReceiptLineNo, consignmentReceived);
+									}
 								//itemRecieptRecord.setLineItemValue('item', 'itemreceive', poLine, 'T');
 								//itemRecieptRecord.setLineItemValue('item', 'location', poLine, consignmentLocation);
 								//itemRecieptRecord.setLineItemValue('item', 'quantity', poLine, consignmentReceived);
