@@ -109,3 +109,38 @@ function SalesOrderValidateLine(type)
 		}
 
 }
+
+/**
+ * The recordType (internal id) corresponds to the "Applied To" record in your script deployment. 
+ * @appliedtorecord recordType
+ *   
+ * @returns {Boolean} True to continue save, false to abort save
+ */
+function salesOrderSaveRecord()
+{
+	var validated = true;
+	
+	var subsidiaryId = nlapiGetFieldValue('subsidiary');
+	
+	if(subsidiaryId == '7')
+		{
+			var lines = Number(nlapiGetLineItemCount('item'));
+		 	
+		 	if(lines != 0)
+		 		{
+		 			for (var int = 1; int <= lines; int++) 
+			 			{
+		 					var inventoryLocation = nlapiGetLineItemValue('item', 'inventorylocation', int)
+							
+		 					if(inventoryLocation == null || inventoryLocation == '')
+		 						{
+		 							validated = false;
+		 							alert('Inventory Location is required for all item lines');
+		 							break;
+		 						}
+						}
+		 		}
+		}
+
+    return validated;
+}

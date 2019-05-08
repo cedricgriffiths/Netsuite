@@ -22,7 +22,7 @@ function qtyCheckFieldChanged(type, name, linenum)
 		{
 			var subsidiary = nlapiGetFieldValue('subsidiary');
 		
-			if(subsidiary == 5)
+			if(subsidiary == 5 || subsidiary == 7)
 				{
 					var itemId = nlapiGetCurrentLineItemValue('item', 'item');
 					var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
@@ -51,7 +51,7 @@ function qtyCheckValidateLine(type)
 	{
 		var subsidiary = nlapiGetFieldValue('subsidiary');
 		
-		if(subsidiary == 5)
+		if(subsidiary == 5 || subsidiary == 7)
 			{
 				var itemId = nlapiGetCurrentLineItemValue('item', 'item');
 				var itemType = nlapiGetCurrentLineItemValue('item', 'itemtype');
@@ -81,7 +81,7 @@ function qtyCheckSaveRecord()
 {
 	var subsidiary = nlapiGetFieldValue('subsidiary');
 	
-	if(subsidiary == 5)
+	if(subsidiary == 5 || subsidiary == 7)
 		{
 			var lines = nlapiGetLineItemCount('item');
 			var faults = false;
