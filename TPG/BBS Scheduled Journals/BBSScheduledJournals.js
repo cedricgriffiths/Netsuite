@@ -63,6 +63,21 @@ function scheduled(type)
 	//
 	var transactionSearch = nlapiCreateSearch("transaction",
 			[
+			   [
+			    	[["type","anyof","VendBill","VendCred","CustCred","CustInvc"],"AND",["mainline","is","F"],"AND",["taxline","is","F"],"AND",["shipping","is","F"],"AND",["cogs","is","F"],"AND",["custbodyoverhead","is","F"],"AND",["custcol_bbs_journal_posted","is","F"]],
+			    	"OR",
+			    	[["type","anyof","Journal"],"AND",["custcol_bbs_journal_posted","is","F"],"AND",["custbody_bbs_system_generated","is","F"]]
+			    ], 
+			   "AND", 
+			   ["custcol_csegbkref.custrecord_arrival_date","onorbefore","today"], 
+			   "AND", 
+			   ["custcol_csegbkref.custrecord_arrival_date","onorafter","01/01/2019"], 
+			   "AND", 
+			   ["account","anyof",deferredRevenueAcc,deferredCostsAcc]
+			],
+
+			/*
+			[
 			   ["type","anyof","VendCred","VendBill","CustInvc","CustCred"], 
 			   "AND", 
 			   ["mainline","is","F"], 
@@ -83,7 +98,8 @@ function scheduled(type)
 			   "AND", 
 			   ["account","anyof",deferredRevenueAcc,deferredCostsAcc] //,openingBalancesAcc]
 			   
-			], 
+			], */
+			
 			[
 			   new nlobjSearchColumn("tranid").setSort(false), 
 			   new nlobjSearchColumn("transactionnumber"), 
@@ -578,7 +594,23 @@ function saveJournal(_journalRecord, _transactionType, _transactionNumber, _uniq
 				{
 					var transactionItemLines = sourceTransactionRecord.getLineItemCount('item');
 					var transactionExpenseLines = sourceTransactionRecord.getLineItemCount('expense');
-				
+					var transactionJournalLines = sourceTransactionRecord.getLineItemCount('line');
+					
+					//Loop through the journal lines
+					//
+					if(transactionJournalLines != null && transactionJournalLines != '')
+						{
+							for (var int2 = 1; int2 <= transactionJournalLines; int2++) 
+								{
+									var lineUniqueKey = sourceTransactionRecord.getLineItemValue('line', 'lineuniquekey', int2);
+									
+									if(_uniqueLineIds[lineUniqueKey])
+										{
+											sourceTransactionRecord.setLineItemValue('line', 'custcol_bbs_journal_posted', int2, 'T');
+										}
+								}
+						}
+					
 					//Loop through the item lines
 					//
 					if(transactionItemLines != null && transactionItemLines != '')
@@ -640,6 +672,11 @@ function translateType(_transactionType)
 	
 	switch(_transactionType)
 		{
+			case 'Journal':
+				
+				realTransactionType = 'journalentry';
+				break;
+			
 			case 'CustInvc':
 				
 				realTransactionType = 'invoice';
