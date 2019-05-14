@@ -21,7 +21,7 @@ function statisticalJournalsAS(type)
 {
 	//Only interested in create or edit mode
 	//
-	if(type == 'create' || type == 'edit')
+	if(type == 'create' || type == 'edit' || type == 'delete')
 		{
 			//Get the parameters
 			//
@@ -44,19 +44,45 @@ function statisticalJournalsAS(type)
 			var transactionDate = null;
 			var postingPeriod = null;
 			
+			if(type == 'edit' || type == 'delete')
+				{
+					oldRecord = nlapiGetOldRecord();
+				}
+			
+			if(type == 'create' || type == 'edit')
+				{
+					newRecord = nlapiGetNewRecord();
+				}
+			
 			//Get info on the new version of the record
 			//
-			newRecord = nlapiGetNewRecord();
-			recordType = newRecord.getRecordType();
-			recordId = newRecord.getId();
-			recordType = newRecord.getRecordType();
+			if(type == 'delete')
+				{
+					recordType = oldRecord.getRecordType();
+					recordId = oldRecord.getId();
+				}
+			else
+				{
+					recordType = newRecord.getRecordType();
+					recordId = newRecord.getId();
+				}
 			
 			//Get the subsidiary, originating transaction id etc
 			//
-			subsidiaryId = newRecord.getFieldValue('subsidiary');
-			originatingTransaction = newRecord.getFieldValue('tranid');
-			transactionDate = newRecord.getFieldValue('trandate');
-			postingPeriod = newRecord.getFieldValue('postingperiod');
+			if(type == 'delete')
+				{
+					subsidiaryId = oldRecord.getFieldValue('subsidiary');
+					originatingTransaction = oldRecord.getFieldValue('tranid');
+					transactionDate = oldRecord.getFieldValue('trandate');
+					postingPeriod = oldRecord.getFieldValue('postingperiod');
+				}
+			else
+				{
+					subsidiaryId = newRecord.getFieldValue('subsidiary');
+					originatingTransaction = newRecord.getFieldValue('tranid');
+					transactionDate = newRecord.getFieldValue('trandate');
+					postingPeriod = newRecord.getFieldValue('postingperiod');
+				}
 			
 			//Journal record type
 			//
@@ -66,19 +92,29 @@ function statisticalJournalsAS(type)
 				}
 			else
 				{
-					entityId = newRecord.getFieldValue('entity');
+					if(type == 'delete')
+						{
+							entityId = oldRecord.getFieldValue('entity');
+						}
+					else
+						{
+							entityId = newRecord.getFieldValue('entity');
+						}
+					
 					sublistName = 'item';
 				}
 			
 			//Get the summary values from the new version of the record
 			//
-			getSummaryValues(newRecord, 'N', summaryValues, sublistName);
-			
-			//If in edit mode we need to get the old version of the record
-			//
-			if(type == 'edit')
+			if(type != 'delete')
 				{
-					oldRecord = nlapiGetOldRecord();
+					getSummaryValues(newRecord, 'N', summaryValues, sublistName);
+				}
+			
+			//If in edit or delete mode we need to get the old version of the record
+			//
+			if(type == 'edit' || type == 'delete')
+				{
 					getSummaryValues(oldRecord, 'O', summaryValues, sublistName);
 				}
 		
