@@ -309,116 +309,147 @@ function receiveConsignmentSuitelet(request, response){
 					
 					//Create a new fulfilment for each po, we do this by transforming the po into a fulfilment
 					//
-					var itemRecieptRecord = nlapiTransformRecord('purchaseorder', purchaseOrderId, 'itemreceipt', {recordmode: 'dynamic'});
-					itemRecieptRecord.setFieldValue('landedcostperline', 'T');
+					var itemRecieptRecord = null;
 					
-					var itemReceiptLines = itemRecieptRecord.getLineItemCount('item');
+					try
+						{
+							itemRecieptRecord = nlapiTransformRecord('purchaseorder', purchaseOrderId, 'itemreceipt', {recordmode: 'dynamic'});
+						}
+					catch(err)
+						{
+							itemRecieptRecord = null;
+						}
 					
-					//First set all the lines on the receipt to be not received
-					//
-					var receiptLineCount = itemRecieptRecord.getLineItemCount('item');
-					
-					for (var int3 = 1; int3 <= receiptLineCount; int3++) 
-					{
-						itemRecieptRecord.setLineItemValue('item', 'itemreceive', int3, 'F');
-					}
-
-					//Load up the original po record
-					//
-					poRecord = nlapiLoadRecord('purchaseorder', purchaseOrderId);
-					
-					//Get the po/line data for this po
-					//
-					var poData = purchaseOrdersArray[purchaseOrderId];
-					
-					//Loop round each of the pos/lines for this po
-					//
-					for (var int2 = 0; int2 < poData.length; int2++) 
-					{
-						var poAndLine = poData[int2];
-						
-						//Split the PO & line number out
-						//
-						var poAndLineArray = poAndLine.split('|');
-						var poId = poAndLineArray[0];
-						var poLine = poAndLineArray[1];
-						var consignmentSublistLine = poAndLineArray[2];
-						var consignmentLocation = poAndLineArray[3];
-						var consignmentReceived = poAndLineArray[4];
-						
-						if (consignmentLocation == '')
-							{
-							consignmentLocation = itemReceiptLoc;
-							}
-						
-						//Update the lines with the receipt value, location etc.
-						//
-						if(Number(consignmentReceived) > 0)
-							{
-								//Get the actual line number from the item sublist on the po
-								//
-								//var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
-								var actualPoLineNo = poLine;
-								var poSublistLine = libFindLine(poRecord, 'item', poLine);
-								
-								//Update the po line to reduce the on consignment quantity
-								//
-								var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine));
-								onConsignment = onConsignment - Number(consignmentReceived);
-								
-								poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine, onConsignment);
-								
-								//Now find the corresponding line no in the item receipt record
-								//
-								var itemReceiptLineNo = Number(0);
-								for (var int4 = 1; int4 <= itemReceiptLines; int4++) 
+					if(itemRecieptRecord != null)
+						{
+							itemRecieptRecord.setFieldValue('landedcostperline', 'T');
+							
+							var itemReceiptLines = itemRecieptRecord.getLineItemCount('item');
+							
+							//First set all the lines on the receipt to be not received
+							//
+							var receiptLineCount = itemRecieptRecord.getLineItemCount('item');
+							
+							for (var int3 = 1; int3 <= receiptLineCount; int3++) 
 								{
-									var thisItemReceiptLineNo = itemRecieptRecord.getLineItemValue('item', 'line', int4);
-									if(thisItemReceiptLineNo == actualPoLineNo)
+									itemRecieptRecord.setLineItemValue('item', 'itemreceive', int3, 'F');
+								}
+		
+							//Load up the original po record
+							//
+							poRecord = nlapiLoadRecord('purchaseorder', purchaseOrderId);
+							
+							//Get the po/line data for this po
+							//
+							var poData = purchaseOrdersArray[purchaseOrderId];
+							
+							//Loop round each of the pos/lines for this po
+							//
+							for (var int2 = 0; int2 < poData.length; int2++) 
+								{
+									var poAndLine = poData[int2];
+									
+									//Split the PO & line number out
+									//
+									var poAndLineArray = poAndLine.split('|');
+									var poId = poAndLineArray[0];
+									var poLine = poAndLineArray[1];
+									var consignmentSublistLine = poAndLineArray[2];
+									var consignmentLocation = poAndLineArray[3];
+									var consignmentReceived = poAndLineArray[4];
+									
+									if (consignmentLocation == '')
 										{
-											itemReceiptLineNo = int4;
-											break;
+											consignmentLocation = itemReceiptLoc;
+										}
+									
+									//Update the lines with the receipt value, location etc.
+									//
+									if(Number(consignmentReceived) > 0)
+										{
+											//Get the actual line number from the item sublist on the po
+											//
+											//var actualPoLineNo = poRecord.getLineItemValue('item', 'line', poLine);
+											var actualPoLineNo = poLine;
+											var poSublistLine = libFindLine(poRecord, 'item', poLine);
+											
+											//Update the po line to reduce the on consignment quantity
+											//
+											var onConsignment = Number(poRecord.getLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine));
+											onConsignment = onConsignment - Number(consignmentReceived);
+											
+											poRecord.setLineItemValue('item', 'custcol_bbs_consignment_allocated', poSublistLine, onConsignment);
+											
+											//Now find the corresponding line no in the item receipt record
+											//
+											var itemReceiptLineNo = Number(0);
+											
+											for (var int4 = 1; int4 <= itemReceiptLines; int4++) 
+												{
+													var thisItemReceiptLineNo = itemRecieptRecord.getLineItemValue('item', 'line', int4);
+													if(thisItemReceiptLineNo == actualPoLineNo)
+														{
+															itemReceiptLineNo = int4;
+															break;
+														}
+												}
+											
+											if(itemReceiptLineNo != 0)
+												{
+													itemRecieptRecord.setLineItemValue('item', 'itemreceive', itemReceiptLineNo, 'T');
+													itemRecieptRecord.setLineItemValue('item', 'location', itemReceiptLineNo, consignmentLocation);
+													itemRecieptRecord.setLineItemValue('item', 'quantity', itemReceiptLineNo, consignmentReceived);
+												}
+											//itemRecieptRecord.setLineItemValue('item', 'itemreceive', poLine, 'T');
+											//itemRecieptRecord.setLineItemValue('item', 'location', poLine, consignmentLocation);
+											//itemRecieptRecord.setLineItemValue('item', 'quantity', poLine, consignmentReceived);
 										}
 								}
-								
-								if(itemReceiptLineNo != 0)
-									{
-										itemRecieptRecord.setLineItemValue('item', 'itemreceive', itemReceiptLineNo, 'T');
-										itemRecieptRecord.setLineItemValue('item', 'location', itemReceiptLineNo, consignmentLocation);
-										itemRecieptRecord.setLineItemValue('item', 'quantity', itemReceiptLineNo, consignmentReceived);
-									}
-								//itemRecieptRecord.setLineItemValue('item', 'itemreceive', poLine, 'T');
-								//itemRecieptRecord.setLineItemValue('item', 'location', poLine, consignmentLocation);
-								//itemRecieptRecord.setLineItemValue('item', 'quantity', poLine, consignmentReceived);
-							}
-					}
-					
-					//Save the po record
-					//
-					nlapiSubmitRecord(poRecord, false, true);
-					
-					//Save the item receipt
-					//
-					var itemReceiptId = nlapiSubmitRecord(itemRecieptRecord, true, false);
-					
-					//Update the consignment detail sublist with the item receipt id
-					//
-					for (var int2 = 0; int2 < poData.length; int2++) 
-					{
-						var poAndLine = poData[int2];
-						var poAndLineArray = poAndLine.split('|');
-						
-						//Split the consignment sublist line out
-						//
-						var consignmentSublistLine = poAndLineArray[2];
-						var consignmentReceived = poAndLineArray[4];
-						
-						//Update the sublist line
-						//
-						consignmentRecord.setLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_cons_det_item_receipt', consignmentSublistLine, itemReceiptId);
-						consignmentRecord.setLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_received', consignmentSublistLine, consignmentReceived);
-						
-					}
+							
+							//Save the po record
+							//
+							try
+								{
+									nlapiSubmitRecord(poRecord, false, true);
+								}
+							catch(err)
+								{
+									nlapiLogExecution('ERROR', 'Error saving PO record', err.message);
+								}
+							
+							//Save the item receipt
+							//
+							var itemReceiptId = null;
+							
+							try
+								{
+									itemReceiptId = nlapiSubmitRecord(itemRecieptRecord, true, false);
+								}
+							catch(err)
+								{
+									itemReceiptId = null;
+									nlapiLogExecution('ERROR', 'Error saving Item Receipt record', err.message);
+								}
+							
+							//Update the consignment detail sublist with the item receipt id
+							//
+							for (var int2 = 0; int2 < poData.length; int2++) 
+								{
+									var poAndLine = poData[int2];
+									var poAndLineArray = poAndLine.split('|');
+									
+									//Split the consignment sublist line out
+									//
+									var consignmentSublistLine = poAndLineArray[2];
+									var consignmentReceived = poAndLineArray[4];
+									
+									//Update the sublist line
+									//
+									consignmentRecord.setLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_cons_det_item_receipt', consignmentSublistLine, itemReceiptId);
+									consignmentRecord.setLineItemValue('recmachcustrecord_bbs_consignment_header_id', 'custrecord_bbs_con_det_received', consignmentSublistLine, consignmentReceived);
+									
+								}
+						}
 				}
 				
 				//Mark consignment as received & update actual arrival date
@@ -428,7 +459,14 @@ function receiveConsignmentSuitelet(request, response){
 				
 				//Save the consignment record
 				//
-				nlapiSubmitRecord(consignmentRecord, false, true);
+				try
+					{
+						nlapiSubmitRecord(consignmentRecord, false, true);
+					}
+				catch(err)
+					{
+						nlapiLogExecution('ERROR', 'Error saving Item Consignment record', err.message);
+					}
 				
 				//Back out the inventory adjustment that we used while the goods were in transit
 				//
