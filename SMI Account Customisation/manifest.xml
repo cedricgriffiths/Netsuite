@@ -1,0 +1,25 @@
+<manifest projecttype="ACCOUNTCUSTOMIZATION">
+  <projectname>SMI Account Customisation</projectname>
+  <frameworkversion>1.0</frameworkversion>
+  <dependencies>
+    <features>
+      <feature required="true">CUSTOMRECORDS</feature>
+      <feature required="false">EXTREMELIST</feature>
+      <feature required="false">ADVRECEIVING</feature>
+      <feature required="false">ASSEMBLIES</feature>
+      <feature required="false">INVENTORY</feature>
+      <feature required="false">PAYABLES</feature>
+      <feature required="false">RECEIVABLES</feature>
+      <feature required="false">MAILMERGE</feature>
+      <feature required="false">MULTILOCINVT</feature>
+      <feature required="false">OPPORTUNITIES</feature>
+      <feature required="false">ACCOUNTING</feature>
+      <feature required="false">MATRIXITEMS</feature>
+      <feature required="false">WORKORDERS</feature>
+    </features>
+    <objects>
+
+    </objects>
+    <applications/>
+  </dependencies>
+</manifest>

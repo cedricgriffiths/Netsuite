@@ -1,0 +1,24 @@
+<customlist scriptid="customlist_bbs_commitment_status">
+  <description></description>
+  <isinactive>F</isinactive>
+  <ismatrixoption>F</ismatrixoption>
+  <isordered>T</isordered>
+  <name>Commitment Status</name>
+  <customvalues>
+    <customvalue scriptid="val_3357470_3865332_sb1_858">
+      <abbreviation>N</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Not Fully Committed</value>
+    </customvalue>
+    <customvalue scriptid="val_3357471_3865332_sb1_798">
+      <abbreviation>F</abbreviation>
+      <isinactive>F</isinactive>
+      <value>Fully Committed</value>
+    </customvalue>
+    <customvalue scriptid="val_109580_3865332_436">
+      <abbreviation>N</abbreviation>
+      <isinactive>F</isinactive>
+      <value>No Commitment</value>
+    </customvalue>
+  </customvalues>
+</customlist>
